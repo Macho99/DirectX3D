@@ -35,12 +35,52 @@ struct MaterialDesc
 };
 
 // Bone
-#define MAX_BONE_TRANSFORMS 50
+#define MAX_MODEL_TRANSFORMS 250
+#define MAX_MODEL_KEYFRAMES 500
 struct BoneDesc
 {
-	Matrix transforms[MAX_BONE_TRANSFORMS];
+	Matrix transforms[MAX_MODEL_TRANSFORMS];
 };
 
+// Animation
+struct KeyframeDesc
+{
+	int32 animIndex = 0;
+	uint32 curFrame = 0;
+
+	// TODO
+	uint32 nextFrame = 0;
+	float ratio = 0.f;
+	float sumTime = 0.f;
+	float speed = 1.f;
+	Vec2 padding;
+};
+
+struct TweenDesc
+{
+	TweenDesc()
+	{
+		cur.animIndex = 0;
+		next.animIndex = -1;
+	}
+
+	void ClearNextAnim()
+	{
+		next.animIndex = -1;
+		next.curFrame = 0;
+		next.nextFrame = 0;
+		next.sumTime = 0;
+		tweenSumTime = 0.f;
+		tweenRatio = 0.f;
+	}
+
+	float tweenDuration = 1.0f;
+	float tweenRatio = 0.f;
+	float tweenSumTime = 0.f;
+	float padding = 0.f;
+	KeyframeDesc cur;
+	KeyframeDesc next;
+};
 
 class RenderManager
 {
@@ -55,6 +95,8 @@ public:
 	void PushLightData(const LightDesc& desc);
 	void PushMaterialData(const MaterialDesc& desc);
 	void PushBoneData(const BoneDesc& desc);
+	void PushKeyframeData(const KeyframeDesc& desc);
+	void PushTweenData(const TweenDesc& desc);
 
 private:
 	shared_ptr<Shader> _shader;
@@ -78,5 +120,13 @@ private:
 	BoneDesc _boneDesc;
 	shared_ptr<ConstantBuffer<BoneDesc>> _boneBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _boneEffectBuffer;
+
+	KeyframeDesc _keyframeDesc;
+	shared_ptr<ConstantBuffer<KeyframeDesc>> _keyframeBuffer;
+	ComPtr<ID3DX11EffectConstantBuffer> _keyframeEffectBuffer;
+
+	TweenDesc _tweenDesc;
+	shared_ptr<ConstantBuffer<TweenDesc>> _tweenBuffer;
+	ComPtr<ID3DX11EffectConstantBuffer> _tweenEffectBuffer;
 };
 

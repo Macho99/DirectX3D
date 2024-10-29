@@ -100,3 +100,33 @@ struct asBoneWeights
 		return blendWeights;
 	}
 };
+
+struct asKeyframeData
+{
+	float time;
+	Vec3 scale;
+	Quaternion rotation;
+	Vec3 translation;
+};
+
+struct asKeyframe
+{
+	string boneName;
+	vector<asKeyframeData> transforms;
+};
+
+struct asAnimation
+{
+	string name;
+	uint32 frameCount;
+	float frameRate;
+	float duration;
+	vector<shared_ptr<asKeyframe>> keyframes;
+};
+
+// Cache
+struct asAnimationNode
+{
+	aiString name;
+	vector<asKeyframeData> keyframe;
+};

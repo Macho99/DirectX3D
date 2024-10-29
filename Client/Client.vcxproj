@@ -19,51 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="02. QuadDemo.h" />
-    <ClInclude Include="03. ConstantBufferDemo.h" />
-    <ClInclude Include="04. CameraDemo.h" />
-    <ClInclude Include="05. TextureDemo.h" />
-    <ClInclude Include="06. HeightMapDemo.h" />
-    <ClInclude Include="07. NormalDemo.h" />
-    <ClInclude Include="08. MeshDemo.h" />
-    <ClInclude Include="09. GlobalTestDemo.h" />
-    <ClInclude Include="10. DepthStencilDemo.h" />
-    <ClInclude Include="11. AmbientDemo.h" />
-    <ClInclude Include="12. DiffuseDemo.h" />
-    <ClInclude Include="13. SpecularDemo.h" />
-    <ClInclude Include="14. EmissiveDemo.h" />
-    <ClInclude Include="15. LightingDemo.h" />
-    <ClInclude Include="16. MaterialDemo.h" />
-    <ClInclude Include="17. NormalMappingDemo.h" />
+    <ClInclude Include="18. InstancingDemo.h" />
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="01. TriangleDemo.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="02. QuadDemo.cpp" />
-    <ClCompile Include="03. ConstantBufferDemo.cpp" />
-    <ClCompile Include="04. CameraDemo.cpp" />
-    <ClCompile Include="05. TextureDemo.cpp" />
-    <ClCompile Include="06. HeightMapDemo.cpp" />
-    <ClCompile Include="07. NormalDemo.cpp" />
-    <ClCompile Include="08. MeshDemo.cpp" />
-    <ClCompile Include="09. GlobalTestDemo.cpp" />
-    <ClCompile Include="10. DepthStencilDemo.cpp" />
-    <ClCompile Include="11. AmbientDemo.cpp" />
-    <ClCompile Include="12. DiffuseDemo.cpp" />
-    <ClCompile Include="13. SpecularDemo.cpp" />
-    <ClCompile Include="14. EmissiveDemo.cpp" />
-    <ClCompile Include="15. LightingDemo.cpp" />
-    <ClCompile Include="16. MaterialDemo.cpp" />
-    <ClCompile Include="17. NormalMappingDemo.cpp" />
+    <ClCompile Include="18. InstancingDemo.cpp" />
     <ClCompile Include="CameraMove.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="01. TriangleDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shaders\00. Global.fx" />
@@ -91,6 +59,10 @@
     <FxCompile Include="..\Shaders\12. Lighting.fx" />
     <FxCompile Include="..\Shaders\13. NormalMapping.fx" />
     <FxCompile Include="..\Shaders\14. ModelDemo.fx" />
+    <FxCompile Include="..\Shaders\15. AnimationDemo.fx" />
+    <FxCompile Include="..\Shaders\16. TweenDemo.fx" />
+    <FxCompile Include="..\Shaders\17. SkyBoxDemo.fx" />
+    <FxCompile Include="..\Shaders\18. InstancingDemo.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

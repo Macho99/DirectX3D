@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Main.h"
 #include "Engine/Game.h"
-#include "AssimpTool.h"
+#include "SkyBoxDemo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.width = 800;
 	desc.height = 600;
 	desc.clearColor = Color(0.0f, 0.0f, 0.0f, 1.f);
-	desc.app = make_shared<AssimpTool>();
+	desc.app = make_shared<SkyBoxDemo>();
 
 	GAME->Run(desc);
 

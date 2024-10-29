@@ -16,45 +16,28 @@ MeshRenderer::~MeshRenderer()
 
 }
 
-//void MeshRenderer::Update()
-//{
-//	if (_mesh == nullptr || _texture == nullptr || _shader == nullptr)
-//		return;
-//
-//	_shader->GetSRV("DiffuseMap")->SetResource(_texture->GetComPtr().Get());
-//
-//
-//	auto world = GetTransform()->GetWorldMatrix();
-//	RENDER->PushTransformData(TransformDesc{ world });
-//
-//	uint32 stride = _mesh->GetVertexBuffer()->GetStride();
-//	uint32 offset = _mesh->GetVertexBuffer()->GetOffset();
-//
-//	DC->IASetVertexBuffers(0, 1, _mesh->GetVertexBuffer()->GetComPtr().GetAddressOf(), &stride, &offset);
-//	DC->IASetIndexBuffer(_mesh->GetIndexBuffer()->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
-//
-//	_shader->DrawIndexed(0, 0, _mesh->GetIndexBuffer()->GetCount(), 0, 0);
-//}
-
-void MeshRenderer::Update()
+void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 {
 	if (_mesh == nullptr || _material == nullptr)
 		return;
 
-	shared_ptr<Shader> shader = _material->GetShader();
+	auto shader = _material->GetShader();
 	if (shader == nullptr)
 		return;
 
+	// Light
 	_material->Update();
 
-	auto world = GetTransform()->GetWorldMatrix();
-	RENDER->PushTransformData(TransformDesc{ world });
+	_mesh->GetVertexBuffer()->PushData();
+	_mesh->GetIndexBuffer()->PushData();
 
-	uint32 stride = _mesh->GetVertexBuffer()->GetStride();
-	uint32 offset = _mesh->GetVertexBuffer()->GetOffset();
+	buffer->PushData();
 
-	DC->IASetVertexBuffers(0, 1, _mesh->GetVertexBuffer()->GetComPtr().GetAddressOf(), &stride, &offset);
-	DC->IASetIndexBuffer(_mesh->GetIndexBuffer()->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
+	shader->DrawIndexedInstanced(0, _pass, _mesh->GetIndexBuffer()->GetCount(),
+		buffer->GetCount());
+}
 
-	shader->DrawIndexed(0, 0, _mesh->GetIndexBuffer()->GetCount(), 0, 0);
+InstanceID MeshRenderer::GetInstanceID()
+{
+	return make_pair((uint64)_mesh.get(), (uint64)_material.get());
 }

@@ -188,10 +188,14 @@ xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"</
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="InstancingBuffer.h" />
+    <ClInclude Include="InstancingManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelAnimation.h" />
+    <ClInclude Include="ModelAnimator.h" />
     <ClInclude Include="ModelMesh.h" />
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="MonoBehaviour.h" />
@@ -257,10 +261,14 @@ xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"</
     </ClCompile>
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="InstancingBuffer.cpp" />
+    <ClCompile Include="InstancingManager.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelAnimation.cpp" />
+    <ClCompile Include="ModelAnimator.cpp" />
     <ClCompile Include="ModelMesh.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="MonoBehaviour.cpp" />
