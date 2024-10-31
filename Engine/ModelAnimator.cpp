@@ -206,6 +206,15 @@ void ModelAnimator::SetModel(shared_ptr<Model> model)
 	}
 }
 
+void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
+{
+}
+
+InstanceID ModelAnimator::GetInstanceID()
+{
+	return make_pair((uint64)_model.get(), (uint64)_shader.get());
+}
+
 void ModelAnimator::CreateTexture()
 {
 	if (_model->GetAnimationCount() == 0)

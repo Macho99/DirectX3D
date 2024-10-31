@@ -26,32 +26,22 @@ void InstancingDemo::Init()
 	_camera->AddComponent(make_shared<Camera>());
 	_camera->AddComponent(make_shared<CameraMove>());
 
-	// Material
-	{
-		shared_ptr<Material> material = make_shared<Material>();
-		material->SetShader(_shader);
-		auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
-		material->SetDiffuseMap(texture);
-		MaterialDesc& desc = material->GetMaterialDesc();
-		desc.ambient = Vec4(1.f);
-		desc.diffuse = Vec4(1.f);
-		desc.specular = Vec4(1.f);
-		RESOURCES->Add(L"Veigar", material);
-	}
+	shared_ptr<Model> m1 = make_shared<Model>();
+	m1->ReadModel(L"Kachujin/Kachujin");
+	m1->ReadMaterial(L"Kachujin/Kachujin");
+	m1->ReadAnimation(L"Kachujin/Idle");
+	m1->ReadAnimation(L"Kachujin/Run");
+	m1->ReadAnimation(L"Kachujin/Slash");
 
 	for (int32 i = 0; i < 500; i++)
 	{
 		auto obj = make_shared<GameObject>();
 		obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-		obj->AddComponent(make_shared<MeshRenderer>());
+		obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+		obj->AddComponent(make_shared<ModelAnimator>(_shader));
 		{
-			obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
+			obj->GetModelAnimator()->SetModel(m1);
 		}
-		{
-			auto mesh = RESOURCES->Get<Mesh>(L"Sphere");
-			obj->GetMeshRenderer()->SetMesh(mesh);
-		}
-
 		_objs.push_back(obj);
 	}
 
