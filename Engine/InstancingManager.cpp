@@ -119,6 +119,7 @@ void InstancingManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameO
 
 	for (auto& pair : cache)
 	{
+		shared_ptr<InstancedTweenDesc> tweenDesc = make_shared<InstancedTweenDesc>();
 		const vector<shared_ptr<GameObject>>& vec = pair.second;
 
 		/*if (vec.size() == 1)
@@ -136,10 +137,15 @@ void InstancingManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameO
 				data.world = gameObject->GetTransform()->GetWorldMatrix();
 
 				AddData(instanceId, data);
+
+				gameObject->GetModelAnimator()->UpdateTweenData();
+				TweenDesc& desc = gameObject->GetModelAnimator()->GetTweenDesc();
+				tweenDesc->tweens[i] = desc;
 			}
 
+			RENDER->PushTweenData(*tweenDesc.get());
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetModelRenderer()->RenderInstancing(buffer);
+			vec[0]->GetModelAnimator()->RenderInstancing(buffer);
 		}
 	}
 }

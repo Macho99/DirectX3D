@@ -8,191 +8,19 @@
 ModelAnimator::ModelAnimator(shared_ptr<Shader> shader)
 	: Super(ComponentType::Animator), _shader(shader)
 {
+	// TEST
+	_tweenDesc.next.animIndex = rand() % 3;
+	_tweenDesc.tweenSumTime += rand();
+	_tweenDesc.next.speed = (rand() % 50) / 10.0f + 1.0f;
 }
 
 ModelAnimator::~ModelAnimator()
 {
 }
 
-//void ModelAnimator::Update()
-//{
-//	if (_model == nullptr)
-//		return;
-//
-//	if (_texture == nullptr)
-//		CreateTexture();
-//
-//	_keyframeDesc.sumTime += DT;
-//
-//	shared_ptr<ModelAnimation> current = _model->GetAnimationByIndex(_keyframeDesc.animIndex);
-//	if (current)
-//	{
-//		float timePerFrame = 1 / (current->frameRate * _keyframeDesc.speed);
-//		if (_keyframeDesc.sumTime >= timePerFrame)
-//		{
-//			_keyframeDesc.sumTime = 0.f;
-//			_keyframeDesc.curFrame = (_keyframeDesc.curFrame + 1) % current->frameCount;
-//			_keyframeDesc.nexFrame = (_keyframeDesc.curFrame + 1) % current->frameCount;
-//		}
-//
-//		_keyframeDesc.ratio = (_keyframeDesc.sumTime / timePerFrame);
-//	}
-//
-//	// Anim Update
-//	ImGui::InputInt("AnimIndex", &_keyframeDesc.animIndex);
-//	_keyframeDesc.animIndex %= _model->GetAnimationCount();
-//	ImGui::InputInt("CurFrame", (int*)&_keyframeDesc.curFrame);
-//	_keyframeDesc.curFrame %= _model->GetAnimationByIndex(_keyframeDesc.animIndex)->frameCount;
-//	ImGui::InputFloat("Speed", &_keyframeDesc.speed, 0.5f, 4.f);
-//
-//	// 애니메이션 현재 프레임 정보
-//	RENDER->PushKeyframeData(_keyframeDesc);
-//
-//	// SRV를 통해 정보 전달
-//	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
-//
-//	// Bone
-//	BoneDesc boneDesc;
-//
-//	const uint32 boneCount = _model->GetBoneCount();
-//	for (uint32 i = 0; i < boneCount; i++)
-//	{
-//		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
-//		boneDesc.transforms[i] = bone->transform;
-//	}
-//	RENDER->PushBoneData(boneDesc);
-//
-//	Matrix world = GetTransform()->GetWorldMatrix();
-//	RENDER->PushTransformData(TransformDesc{ world });
-//
-//	const auto& meshes = _model->GetMeshes();
-//	for (auto& mesh : meshes)
-//	{
-//		if (mesh->material)
-//			mesh->material->Update();
-//
-//		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
-//
-//		uint32 stride = mesh->vertexBuffer->GetStride();
-//		uint32 offset = mesh->vertexBuffer->GetOffset();
-//
-//		DC->IASetVertexBuffers(0, 1, mesh->vertexBuffer->GetComPtr().GetAddressOf(), &stride, &offset);
-//		DC->IASetIndexBuffer(mesh->indexBuffer->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
-//
-//		_shader->DrawIndexed(0, _pass, mesh->indexBuffer->GetCount(), 0, 0);
-//	}
-//}
-
 void ModelAnimator::Update()
 {
-	if (_model == nullptr)
-		return;
-
-	if (_texture == nullptr)
-		CreateTexture();
-
-	TweenDesc& desc = _tweenDesc;
-
-	desc.cur.sumTime += DT;
-	// 현재 애니메이션
-	{
-		shared_ptr<ModelAnimation> currentAnim = _model->GetAnimationByIndex(desc.cur.animIndex);
-		if (currentAnim)
-		{
-			float timePerFrame = 1 / (currentAnim->frameRate * desc.cur.speed);
-			if (desc.cur.sumTime >= timePerFrame)
-			{
-				desc.cur.sumTime = 0;
-				desc.cur.curFrame = (desc.cur.curFrame + 1) % currentAnim->frameCount;
-				desc.cur.nextFrame = (desc.cur.curFrame + 1) % currentAnim->frameCount;
-			}
-
-			desc.cur.ratio = (desc.cur.sumTime / timePerFrame);
-		}
-	}
-
-	// 다음 애니메이션이 있다면
-	if (desc.next.animIndex >= 0)
-	{
-		desc.tweenSumTime += DT;
-		desc.tweenRatio = desc.tweenSumTime / desc.tweenDuration;
-
-		if (desc.tweenRatio >= 1.f)
-		{
-			desc.cur = desc.next;
-			desc.ClearNextAnim();
-		}
-		else
-		{
-			// 교체중
-			shared_ptr<ModelAnimation> nextAnim = _model->GetAnimationByIndex(desc.next.animIndex);
-			desc.next.sumTime += DT;
-
-			float timePerFrame = 1.f / (nextAnim->frameRate * desc.next.speed);
-
-			if (desc.next.ratio >= 1.f)
-			{
-				desc.next.sumTime = 0;
-
-				desc.next.curFrame = (desc.next.curFrame + 1) % nextAnim->frameCount;
-				desc.next.nextFrame = (desc.next.curFrame + 1) % nextAnim->frameCount;
-			}
-
-			desc.next.ratio = desc.next.sumTime / timePerFrame;
-		}
-	}
-
-	// Anim Update
-	ImGui::InputInt("AnimIndex", &desc.cur.animIndex);
-	desc.cur.animIndex %= _model->GetAnimationCount();
-
-	static int32 nextAnimIndex = 0;
-	if (ImGui::InputInt("NextAnimIndex", &nextAnimIndex))
-	{
-		nextAnimIndex %= _model->GetAnimationCount();
-		desc.ClearNextAnim(); // 기존꺼 밀어주기
-		desc.next.animIndex = nextAnimIndex;
-	}
-
-	ImGui::InputInt("CurFrame", (int*)&_keyframeDesc.curFrame);
-	_keyframeDesc.curFrame %= _model->GetAnimationByIndex(_keyframeDesc.animIndex)->frameCount;
-	ImGui::InputFloat("Speed", &_keyframeDesc.speed, 0.5f, 4.f);
-
-	RENDER->PushTweenData(desc);
-
-	// SRV를 통해 정보 전달
-	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
-
-	// Bone
-	BoneDesc boneDesc;
-
-	const uint32 boneCount = _model->GetBoneCount();
-	for (uint32 i = 0; i < boneCount; i++)
-	{
-		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
-		boneDesc.transforms[i] = bone->transform;
-	}
-	RENDER->PushBoneData(boneDesc);
-
-	Matrix world = GetTransform()->GetWorldMatrix();
-	RENDER->PushTransformData(TransformDesc{ world });
-
-	const auto& meshes = _model->GetMeshes();
-	for (auto& mesh : meshes)
-	{
-		if (mesh->material)
-			mesh->material->Update();
-
-		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
-
-		uint32 stride = mesh->vertexBuffer->GetStride();
-		uint32 offset = mesh->vertexBuffer->GetOffset();
-
-		DC->IASetVertexBuffers(0, 1, mesh->vertexBuffer->GetComPtr().GetAddressOf(), &stride, &offset);
-		DC->IASetIndexBuffer(mesh->indexBuffer->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
-
-		_shader->DrawIndexed(0, _pass, mesh->indexBuffer->GetCount(), 0, 0);
-	}
+	UpdateTweenData();
 }
 
 void ModelAnimator::SetModel(shared_ptr<Model> model)
@@ -208,6 +36,40 @@ void ModelAnimator::SetModel(shared_ptr<Model> model)
 
 void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 {
+	if (_model == nullptr)
+		return;
+
+	if (_texture == nullptr)
+		CreateTexture();
+
+	// SRV를 통해 정보 전달
+	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
+
+	// Bone
+	BoneDesc boneDesc;
+
+	const uint32 boneCount = _model->GetBoneCount();
+	for (uint32 i = 0; i < boneCount; i++)
+	{
+		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
+		boneDesc.transforms[i] = bone->transform;
+	}
+	RENDER->PushBoneData(boneDesc);
+
+	const auto& meshes = _model->GetMeshes();
+	for (auto& mesh : meshes)
+	{
+		if (mesh->material)
+			mesh->material->Update();
+
+		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
+
+		mesh->vertexBuffer->PushData();
+		mesh->indexBuffer->PushData();
+		buffer->PushData();
+		_shader->DrawIndexedInstanced(0, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
+
+	}
 }
 
 InstanceID ModelAnimator::GetInstanceID()
@@ -331,6 +193,60 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 
 			tempAnimBoneTransforms[b] = matAnim * matParent;
 			_animTransforms[index].transforms[f][b] = invGlobal * tempAnimBoneTransforms[b];
+		}
+	}
+}
+
+void ModelAnimator::UpdateTweenData()
+{
+	TweenDesc& desc = _tweenDesc;
+
+	desc.cur.sumTime += DT;
+	// 현재 애니메이션
+	{
+		shared_ptr<ModelAnimation> currentAnim = _model->GetAnimationByIndex(desc.cur.animIndex);
+		if (currentAnim)
+		{
+			float timePerFrame = 1 / (currentAnim->frameRate * desc.cur.speed);
+			if (desc.cur.sumTime >= timePerFrame)
+			{
+				desc.cur.sumTime = 0;
+				desc.cur.curFrame = (desc.cur.curFrame + 1) % currentAnim->frameCount;
+				desc.cur.nextFrame = (desc.cur.curFrame + 1) % currentAnim->frameCount;
+			}
+
+			desc.cur.ratio = (desc.cur.sumTime / timePerFrame);
+		}
+	}
+
+	// 다음 애니메이션이 있다면
+	if (desc.next.animIndex >= 0)
+	{
+		desc.tweenSumTime += DT;
+		desc.tweenRatio = desc.tweenSumTime / desc.tweenDuration;
+
+		if (desc.tweenRatio >= 1.f)
+		{
+			desc.cur = desc.next;
+			desc.ClearNextAnim();
+		}
+		else
+		{
+			// 교체중
+			shared_ptr<ModelAnimation> nextAnim = _model->GetAnimationByIndex(desc.next.animIndex);
+			desc.next.sumTime += DT;
+
+			float timePerFrame = 1.f / (nextAnim->frameRate * desc.next.speed);
+
+			if (desc.next.ratio >= 1.f)
+			{
+				desc.next.sumTime = 0;
+
+				desc.next.curFrame = (desc.next.curFrame + 1) % nextAnim->frameCount;
+				desc.next.nextFrame = (desc.next.curFrame + 1) % nextAnim->frameCount;
+			}
+
+			desc.next.ratio = desc.next.sumTime / timePerFrame;
 		}
 	}
 }

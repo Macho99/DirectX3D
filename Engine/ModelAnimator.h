@@ -19,11 +19,14 @@ public:
 
 	virtual void Update() override;
 
+	void UpdateTweenData();
+
 	void SetModel(shared_ptr<Model> model);
 	void SetPass(uint8 pass) { _pass = pass; }
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer);
 	InstanceID GetInstanceID();
+	TweenDesc& GetTweenDesc() { return _tweenDesc; }
 
 private:
 	void CreateTexture();
@@ -39,7 +42,7 @@ private:
 	TweenDesc _tweenDesc;
 
 private:
-	uint8 _pass = 1;
+	uint8 _pass = 0;
 	shared_ptr<Shader> _shader;
 	shared_ptr<Model> _model;
 };
