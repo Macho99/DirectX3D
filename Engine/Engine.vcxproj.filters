@@ -189,6 +189,15 @@
     <ClInclude Include="InstancingBuffer.h">
       <Filter>01. Graphics\Buffer</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>02. Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>02. Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -328,6 +337,15 @@
     </ClCompile>
     <ClCompile Include="InstancingBuffer.cpp">
       <Filter>01. Graphics\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>04. Component</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>02. Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>02. Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

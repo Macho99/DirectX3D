@@ -42,6 +42,12 @@
     <ClCompile Include="18. InstancingDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
+    <ClCompile Include="19. RenderDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
+    <ClCompile Include="20. SceneDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -54,6 +60,12 @@
       <Filter>Main\Camera</Filter>
     </ClInclude>
     <ClInclude Include="18. InstancingDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="19. RenderDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="20. SceneDemo.h">
       <Filter>Game\Week3</Filter>
     </ClInclude>
   </ItemGroup>
@@ -117,6 +129,12 @@
     </FxCompile>
     <FxCompile Include="..\Shaders\18. InstancingDemo.fx">
       <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\19. RenderDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\00. Render.fx">
+      <Filter>Shaders\Common</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

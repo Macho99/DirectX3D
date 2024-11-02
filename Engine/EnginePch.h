@@ -11,7 +11,9 @@
 #include <array>
 #include <vector>
 #include <list>
+#include <set>
 #include <map>
+#include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
 using namespace std;
@@ -68,6 +70,7 @@ using namespace Microsoft::WRL;
 #include "RenderManager.h"
 #include "InstancingManager.h"
 #include "ImGuiManager.h"
+#include "SceneManager.h"
 
 // Engine
 #include "VertexData.h"
