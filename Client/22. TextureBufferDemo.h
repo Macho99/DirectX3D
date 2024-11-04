@@ -4,7 +4,7 @@
 
 class GameObject;
 
-class RenderDemo : public IExecute
+class TextureBufferDemo : public IExecute
 {
 public:
 	void Init() override;
@@ -12,9 +12,9 @@ public:
 	void Render() override;
 
 private:
-	shared_ptr<Shader> _shader;
+	ComPtr<ID3D11ShaderResourceView> MakeComputeShaderTexture();
 
-	shared_ptr<GameObject> _camera;
-	vector<shared_ptr<GameObject>> _objs;
+private:
+	shared_ptr<Shader> _shader;
 };
 

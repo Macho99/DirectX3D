@@ -19,17 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="18. InstancingDemo.h" />
-    <ClInclude Include="19. RenderDemo.h" />
     <ClInclude Include="20. SceneDemo.h" />
+    <ClInclude Include="21. RawBufferDemo.h" />
+    <ClInclude Include="22. TextureBufferDemo.h" />
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="18. InstancingDemo.cpp" />
-    <ClCompile Include="19. RenderDemo.cpp" />
     <ClCompile Include="20. SceneDemo.cpp" />
+    <ClCompile Include="21. RawBufferDemo.cpp" />
+    <ClCompile Include="22. TextureBufferDemo.cpp" />
     <ClCompile Include="CameraMove.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">
@@ -69,6 +69,8 @@
     <FxCompile Include="..\Shaders\17. SkyBoxDemo.fx" />
     <FxCompile Include="..\Shaders\18. InstancingDemo.fx" />
     <FxCompile Include="..\Shaders\19. RenderDemo.fx" />
+    <FxCompile Include="..\Shaders\20. RawBufferDemo.fx" />
+    <FxCompile Include="..\Shaders\21. TextureBufferDemo.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
