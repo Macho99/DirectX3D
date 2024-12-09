@@ -3,6 +3,8 @@
 #include "MonoBehaviour.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Light.h"
+#include "BaseCollider.h"
 #include "MeshRenderer.h"
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
@@ -106,6 +108,12 @@ std::shared_ptr<Camera> GameObject::GetCamera()
 	return static_pointer_cast<Camera>(component);
 }
 
+shared_ptr<Light> GameObject::GetLight()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::Light);
+	return static_pointer_cast<Light>(component);
+}
+
 std::shared_ptr<MeshRenderer> GameObject::GetMeshRenderer()
 {
 	shared_ptr<Component> component = GetFixedComponent(ComponentType::MeshRenderer);
@@ -122,6 +130,12 @@ shared_ptr<ModelAnimator> GameObject::GetModelAnimator()
 {
 	shared_ptr<Component> component = GetFixedComponent(ComponentType::Animator);
 	return static_pointer_cast<ModelAnimator>(component);
+}
+
+shared_ptr<BaseCollider> GameObject::GetCollider()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::Collider);
+	return static_pointer_cast<BaseCollider>(component);
 }
 
 //std::shared_ptr<Animator> GameObject::GetAnimator()

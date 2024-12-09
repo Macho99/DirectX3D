@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "20. SceneDemo.h"
+#include "25. CollisionDemo.h"
 #include "GeometryHelper.h"
 #include "Camera.h"
 #include "GameObject.h"
@@ -16,8 +16,10 @@
 #include "IndexBuffer.h"
 #include "Light.h"
 #include "Scene.h"
+#include "SphereCollider.h"
+#include "TextureBuffer.h"
 
-void SceneDemo::Init()
+void CollisionDemo::Init()
 {
 	_shader = make_shared<Shader>(L"19. RenderDemo.fx");
 
@@ -43,52 +45,6 @@ void SceneDemo::Init()
 		static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
 		CUR_SCENE->Add(light);
 	}
-
-	{
-		// Animation
-		shared_ptr<Model> m1 = make_shared<Model>();
-		m1->ReadModel(L"Kachujin/Kachujin");
-		m1->ReadMaterial(L"Kachujin/Kachujin");
-		m1->ReadAnimation(L"Kachujin/Idle");
-		m1->ReadAnimation(L"Kachujin/Run");
-		m1->ReadAnimation(L"Kachujin/Slash");
-
-		for (int32 i = 0; i < 500; i++)
-		{
-			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
-			obj->AddComponent(make_shared<ModelAnimator>(_shader));
-			{
-				obj->GetModelAnimator()->SetModel(m1);
-				obj->GetModelAnimator()->SetPass(2);
-			}
-			CUR_SCENE->Add(obj);
-		}
-	}
-
-	{
-		// Model
-		shared_ptr<class Model> m2 = make_shared<Model>();
-		m2->ReadModel(L"Tower/Tower");
-		m2->ReadMaterial(L"Tower/Tower");
-
-		for (int32 i = 0; i < 100; i++)
-		{
-			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
-
-			obj->AddComponent(make_shared<ModelRenderer>(_shader));
-			{
-				obj->GetModelRenderer()->SetModel(m2);
-				obj->GetModelRenderer()->SetPass(1);
-			}
-
-			CUR_SCENE->Add(obj);
-		}
-	}
-
 	{
 		// Mesh
 		// Material
@@ -96,6 +52,7 @@ void SceneDemo::Init()
 			shared_ptr<Material> material = make_shared<Material>();
 			material->SetShader(_shader);
 			auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
+			//auto texture = make_shared<Texture>();
 			material->SetDiffuseMap(texture);
 			MaterialDesc& desc = material->GetMaterialDesc();
 			desc.ambient = Vec4(1.f);
@@ -107,7 +64,7 @@ void SceneDemo::Init()
 		for (int32 i = 0; i < 100; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 50, 0, rand() % 50));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
 				obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
@@ -117,19 +74,34 @@ void SceneDemo::Init()
 				obj->GetMeshRenderer()->SetMesh(mesh);
 				obj->GetMeshRenderer()->SetPass(0);
 			}
+			{
+				auto collider = make_shared<SphereCollider>();
+				collider->SetRadius(0.5f);
+				obj->AddComponent(collider);
+			}
 
 			CUR_SCENE->Add(obj);
 		}
 	}
-
-	//RENDER->Init(_shader);
 }
 
-void SceneDemo::Update()
+void CollisionDemo::Update()
 {
+	if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
+	{
+		int32 mouseX = INPUT->GetMousePos().x;
+		int32 mouseY = INPUT->GetMousePos().y;
+
+		// Picking
+		auto pickObj = CUR_SCENE->Pick(mouseX, mouseY);
+		if (pickObj)
+		{
+			CUR_SCENE->Remove(pickObj);
+		}
+	}
 }
 
-void SceneDemo::Render()
+void CollisionDemo::Render()
 {
 
 }

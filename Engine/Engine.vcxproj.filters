@@ -43,6 +43,9 @@
     <Filter Include="05. ComputeShader\Buffer">
       <UniqueIdentifier>{63b1d254-6897-4132-8195-df303ffedc27}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Component\Collision">
+      <UniqueIdentifier>{5c83ad8f-e2a5-4703-b0a0-09bc07160b11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -132,9 +135,6 @@
     <ClInclude Include="MeshRenderer.h">
       <Filter>04. Component</Filter>
     </ClInclude>
-    <ClInclude Include="RenderManager.h">
-      <Filter>02. Managers</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>00. Engine</Filter>
     </ClInclude>
@@ -209,6 +209,27 @@
     </ClInclude>
     <ClInclude Include="TextureBuffer.h">
       <Filter>05. ComputeShader\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="StructuredBuffer.h">
+      <Filter>05. ComputeShader\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="BindShaderDesc.h">
+      <Filter>98. Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>01. Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseCollider.h">
+      <Filter>04. Component\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>04. Component\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="OBBBoxCollider.h">
+      <Filter>04. Component\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="AABBBoxCollider.h">
+      <Filter>04. Component\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -290,9 +311,6 @@
     <ClCompile Include="MeshRenderer.cpp">
       <Filter>04. Component</Filter>
     </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>02. Managers</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>00. Engine</Filter>
     </ClCompile>
@@ -364,6 +382,27 @@
     </ClCompile>
     <ClCompile Include="TextureBuffer.cpp">
       <Filter>05. ComputeShader\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="StructuredBuffer.cpp">
+      <Filter>05. ComputeShader\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="BindShaderDesc.cpp">
+      <Filter>98. Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport.cpp">
+      <Filter>01. Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseCollider.cpp">
+      <Filter>04. Component\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>04. Component\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="AABBBoxCollider.cpp">
+      <Filter>04. Component\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="OBBBoxCollider.cpp">
+      <Filter>04. Component\Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

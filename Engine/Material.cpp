@@ -23,7 +23,7 @@ void Material::Update()
 	if (_shader == nullptr)
 		return;
 
-	RENDER->PushMaterialData(_desc);
+	_shader->PushMaterialData(_desc);
 
 	if (_diffuseMap)
 	{

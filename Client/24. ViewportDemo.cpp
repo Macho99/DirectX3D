@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "20. SceneDemo.h"
+#include "24. ViewportDemo.h"
 #include "GeometryHelper.h"
 #include "Camera.h"
 #include "GameObject.h"
@@ -16,8 +16,9 @@
 #include "IndexBuffer.h"
 #include "Light.h"
 #include "Scene.h"
+#include "TextureBuffer.h"
 
-void SceneDemo::Init()
+void ViewportDemo::Init()
 {
 	_shader = make_shared<Shader>(L"19. RenderDemo.fx");
 
@@ -96,6 +97,7 @@ void SceneDemo::Init()
 			shared_ptr<Material> material = make_shared<Material>();
 			material->SetShader(_shader);
 			auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
+			//auto texture = make_shared<Texture>();
 			material->SetDiffuseMap(texture);
 			MaterialDesc& desc = material->GetMaterialDesc();
 			desc.ambient = Vec4(1.f);
@@ -104,10 +106,10 @@ void SceneDemo::Init()
 			RESOURCES->Add(L"Veigar", material);
 		}
 
-		for (int32 i = 0; i < 100; i++)
+		for (int32 i = 0; i < 1; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetOrAddTransform()->SetLocalPosition(Vec3(2,0,0));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
 				obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
@@ -125,11 +127,34 @@ void SceneDemo::Init()
 	//RENDER->Init(_shader);
 }
 
-void SceneDemo::Update()
+void ViewportDemo::Update()
 {
+	static float width = 800.f;
+	static float height = 600.f;
+	static float x = 0.f;
+	static float y = 0.f;
+
+	ImGui::InputFloat("Width", &width, 10.f);
+	ImGui::InputFloat("Height", &height, 10.f);
+	ImGui::InputFloat("X", &x, 10.f);
+	ImGui::InputFloat("Y", &y, 10.f);
+
+	GRAPHICS->SetViewport(width, height, x, y);
+
+	static Vec3 pos = Vec3(2, 0, 0);
+	ImGui::InputFloat3("Pos", (float*)&pos);
+
+	Viewport& vp = GRAPHICS->GetViewport();
+	Vec3 pos2D = vp.Project(pos, Matrix::Identity, Camera::S_MatView, Camera::S_MatProjection);
+
+	ImGui::InputFloat3("Pos2D", (float*)&pos2D);
+	{
+		Vec3 temp = vp.Unproject(pos2D, Matrix::Identity, Camera::S_MatView, Camera::S_MatProjection);
+		ImGui::InputFloat3("Recalc", (float*)&temp);
+	}
 }
 
-void SceneDemo::Render()
+void ViewportDemo::Render()
 {
 
 }

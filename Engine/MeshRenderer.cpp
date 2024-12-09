@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Material.h"
+#include "Light.h"
 
 MeshRenderer::MeshRenderer() : Super(ComponentType::MeshRenderer)
 {
@@ -24,6 +25,16 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 	auto shader = _material->GetShader();
 	if (shader == nullptr)
 		return;
+
+	// GlobalData
+	shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
+
+	// Light
+	auto lightObj = SCENE->GetCurrentScene()->GetLight();
+	if (lightObj)
+	{
+		shader->PushLightData(lightObj->GetLight()->GetLightDesc());
+	}
 
 	// Light
 	_material->Update();

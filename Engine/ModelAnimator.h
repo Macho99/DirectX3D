@@ -20,6 +20,7 @@ public:
 	virtual void Update() override;
 
 	void UpdateTweenData();
+	shared_ptr<Shader> GetShader() { return _shader; }
 
 	void SetModel(shared_ptr<Model> model);
 	void SetPass(uint8 pass) { _pass = pass; }

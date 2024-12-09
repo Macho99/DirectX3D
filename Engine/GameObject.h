@@ -1,11 +1,14 @@
 #pragma once
 #include "Component.h"
+#include "Light.h"
 class MonoBehaviour;
 class Transform;
 class Camera;
+class Light;
 class MeshRenderer;
 class ModelRenderer;
 class ModelAnimator;
+class BaseCollider;
 
 class GameObject : public enable_shared_from_this<GameObject>
 {
@@ -22,9 +25,11 @@ public:
 	shared_ptr<Component> GetFixedComponent(ComponentType type);
 	shared_ptr<Transform> GetTransform();
 	shared_ptr<Camera> GetCamera();
+	shared_ptr<Light> GetLight();
 	shared_ptr<MeshRenderer> GetMeshRenderer();
 	shared_ptr<ModelRenderer> GetModelRenderer();
 	shared_ptr<ModelAnimator> GetModelAnimator();
+	shared_ptr<BaseCollider> GetCollider();
 
 	shared_ptr<Transform> GetOrAddTransform();
 	void AddComponent(shared_ptr<Component> component);

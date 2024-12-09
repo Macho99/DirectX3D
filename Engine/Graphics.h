@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Viewport.h"
+
 class Graphics
 {
 	DECLARE_SINGLE(Graphics);
@@ -17,7 +19,10 @@ private:
 	void CreateDeviceAndSwapChain();
 	void CreateRenderTargetView();
 	void CreateDepthStencilView();
-	void SetViewport();
+
+public:
+	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
+	Viewport& GetViewport() { return _vp; }
 
 private:
 	HWND _hwnd = {};
@@ -35,6 +40,7 @@ private:
 	ComPtr<ID3D11DepthStencilView> _depthStencilView;
 
 	// Misc
-	D3D11_VIEWPORT _viewport = { 0 };
+	//D3D11_VIEWPORT _viewport = { 0 };
+	Viewport _vp;
 };
 

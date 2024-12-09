@@ -51,6 +51,15 @@
     <ClCompile Include="22. TextureBufferDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
+    <ClCompile Include="23. StructuredBufferDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
+    <ClCompile Include="24. ViewportDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
+    <ClCompile Include="25. CollisionDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -69,6 +78,15 @@
       <Filter>Game\Week3</Filter>
     </ClInclude>
     <ClInclude Include="22. TextureBufferDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="23. StructuredBufferDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="24. ViewportDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="25. CollisionDemo.h">
       <Filter>Game\Week3</Filter>
     </ClInclude>
   </ItemGroup>
@@ -143,6 +161,9 @@
       <Filter>Shaders\Week4</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\21. TextureBufferDemo.fx">
+      <Filter>Shaders\Week4</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx">
       <Filter>Shaders\Week4</Filter>
     </FxCompile>
   </ItemGroup>
