@@ -18,6 +18,8 @@ public:
 	shared_ptr<VertexBuffer> GetVertexBuffer() { return _vertexBuffer; }
 	shared_ptr<IndexBuffer> GetIndexBuffer() { return _indexBuffer; }
 
+	shared_ptr<Geometry<VertexTextureNormalTangentData>> GetGeometry() { return _geometry; }
+
 private:
 	void CreateBuffers();
 

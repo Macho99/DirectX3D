@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "BaseCollider.h"
 #include "Camera.h"
+#include "Terrain.h"
 
 void Scene::Start()
 {
@@ -34,6 +35,8 @@ void Scene::LateUpdate()
 	{
 		obj->LateUpdate();
 	}
+
+	CheckCollision();
 }
 
 void Scene::Add(shared_ptr<GameObject> gameObject)
@@ -100,5 +103,50 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 		}
 	}
 
+	for (auto& gameObject : _gameObjects)
+	{
+		if (gameObject->GetTerrain() == nullptr)
+			continue;
+
+		Vec3 pickPos;
+		float distance = 0.0f;
+		if (gameObject->GetTerrain()->Pick(screenX, screenY, OUT pickPos, OUT distance) == false)
+			continue;
+
+		if (distance < minDistance)
+		{
+			minDistance = distance;
+			picked = gameObject;
+		}
+	}
+
 	return picked;
+}
+
+void Scene::CheckCollision()
+{
+	vector<shared_ptr<BaseCollider>> colliders;
+	
+	for (shared_ptr<GameObject> object : _gameObjects)
+	{
+		if (object->GetCollider() == nullptr)
+			continue;
+
+		colliders.push_back(object->GetCollider());
+	}
+
+	// BruteForce
+	for (int32 i = 0; i < colliders.size(); i++)
+	{
+		for (int32 j = i + 1; j < colliders.size(); j++)
+		{
+			shared_ptr<BaseCollider>& col1 = colliders[i];
+			shared_ptr<BaseCollider>& col2 = colliders[j];
+			if (col1->Intersects(col2))
+			{
+
+			}
+
+		}
+	}
 }

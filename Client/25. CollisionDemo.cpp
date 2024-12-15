@@ -18,6 +18,7 @@
 #include "Scene.h"
 #include "SphereCollider.h"
 #include "TextureBuffer.h"
+#include "Terrain.h"
 
 void CollisionDemo::Init()
 {
@@ -45,6 +46,7 @@ void CollisionDemo::Init()
 		static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
 		CUR_SCENE->Add(light);
 	}
+
 	{
 		// Mesh
 		// Material
@@ -52,7 +54,6 @@ void CollisionDemo::Init()
 			shared_ptr<Material> material = make_shared<Material>();
 			material->SetShader(_shader);
 			auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
-			//auto texture = make_shared<Texture>();
 			material->SetDiffuseMap(texture);
 			MaterialDesc& desc = material->GetMaterialDesc();
 			desc.ambient = Vec4(1.f);
@@ -61,10 +62,10 @@ void CollisionDemo::Init()
 			RESOURCES->Add(L"Veigar", material);
 		}
 
-		for (int32 i = 0; i < 100; i++)
+		for (int32 i = 0; i < 1; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 50, 0, rand() % 50));
+			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 2, 0, rand() % 2));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
 				obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
@@ -82,6 +83,26 @@ void CollisionDemo::Init()
 
 			CUR_SCENE->Add(obj);
 		}
+	}
+
+	// Terrain
+	{
+		{
+			shared_ptr<Material> material = make_shared<Material>();
+			material->SetShader(_shader);
+			auto texture = RESOURCES->Load<Texture>(L"Grass", L"..\\Resources\\Textures\\Terrain\\grass.jpg");
+			material->SetDiffuseMap(texture);
+			MaterialDesc& desc = material->GetMaterialDesc();
+			desc.ambient = Vec4(1.f);
+			desc.diffuse = Vec4(1.f);
+			desc.specular = Vec4(1.f);
+			RESOURCES->Add(L"Grass", material);
+		}
+		auto obj = make_shared<GameObject>();
+		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, -1.f, 0.f));
+		obj->AddComponent(make_shared<Terrain>());
+		obj->GetTerrain()->Create(10, 10, RESOURCES->Get<Material>(L"Grass"));
+		CUR_SCENE->Add(obj);
 	}
 }
 

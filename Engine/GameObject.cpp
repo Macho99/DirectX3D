@@ -8,6 +8,7 @@
 #include "MeshRenderer.h"
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
+#include "Terrain.h"
 
 GameObject::GameObject()
 {
@@ -136,6 +137,12 @@ shared_ptr<BaseCollider> GameObject::GetCollider()
 {
 	shared_ptr<Component> component = GetFixedComponent(ComponentType::Collider);
 	return static_pointer_cast<BaseCollider>(component);
+}
+
+shared_ptr<Terrain> GameObject::GetTerrain()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::Terrain);
+	return static_pointer_cast<Terrain>(component);
 }
 
 //std::shared_ptr<Animator> GameObject::GetAnimator()
