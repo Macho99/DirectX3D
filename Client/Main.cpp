@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Main.h"
 #include "Engine/Game.h"
-#include "25. CollisionDemo.h"
+#include "26. OrthographicDemo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.width = 1920;
 	desc.height = 1080;
 	desc.clearColor = Color(0.0f, 0.0f, 0.0f, 1.f);
-	desc.app = make_shared<CollisionDemo>();
+	desc.app = make_shared<OrthographicDemo>();
 
 	GAME->Run(desc);
 

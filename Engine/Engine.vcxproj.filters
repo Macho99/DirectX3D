@@ -46,6 +46,12 @@
     <Filter Include="04. Component\Collision">
       <UniqueIdentifier>{5c83ad8f-e2a5-4703-b0a0-09bc07160b11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="98. Utils\Math">
+      <UniqueIdentifier>{02512f5d-23f5-4373-8c2e-046c0a0a6967}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06. UI &amp; Effect">
+      <UniqueIdentifier>{335a9519-b0a2-4aac-ab8d-d75bb8970134}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -234,6 +240,13 @@
     <ClInclude Include="Terrain.h">
       <Filter>04. Component</Filter>
     </ClInclude>
+    <ClInclude Include="Primitive3D.h">
+      <Filter>98. Utils\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtils.h">
+      <Filter>98. Utils\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -410,6 +423,13 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>04. Component</Filter>
     </ClCompile>
+    <ClCompile Include="MathUtils.cpp">
+      <Filter>98. Utils\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitive3D.cpp">
+      <Filter>98. Utils\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

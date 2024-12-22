@@ -4,6 +4,7 @@
 #include "BaseCollider.h"
 #include "Camera.h"
 #include "Terrain.h"
+#include "Button.h"
 
 void Scene::Start()
 {
@@ -20,12 +21,9 @@ void Scene::Update()
 	for (shared_ptr<GameObject> obj : copys)
 	{
 		obj->Update();
-	}	
-	
-	// INSTANCING
-	vector<shared_ptr<GameObject>> temp;
-	temp.insert(temp.end(), _gameObjects.begin(), _gameObjects.end());
-	INSTANCING->Render(temp);
+	}
+
+	PickUI();
 }
 
 void Scene::LateUpdate()
@@ -37,6 +35,15 @@ void Scene::LateUpdate()
 	}
 
 	CheckCollision();
+}
+
+void Scene::Render()
+{
+	for (auto& camera : _cameras)
+	{
+		camera->GetCamera()->SortGameObject();
+		camera->GetCamera()->Render_Forward();
+	}
 }
 
 void Scene::Add(shared_ptr<GameObject> gameObject)
@@ -59,9 +66,53 @@ void Scene::Remove(shared_ptr<GameObject> gameObject)
 	_lights.erase(gameObject);
 }
 
+shared_ptr<GameObject> Scene::GetMainCamera()
+{
+	for (auto& camera : _cameras)
+	{
+		if (camera->GetCamera()->GetProjectionType() == ProjectionType::Perspective)
+			return camera;
+	}
+	return nullptr;
+}
+
+shared_ptr<GameObject> Scene::GetUICamera()
+{
+	for (auto& camera : _cameras)
+	{
+		if (camera->GetCamera()->GetProjectionType() == ProjectionType::Orthographic)
+			return camera;
+	}
+	return nullptr;
+}
+
+void Scene::PickUI()
+{
+	if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON) == false)
+		return;
+
+	if (GetUICamera() == nullptr)
+		return;
+
+	POINT screenPt = INPUT->GetMousePos();
+
+	shared_ptr<Camera> camera = GetUICamera()->GetCamera();
+	
+	const auto gameObjects = GetObjects();
+	
+	for (auto& gameObject : gameObjects)
+	{
+		if (gameObject->GetButton() == nullptr)
+			continue;
+
+		if (gameObject->GetButton()->Picked(screenPt))
+			gameObject->GetButton()->InvokeOnClicked();
+	}
+}
+
 shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 {
-	shared_ptr<Camera> camera = GetCamera()->GetCamera();
+	shared_ptr<Camera> camera = GetMainCamera()->GetCamera();
 
 	float width = GRAPHICS->GetViewport().GetWidth();
 	float height = GRAPHICS->GetViewport().GetHeight();
@@ -89,6 +140,9 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 
 	for (auto& gameObject : _gameObjects)
 	{
+		if (camera->IsCulled(gameObject->GetLayerIndex()))
+			continue;
+
 		if (gameObject->GetCollider() == nullptr)
 			continue;
 

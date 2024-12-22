@@ -25,3 +25,9 @@ public:										\
 #define GUI			GET_SINGLE(ImGuiManager)
 #define SCENE		GET_SINGLE(SceneManager)
 #define CUR_SCENE	SCENE->GetCurrentScene()
+
+enum Layer_Mask
+{
+	Layer_Default = 0,
+	Layer_UI = 1
+};
