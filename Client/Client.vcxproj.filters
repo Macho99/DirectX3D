@@ -31,6 +31,9 @@
     <Filter Include="Shaders\Week4">
       <UniqueIdentifier>{92e3061e-1718-43cd-8c3d-3a8645381f5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Week5">
+      <UniqueIdentifier>{c04f508e-dec0-40bd-966f-45e13a0b2c2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -63,6 +66,12 @@
     <ClCompile Include="26. OrthographicDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
+    <ClCompile Include="27. BillboardDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
+    <ClCompile Include="MyBillboard.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -94,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="26. OrthographicDemo.h">
       <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="27. BillboardDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="MyBillboard.h">
+      <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +186,12 @@
     </FxCompile>
     <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx">
       <Filter>Shaders\Week4</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\23. BillboardDemo.fx">
+      <Filter>Shaders\Week5</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\24. SnowDemo.fx">
+      <Filter>Shaders\Week5</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

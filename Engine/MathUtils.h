@@ -1,9 +1,9 @@
 #pragma once
 #include "Primitive3D.h"
 
-
 struct MathUtils
 {
+	/*
 	//-------------------
 	// Point Test
 	//-------------------
@@ -65,5 +65,10 @@ struct MathUtils
 	static Vec3 Barycentric(const Point3D& p, const Triangle3D& t);
 	static bool Raycast(const Triangle3D& triangle, const Ray3D& ray, float& distance);
 	static Vec3 ProjectVecOnVec(Vec3 from, Vec3 to);
+	*/
+
+	static float Random(float r1, float r2);
+	static Vec2 RandomVec2(float r1, float r2);
+	static Vec3 RandomVec3(float r1, float r2);
 };
 

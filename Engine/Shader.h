@@ -63,6 +63,7 @@ public:
 	void PushBoneData(const BoneDesc& desc);
 	void PushKeyframeData(const KeyframeDesc& desc);
 	void PushTweenData(const InstancedTweenDesc& desc);
+	void PushSnowData(const SnowBillboardDesc& desc);
 
 private:
 	GlobalDesc _globalDesc;
@@ -92,6 +93,10 @@ private:
 	InstancedTweenDesc _tweenDesc;
 	shared_ptr<ConstantBuffer<InstancedTweenDesc>> _tweenBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _tweenEffectBuffer;
+
+	SnowBillboardDesc _snowDesc;
+	shared_ptr<ConstantBuffer<SnowBillboardDesc>> _snowBuffer;
+	ComPtr<ID3DX11EffectConstantBuffer> _snowEffectBuffer;
 };
 
 class ShaderManager

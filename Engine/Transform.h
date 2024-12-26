@@ -5,6 +5,8 @@ class Transform : public Component
 {
 	using Super = Component;
 public:
+	static Vec3 ToEulerAngles(Quaternion q);
+
 	Transform();
 	~Transform();
 

@@ -26,6 +26,8 @@
     <ClInclude Include="24. ViewportDemo.h" />
     <ClInclude Include="25. CollisionDemo.h" />
     <ClInclude Include="26. OrthographicDemo.h" />
+    <ClInclude Include="27. BillboardDemo.h" />
+    <ClInclude Include="MyBillboard.h" />
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="pch.h" />
@@ -38,6 +40,8 @@
     <ClCompile Include="24. ViewportDemo.cpp" />
     <ClCompile Include="25. CollisionDemo.cpp" />
     <ClCompile Include="26. OrthographicDemo.cpp" />
+    <ClCompile Include="27. BillboardDemo.cpp" />
+    <ClCompile Include="MyBillboard.cpp" />
     <ClCompile Include="CameraMove.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">
@@ -80,6 +84,8 @@
     <FxCompile Include="..\Shaders\20. RawBufferDemo.fx" />
     <FxCompile Include="..\Shaders\21. TextureBufferDemo.fx" />
     <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx" />
+    <FxCompile Include="..\Shaders\23. BillboardDemo.fx" />
+    <FxCompile Include="..\Shaders\24. SnowDemo.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
