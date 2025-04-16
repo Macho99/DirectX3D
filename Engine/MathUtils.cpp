@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "MathUtils.h"
 
-/*
 bool MathUtils::PointInSphere(const Point3D& point, const Sphere3D sphere)
 {
 	float magSq = (point - sphere.position).LengthSquared();
@@ -561,7 +560,6 @@ Vec3 MathUtils::ProjectVecOnVec(Vec3 a, Vec3 b)
 
 	return b * dist;
 }
-*/
 
 float MathUtils::Random(float r1, float r2)
 {

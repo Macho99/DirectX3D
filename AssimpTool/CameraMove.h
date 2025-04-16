@@ -8,6 +8,6 @@ public:
 	virtual void Update() override;
 
 private:
-	float _speed = 10.f;
+	float _moveSpeed = 10.f;
 };
 

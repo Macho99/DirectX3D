@@ -14,16 +14,16 @@ void CameraMove::Update()
 	Vec3 pos = GetTransform()->GetPosition();
 
 	if (INPUT->GetButton(KEY_TYPE::W))
-		pos += GetTransform()->GetLook() * _speed * dt;
+		pos += GetTransform()->GetLook() * _moveSpeed * dt;
 
 	if (INPUT->GetButton(KEY_TYPE::S))
-		pos -= GetTransform()->GetLook() * _speed * dt;
+		pos -= GetTransform()->GetLook() * _moveSpeed * dt;
 
 	if (INPUT->GetButton(KEY_TYPE::A))
-		pos -= GetTransform()->GetRight() * _speed * dt;
+		pos -= GetTransform()->GetRight() * _moveSpeed * dt;
 
 	if (INPUT->GetButton(KEY_TYPE::D))
-		pos += GetTransform()->GetRight() * _speed * dt;
+		pos += GetTransform()->GetRight() * _moveSpeed * dt;
 
 	GetTransform()->SetPosition(pos);
 

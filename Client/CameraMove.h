@@ -8,6 +8,9 @@ public:
 	virtual void Update() override;
 
 private:
-	float _speed = 10.f;
+	float _moveSpeed = 7.f;
+	float _sprintSpeed = 14.f;
+	float _mouseSpeed = 0.2f;
+	POINT _prevMousePos;
 };
 
