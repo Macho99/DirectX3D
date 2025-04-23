@@ -56,3 +56,8 @@ std::string Utils::ToString(wstring value)
 {
 	return string(value.begin(), value.end());
 }
+
+string Utils::ToString(Vec3& value)
+{
+	return std::to_string(value.x) + ", " + std::to_string(value.y) + ", " + std::to_string(value.z);
+}

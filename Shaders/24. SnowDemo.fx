@@ -30,20 +30,26 @@ struct V_OUT
 	float alpha : ALPHA;
 };
 
+float3 FindPointInWindow(float3 center, float3 extent, float3 position)
+{
+	float3 ijk = round((center - position) / extent);
+	float3 result = extent * ijk + position;
+	return result;
+}
+
 V_OUT VS(VertexInput input)
 {
 	V_OUT output;
-
-	float3 displace = Velocity * Time;
-
-	input.position.y += displace;
-	input.position.y = Origin.y + Extent.y - (input.position.y - displace) % Extent.y;
+	
+	input.position.xyz += Velocity * Time;
+	//input.position.y = Origin.y + Extent.y - (input.position.y - displace) % Extent.y;
 	input.position.x += cos(Time - input.random.x) * Turbulence;
 	input.position.z += cos(Time - input.random.y) * Turbulence;
-	input.position.xyz = Origin + (Extent + (input.position.xyz + displace) % Extent) % Extent - (Extent * 0.5f);
+	//input.position.xyz = Origin + (Extent + (input.position.xyz + displace) % Extent) % Extent - (Extent * 0.5f);
+	input.position.xyz = FindPointInWindow(Origin, Extent, input.position.xyz);
 
 	float4 position = mul(input.position, W);
-
+	
 	float3 up = float3(0, 1, 0);
 	//float3 forward = float3(0, 0, 1);
 	float3 forward = position.xyz - CameraPosition(); // BillBoard
@@ -71,6 +77,9 @@ float4 PS(V_OUT input) : SV_Target
 
 	diffuse.rgb = Color.rgb * input.alpha * 2.0f;
 	diffuse.a = diffuse.a * input.alpha * 1.5f;
+	
+	if(diffuse.a < 0.1f)
+		discard;
 
 	return diffuse;
 }

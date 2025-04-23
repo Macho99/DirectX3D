@@ -38,7 +38,7 @@ float4 PS(V_OUT input) : SV_Target
 {
 	float4 diffuse = DiffuseMap.Sample(LinearSampler, input.uv);
 
-	if (diffuse.a < 0.3f)
+	if (diffuse.a < 0.5f)
 		discard;
 
 	return diffuse;

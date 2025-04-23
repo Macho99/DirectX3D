@@ -32,7 +32,7 @@ void BillboardDemo::Init()
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 5.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
@@ -114,7 +114,7 @@ void BillboardDemo::Init()
 			auto snowShader = make_shared<Shader>(L"24. SnowDemo.fx");
 			auto obj = make_shared<GameObject>();
 			obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
-			obj->AddComponent(make_shared<SnowBillboard>(Vec3(100, 100, 100), 10000));
+			obj->AddComponent(make_shared<SnowBillboard>(Vec3(200, 200, 200), 20000));
 			{
 				// Material
 				{

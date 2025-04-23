@@ -100,5 +100,5 @@ struct SnowBillboardDesc
 	float turbulence = 5;
 
 	Vec3 extent = Vec3(0, 0, 0);
-	float time;
+	float time = 0;
 };
