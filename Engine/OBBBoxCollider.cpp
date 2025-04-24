@@ -15,7 +15,8 @@ OBBBoxCollider::~OBBBoxCollider()
 
 void OBBBoxCollider::Update()
 {
-
+    _boundingBox.Center = GetTransform()->GetPosition();
+	_boundingBox.Extents = GetTransform()->GetScale() * 0.5f;
 }
 
 bool OBBBoxCollider::Intersects(Ray& ray, OUT float& distance)

@@ -24,6 +24,8 @@
 #include "MyBillboard.h"
 #include "Billboard.h"
 #include "SnowBillboard.h"
+#include "OBBBoxCollider.h"
+#include "SphereCollider.h"
 
 void BillboardDemo::Init()
 {
@@ -37,6 +39,45 @@ void BillboardDemo::Init()
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
 		CUR_SCENE->Add(camera);
+	}
+
+	{
+		// Mesh
+		// Material
+		{
+			auto shader = make_shared<Shader>(L"19. RenderDemo.fx");
+			shared_ptr<Material> material = make_shared<Material>();
+			material->SetShader(shader);
+			auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
+			material->SetDiffuseMap(texture);
+			MaterialDesc& desc = material->GetMaterialDesc();
+			desc.ambient = Vec4(1.f);
+			desc.diffuse = Vec4(1.f);
+			desc.specular = Vec4(1.f);
+			RESOURCES->Add(L"Veigar", material);
+		}
+
+		for (int32 i = 0; i < 1; i++)
+		{
+			auto obj = make_shared<GameObject>();
+			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 10, 2.f, rand() % 10));
+			obj->GetTransform()->SetLocalScale(Vec3(10.f));
+			obj->AddComponent(make_shared<MeshRenderer>());
+			{
+				obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
+			}
+			{
+				auto mesh = RESOURCES->Get<Mesh>(L"Cube");
+				obj->GetMeshRenderer()->SetMesh(mesh);
+				obj->GetMeshRenderer()->SetPass(0);
+			}
+			{
+				auto collider = make_shared<OBBBoxCollider>();
+				obj->AddComponent(collider);
+			}
+
+			CUR_SCENE->Add(obj);
+		}
 	}
 
 	{
@@ -120,7 +161,7 @@ void BillboardDemo::Init()
 				{
 					shared_ptr<Material> material = make_shared<Material>();
 					material->SetShader(snowShader);
-					auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\grass.png");
+					auto texture = RESOURCES->Load<Texture>(L"SnowGrass", L"..\\Resources\\Textures\\grass.png");
 					//auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
 					material->SetDiffuseMap(texture);
 					MaterialDesc& desc = material->GetMaterialDesc();

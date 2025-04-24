@@ -49,8 +49,11 @@
     <Filter Include="98. Utils\Math">
       <UniqueIdentifier>{02512f5d-23f5-4373-8c2e-046c0a0a6967}</UniqueIdentifier>
     </Filter>
-    <Filter Include="06. UI &amp; Effect">
+    <Filter Include="04. Component\UI">
       <UniqueIdentifier>{335a9519-b0a2-4aac-ab8d-d75bb8970134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Component\VFX">
+      <UniqueIdentifier>{3825520e-41ed-4825-9109-d383c5921973}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -247,14 +250,18 @@
       <Filter>98. Utils\Math</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>06. UI &amp; Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="SnowBillboard.h">
-      <Filter>06. UI &amp; Effect</Filter>
+      <Filter>04. Component\UI</Filter>
     </ClInclude>
     <ClInclude Include="Billboard.h">
-      <Filter>06. UI &amp; Effect</Filter>
+      <Filter>04. Component\VFX</Filter>
     </ClInclude>
+    <ClInclude Include="SnowBillboard.h">
+      <Filter>04. Component\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>04. Component\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -438,14 +445,18 @@
       <Filter>98. Utils\Math</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
-      <Filter>06. UI &amp; Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="SnowBillboard.cpp">
-      <Filter>06. UI &amp; Effect</Filter>
+      <Filter>04. Component\UI</Filter>
     </ClCompile>
     <ClCompile Include="Billboard.cpp">
-      <Filter>06. UI &amp; Effect</Filter>
+      <Filter>04. Component\VFX</Filter>
     </ClCompile>
+    <ClCompile Include="SnowBillboard.cpp">
+      <Filter>04. Component\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>04. Component\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

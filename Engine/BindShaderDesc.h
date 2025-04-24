@@ -102,3 +102,8 @@ struct SnowBillboardDesc
 	Vec3 extent = Vec3(0, 0, 0);
 	float time = 0;
 };
+
+struct ParticleDesc
+{
+	float elapsedTime = 0.f;
+};

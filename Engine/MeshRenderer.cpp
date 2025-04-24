@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "MeshRenderer.h"
-#include "Camera.h"
 #include "Game.h"
 #include "Mesh.h"
 #include "Shader.h"
@@ -19,22 +18,10 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 {
-	if (_mesh == nullptr || _material == nullptr)
+	Super::Render();
+
+	if (_mesh == nullptr)
 		return;
-
-	auto shader = _material->GetShader();
-	if (shader == nullptr)
-		return;
-
-	// GlobalData
-	shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
-
-	// Light
-	auto lightObj = SCENE->GetCurrentScene()->GetLight();
-	if (lightObj)
-	{
-		shader->PushLightData(lightObj->GetLight()->GetLightDesc());
-	}
 
 	// Light
 	_material->Update();
@@ -44,7 +31,7 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 
 	buffer->PushData();
 
-	shader->DrawIndexedInstanced(0, _pass, _mesh->GetIndexBuffer()->GetCount(),
+	_material->GetShader()->DrawIndexedInstanced(0, _pass, _mesh->GetIndexBuffer()->GetCount(),
 		buffer->GetCount());
 }
 
