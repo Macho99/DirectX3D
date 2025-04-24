@@ -67,7 +67,7 @@ using namespace Microsoft::WRL;
 #include "InputManager.h"
 #include "TimeManager.h"
 #include "ResourceManager.h"
-#include "InstancingManager.h"
+#include "RenderManager.h"
 #include "ImGuiManager.h"
 #include "SceneManager.h"
 

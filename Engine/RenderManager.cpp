@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "InstancingManager.h"
+#include "RenderManager.h"
 #include "GameObject.h"
 #include "MeshRenderer.h"
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
 
-void InstancingManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 {
 	ClearData();
 	RenderMeshRenderer(gameObjects);
@@ -13,7 +13,7 @@ void InstancingManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 	RenderAnimRenderer(gameObjects);
 }
 
-void InstancingManager::ClearData()
+void RenderManager::ClearData()
 {
 	for (auto& pair : _buffers)
 	{
@@ -21,7 +21,7 @@ void InstancingManager::ClearData()
 	}
 }
 
-void InstancingManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjects)
 {
 	map<InstanceID, vector<shared_ptr<GameObject>>> cache;
 
@@ -62,7 +62,7 @@ void InstancingManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameO
 	}
 }
 
-void InstancingManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObjects)
 {
 	map<InstanceID, vector<shared_ptr<GameObject>>> cache;
 
@@ -103,7 +103,7 @@ void InstancingManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& game
 	}
 }
 
-void InstancingManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjects)
 {
 	map<InstanceID, vector<shared_ptr<GameObject>>> cache;
 
@@ -150,7 +150,7 @@ void InstancingManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameO
 	}
 }
 
-void InstancingManager::AddData(InstanceID instanceId, InstancingData& data)
+void RenderManager::AddData(InstanceID instanceId, InstancingData& data)
 {
 	if (_buffers.find(instanceId) == _buffers.end())
 	{

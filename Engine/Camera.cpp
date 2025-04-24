@@ -65,5 +65,5 @@ void Camera::Render_Forward()
 	S_MatView = _matView;
 	S_MatProjection = _matProjection;
 
-	GET_SINGLE(InstancingManager)->Render(_vecForward);
+	GET_SINGLE(RenderManager)->Render(_vecForward);
 }
