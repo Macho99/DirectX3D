@@ -54,6 +54,27 @@ public:
 		CHECK(hr);
 	}
 
+	template<typename T>
+	void CreateStreamOut(const int maxVertexSize)
+	{
+		D3D11_BUFFER_DESC vbd;
+		vbd.Usage = D3D11_USAGE_DEFAULT;
+		//vbd.ByteWidth = sizeof(Vertex::Particle) * 1;
+		//vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		vbd.StructureByteStride = 0;
+
+		//
+		// Create the ping-pong buffers for stream-out and drawing.
+		//
+		vbd.ByteWidth = sizeof(T) * maxVertexSize;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
+
+		HRESULT hr = DEVICE->CreateBuffer(&vbd, 0, _vertexBuffer.GetAddressOf());
+		CHECK(hr);
+	}
+
 	void PushData()
 	{
 		DC->IASetVertexBuffers(_slot, 1, _vertexBuffer.GetAddressOf(), &_stride, &_offset);

@@ -16,6 +16,7 @@ void Material::SetShader(shared_ptr<Shader> shader)
 	_diffuseEffectBuffer = _shader->GetSRV("DiffuseMap");
 	_normalEffectBuffer = _shader->GetSRV("NormalMap");
 	_specularEffectBuffer = _shader->GetSRV("SpecularMap");
+	_randomEffectBuffer = _shader->GetSRV("RandomMap");
 }
 
 void Material::Update()
@@ -38,6 +39,11 @@ void Material::Update()
 	if (_specularMap)
 	{
 		_specularEffectBuffer->SetResource(_specularMap->GetComPtr().Get());
+	}
+
+	if (_randomTex)
+	{
+		_randomEffectBuffer->SetResource(_randomTex->GetComPtr().Get());
 	}
 }
 

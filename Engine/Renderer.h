@@ -8,7 +8,7 @@ public:
 	~Renderer();
 
 	void SetPass(uint8 pass) { _pass = pass; }
-	void SetMaterial(shared_ptr<Material> material) { _material = material; }
+	virtual void SetMaterial(shared_ptr<Material> material) { _material = material; }
 
 	virtual void Render();
 

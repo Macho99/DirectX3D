@@ -26,6 +26,7 @@
 #include "SnowBillboard.h"
 #include "OBBBoxCollider.h"
 #include "SphereCollider.h"
+#include "ParticleSystem.h"
 
 void BillboardDemo::Init()
 {
@@ -146,6 +147,20 @@ void BillboardDemo::Init()
 		obj->GetOrAddTransform()->SetLocalPosition(Vec3(-100.f, 0.f, -100.f));
 		obj->AddComponent(make_shared<Terrain>());
 		obj->GetTerrain()->Create(200, 200, RESOURCES->Get<Material>(L"TerrainGrass"));
+		CUR_SCENE->Add(obj);
+	}
+
+	{
+		auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
+		auto obj = make_shared<GameObject>();
+		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
+		obj->AddComponent(make_shared<ParticleSystem>());
+		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
+		shared_ptr<Material> material = make_shared<Material>();
+		material->SetShader(particleShader);
+		material->SetDiffuseMap(RESOURCES->Get<Texture>(L"TerrainGrass"));
+		material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
+		particleSystem->SetMaterial(material);
 		CUR_SCENE->Add(obj);
 	}
 

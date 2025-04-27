@@ -45,6 +45,12 @@ public:
 	void SetLayerIndex(uint8 layer) { _layerIndex = layer; }
 	uint8 GetLayerIndex() { return _layerIndex; }
 
+	template<typename T>
+	shared_ptr<T> GetFixedComponent(ComponentType type)
+	{
+		return static_pointer_cast<T>(GetFixedComponent(type));
+	}
+
 protected:
 	array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
 	vector<shared_ptr<MonoBehaviour>> _scripts;

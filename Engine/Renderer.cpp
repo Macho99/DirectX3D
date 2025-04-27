@@ -17,7 +17,7 @@ void Renderer::Render()
 	if (_material == nullptr)
 		return;
 
-	auto shader = _material->GetShader();
+	const auto& shader = _material->GetShader();
 	if (shader == nullptr)
 		return;
 

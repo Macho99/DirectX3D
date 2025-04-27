@@ -86,6 +86,7 @@
     <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx" />
     <FxCompile Include="..\Shaders\23. BillboardDemo.fx" />
     <FxCompile Include="..\Shaders\24. SnowDemo.fx" />
+    <FxCompile Include="..\Shaders\ParticleSystem.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

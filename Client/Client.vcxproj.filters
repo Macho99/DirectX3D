@@ -34,6 +34,9 @@
     <Filter Include="Shaders\Week5">
       <UniqueIdentifier>{c04f508e-dec0-40bd-966f-45e13a0b2c2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\MyShader">
+      <UniqueIdentifier>{61098872-9bbc-4651-90fe-522bacaa1001}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -192,6 +195,9 @@
     </FxCompile>
     <FxCompile Include="..\Shaders\24. SnowDemo.fx">
       <Filter>Shaders\Week5</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ParticleSystem.fx">
+      <Filter>Shaders\MyShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

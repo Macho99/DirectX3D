@@ -1,6 +1,9 @@
 #ifndef _GLOBAL_FX_
 #define _GLOBAL_FX_
 
+
+Texture1D RandomMap;
+
 ////////////////
 /// ConstBuffer
 ////////////////
@@ -184,6 +187,21 @@ BlendState AdditiveBlendAlphaToCoverageEnable
 	RenderTargetWriteMask[0] = 15;
 };
 
+///////////////////////
+// DepthStencilState //
+///////////////////////
+
+DepthStencilState DisableDepth
+{
+	DepthEnable = FALSE;
+	DepthWriteMask = ZERO;
+};
+
+DepthStencilState NoDepthWrites
+{
+	DepthEnable = TRUE;
+	DepthWriteMask = ZERO;
+};
 
 ////////////////
 /// Macro
@@ -221,4 +239,15 @@ float3 CameraPosition()
 	return VInv._41_42_43;
 }
 
+float3 RandUnitVec3(float gameTime, float offset)
+{
+	// Use game time plus offset to sample random texture.
+	float u = (gameTime + offset);
+
+	// coordinates in [-1,1]
+	float3 v = RandomMap.SampleLevel(LinearSampler, u, 0).xyz;
+
+	// project onto unit sphere
+	return normalize(v);
+}
 #endif
