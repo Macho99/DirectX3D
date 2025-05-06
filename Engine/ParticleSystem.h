@@ -16,7 +16,7 @@ class ParticleSystem : public Renderer
 {
 	using Super = Renderer;
 public:
-	ParticleSystem();
+	ParticleSystem(shared_ptr<Shader> shader);
 	~ParticleSystem();
 
 	void Reset();
@@ -47,5 +47,15 @@ private:
 	shared_ptr<VertexBuffer> _initVB;
 	shared_ptr<VertexBuffer> _drawVB;
 	shared_ptr<VertexBuffer> _streamOutVB;
+
+	ComPtr<ID3D11InputLayout> _inputLayout;
 };
 
+const D3D11_INPUT_ELEMENT_DESC ParticleInputDesc[5] =
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"VELOCITY", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"SIZE",     0, DXGI_FORMAT_R32G32_FLOAT,		0, 28, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"AGE",      0, DXGI_FORMAT_R32_FLOAT,			0, 34, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"TYPE",     0, DXGI_FORMAT_R32_UINT,			0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0},
+};

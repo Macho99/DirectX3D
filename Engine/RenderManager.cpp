@@ -4,6 +4,7 @@
 #include "MeshRenderer.h"
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
+#include "ParticleSystem.h"
 
 void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 {
@@ -11,6 +12,15 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 	RenderMeshRenderer(gameObjects);
 	RenderModelRenderer(gameObjects);
 	RenderAnimRenderer(gameObjects);
+
+	for (shared_ptr<GameObject>& gameObject : gameObjects)
+	{
+		shared_ptr<ParticleSystem> particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
+		if (particle == nullptr)
+			continue;
+
+		particle->Render();
+	}
 }
 
 void RenderManager::ClearData()

@@ -193,6 +193,16 @@ void Shader::DrawIndexedInstanced(UINT technique, UINT pass, UINT indexCountPerI
 	_techniques[technique].passes[pass].DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
 
+void Shader::BeginDraw(UINT technique, UINT pass)
+{
+	_techniques[technique].passes[pass].BeginDraw();
+}
+
+void Shader::EndDraw(UINT technique, UINT pass)
+{
+	_techniques[technique].passes[pass].EndDraw();
+}
+
 void Shader::Dispatch(UINT technique, UINT pass, UINT x, UINT y, UINT z)
 {
 	_techniques[technique].passes[pass].Dispatch(x, y, z);
@@ -281,9 +291,17 @@ ShaderDesc ShaderManager::GetEffect(wstring fileName)
 	{
 		ComPtr<ID3DBlob> blob;
 		ComPtr<ID3DBlob> error;
-		INT flag = D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_PACK_MATRIX_ROW_MAJOR;
 
-		HRESULT hr = ::D3DCompileFromFile(fileName.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, NULL, "fx_5_0", flag, NULL, blob.GetAddressOf(), error.GetAddressOf());
+		WORD shaderFlags = 0;
+#if defined( DEBUG ) || defined( _DEBUG )
+		shaderFlags |= D3D10_SHADER_DEBUG;
+		shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
+#endif
+		//INT flag = D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY | D3D10_SHADER_PACK_MATRIX_ROW_MAJOR;
+		//shaderFlags |= D3D10_SHADER_ENABLE_BACKWARDS_COMPATIBILITY;
+		shaderFlags |= D3D10_SHADER_PACK_MATRIX_ROW_MAJOR;
+
+		HRESULT hr = ::D3DCompileFromFile(fileName.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, NULL, "fx_5_0", shaderFlags, NULL, blob.GetAddressOf(), error.GetAddressOf());
 		if (FAILED(hr))
 		{
 			if (error != NULL)
@@ -425,5 +443,15 @@ void Shader::PushSnowData(const SnowBillboardDesc& desc)
 
 void Shader::PushParticleData(const ParticleDesc& desc)
 {
+	if (_particleEffectBuffer == nullptr)
+	{
+		_particleBuffer = make_shared<ConstantBuffer<ParticleDesc>>();
+		_particleBuffer->Create();
+		_particleEffectBuffer = GetConstantBuffer("ParticleBuffer");
+	}
+
+	_particleDesc = desc;
+	_particleBuffer->CopyData(_particleDesc);
+	_particleEffectBuffer->SetConstantBuffer(_particleBuffer->GetComPtr().Get());
 }
 

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "ParticleSystem.h"
 
 Matrix Camera::S_MatView = Matrix::Identity;
 Matrix Camera::S_MatProjection = Matrix::Identity;
@@ -53,7 +54,8 @@ void Camera::SortGameObject()
 
 		if (gameObject->GetMeshRenderer() == nullptr
 			&& gameObject->GetModelRenderer() == nullptr
-			&& gameObject->GetModelAnimator() == nullptr)
+			&& gameObject->GetModelAnimator() == nullptr
+			&& gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem) == nullptr)
 			continue;
 
 		_vecForward.push_back(gameObject);

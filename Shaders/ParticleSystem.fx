@@ -2,21 +2,21 @@
 #include "00. Light.fx"
 #include "00. Render.fx"
 
-cbuffer ParticleDesc
+cbuffer ParticleBuffer
 {
-	float timeStep;
-	float gameTime;
 	float3 emitPosW;
+	float timeStep;
 	float3 emitDirW;
+	float gameTime;
 };
 
 struct VertexInput
 {
-	float3 InitialPos	: INITIALPOS;
-	float3 InitialVel : INITIALVEL;
-	float2 Size : SIZE;
-	float Age : AGE;
-	uint Type : TYPE;
+	float3 InitialPos	: POSITION;
+	float3 InitialVel	: VELOCITY;
+	float2 Size			: SIZE;
+	float Age			: AGE;
+	uint Type			: TYPE;
 };
 
 cbuffer cbFixed
@@ -65,12 +65,13 @@ void StreamOutGS(point VertexInput gin[1],
 			vRandom.z *= 0.5f;
 
 			VertexInput p;
-			p.InitialPos = emitPosW.xyz;
+			p.InitialPos = emitDirW.xyz;
+			p.InitialPos.y += 5.f;
 			p.InitialVel = 4.0f * vRandom;
 			p.Size = float2(3.0f, 3.0f);
 			p.Age = 0.0f;
 			p.Type = PT_FLARE;
-
+			
 			ptStream.Append(p);
 
 			// reset the time to emit
@@ -92,7 +93,7 @@ GeometryShader gsStreamOut = ConstructGSWithSO(
 	CompileShader(gs_5_0, StreamOutGS()),
 	"POSITION.xyz; VELOCITY.xyz; SIZE.xy; AGE.x; TYPE.x");
 
-technique11 T0
+technique11 StreamOutTech
 {
 	pass P0
 	{
@@ -156,7 +157,7 @@ void DrawGS(point VertexOut gin[1],
 		//
 		// Compute world matrix so that billboard faces the camera.
 		//
-		float3 look = normalize(CameraPosition() - gin[0].PosW);
+		float3 look = normalize(CameraPosition() - gin[0].PosW.xyz);
 		float3 right = normalize(cross(float3(0, 1, 0), look));
 		float3 up = cross(look, right);
 
@@ -167,10 +168,10 @@ void DrawGS(point VertexOut gin[1],
 		float halfHeight = 0.5f * gin[0].SizeW.y;
 
 		float4 v[4];
-		v[0] = float4(gin[0].PosW + halfWidth * right - halfHeight * up, 1.0f);
-		v[1] = float4(gin[0].PosW + halfWidth * right + halfHeight * up, 1.0f);
-		v[2] = float4(gin[0].PosW - halfWidth * right - halfHeight * up, 1.0f);
-		v[3] = float4(gin[0].PosW - halfWidth * right + halfHeight * up, 1.0f);
+		v[0] = float4(gin[0].PosW.xyz + halfWidth * right - halfHeight * up, 1.0f);
+		v[1] = float4(gin[0].PosW.xyz + halfWidth * right + halfHeight * up, 1.0f);
+		v[2] = float4(gin[0].PosW.xyz - halfWidth * right - halfHeight * up, 1.0f);
+		v[3] = float4(gin[0].PosW.xyz - halfWidth * right + halfHeight * up, 1.0f);
 
 		//
 		// Transform quad vertices to world space and output 
@@ -193,7 +194,7 @@ float4 DrawPS(GeoOut pin) : SV_TARGET
 	return DiffuseMap.Sample(LinearSampler, pin.Tex) * pin.Color;
 }
 
-technique11 T1
+technique11 DrawTech
 {
 	pass P0
 	{

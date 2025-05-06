@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Main.h"
 #include "Engine/Game.h"
+#include "28. ParticleDemo.h"
 #include "27. BillboardDemo.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

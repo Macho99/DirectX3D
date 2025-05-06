@@ -105,8 +105,8 @@ struct SnowBillboardDesc
 
 struct ParticleDesc
 {
-	float timeStep = 0.f;
-	float gameTime = 0.f;
 	Vec3 emitPosW = Vec3(0, 0, 0);
+	float timeStep = 0.f;
 	Vec3 emitDirW = Vec3(0, 0, 0);
+	float gameTime = 0.f;
 };

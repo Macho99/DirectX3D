@@ -2,11 +2,17 @@
 #include "ParticleSystem.h"
 #include "Shader.h"
 #include "Material.h"
+#include "Windows.h"
 
-ParticleSystem::ParticleSystem()
+ParticleSystem::ParticleSystem(shared_ptr<Shader> shader)
 	: Super(ComponentType::ParticleSystem)
 {
 	BuildVB();
+
+	//D3DX11_PASS_DESC passDesc;
+	//shader->Effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->GetDesc(&passDesc);
+	//CHECK(DEVICE->CreateInputLayout(ParticleInputDesc, 5, passDesc.pIAInputSignature,
+	//	passDesc.IAInputSignatureSize, &_inputLayout));
 }
 
 ParticleSystem::~ParticleSystem()
@@ -21,6 +27,7 @@ void ParticleSystem::Reset()
 
 void ParticleSystem::Update()
 {
+	_emitPosW = GetTransform()->GetPosition();
 	_timeStep = TIME->GetDeltaTime();
 	_gameTime = TIME->GetGameTime();
 
@@ -53,54 +60,64 @@ void ParticleSystem::Render()
 	//
 	// Set IA stage.
 	//
-	//dc->IASetInputLayout(InputLayouts::Particle.Get());
+	//DC->IASetInputLayout(_inputLayout.Get());
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
 	// On the first pass, use the initialization VB.  Otherwise, use
-	// the VB that contains the current particle list.
+	// the VB that contains the current particle list.	
+	uint32 stride = sizeof(ParticleVertex);
+	uint32 offset = 0;
 	if (_firstRun)
 		_initVB->PushData();
-		//dc->IASetVertexBuffers(0, 1, _initVB.GetAddressOf(), &stride, &offset);
+		//DC->IASetVertexBuffers(0, 1, _initVB->GetComPtr().GetAddressOf(), &stride, &offset);
 	else
 		_drawVB->PushData();
-		//dc->IASetVertexBuffers(0, 1, _drawVB.GetAddressOf(), &stride, &offset);
+		//DC->IASetVertexBuffers(0, 1, _drawVB->GetComPtr().GetAddressOf(), &stride, &offset);
 
 	//
 	// Draw the current particle list using stream-out only to update them.  
 	// The updated vertices are streamed-out to the target VB. 
 	//
-	uint32 offset = 0;
+
+	shader->BeginDraw(0, 0);
 	DC->SOSetTargets(1, _streamOutVB->GetComPtr().GetAddressOf(), &offset);
 
-	D3DX11_TECHNIQUE_DESC techDesc;
-	shader->Effect()->GetTechniqueByIndex(0)->GetDesc(&techDesc);
-	shader->Effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, DC.Get());
+	//D3DX11_TECHNIQUE_DESC techDesc;
+	//shader->Effect()->GetTechniqueByIndex(0)->GetDesc(&techDesc);
+	//shader->Effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, DC.Get());
 	if (_firstRun)
 	{
-		shader->Draw(0, 0, 1, 0);
+		DC->Draw(1, 0);
 		_firstRun = false;
 	}
 	else
 	{
 		DC->DrawAuto();
 	}
-
-	// done streaming-out--unbind the vertex buffer
-	ID3D11Buffer* bufferArray[1] = { 0 };
-	DC->SOSetTargets(1, bufferArray, &offset);
-
+	shader->EndDraw(0, 0);
 	// ping-pong the vertex buffers
 	std::swap(_drawVB, _streamOutVB);
+	// done streaming-out--unbind the vertex buffer
+
+	ID3D11Buffer* bufferArray[1] = { 0 };
+	//DC->SOSetTargets(1, bufferArray, &offset);
+
+	shader->BeginDraw(1, 0);
+	// done streaming-out--unbind the vertex buffer
+	//ID3D11Buffer* bufferArray[1] = { 0 };
+	DC->SOSetTargets(1, bufferArray, &offset);
+
 
 	//
 	// Draw the updated particle system we just streamed-out. 
 	//
-	//dc->IASetVertexBuffers(0, 1, _drawVB.GetAddressOf(), &stride, &offset);
+	//DC->IASetVertexBuffers(0, 1, _drawVB->GetComPtr().GetAddressOf(), &stride, &offset);
 	_drawVB->PushData();
 
-	shader->Effect()->GetTechniqueByIndex(1)->GetDesc(&techDesc);
-	shader->Effect()->GetTechniqueByIndex(1)->GetPassByIndex(0)->Apply(0, DC.Get());
+	//shader->Effect()->GetTechniqueByIndex(1)->GetDesc(&techDesc);
+	//shader->Effect()->GetTechniqueByIndex(1)->GetPassByIndex(0)->Apply(0, DC.Get());
 	DC->DrawAuto();
+	shader->EndDraw(1, 0);
 }
 
 void ParticleSystem::SetMaterial(shared_ptr<Material> material)

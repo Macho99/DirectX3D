@@ -27,15 +27,17 @@
 #include "OBBBoxCollider.h"
 #include "SphereCollider.h"
 #include "ParticleSystem.h"
+#include <thread>
 
 void BillboardDemo::Init()
 {
 	_shader = make_shared<Shader>(L"23. BillboardDemo.fx");
 
+	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 5.f, -5.f });
+		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
@@ -61,8 +63,8 @@ void BillboardDemo::Init()
 		for (int32 i = 0; i < 1; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 10, 2.f, rand() % 10));
-			obj->GetTransform()->SetLocalScale(Vec3(10.f));
+			obj->GetOrAddTransform()->SetLocalPosition(Vec3(0, 0, 0));
+			obj->GetTransform()->SetLocalScale(Vec3(1.f));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
 				obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
@@ -150,15 +152,17 @@ void BillboardDemo::Init()
 		CUR_SCENE->Add(obj);
 	}
 
+	//Particle
 	{
 		auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
-		obj->AddComponent(make_shared<ParticleSystem>());
+		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 20.f, 0.f));
+		obj->AddComponent(make_shared<ParticleSystem>(particleShader));
 		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		shared_ptr<Material> material = make_shared<Material>();
 		material->SetShader(particleShader);
-		material->SetDiffuseMap(RESOURCES->Get<Texture>(L"TerrainGrass"));
+		auto texture = RESOURCES->Load<Texture>(L"Flare", L"..\\Resources\\Textures\\flare0.png");
+		material->SetDiffuseMap(texture);
 		material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
 		particleSystem->SetMaterial(material);
 		CUR_SCENE->Add(obj);
@@ -208,9 +212,10 @@ void BillboardDemo::Update()
 			CUR_SCENE->Remove(pickObj);
 		}
 	}
+	//this_thread::sleep_for(chrono::seconds(1));
 }
 
 void BillboardDemo::Render()
 {
-
+	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

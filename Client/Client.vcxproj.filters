@@ -75,6 +75,9 @@
     <ClCompile Include="MyBillboard.cpp">
       <Filter>Main</Filter>
     </ClCompile>
+    <ClCompile Include="28. ParticleDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="MyBillboard.h">
       <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="28. ParticleDemo.h">
+      <Filter>Game\Week3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -25,6 +25,8 @@ public:
 	void DrawIndexed(UINT technique, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawInstanced(UINT technique, UINT pass, UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
 	void DrawIndexedInstanced(UINT technique, UINT pass, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
+	void BeginDraw(UINT technique, UINT pass);
+	void EndDraw(UINT technique, UINT pass);
 
 	void Dispatch(UINT technique, UINT pass, UINT x, UINT y, UINT z);
 
@@ -65,6 +67,8 @@ public:
 	void PushTweenData(const InstancedTweenDesc& desc);
 	void PushSnowData(const SnowBillboardDesc& desc);
 	void PushParticleData(const ParticleDesc& desc);
+
+	vector<Technique>& GetTechniques() { return _techniques; }
 
 private:
 	GlobalDesc _globalDesc;

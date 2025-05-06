@@ -57,6 +57,8 @@ public:
 	template<typename T>
 	void CreateStreamOut(const int maxVertexSize)
 	{
+		_stride = sizeof(T);
+
 		D3D11_BUFFER_DESC vbd;
 		vbd.Usage = D3D11_USAGE_DEFAULT;
 		//vbd.ByteWidth = sizeof(Vertex::Particle) * 1;
