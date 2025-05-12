@@ -76,7 +76,7 @@ float4 PS(V_OUT input) : SV_Target
 	float4 diffuse = DiffuseMap.Sample(LinearSampler, input.uv);
 
 	diffuse.rgb = Color.rgb * input.alpha * 2.0f;
-	diffuse.a = diffuse.a * input.alpha * 1.5f;
+	diffuse.a = diffuse.a * input.alpha;
 	
 	if(diffuse.a < 0.1f)
 		discard;

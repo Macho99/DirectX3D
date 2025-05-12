@@ -61,13 +61,12 @@ void StreamOutGS(point VertexInput gin[1],
 		if (gin[0].Age > 0.005f)
 		{
 			float3 vRandom = RandUnitVec3(gameTime, 0.0f);
-			vRandom.x *= 0.5f;
-			vRandom.z *= 0.5f;
+			//vRandom.x *= 0.5f;
+			//vRandom.z *= 0.5f;
 
 			VertexInput p;
-			p.InitialPos = emitDirW.xyz;
-			p.InitialPos.y += 5.f;
-			p.InitialVel = 4.0f * vRandom;
+			p.InitialPos = emitPosW.xyz;
+			p.InitialVel = emitDirW + vRandom;
 			p.Size = float2(3.0f, 3.0f);
 			p.Age = 0.0f;
 			p.Type = PT_FLARE;
@@ -191,7 +190,9 @@ void DrawGS(point VertexOut gin[1],
 
 float4 DrawPS(GeoOut pin) : SV_TARGET
 {
-	return DiffuseMap.Sample(LinearSampler, pin.Tex) * pin.Color;
+	float4 diffuse = DiffuseMap.Sample(LinearSampler, pin.Tex);
+	float4 result = diffuse * pin.Color;
+	return result;
 }
 
 technique11 DrawTech
