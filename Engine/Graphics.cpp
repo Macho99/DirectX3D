@@ -24,7 +24,7 @@ void Graphics::RenderBegin()
 
 void Graphics::RenderEnd()
 {
-	HRESULT hr = _swapChain->Present(1, 0);
+	HRESULT hr = _swapChain->Present(0, 0);
 	CHECK(hr);
 }
 void Graphics::CreateDeviceAndSwapChain()

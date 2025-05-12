@@ -12,5 +12,5 @@ public:
 	void Render() override;
 
 private:
-	shared_ptr<Shader> _shader;
+	//shared_ptr<Shader> _shader;
 };

@@ -124,7 +124,9 @@ void Game::ShowFps()
 	uint32 fps = GET_SINGLE(TimeManager)->GetFps();
 
 	WCHAR text[100] = L"";
-	::wsprintf(text, L"FPS: %d", fps);
+	int len = ::wsprintf(text, L"FPS: %d ", fps);
+	if(fps != 0)
+		swprintf(text + len, 100 - len, L"Frame Time: %.6f", 1.f / fps);
 
 	::SetWindowText(_desc.hWnd, text);
 }

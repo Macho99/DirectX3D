@@ -31,7 +31,6 @@
 
 void BillboardDemo::Init()
 {
-	_shader = make_shared<Shader>(L"23. BillboardDemo.fx");
 
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	{
@@ -99,6 +98,7 @@ void BillboardDemo::Init()
 
 	// Billboard
 	{
+		shared_ptr<Shader> shader = make_shared<Shader>(L"23. BillboardDemo.fx");
 		auto obj = make_shared<GameObject>();
 		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
 		obj->AddComponent(make_shared<Billboard>());
@@ -106,7 +106,7 @@ void BillboardDemo::Init()
 			// Material
 			{
 				shared_ptr<Material> material = make_shared<Material>();
-				material->SetShader(_shader);
+				material->SetShader(shader);
 				auto texture = RESOURCES->Load<Texture>(L"Grass", L"..\\Resources\\Textures\\grass.png");
 				//auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
 				material->SetDiffuseMap(texture);
@@ -192,6 +192,52 @@ void BillboardDemo::Init()
 
 					obj->GetSnowBillboard()->SetMaterial(material);
 				}
+			}
+
+			CUR_SCENE->Add(obj);
+		}
+	}
+
+	shared_ptr<Shader> renderDemoShader = make_shared<Shader>(L"19. RenderDemo.fx");
+	{
+		// Animation
+		shared_ptr<Model> m1 = make_shared<Model>();
+		m1->ReadModel(L"Kachujin/Kachujin");
+		m1->ReadMaterial(L"Kachujin/Kachujin");
+		m1->ReadAnimation(L"Kachujin/Idle");
+		m1->ReadAnimation(L"Kachujin/Run");
+		m1->ReadAnimation(L"Kachujin/Slash");
+
+		for (int32 i = 0; i < 500; i++)
+		{
+			auto obj = make_shared<GameObject>();
+			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+			obj->AddComponent(make_shared<ModelAnimator>(renderDemoShader));
+			{
+				obj->GetModelAnimator()->SetModel(m1);
+				obj->GetModelAnimator()->SetPass(2);
+			}
+			CUR_SCENE->Add(obj);
+		}
+	}
+
+	{
+		// Model
+		shared_ptr<class Model> m2 = make_shared<Model>();
+		m2->ReadModel(L"Tower/Tower");
+		m2->ReadMaterial(L"Tower/Tower");
+
+		for (int32 i = 0; i < 100; i++)
+		{
+			auto obj = make_shared<GameObject>();
+			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+
+			obj->AddComponent(make_shared<ModelRenderer>(renderDemoShader));
+			{
+				obj->GetModelRenderer()->SetModel(m2);
+				obj->GetModelRenderer()->SetPass(1);
 			}
 
 			CUR_SCENE->Add(obj);

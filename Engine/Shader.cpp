@@ -415,7 +415,7 @@ void Shader::PushKeyframeData(const KeyframeDesc& desc)
 
 void Shader::PushTweenData(const InstancedTweenDesc& desc)
 {
-	if (_transformEffectBuffer == nullptr)
+	if (_tweenEffectBuffer == nullptr)
 	{
 		_tweenBuffer = make_shared<ConstantBuffer<InstancedTweenDesc>>();
 		_tweenBuffer->Create();
