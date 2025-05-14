@@ -15,6 +15,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Light.h"
+#include "Sky.h"
 #include "Scene.h"
 #include "SphereCollider.h"
 #include "TextureBuffer.h"
@@ -36,7 +37,7 @@ void BillboardDemo::Init()
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
@@ -175,7 +176,7 @@ void BillboardDemo::Init()
 			auto snowShader = make_shared<Shader>(L"24. SnowDemo.fx");
 			auto obj = make_shared<GameObject>();
 			obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
-			obj->AddComponent(make_shared<SnowBillboard>(Vec3(200, 200, 200), 20000));
+			obj->AddComponent(make_shared<SnowBillboard>(Vec3(100, 100, 100), 10000));
 			{
 				// Material
 				{
@@ -224,7 +225,7 @@ void BillboardDemo::Init()
 
 	{
 		// Model
-		shared_ptr<class Model> m2 = make_shared<Model>();
+		shared_ptr<Model> m2 = make_shared<Model>();
 		m2->ReadModel(L"Tower/Tower");
 		m2->ReadMaterial(L"Tower/Tower");
 
@@ -243,6 +244,8 @@ void BillboardDemo::Init()
 			CUR_SCENE->Add(obj);
 		}
 	}
+	
+	CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
 }
 
 void BillboardDemo::Update()

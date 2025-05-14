@@ -17,7 +17,7 @@ Camera::~Camera()
 
 }
 
-void Camera::Update()
+void Camera::LateUpdate()
 {
 	UpdateMatrix();
 }

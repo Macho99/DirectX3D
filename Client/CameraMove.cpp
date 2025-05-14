@@ -8,7 +8,6 @@ void CameraMove::Start()
 
 void CameraMove::Update()
 {
-
 	float dt = TIME->GetDeltaTime();
 
 	Vec3 pos = GetTransform()->GetPosition();

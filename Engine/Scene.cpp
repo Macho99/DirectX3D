@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Terrain.h"
 #include "Button.h"
+#include "Sky.h"
 
 void Scene::Start()
 {
@@ -41,8 +42,11 @@ void Scene::Render()
 {
 	for (auto& camera : _cameras)
 	{
-		camera->GetCamera()->SortGameObject();
-		camera->GetCamera()->Render_Forward();
+		const shared_ptr<Camera>& cam = camera->GetCamera();
+		cam->SortGameObject();
+		cam->Render_Forward();
+		if (cam->IsCulled(Layer_UI) == true && _sky)
+			_sky->Render(cam);
 	}
 }
 

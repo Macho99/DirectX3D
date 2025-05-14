@@ -13,8 +13,19 @@ Texture::~Texture()
 
 void Texture::Load(const wstring& path)
 {
+	// 파일 확장자 얻기
+	wstring ext = fs::path(path).extension();
+
 	DirectX::TexMetadata md;
-	HRESULT hr = ::LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &md, _img);
+
+	HRESULT hr;
+	if (ext == L".dds" || ext == L".DDS")
+		hr = ::LoadFromDDSFile(path.c_str(), DDS_FLAGS_NONE, &md, _img);
+	else if (ext == L".tga" || ext == L".TGA")
+		hr = ::LoadFromTGAFile(path.c_str(), &md, _img);
+	else // png, jpg, jpeg, bmp
+		hr = ::LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &md, _img);
+
 	CHECK(hr);
 
 	hr = ::CreateShaderResourceView(DEVICE.Get(), _img.GetImages(), _img.GetImageCount(), md, _shaderResourveView.GetAddressOf());

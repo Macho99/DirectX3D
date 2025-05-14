@@ -14,7 +14,7 @@ public:
 	Camera();
 	virtual ~Camera();
 	
-	virtual void Update() override;
+	virtual void LateUpdate() override;
 
 	void SetProjectionType(ProjectionType type) { _type = type; }
 	ProjectionType GetProjectionType() { return _type; }

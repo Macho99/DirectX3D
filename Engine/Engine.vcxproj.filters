@@ -264,6 +264,9 @@
     <ClInclude Include="Renderer.h">
       <Filter>04. Component\VFX</Filter>
     </ClInclude>
+    <ClInclude Include="Sky.h">
+      <Filter>01. Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -460,6 +463,9 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>04. Component\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Sky.cpp">
+      <Filter>01. Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

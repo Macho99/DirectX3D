@@ -20,6 +20,7 @@ public:
 	void SetNormalMap(shared_ptr<Texture> normalMap) { _normalMap = normalMap; }
 	void SetSpecularMap(shared_ptr<Texture> specularMap) { _specularMap = specularMap; }
 	void SetRandomTex(shared_ptr<Texture> randomTex) { _randomTex = randomTex; }
+	void SetCubeMap(shared_ptr<Texture> cubeMap) { _cubeMap = cubeMap; }
 
 	void Update();
 
@@ -35,11 +36,13 @@ private:
 	shared_ptr<Texture> _normalMap;
 	shared_ptr<Texture> _specularMap;
 	shared_ptr<Texture> _randomTex;
+	shared_ptr<Texture> _cubeMap;
 
 	// Cache
 	ComPtr<ID3DX11EffectShaderResourceVariable> _diffuseEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _normalEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _specularEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
+	ComPtr<ID3DX11EffectShaderResourceVariable> _cubeMapEffectBuffer;
 };
 
