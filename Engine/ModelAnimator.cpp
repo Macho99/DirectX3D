@@ -33,6 +33,8 @@ void ModelAnimator::SetModel(shared_ptr<Model> model)
 	for (auto& material : materials)
 	{
 		material->SetShader(_shader);
+		_material = material;
+		break;
 	}
 }
 
@@ -41,13 +43,14 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 	if (_model == nullptr)
 		return;
 
-	// GlobalData
-	_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
-
-	// Light
-	auto lightObj = SCENE->GetCurrentScene()->GetLight();
-	if (lightObj)
-		_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
+	Super::Render();
+	//// GlobalData
+	//_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
+	//
+	//// Light
+	//auto lightObj = SCENE->GetCurrentScene()->GetLight();
+	//if (lightObj)
+	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 
 	if (_texture == nullptr)
 		CreateTexture();
@@ -259,4 +262,9 @@ void ModelAnimator::UpdateTweenData()
 			desc.next.ratio = desc.next.sumTime / timePerFrame;
 		}
 	}
+}
+
+shared_ptr<Shader> ModelAnimator::GetShader()
+{
+	return _material->GetShader();
 }

@@ -16,7 +16,7 @@ class ParticleSystem : public Renderer
 {
 	using Super = Renderer;
 public:
-	ParticleSystem(shared_ptr<Shader> shader);
+	ParticleSystem();
 	~ParticleSystem();
 
 	void Reset();

@@ -24,6 +24,8 @@ void ModelRenderer::SetModel(shared_ptr<Model> model)
 	for (auto& material : materials)
 	{
 		material->SetShader(_shader);
+		_material = material;
+		break;
 	}
 }
 
@@ -32,13 +34,14 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 	if (_model == nullptr)
 		return;
 
-	// GlobalData
-	_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
-
-	// Light
-	auto lightObj = SCENE->GetCurrentScene()->GetLight();
-	if (lightObj)
-		_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
+	Super::Render();
+	//// GlobalData
+	//_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
+	//
+	//// Light
+	//auto lightObj = SCENE->GetCurrentScene()->GetLight();
+	//if (lightObj)
+	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 
 	// Bones
 	BoneDesc boneDesc;
@@ -73,4 +76,9 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 InstanceID ModelRenderer::GetInstanceID()
 {
 	return make_pair((uint64)_model.get(), (uint64)_shader.get());
+}
+
+void ModelRenderer::SetMaterial(shared_ptr<Material> material)
+{
+	static_assert("ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
 }

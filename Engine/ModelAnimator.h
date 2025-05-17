@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include "Renderer.h"
 
 class Model;
 
@@ -9,9 +9,9 @@ struct AnimTransform
 	array<TransformArrayType, MAX_MODEL_KEYFRAMES> transforms;
 };
 
-class ModelAnimator : public Component
+class ModelAnimator : public Renderer
 {
-	using Super = Component;
+	using Super = Renderer;
 
 public:
 	ModelAnimator(shared_ptr<Shader> shader);
@@ -20,7 +20,7 @@ public:
 	virtual void Update() override;
 
 	void UpdateTweenData();
-	shared_ptr<Shader> GetShader() { return _shader; }
+	shared_ptr<Shader> GetShader();
 
 	void SetModel(shared_ptr<Model> model);
 	void SetPass(uint8 pass) { _pass = pass; }

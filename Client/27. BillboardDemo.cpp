@@ -158,7 +158,7 @@ void BillboardDemo::Init()
 		auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
 		auto obj = make_shared<GameObject>();
 		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
-		obj->AddComponent(make_shared<ParticleSystem>(particleShader));
+		obj->AddComponent(make_shared<ParticleSystem>());
 		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		particleSystem->SetEmitDirW(Vec3(0.f, 2.f, 0.f));
 		shared_ptr<Material> material = make_shared<Material>();
@@ -244,7 +244,32 @@ void BillboardDemo::Init()
 			CUR_SCENE->Add(obj);
 		}
 	}
-	
+
+	// UI
+	{
+		auto obj = make_shared<GameObject>();
+		obj->SetLayerIndex(Layer_UI);
+		obj->AddComponent(make_shared<Button>());
+		obj->GetButton()->Create(Vec2(100, 100), Vec2(100, 100), RESOURCES->Get<Material>(L"Veigar"));
+
+		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
+
+		CUR_SCENE->Add(obj);
+	}
+
+	{
+		// UICamera
+		auto camera = make_shared<GameObject>();
+		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->AddComponent(make_shared<Camera>());
+		camera->GetCamera()->SetProjectionType(ProjectionType::Orthographic);
+		camera->GetCamera()->SetNear(1.0f);
+		camera->GetCamera()->SetFar(100.0f);
+		camera->GetCamera()->SetCullingMaskAll();
+		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, false);
+		CUR_SCENE->Add(camera);
+	}
+
 	CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
 }
 

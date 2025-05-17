@@ -4,7 +4,7 @@
 #include "Material.h"
 #include "Windows.h"
 
-ParticleSystem::ParticleSystem(shared_ptr<Shader> shader)
+ParticleSystem::ParticleSystem()
 	: Super(ComponentType::ParticleSystem)
 {
 	BuildVB();

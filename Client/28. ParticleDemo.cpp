@@ -66,7 +66,7 @@ void ParticleDemo::Init()
 		auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
 		auto obj = make_shared<GameObject>();
 		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
-		obj->AddComponent(make_shared<ParticleSystem>(particleShader));
+		obj->AddComponent(make_shared<ParticleSystem>());
 		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		particleSystem->SetEmitDirW(Vec3(0.f, 4.f, 0.f));
 		shared_ptr<Material> material = make_shared<Material>();
