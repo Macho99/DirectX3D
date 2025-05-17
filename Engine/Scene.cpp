@@ -42,6 +42,7 @@ void Scene::Render()
 {
 	for (auto& camera : _cameras)
 	{
+		GRAPHICS->ClearDepthStencilView();
 		const shared_ptr<Camera>& cam = camera->GetCamera();
 		cam->SortGameObject();
 		cam->Render_Forward();

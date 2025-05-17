@@ -5,6 +5,8 @@
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
 #include "ParticleSystem.h"
+#include "Billboard.h"
+#include "SnowBillboard.h"
 
 void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 {
@@ -16,10 +18,16 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 	for (shared_ptr<GameObject>& gameObject : gameObjects)
 	{
 		shared_ptr<ParticleSystem> particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
-		if (particle == nullptr)
-			continue;
+		if (particle != nullptr)
+			particle->Render();
 
-		particle->Render();
+		shared_ptr<Billboard> billboard = gameObject->GetFixedComponent<Billboard>(ComponentType::Billboard);
+		if (billboard != nullptr)
+			billboard->Render();
+
+		shared_ptr<SnowBillboard> snowBillboard = gameObject->GetFixedComponent<SnowBillboard>(ComponentType::SnowBillboard);
+		if (snowBillboard != nullptr)
+			snowBillboard->Render();
 	}
 }
 

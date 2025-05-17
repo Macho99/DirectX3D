@@ -146,6 +146,10 @@ shared_ptr<Renderer> GameObject::GetRenderer()
 		renderer = GetFixedComponent(ComponentType::Animator);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::ParticleSystem);
+	if (renderer == nullptr)
+		renderer = GetFixedComponent(ComponentType::Billboard);
+	if (renderer == nullptr)
+		renderer = GetFixedComponent(ComponentType::SnowBillboard);
 
 	return static_pointer_cast<Renderer>(renderer);
 }

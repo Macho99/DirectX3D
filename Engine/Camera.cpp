@@ -67,6 +67,7 @@ void Camera::SortGameObject()
 		switch (renderQueue)
 		{
 		case RenderQueue::Opaque:
+		case RenderQueue::Cutout:
 			_vecForward.push_back(gameObject);
 			break;
 		case RenderQueue::Transparent:

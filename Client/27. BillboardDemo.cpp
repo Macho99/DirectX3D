@@ -32,8 +32,6 @@
 
 void BillboardDemo::Init()
 {
-
-	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
@@ -210,7 +208,7 @@ void BillboardDemo::Init()
 		m1->ReadAnimation(L"Kachujin/Run");
 		m1->ReadAnimation(L"Kachujin/Slash");
 
-		for (int32 i = 0; i < 500; i++)
+		for (int32 i = 0; i < 50; i++)
 		{
 			auto obj = make_shared<GameObject>();
 			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
@@ -252,7 +250,6 @@ void BillboardDemo::Init()
 		obj->SetLayerIndex(Layer_UI);
 		obj->AddComponent(make_shared<Button>());
 		obj->GetButton()->Create(Vec2(100, 100), Vec2(100, 100), RESOURCES->Get<Material>(L"Veigar"));
-
 		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
 
 		CUR_SCENE->Add(obj);
@@ -293,5 +290,4 @@ void BillboardDemo::Update()
 
 void BillboardDemo::Render()
 {
-	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

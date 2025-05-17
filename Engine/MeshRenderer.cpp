@@ -24,7 +24,7 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 		return;
 
 	// Light
-	_material->Update();
+	//_material->Update();
 
 	_mesh->GetVertexBuffer()->PushData();
 	_mesh->GetIndexBuffer()->PushData();

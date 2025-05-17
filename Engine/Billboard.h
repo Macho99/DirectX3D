@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "Component.h"
+#include "Renderer.h"
 
 struct VertexBillboard
 {
@@ -11,18 +11,18 @@ struct VertexBillboard
 
 #define MAX_BILLBOARD_COUNT 10000
 
-class Billboard : public Component
+class Billboard : public Renderer
 {
-	using Super = Component;
+	using Super = Renderer;
 
 public:
 	Billboard();
 	~Billboard();
 
-	void Update() override;
+	void Render() override;
 	void Add(Vec3 position, Vec2 scale);
 
-	void SetMaterial(shared_ptr<Material> material) { _material = material; }
+	//void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	void SetPass(uint8 pass) { _pass = pass; }
 
 private:
@@ -33,7 +33,7 @@ private:
 
 	int32 _drawCount = 0;
 	int32 _prevCount = 0;
-	shared_ptr<Material> _material;
+	//shared_ptr<Material> _material;
 
 	uint8 _pass = 0;
 };

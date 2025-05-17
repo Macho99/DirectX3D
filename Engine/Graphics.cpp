@@ -16,8 +16,8 @@ void Graphics::Init(HWND hwnd)
 void Graphics::RenderBegin()
 {
 	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
-	_deviceContext->ClearDepthStencilView(_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-		1, 0);
+	//ClearDepthStencilView();
+	//씬에서 카메라마다 클리어해줌
 	_deviceContext->ClearRenderTargetView(_renderTargetView.Get(), (float*)(&GAME->GetGameDesc().clearColor));
 	_vp.RSSetViewport();
 }
@@ -27,6 +27,13 @@ void Graphics::RenderEnd()
 	HRESULT hr = _swapChain->Present(0, 0);
 	CHECK(hr);
 }
+
+void Graphics::ClearDepthStencilView()
+{	
+	_deviceContext->ClearDepthStencilView(_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1, 0);
+}
+
 void Graphics::CreateDeviceAndSwapChain()
 {
 	DXGI_SWAP_CHAIN_DESC desc;

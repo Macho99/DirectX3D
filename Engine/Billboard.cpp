@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Billboard.h"
 #include "Material.h"
+#include "Renderer.h"
 #include "Camera.h"
 
 Billboard::Billboard()
@@ -33,8 +34,13 @@ Billboard::~Billboard()
 {
 }
 
-void Billboard::Update()
+void Billboard::Render()
 {
+	Super::Render();
+	if (_material == nullptr)
+		return;
+	_material->Update();
+
 	if (_prevCount != _drawCount)
 	{
 		_prevCount = _drawCount;
@@ -52,13 +58,13 @@ void Billboard::Update()
 	// Transform
 	Matrix world = GetTransform()->GetWorldMatrix();
 	shader->PushTransformData(TransformDesc(world));
-
-	// GlobalData
-	shared_ptr<Camera> camera = CUR_SCENE->GetMainCamera()->GetCamera();
-	shader->PushGlobalData(camera->GetViewMatrix(), camera->GetProjectionMatrix());
+	//
+	//// GlobalData
+	//shared_ptr<Camera> camera = CUR_SCENE->GetMainCamera()->GetCamera();
+	//shader->PushGlobalData(camera->GetViewMatrix(), camera->GetProjectionMatrix());
 
 	// Light
-	_material->Update();
+	//_material->Update();
 
 	// IA
 	_vertexBuffer->PushData();

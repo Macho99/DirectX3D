@@ -70,26 +70,28 @@ SnowBillboard::~SnowBillboard()
 {
 }
 
-void SnowBillboard::Update()
+void SnowBillboard::Render()
 {
+	Super::Render();
+
 	_desc.origin = CUR_SCENE->GetMainCamera()->GetTransform()->GetPosition();
 	_desc.time = _elapsedTime;
 	_elapsedTime += DT;
 
-	auto shader = _material->GetShader();
 
 	// Transform
-	auto world = GetTransform()->GetWorldMatrix();
-	shader->PushTransformData(TransformDesc{ world });
+	//auto world = GetTransform()->GetWorldMatrix();
+	//shader->PushTransformData(TransformDesc{ world });
 
 	// GlobalData
-	shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
+	//shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
 
+	auto shader = _material->GetShader();
 	// SnowData
 	shader->PushSnowData(_desc);
 
 	// Light
-	_material->Update();
+	//_material->Update();
 
 	// IA
 	_vertexBuffer->PushData();
