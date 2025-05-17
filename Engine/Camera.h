@@ -51,6 +51,7 @@ public:
 public:
 	void SortGameObject();
 	void Render_Forward();
+	void Render_Backward();
 
 	void SetCullingMaskLayerOnOff(uint8 layer, bool on)
 	{

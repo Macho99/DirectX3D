@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Camera.h"
 #include "Scene.h"
-#include "ParticleSystem.h"
+#include "Renderer.h"
+#include "Material.h"
 
 Matrix Camera::S_MatView = Matrix::Identity;
 Matrix Camera::S_MatProjection = Matrix::Identity;
@@ -46,19 +47,32 @@ void Camera::SortGameObject()
 	unordered_set<shared_ptr<GameObject>>& gameObjects = scene->GetObjects();
 
 	_vecForward.clear();
+	_vecBackward.clear();
 
 	for (auto& gameObject : gameObjects)
 	{
 		if (IsCulled(gameObject->GetLayerIndex()))
 			continue;
 
-		if (gameObject->GetMeshRenderer() == nullptr
-			&& gameObject->GetModelRenderer() == nullptr
-			&& gameObject->GetModelAnimator() == nullptr
-			&& gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem) == nullptr)
+		shared_ptr<Renderer> renderer = gameObject->GetRenderer();
+		if (renderer == nullptr)
 			continue;
 
-		_vecForward.push_back(gameObject);
+		shared_ptr<Material> material = renderer->GetMaterial();
+		RenderQueue renderQueue = material->GetRenderQueue();
+
+		// TODO: 컷아웃용 정렬하기
+		// TODO: 거리에 따라 정렬하기(인스턴싱도 고민)
+
+		switch (renderQueue)
+		{
+		case RenderQueue::Opaque:
+			_vecForward.push_back(gameObject);
+			break;
+		case RenderQueue::Transparent:
+			_vecBackward.push_back(gameObject);
+			break;
+		}
 	}
 }
 
@@ -68,4 +82,9 @@ void Camera::Render_Forward()
 	S_MatProjection = _matProjection;
 
 	GET_SINGLE(RenderManager)->Render(_vecForward);
+}
+
+void Camera::Render_Backward()
+{
+	GET_SINGLE(RenderManager)->Render(_vecBackward);
 }

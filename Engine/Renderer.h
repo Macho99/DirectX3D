@@ -9,6 +9,7 @@ public:
 
 	void SetPass(uint8 pass) { _pass = pass; }
 	virtual void SetMaterial(shared_ptr<Material> material) { _material = material; }
+	shared_ptr<Material> GetMaterial() { return _material; }
 
 	virtual void Render();
 

@@ -47,6 +47,7 @@ void Scene::Render()
 		cam->Render_Forward();
 		if (cam->IsCulled(Layer_UI) == true && _sky)
 			_sky->Render(cam);
+		cam->Render_Backward();
 	}
 }
 

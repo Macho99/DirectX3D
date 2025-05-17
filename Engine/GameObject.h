@@ -13,6 +13,7 @@ class Terrain;
 class Button;
 class Billboard;
 class SnowBillboard;
+class Renderer;
 
 class GameObject : public enable_shared_from_this<GameObject>
 {
@@ -33,6 +34,7 @@ public:
 	shared_ptr<MeshRenderer> GetMeshRenderer();
 	shared_ptr<ModelRenderer> GetModelRenderer();
 	shared_ptr<ModelAnimator> GetModelAnimator();
+	shared_ptr<Renderer> GetRenderer();
 	shared_ptr<BaseCollider> GetCollider();
 	shared_ptr<Terrain> GetTerrain();
 	shared_ptr<Button> GetButton();

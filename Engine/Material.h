@@ -1,5 +1,14 @@
 #pragma once
 #include "ResourceBase.h"
+
+enum class RenderQueue
+{
+	Opaque,
+	Cutout,
+	Transparent,
+	Max
+};
+
 class Material : public ResourceBase
 {
 	using Super = ResourceBase;
@@ -22,6 +31,9 @@ public:
 	void SetRandomTex(shared_ptr<Texture> randomTex) { _randomTex = randomTex; }
 	void SetCubeMap(shared_ptr<Texture> cubeMap) { _cubeMap = cubeMap; }
 
+	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
+	RenderQueue GetRenderQueue() { return _renderQueue; }
+
 	void Update();
 
 	shared_ptr<Material> Clone();
@@ -30,6 +42,7 @@ private:
 	friend class MeshRenderer;
 
 	MaterialDesc _desc;
+	RenderQueue _renderQueue = RenderQueue::Opaque;
 
 	shared_ptr<Shader> _shader;
 	shared_ptr<Texture> _diffuseMap;

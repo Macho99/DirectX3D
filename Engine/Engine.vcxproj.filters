@@ -141,9 +141,6 @@
     <ClInclude Include="Mesh.h">
       <Filter>00. Engine\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>04. Component</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>00. Engine</Filter>
     </ClInclude>
@@ -161,9 +158,6 @@
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>00. Engine\Resource\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelRenderer.h">
-      <Filter>04. Component</Filter>
     </ClInclude>
     <ClInclude Include="imgui_impl_dx11.h">
       <Filter>98. Utils\ImGUI</Filter>
@@ -194,9 +188,6 @@
     </ClInclude>
     <ClInclude Include="ModelAnimation.h">
       <Filter>00. Engine\Resource\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelAnimator.h">
-      <Filter>04. Component</Filter>
     </ClInclude>
     <ClInclude Include="RenderManager.h">
       <Filter>02. Managers</Filter>
@@ -266,6 +257,15 @@
     </ClInclude>
     <ClInclude Include="Sky.h">
       <Filter>01. Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelRenderer.h">
+      <Filter>04. Component\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>04. Component\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelAnimator.h">
+      <Filter>04. Component\VFX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -344,9 +344,6 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>00. Engine\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="MeshRenderer.cpp">
-      <Filter>04. Component</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>00. Engine</Filter>
     </ClCompile>
@@ -364,9 +361,6 @@
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>00. Engine\Resource\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelRenderer.cpp">
-      <Filter>04. Component</Filter>
     </ClCompile>
     <ClCompile Include="imgui_demo.cpp">
       <Filter>98. Utils\ImGUI</Filter>
@@ -394,9 +388,6 @@
     </ClCompile>
     <ClCompile Include="ModelAnimation.cpp">
       <Filter>00. Engine\Resource\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelAnimator.cpp">
-      <Filter>04. Component</Filter>
     </ClCompile>
     <ClCompile Include="RenderManager.cpp">
       <Filter>02. Managers</Filter>
@@ -466,6 +457,15 @@
     </ClCompile>
     <ClCompile Include="Sky.cpp">
       <Filter>01. Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshRenderer.cpp">
+      <Filter>04. Component\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelAnimator.cpp">
+      <Filter>04. Component\VFX</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelRenderer.cpp">
+      <Filter>04. Component\VFX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

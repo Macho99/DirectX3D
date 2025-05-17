@@ -162,6 +162,7 @@ void BillboardDemo::Init()
 		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		particleSystem->SetEmitDirW(Vec3(0.f, 2.f, 0.f));
 		shared_ptr<Material> material = make_shared<Material>();
+		material->SetRenderQueue(RenderQueue::Transparent);
 		material->SetShader(particleShader);
 		auto texture = RESOURCES->Load<Texture>(L"Flare", L"..\\Resources\\Textures\\flare0.png");
 		material->SetDiffuseMap(texture);
