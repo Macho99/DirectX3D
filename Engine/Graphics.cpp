@@ -34,6 +34,22 @@ void Graphics::ClearDepthStencilView()
 		1, 0);
 }
 
+void Graphics::ClearShadowDepthStencilView()
+{
+	_deviceContext->ClearDepthStencilView(_shadowDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1, 0);
+}
+
+void Graphics::SetDepthStencilView()
+{
+	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
+}
+
+void Graphics::SetShadowDepthStencilView()
+{
+	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _shadowDSV.Get());
+}
+
 void Graphics::CreateDeviceAndSwapChain()
 {
 	DXGI_SWAP_CHAIN_DESC desc;
@@ -104,6 +120,11 @@ void Graphics::CreateDepthStencilView()
 
 		HRESULT hr = DEVICE->CreateTexture2D(&desc, nullptr, _depthStencilTexture.GetAddressOf());
 		CHECK(hr);
+
+		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		hr = DEVICE->CreateTexture2D(&desc, nullptr, _shadowDSTexture.GetAddressOf());
+		CHECK(hr);
 	}
 
 	{
@@ -114,6 +135,19 @@ void Graphics::CreateDepthStencilView()
 		desc.Texture2D.MipSlice = 0;
 
 		HRESULT hr = DEVICE->CreateDepthStencilView(_depthStencilTexture.Get(), &desc, _depthStencilView.GetAddressOf());
+		CHECK(hr);
+
+		hr = DEVICE->CreateDepthStencilView(_shadowDSTexture.Get(), &desc, _shadowDSV.GetAddressOf());
+		CHECK(hr);
+	}
+
+	{
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, _shadowSRV.GetAddressOf());
 		CHECK(hr);
 	}
 }

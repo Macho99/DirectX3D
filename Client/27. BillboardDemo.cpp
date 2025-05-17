@@ -32,6 +32,7 @@
 
 void BillboardDemo::Init()
 {
+	shared_ptr<Shader> renderShader = make_shared<Shader>(L"19. RenderDemo.fx");
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
@@ -46,9 +47,8 @@ void BillboardDemo::Init()
 		// Mesh
 		// Material
 		{
-			auto shader = make_shared<Shader>(L"19. RenderDemo.fx");
 			shared_ptr<Material> material = make_shared<Material>();
-			material->SetShader(shader);
+			material->SetShader(renderShader);
 			auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
 			material->SetDiffuseMap(texture);
 			MaterialDesc& desc = material->GetMaterialDesc();
@@ -198,7 +198,6 @@ void BillboardDemo::Init()
 		}
 	}
 
-	shared_ptr<Shader> renderDemoShader = make_shared<Shader>(L"19. RenderDemo.fx");
 	{
 		// Animation
 		shared_ptr<Model> m1 = make_shared<Model>();
@@ -213,7 +212,7 @@ void BillboardDemo::Init()
 			auto obj = make_shared<GameObject>();
 			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
 			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
-			obj->AddComponent(make_shared<ModelAnimator>(renderDemoShader));
+			obj->AddComponent(make_shared<ModelAnimator>(renderShader));
 			{
 				obj->GetModelAnimator()->SetModel(m1);
 				obj->GetModelAnimator()->SetPass(2);
@@ -234,7 +233,7 @@ void BillboardDemo::Init()
 			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
 			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
 
-			obj->AddComponent(make_shared<ModelRenderer>(renderDemoShader));
+			obj->AddComponent(make_shared<ModelRenderer>(renderShader));
 			{
 				obj->GetModelRenderer()->SetModel(m2);
 				obj->GetModelRenderer()->SetPass(1);
@@ -249,7 +248,12 @@ void BillboardDemo::Init()
 		auto obj = make_shared<GameObject>();
 		obj->SetLayerIndex(Layer_UI);
 		obj->AddComponent(make_shared<Button>());
-		obj->GetButton()->Create(Vec2(100, 100), Vec2(100, 100), RESOURCES->Get<Material>(L"Veigar"));
+		auto material = make_shared<Material>();
+		auto texture = make_shared<Texture>();
+		texture->SetSRV(GRAPHICS->GetShadowMapSRV());
+		material->SetDiffuseMap(texture);
+		material->SetShader(renderShader);
+		obj->GetButton()->Create(Vec2(1920 / 10 + 20, 1080 / 10 + 20), Vec2(1920 / 5, 1080 / 5), material);
 		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
 
 		CUR_SCENE->Add(obj);

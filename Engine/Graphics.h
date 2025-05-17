@@ -16,6 +16,9 @@ public:
 	ComPtr<ID3D11DeviceContext> GetDeviceContext() { return _deviceContext; }
 
 	void ClearDepthStencilView();
+	void ClearShadowDepthStencilView();
+	void SetDepthStencilView();
+	void SetShadowDepthStencilView();
 
 private:
 	void CreateDeviceAndSwapChain();
@@ -25,6 +28,8 @@ private:
 public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
 	Viewport& GetViewport() { return _vp; }
+
+	ComPtr<ID3D11ShaderResourceView> GetShadowMapSRV() { return _shadowSRV; }
 
 private:
 	HWND _hwnd = {};
@@ -40,6 +45,9 @@ private:
 	// DSV
 	ComPtr<ID3D11Texture2D> _depthStencilTexture;
 	ComPtr<ID3D11DepthStencilView> _depthStencilView;
+	ComPtr<ID3D11Texture2D> _shadowDSTexture;
+	ComPtr<ID3D11DepthStencilView> _shadowDSV;
+	ComPtr<ID3D11ShaderResourceView> _shadowSRV;
 
 	// Misc
 	//D3D11_VIEWPORT _viewport = { 0 };

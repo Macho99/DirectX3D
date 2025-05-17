@@ -42,8 +42,18 @@ void Scene::Render()
 {
 	for (auto& camera : _cameras)
 	{
-		GRAPHICS->ClearDepthStencilView();
 		const shared_ptr<Camera>& cam = camera->GetCamera();
+		if (cam->GetProjectionType() == ProjectionType::Perspective)
+		{
+			GRAPHICS->ClearShadowDepthStencilView();
+			GRAPHICS->SetShadowDepthStencilView();
+		}
+		else
+		{
+			GRAPHICS->ClearDepthStencilView();
+			GRAPHICS->SetDepthStencilView();
+		}
+
 		cam->SortGameObject();
 		cam->Render_Forward();
 		if (cam->IsCulled(Layer_UI) == true && _sky)
