@@ -1,6 +1,8 @@
 #pragma once
 #include "Component.h"
 
+class Camera;
+
 class Light : public Component
 {
 	using Super = Component;
@@ -20,6 +22,11 @@ public:
 	void SetSpecular(const Color& color) { _desc.specular = color; }
 	void SetEmissive(const Color& color) { _desc.emissive = color; }
 	void SetLightDirection(Vec3 direction) { _desc.direction = direction; }
+
+public:
+	void SetVPMatrix(Camera* camera, float backDist, Matrix matProjection);
+	static Matrix S_MatView;
+	static Matrix S_MatProjection;
 
 private:
 	LightDesc _desc;

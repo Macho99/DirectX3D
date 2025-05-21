@@ -36,7 +36,7 @@ void BillboardDemo::Init()
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
+		camera->GetTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
@@ -61,7 +61,7 @@ void BillboardDemo::Init()
 		for (int32 i = 0; i < 1; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(0, 0, 0));
+			obj->GetTransform()->SetLocalPosition(Vec3(0, 0, 0));
 			obj->GetTransform()->SetLocalScale(Vec3(1.f));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
@@ -91,6 +91,7 @@ void BillboardDemo::Init()
 		lightDesc.diffuse = Vec4(1.f);
 		lightDesc.specular = Vec4(0.1f);
 		lightDesc.direction = Vec3(1.f, 0.f, 1.f);
+		light->GetTransform()->SetRotation(lightDesc.direction);
 		static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
 		CUR_SCENE->Add(light);
 	}
@@ -99,7 +100,7 @@ void BillboardDemo::Init()
 	{
 		shared_ptr<Shader> shader = make_shared<Shader>(L"23. BillboardDemo.fx");
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(0.f));
 		obj->AddComponent(make_shared<Billboard>());
 		{
 			// Material
@@ -145,7 +146,7 @@ void BillboardDemo::Init()
 			RESOURCES->Add(L"TerrainGrass", material);
 		}
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(-100.f, 0.f, -100.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(-100.f, 0.f, -100.f));
 		obj->AddComponent(make_shared<Terrain>());
 		obj->GetTerrain()->Create(200, 200, RESOURCES->Get<Material>(L"TerrainGrass"));
 		CUR_SCENE->Add(obj);
@@ -155,7 +156,7 @@ void BillboardDemo::Init()
 	{
 		auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
 		obj->AddComponent(make_shared<ParticleSystem>());
 		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		particleSystem->SetEmitDirW(Vec3(0.f, 2.f, 0.f));
@@ -174,7 +175,7 @@ void BillboardDemo::Init()
 		{
 			auto snowShader = make_shared<Shader>(L"24. SnowDemo.fx");
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
+			obj->GetTransform()->SetLocalPosition(Vec3(0.f));
 			obj->AddComponent(make_shared<SnowBillboard>(Vec3(100, 100, 100), 10000));
 			{
 				// Material
@@ -207,11 +208,11 @@ void BillboardDemo::Init()
 		m1->ReadAnimation(L"Kachujin/Run");
 		m1->ReadAnimation(L"Kachujin/Slash");
 
-		for (int32 i = 0; i < 50; i++)
+		for (int32 i = 0; i < 500; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+			obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetTransform()->SetScale(Vec3(0.01f));
 			obj->AddComponent(make_shared<ModelAnimator>(renderShader));
 			{
 				obj->GetModelAnimator()->SetModel(m1);
@@ -230,8 +231,8 @@ void BillboardDemo::Init()
 		for (int32 i = 0; i < 100; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+			obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetTransform()->SetScale(Vec3(0.01f));
 
 			obj->AddComponent(make_shared<ModelRenderer>(renderShader));
 			{
@@ -245,15 +246,16 @@ void BillboardDemo::Init()
 
 	// UI
 	{
+		const int debugUISize = 2;
 		auto obj = make_shared<GameObject>();
 		obj->SetLayerIndex(Layer_UI);
 		obj->AddComponent(make_shared<Button>());
 		auto material = make_shared<Material>();
-		auto texture = make_shared<Texture>();
-		texture->SetSRV(GRAPHICS->GetShadowMapSRV());
-		material->SetDiffuseMap(texture);
-		material->SetShader(renderShader);
-		obj->GetButton()->Create(Vec2(1920 / 10 + 20, 1080 / 10 + 20), Vec2(1920 / 5, 1080 / 5), material);
+		//auto texture = make_shared<Texture>();
+		//texture->SetSRV(GRAPHICS->GetShadowMapSRV());
+		material->SetDiffuseMap(GRAPHICS->GetShadowMap());
+		material->SetShader(make_shared<Shader>(L"DebugTexture.fx"));
+		obj->GetButton()->Create(Vec2(1920 / (debugUISize * 2) + 20, 1080 / (debugUISize * 2) + 20), Vec2(1920 / debugUISize, 1080 / debugUISize), material);
 		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
 
 		CUR_SCENE->Add(obj);
@@ -262,7 +264,7 @@ void BillboardDemo::Init()
 	{
 		// UICamera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->GetCamera()->SetProjectionType(ProjectionType::Orthographic);
 		camera->GetCamera()->SetNear(1.0f);

@@ -32,7 +32,7 @@ void SkyBoxDemo::Init()
 	{
 		// Object
 		_obj = make_shared<GameObject>();
-		_obj->GetOrAddTransform();
+		_obj->GetTransform();
 		_obj->AddComponent(make_shared<MeshRenderer>());
 		{
 			auto mesh = RESOURCES->Get<Mesh>(L"Sphere");
@@ -46,7 +46,7 @@ void SkyBoxDemo::Init()
 
 	// Camera
 	_camera = make_shared<GameObject>();
-	_camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+	_camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 	_camera->AddComponent(make_shared<Camera>());
 	_camera->AddComponent(make_shared<CameraMove>());
 

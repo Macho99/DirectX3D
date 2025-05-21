@@ -77,15 +77,18 @@ void Camera::SortGameObject()
 	}
 }
 
-void Camera::Render_Forward()
+void Camera::SetStaticMatrix()
 {
 	S_MatView = _matView;
 	S_MatProjection = _matProjection;
-
-	GET_SINGLE(RenderManager)->Render(_vecForward);
 }
 
-void Camera::Render_Backward()
+void Camera::Render_Forward(bool isShadowTech)
 {
-	GET_SINGLE(RenderManager)->Render(_vecBackward);
+	GET_SINGLE(RenderManager)->Render(_vecForward, isShadowTech);
+}
+
+void Camera::Render_Backward(bool isShadowTech)
+{
+	GET_SINGLE(RenderManager)->Render(_vecBackward, isShadowTech);
 }

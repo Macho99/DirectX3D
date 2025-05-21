@@ -34,7 +34,7 @@ void ParticleDemo::Init()
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
@@ -56,7 +56,7 @@ void ParticleDemo::Init()
 			RESOURCES->Add(L"TerrainGrass", material);
 		}
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(-100.f, 0.f, -100.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(-100.f, 0.f, -100.f));
 		obj->AddComponent(make_shared<Terrain>());
 		obj->GetTerrain()->Create(200, 200, RESOURCES->Get<Material>(L"TerrainGrass"));
 		CUR_SCENE->Add(obj);
@@ -65,7 +65,7 @@ void ParticleDemo::Init()
 	{
 		auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
 		obj->AddComponent(make_shared<ParticleSystem>());
 		shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		particleSystem->SetEmitDirW(Vec3(0.f, 4.f, 0.f));

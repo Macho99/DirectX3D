@@ -18,7 +18,7 @@ void AnimationDemo::Init()
 
 	// Camera
 	_camera = make_shared<GameObject>();
-	_camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+	_camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 	_camera->AddComponent(make_shared<Camera>());
 	_camera->AddComponent(make_shared<CameraMove>());
 
@@ -61,8 +61,8 @@ void AnimationDemo::CreateCharacter()
 	m1->ReadAnimation(L"Kachujin/Slash");
 
 	_obj = make_shared<GameObject>();
-	_obj->GetOrAddTransform()->SetPosition(Vec3(0, 0, 1));
-	_obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+	_obj->GetTransform()->SetPosition(Vec3(0, 0, 1));
+	_obj->GetTransform()->SetScale(Vec3(0.01f));
 
 	_obj->AddComponent(make_shared<ModelAnimator>(_shader));
 	{

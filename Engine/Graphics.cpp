@@ -40,14 +40,18 @@ void Graphics::ClearShadowDepthStencilView()
 		1, 0);
 }
 
-void Graphics::SetDepthStencilView()
-{
-	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
-}
-
 void Graphics::SetShadowDepthStencilView()
 {
-	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _shadowDSV.Get());
+	_shadowVP.RSSetViewport();
+
+	ID3D11RenderTargetView* renderTargets[1] = { 0 };
+	_deviceContext->OMSetRenderTargets(1, renderTargets, _shadowDSV.Get());
+}
+
+void Graphics::SetRTVAndDSV()
+{
+	_vp.RSSetViewport();
+	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
 }
 
 void Graphics::CreateDeviceAndSwapChain()
@@ -130,6 +134,7 @@ void Graphics::CreateDepthStencilView()
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
+		desc.Flags = 0;
 		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		desc.Texture2D.MipSlice = 0;
@@ -147,12 +152,17 @@ void Graphics::CreateDepthStencilView()
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, _shadowSRV.GetAddressOf());
+		ComPtr<ID3D11ShaderResourceView> srv;
+		HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, srv.GetAddressOf());
 		CHECK(hr);
+
+		_shadowMap = make_shared<Texture>();
+		_shadowMap->SetSRV(srv);
 	}
 }
 
 void Graphics::SetViewport(float width, float height, float x, float y, float minDepth, float maxDepth)
 {
 	_vp.Set(width, height, x, y, minDepth, maxDepth);
+	_shadowVP.Set(width, height, x, y, minDepth, maxDepth);
 }

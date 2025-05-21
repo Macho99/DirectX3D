@@ -34,12 +34,9 @@ Billboard::~Billboard()
 {
 }
 
-void Billboard::Render()
+void Billboard::InnerRender(bool isShadowTech)
 {
-	Super::Render();
-	if (_material == nullptr)
-		return;
-	_material->Update();
+	Super::InnerRender(isShadowTech);
 
 	if (_prevCount != _drawCount)
 	{
@@ -55,22 +52,11 @@ void Billboard::Render()
 
 	shared_ptr<Shader> shader = _material->GetShader();
 	
-	// Transform
-	Matrix world = GetTransform()->GetWorldMatrix();
-	shader->PushTransformData(TransformDesc(world));
-	//
-	//// GlobalData
-	//shared_ptr<Camera> camera = CUR_SCENE->GetMainCamera()->GetCamera();
-	//shader->PushGlobalData(camera->GetViewMatrix(), camera->GetProjectionMatrix());
-
-	// Light
-	//_material->Update();
-
 	// IA
 	_vertexBuffer->PushData();
 	_indexBuffer->PushData();
 
-	shader->DrawIndexed(0, _pass, _drawCount * 6);
+	shader->DrawIndexed(GET_TECH(isShadowTech), _pass, _drawCount * 6);
 }
 
 void Billboard::Add(Vec3 position, Vec2 scale)

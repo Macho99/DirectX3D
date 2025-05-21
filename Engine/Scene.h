@@ -1,6 +1,7 @@
 #pragma once
 
 class Sky;
+class Camera;
 
 class Scene
 {
@@ -10,6 +11,8 @@ public:
 	virtual void LateUpdate();
 
 	virtual void Render();
+	void RenderGameCamera(Camera* cam);
+	void RenderUICamera(Camera* cam);
 
 	virtual void Add(shared_ptr<GameObject> gameObject);
 	virtual void Remove(shared_ptr<GameObject> gameObject);

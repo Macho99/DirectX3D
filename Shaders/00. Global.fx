@@ -119,6 +119,27 @@ RasterizerState FrontCounterClockwiseTrue
 	FrontCounterClockwise = true;
 };
 
+RasterizerState Depth
+{
+	// [From MSDN]
+	// If the depth buffer currently bound to the output-merger stage has a UNORM format or
+	// no depth buffer is bound the bias value is calculated like this: 
+	//
+	// Bias = (float)DepthBias * r + SlopeScaledDepthBias * MaxDepthSlope;
+	//
+	// where r is the minimum representable value > 0 in the depth-buffer format converted to float32.
+	// [/End MSDN]
+	// 
+	// For a 24-bit depth buffer, r = 1 / 2^24.
+	//
+	// Example: DepthBias = 100000 ==> Actual DepthBias = 100000/2^24 = .006
+
+	// You need to experiment with these values for your scene.
+	DepthBias = 100000;
+	DepthBiasClamp = 0.0f;
+	SlopeScaledDepthBias = 1.0f;
+};
+
 ////////////////
 // BlendState //
 ////////////////
@@ -218,6 +239,14 @@ DepthStencilState NoDepthWrites
 ////////////////
 /// Macro
 ////////////////
+
+#define PASS_SHADOW_V(name, vs)						\
+pass name											\
+{													\
+	SetVertexShader(CompileShader(vs_5_0, vs()));	\
+	SetPixelShader(NULL);							\
+	SetRasterizerState(Depth);						\
+}
 
 #define PASS_VP(name, vs, ps)						\
 pass name											\

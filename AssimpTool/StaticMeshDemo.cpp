@@ -17,7 +17,7 @@ void StaticMeshDemo::Init()
 
 	// Camera
 	_camera = make_shared<GameObject>();
-	_camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+	_camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 	_camera->AddComponent(make_shared<Camera>());
 	_camera->AddComponent(make_shared<CameraMove>());
 
@@ -59,8 +59,8 @@ void StaticMeshDemo::CreateTower()
 	m1->ReadMaterial(L"Tower/Tower");
 
 	_obj = make_shared<GameObject>();
-	_obj->GetOrAddTransform()->SetPosition(Vec3(0, 0, 50));
-	_obj->GetOrAddTransform()->SetScale(Vec3(1.0f));
+	_obj->GetTransform()->SetPosition(Vec3(0, 0, 50));
+	_obj->GetTransform()->SetScale(Vec3(1.0f));
 
 	_obj->AddComponent(make_shared<ModelRenderer>(_shader));
 	{
@@ -77,8 +77,8 @@ void StaticMeshDemo::CreateTank()
 	m1->ReadMaterial(L"Tank/Tank");
 
 	_obj = make_shared<GameObject>();
-	_obj->GetOrAddTransform()->SetPosition(Vec3(0, 0, 50));
-	_obj->GetOrAddTransform()->SetScale(Vec3(1.f));
+	_obj->GetTransform()->SetPosition(Vec3(0, 0, 50));
+	_obj->GetTransform()->SetScale(Vec3(1.f));
 
 	_obj->AddComponent(make_shared<ModelRenderer>(_shader));
 	{

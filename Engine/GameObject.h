@@ -41,7 +41,6 @@ public:
 	shared_ptr<Billboard> GetBillboard();
 	shared_ptr<SnowBillboard> GetSnowBillboard();
 
-	shared_ptr<Transform> GetOrAddTransform();
 	void AddComponent(shared_ptr<Component> component);
 
 	void SetLayerIndex(uint8 layer) { _layerIndex = layer; }

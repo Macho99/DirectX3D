@@ -25,7 +25,7 @@ void ViewportDemo::Init()
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
-		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		CUR_SCENE->Add(camera);
@@ -57,8 +57,8 @@ void ViewportDemo::Init()
 		for (int32 i = 0; i < 500; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+			obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetTransform()->SetScale(Vec3(0.01f));
 			obj->AddComponent(make_shared<ModelAnimator>(_shader));
 			{
 				obj->GetModelAnimator()->SetModel(m1);
@@ -77,8 +77,8 @@ void ViewportDemo::Init()
 		for (int32 i = 0; i < 100; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
-			obj->GetOrAddTransform()->SetScale(Vec3(0.01f));
+			obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetTransform()->SetScale(Vec3(0.01f));
 
 			obj->AddComponent(make_shared<ModelRenderer>(_shader));
 			{
@@ -109,7 +109,7 @@ void ViewportDemo::Init()
 		for (int32 i = 0; i < 1; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetOrAddTransform()->SetLocalPosition(Vec3(2,0,0));
+			obj->GetTransform()->SetLocalPosition(Vec3(2,0,0));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
 				obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));

@@ -8,9 +8,10 @@
 #include "Billboard.h"
 #include "SnowBillboard.h"
 
-void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, bool isShadowTech)
 {
 	ClearData();
+	_isShadowTech = isShadowTech;
 	RenderMeshRenderer(gameObjects);
 	RenderModelRenderer(gameObjects);
 	RenderAnimRenderer(gameObjects);
@@ -19,15 +20,15 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects)
 	{
 		shared_ptr<ParticleSystem> particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		if (particle != nullptr)
-			particle->Render();
+			particle->Render(_isShadowTech);
 
 		shared_ptr<Billboard> billboard = gameObject->GetFixedComponent<Billboard>(ComponentType::Billboard);
 		if (billboard != nullptr)
-			billboard->Render();
+			billboard->Render(_isShadowTech);
 
 		shared_ptr<SnowBillboard> snowBillboard = gameObject->GetFixedComponent<SnowBillboard>(ComponentType::SnowBillboard);
 		if (snowBillboard != nullptr)
-			snowBillboard->Render();
+			snowBillboard->Render(_isShadowTech);
 	}
 }
 
@@ -75,7 +76,7 @@ void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjec
 			}
 
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetMeshRenderer()->RenderInstancing(buffer);
+			vec[0]->GetMeshRenderer()->RenderInstancing(buffer, _isShadowTech);
 		}
 	}
 }
@@ -116,7 +117,7 @@ void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObje
 			}
 
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetModelRenderer()->RenderInstancing(buffer);
+			vec[0]->GetModelRenderer()->RenderInstancing(buffer, _isShadowTech);
 		}
 	}
 }
@@ -163,7 +164,7 @@ void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjec
 
 			vec[0]->GetModelAnimator()->GetShader()->PushTweenData(*tweenDesc.get());
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetModelAnimator()->RenderInstancing(buffer);
+			vec[0]->GetModelAnimator()->RenderInstancing(buffer, _isShadowTech);
 		}
 	}
 }

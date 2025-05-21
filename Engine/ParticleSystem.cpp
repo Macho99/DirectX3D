@@ -34,9 +34,12 @@ void ParticleSystem::Update()
 	_age += _timeStep;
 }
 
-void ParticleSystem::Render()
+void ParticleSystem::InnerRender(bool isShadowTech)
 {
-	Super::Render();
+	// TODO: not Implemented
+	assert(!isShadowTech);
+
+	Super::InnerRender(isShadowTech);
 
 	const shared_ptr<Shader>& shader = _material->GetShader();
 	//
@@ -124,6 +127,7 @@ void ParticleSystem::SetMaterial(shared_ptr<Material> material)
 {
 	Super::SetMaterial(material);
 	material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
+	material->SetCastShadow(false);
 }
 
 void ParticleSystem::BuildVB()

@@ -20,10 +20,12 @@ public:
 	SnowBillboard(Vec3 extent, int32 drawCount = 100);
 	~SnowBillboard();
 
-	void Render() override;
+	void InnerRender(bool isShadowTech) override;
 
 	//void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	void SetPass(uint8 pass) { _pass = pass; }
+
+	void SetMaterial(shared_ptr<Material> material) override;
 
 private:
 	vector<VertexSnow> _vertices;

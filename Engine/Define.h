@@ -26,6 +26,8 @@ public:										\
 #define SCENE		GET_SINGLE(SceneManager)
 #define CUR_SCENE	SCENE->GetCurrentScene()
 
+#define GET_TECH(isShadow) isShadow == true ? 1 : 0
+
 enum Layer_Mask
 {
 	Layer_Default = 0,

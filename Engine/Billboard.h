@@ -19,7 +19,7 @@ public:
 	Billboard();
 	~Billboard();
 
-	void Render() override;
+	void InnerRender(bool isShadowTech) override;
 	void Add(Vec3 position, Vec2 scale);
 
 	//void SetMaterial(shared_ptr<Material> material) { _material = material; }

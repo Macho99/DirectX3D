@@ -20,7 +20,7 @@ void Terrain::Create(int32 sizeX, int32 sizeZ, shared_ptr<Material> material)
 	shared_ptr<GameObject> go = _gameObject.lock();
 	shared_ptr<MeshRenderer> meshRenderer = go->GetMeshRenderer();
 
-	go->GetOrAddTransform();
+	go->GetTransform();
 	if (meshRenderer == nullptr)
 	{
 		go->AddComponent(make_shared<MeshRenderer>());

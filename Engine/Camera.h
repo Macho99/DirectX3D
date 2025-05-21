@@ -50,8 +50,9 @@ public:
 
 public:
 	void SortGameObject();
-	void Render_Forward();
-	void Render_Backward();
+	void SetStaticMatrix();
+	void Render_Forward(bool isShadowTech);
+	void Render_Backward(bool isShadowTech);
 
 	void SetCullingMaskLayerOnOff(uint8 layer, bool on)
 	{

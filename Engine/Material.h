@@ -34,6 +34,9 @@ public:
 	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
 	RenderQueue GetRenderQueue() { return _renderQueue; }
 
+	void SetCastShadow(bool castShadow) { _castShadow = castShadow; }
+	bool GetCastShadow() { return _castShadow; }
+
 	void Update();
 
 	shared_ptr<Material> Clone();
@@ -43,6 +46,7 @@ private:
 
 	MaterialDesc _desc;
 	RenderQueue _renderQueue = RenderQueue::Opaque;
+	bool _castShadow = true;
 
 	shared_ptr<Shader> _shader;
 	shared_ptr<Texture> _diffuseMap;
@@ -57,5 +61,6 @@ private:
 	ComPtr<ID3DX11EffectShaderResourceVariable> _specularEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _cubeMapEffectBuffer;
+	ComPtr<ID3DX11EffectShaderResourceVariable> _shadowMapEffectBuffer;
 };
 

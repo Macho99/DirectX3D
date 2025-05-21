@@ -73,7 +73,7 @@ ComPtr<ID3D11ShaderResourceView> Sky::CubeMapSRV()
 	return _texture->GetComPtr();
 }
 
-void Sky::Render(const shared_ptr<Camera>& camera)
+void Sky::Render(Camera* camera)
 {
 	// center Sky about eye in world space
 	//XMFLOAT3 eyePos = camera.GetPosition();

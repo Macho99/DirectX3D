@@ -38,12 +38,14 @@ void ModelAnimator::SetModel(shared_ptr<Model> model)
 	}
 }
 
-void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
+void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, bool isShadowTech)
 {
 	if (_model == nullptr)
 		return;
 
-	Super::Render();
+	if (Super::Render(isShadowTech) == false)
+		return;
+
 	//// GlobalData
 	//_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
 	//
@@ -80,7 +82,7 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 		mesh->vertexBuffer->PushData();
 		mesh->indexBuffer->PushData();
 		buffer->PushData();
-		_shader->DrawIndexedInstanced(0, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
+		_shader->DrawIndexedInstanced(GET_TECH(isShadowTech), _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
 
 	}
 }

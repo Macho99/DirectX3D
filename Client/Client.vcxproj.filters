@@ -208,5 +208,8 @@
     <FxCompile Include="..\Shaders\Sky.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\DebugTexture.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
