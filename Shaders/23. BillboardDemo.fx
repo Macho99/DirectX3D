@@ -60,7 +60,7 @@ technique11 ShadowTech
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(NULL);
-		SetRasterizerState(Depth);
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+		SetRasterizerState(DepthNoCull);
 	}
 };

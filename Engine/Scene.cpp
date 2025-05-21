@@ -62,13 +62,14 @@ void Scene::RenderGameCamera(Camera* cam)
 
 	Light* light = GetLight()->GetLight().get();
 
-	cam->SetStaticMatrix();
+	cam->SetStaticData();
 	cam->SortGameObject();
 	if (light)
 	{
+		light->SetVPMatrix(cam, 100.0f, ::XMMatrixOrthographicLH(100, 100, 0, 200));
+
 		cam->Render_Forward(true);
 		Viewport& vp = GRAPHICS->GetShadowViewport();
-		light->SetVPMatrix(cam, 100.0f, ::XMMatrixOrthographicLH(200, 200, 0, 200));
 		cam->Render_Backward(true);
 	}
 
@@ -83,7 +84,7 @@ void Scene::RenderUICamera(Camera* cam)
 {
 	GRAPHICS->ClearDepthStencilView();
 
-	cam->SetStaticMatrix();
+	cam->SetStaticData();
 	cam->SortGameObject();
 	cam->Render_Forward(false);
 	//if (cam->IsCulled(Layer_UI) == true && _sky)

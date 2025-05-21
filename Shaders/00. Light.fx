@@ -39,6 +39,11 @@ cbuffer MaterialBuffer
 	MaterialDesc Material;
 };
 
+cbuffer ShadowBuffer
+{
+	float4x4 ShadowTransform;
+};
+
 /////////
 // SRV //
 /////////
@@ -46,12 +51,13 @@ cbuffer MaterialBuffer
 Texture2D DiffuseMap;
 Texture2D SpecularMap;
 Texture2D NormalMap;
+Texture2D ShadowMap;
 
 //////////////
 // Function //
 //////////////
 
-float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition)
+float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition, float shadow = 1)
 {
 	float4 ambientColor = 0;
 	float4 diffuseColor = 0;
@@ -102,7 +108,7 @@ float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition)
 		emissiveColor = GlobalLight.emissive * Material.emissive * emissive;
 	}
 
-	return ambientColor + diffuseColor + specularColor + emissiveColor;
+	return ambientColor + (diffuseColor + specularColor + emissiveColor) * shadow;
 }
 
 void ComputeNormalMapping(inout float3 normal, float3 tangent, float2 uv)
@@ -124,5 +130,48 @@ void ComputeNormalMapping(inout float3 normal, float3 tangent, float2 uv)
 	normal = worldNormal;
 }
 
+static const float SMAP_SIZE = 4096.0f;
+static const float SMAP_DX = 1.0f / SMAP_SIZE;
+
+SamplerComparisonState samShadow
+{
+	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	AddressU = BORDER;
+	AddressV = BORDER;
+	AddressW = BORDER;
+	BorderColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	ComparisonFunc = LESS;
+};
+
+float CalcShadowFactor(Texture2D shadowMap,	float4 shadowPosH)
+{
+	// Complete projection by doing division by w.
+	//shadowPosH.xyz /= shadowPosH.w;
+
+	// Depth in NDC space.
+	float depth = shadowPosH.z;
+
+	// Texel size.
+	const float dx = SMAP_DX;
+	//return shadowMap.SampleCmpLevelZero(samShadow, shadowPosH.xy, depth).r;
+
+	float percentLit = 0.0f;
+	const float2 offsets[9] =
+	{
+		float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+	};
+
+	[unroll]
+	for (int i = 0; i < 9; ++i)
+	{
+		percentLit += shadowMap.SampleCmpLevelZero(samShadow,
+			shadowPosH.xy + offsets[i], depth).r;
+	}
+
+	return percentLit /= 9.0f;
+}
 #endif
 

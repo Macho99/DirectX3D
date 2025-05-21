@@ -2,6 +2,8 @@
 #include "Graphics.h"
 #include "Viewport.h"
 
+#define SHADOWMAP_SIZE 4096
+
 void Graphics::Init(HWND hwnd)
 {
 	_hwnd = hwnd;
@@ -125,6 +127,8 @@ void Graphics::CreateDepthStencilView()
 		HRESULT hr = DEVICE->CreateTexture2D(&desc, nullptr, _depthStencilTexture.GetAddressOf());
 		CHECK(hr);
 
+		desc.Width = SHADOWMAP_SIZE;
+		desc.Height = SHADOWMAP_SIZE;
 		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		hr = DEVICE->CreateTexture2D(&desc, nullptr, _shadowDSTexture.GetAddressOf());
@@ -164,5 +168,5 @@ void Graphics::CreateDepthStencilView()
 void Graphics::SetViewport(float width, float height, float x, float y, float minDepth, float maxDepth)
 {
 	_vp.Set(width, height, x, y, minDepth, maxDepth);
-	_shadowVP.Set(width, height, x, y, minDepth, maxDepth);
+	_shadowVP.Set(SHADOWMAP_SIZE, SHADOWMAP_SIZE, x, y, minDepth, maxDepth);
 }

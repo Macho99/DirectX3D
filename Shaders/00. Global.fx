@@ -14,6 +14,8 @@ cbuffer GlobalBuffer
 	matrix P;
 	matrix VP;
 	matrix VInv;
+	float3 CamPos; // 그림자 그릴때 라이트가 아닌 카메라 위치가 필요(빌보드)
+	float padding;
 };
 
 cbuffer TransformBuffer
@@ -85,6 +87,7 @@ struct MeshOutput
 	float2 uv : TEXCOORD;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
+	float4 shadowPosH : TEXCOORD2;
 };
 
 ////////////////
@@ -135,9 +138,17 @@ RasterizerState Depth
 	// Example: DepthBias = 100000 ==> Actual DepthBias = 100000/2^24 = .006
 
 	// You need to experiment with these values for your scene.
-	DepthBias = 100000;
+	DepthBias = 1000;
 	DepthBiasClamp = 0.0f;
 	SlopeScaledDepthBias = 1.0f;
+};
+
+RasterizerState DepthNoCull
+{
+	DepthBias = 1000;
+	DepthBiasClamp = 0.0f;
+	SlopeScaledDepthBias = 1.0f;
+	CullMode = NONE; // 앞, 뒤 컬링 안 함
 };
 
 ////////////////
@@ -277,7 +288,7 @@ pass name											\
 
 float3 CameraPosition()
 {
-	return VInv._41_42_43;
+	return CamPos;
 }
 
 float3 RandUnitVec3(float gameTime, float offset)

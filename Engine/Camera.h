@@ -47,10 +47,11 @@ private:
 public:
 	static Matrix S_MatView;
 	static Matrix S_MatProjection;
+	static Vec3 S_Pos;
 
 public:
 	void SortGameObject();
-	void SetStaticMatrix();
+	void SetStaticData();
 	void Render_Forward(bool isShadowTech);
 	void Render_Backward(bool isShadowTech);
 

@@ -67,6 +67,7 @@ public:
 	void PushTweenData(const InstancedTweenDesc& desc);
 	void PushSnowData(const SnowBillboardDesc& desc);
 	void PushParticleData(const ParticleDesc& desc);
+	void PushShadowData(const Matrix& desc);
 
 	vector<Technique>& GetTechniques() { return _techniques; }
 
@@ -106,6 +107,10 @@ private:
 	ParticleDesc _particleDesc;
 	shared_ptr<ConstantBuffer<ParticleDesc>> _particleBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _particleEffectBuffer;
+
+	Matrix _shadowDesc;
+	shared_ptr<ConstantBuffer<Matrix>> _shadowBuffer;
+	ComPtr<ID3DX11EffectConstantBuffer> _shadowEffectBuffer;
 };
 
 class ShaderManager

@@ -27,6 +27,7 @@ public:
 	void SetVPMatrix(Camera* camera, float backDist, Matrix matProjection);
 	static Matrix S_MatView;
 	static Matrix S_MatProjection;
+	static Matrix S_ShadowTransform;
 
 private:
 	LightDesc _desc;

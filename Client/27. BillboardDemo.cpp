@@ -32,6 +32,7 @@
 
 void BillboardDemo::Init()
 {
+	CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
 	shared_ptr<Shader> renderShader = make_shared<Shader>(L"19. RenderDemo.fx");
 	{
 		// Camera
@@ -61,7 +62,7 @@ void BillboardDemo::Init()
 		for (int32 i = 0; i < 1; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetTransform()->SetLocalPosition(Vec3(0, 0, 0));
+			obj->GetTransform()->SetLocalPosition(Vec3(0, 1, 0));
 			obj->GetTransform()->SetLocalScale(Vec3(1.f));
 			obj->AddComponent(make_shared<MeshRenderer>());
 			{
@@ -90,7 +91,7 @@ void BillboardDemo::Init()
 		lightDesc.ambient = Vec4(0.4f);
 		lightDesc.diffuse = Vec4(1.f);
 		lightDesc.specular = Vec4(0.1f);
-		lightDesc.direction = Vec3(1.f, 0.f, 1.f);
+		lightDesc.direction = Vec3(1.f, -1.f, 1.f);
 		light->GetTransform()->SetRotation(lightDesc.direction);
 		static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
 		CUR_SCENE->Add(light);
@@ -133,10 +134,10 @@ void BillboardDemo::Init()
 
 	// Terrain
 	{
-		auto terrainShader = make_shared<Shader>(L"19. RenderDemo.fx");
+		//auto terrainShader = make_shared<Shader>(L"19. RenderDemo.fx");
 		{
 			shared_ptr<Material> material = make_shared<Material>();
-			material->SetShader(terrainShader);
+			material->SetShader(renderShader);
 			auto texture = RESOURCES->Load<Texture>(L"TerrainGrass", L"..\\Resources\\Textures\\Terrain\\grass.jpg");
 			material->SetDiffuseMap(texture);
 			MaterialDesc& desc = material->GetMaterialDesc();
@@ -231,7 +232,7 @@ void BillboardDemo::Init()
 		for (int32 i = 0; i < 100; i++)
 		{
 			auto obj = make_shared<GameObject>();
-			obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+			obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
 			obj->GetTransform()->SetScale(Vec3(0.01f));
 
 			obj->AddComponent(make_shared<ModelRenderer>(renderShader));
@@ -246,7 +247,7 @@ void BillboardDemo::Init()
 
 	// UI
 	{
-		const int debugUISize = 2;
+		const int debugUISize = 5;
 		auto obj = make_shared<GameObject>();
 		obj->SetLayerIndex(Layer_UI);
 		obj->AddComponent(make_shared<Button>());
@@ -255,7 +256,7 @@ void BillboardDemo::Init()
 		//texture->SetSRV(GRAPHICS->GetShadowMapSRV());
 		material->SetDiffuseMap(GRAPHICS->GetShadowMap());
 		material->SetShader(make_shared<Shader>(L"DebugTexture.fx"));
-		obj->GetButton()->Create(Vec2(1920 / (debugUISize * 2) + 20, 1080 / (debugUISize * 2) + 20), Vec2(1920 / debugUISize, 1080 / debugUISize), material);
+		obj->GetButton()->Create(Vec2(2048 / (debugUISize * 2) + 20, 2048 / (debugUISize * 2) + 20), Vec2(2048 / debugUISize, 2048 / debugUISize), material);
 		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
 
 		CUR_SCENE->Add(obj);
@@ -273,8 +274,6 @@ void BillboardDemo::Init()
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, false);
 		CUR_SCENE->Add(camera);
 	}
-
-	CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
 }
 
 void BillboardDemo::Update()
