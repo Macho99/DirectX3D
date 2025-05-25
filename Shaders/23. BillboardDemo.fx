@@ -13,6 +13,7 @@ struct V_OUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
+	float4 shadowPosH : TEXCOORD2;
 };
 
 V_OUT VS(VertexInput input)
@@ -29,6 +30,8 @@ V_OUT VS(VertexInput input)
 	position.xyz += (0.5f - input.uv.y) * up * input.scale.y;
 	position.w = 1.0f;
 
+	output.shadowPosH = mul(position, ShadowTransform);
+	
 	output.position = mul(mul(position, V), P);
 	output.uv = input.uv;
 	return output;
@@ -40,7 +43,19 @@ float4 PS(V_OUT input) : SV_Target
 
 	if (diffuse.a < 0.5f)
 		discard;
+		
+	return diffuse;
+}
 
+float4 ShadowedPS(V_OUT input) : SV_Target
+{
+	float4 diffuse = DiffuseMap.Sample(LinearSampler, input.uv);
+
+	if (diffuse.a < 0.5f)
+		discard;
+	
+	float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
+	diffuse = diffuse * saturate(GlobalLight.ambient.r + shadow);
 	return diffuse;
 }
 
@@ -50,7 +65,7 @@ technique11 T0
 	{
 		//SetRasterizerState(FillModeWireFrame)
 		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetPixelShader(CompileShader(ps_5_0, PS()));
+		SetPixelShader(CompileShader(ps_5_0, ShadowedPS()));
 	}
 };
 

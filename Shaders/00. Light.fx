@@ -141,7 +141,7 @@ SamplerComparisonState samShadow
 	AddressW = BORDER;
 	BorderColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	ComparisonFunc = LESS;
+	ComparisonFunc = LESS_EQUAL;
 };
 
 float CalcShadowFactor(Texture2D shadowMap,	float4 shadowPosH)
@@ -150,7 +150,7 @@ float CalcShadowFactor(Texture2D shadowMap,	float4 shadowPosH)
 	//shadowPosH.xyz /= shadowPosH.w;
 
 	// Depth in NDC space.
-	float depth = shadowPosH.z;
+    float depth = saturate(shadowPosH.z);
 
 	// Texel size.
 	const float dx = SMAP_DX;
@@ -165,12 +165,11 @@ float CalcShadowFactor(Texture2D shadowMap,	float4 shadowPosH)
 	};
 
 	[unroll]
-	for (int i = 0; i < 9; ++i)
-	{
-		percentLit += shadowMap.SampleCmpLevelZero(samShadow,
+    for (int i = 0; i < 9; ++i)
+    {
+        percentLit += shadowMap.SampleCmpLevelZero(samShadow,
 			shadowPosH.xy + offsets[i], depth).r;
-	}
-
+    }
 	return percentLit /= 9.0f;
 }
 #endif
