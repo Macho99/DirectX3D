@@ -85,12 +85,12 @@ void Camera::SetStaticData()
 	S_Pos = GetTransform()->GetPosition();
 }
 
-void Camera::Render_Forward(bool isShadowTech)
+void Camera::Render_Forward(RenderTech renderTech)
 {
-	GET_SINGLE(RenderManager)->Render(_vecForward, isShadowTech);
+	GET_SINGLE(RenderManager)->Render(_vecForward, renderTech);
 }
 
-void Camera::Render_Backward(bool isShadowTech)
+void Camera::Render_Backward(RenderTech renderTech)
 {
-	GET_SINGLE(RenderManager)->Render(_vecBackward, isShadowTech);
+	GET_SINGLE(RenderManager)->Render(_vecBackward, renderTech);
 }

@@ -84,10 +84,6 @@ void Sky::Render(Camera* camera)
 	//Effects::SkyFX->SetWorldViewProj(WVP);
 	//Effects::SkyFX->SetCubeMap(_cubeMapSRV.Get());
 	Vec3 eyePos = camera->GetTransform()->GetPosition();
-	if (eyePos.z > -15.0f)
-	{
-		int a = 0;
-	}
 	Matrix world = Matrix::CreateTranslation(eyePos);
 
 	Matrix v = camera->GetViewMatrix();

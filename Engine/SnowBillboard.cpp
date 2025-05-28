@@ -70,11 +70,11 @@ SnowBillboard::~SnowBillboard()
 {
 }
 
-void SnowBillboard::InnerRender(bool isShadowTech)
+void SnowBillboard::InnerRender(RenderTech renderTech)
 {
 	// TODO: not Implemented
-	assert(!isShadowTech);
-	Super::InnerRender(isShadowTech);
+	assert(renderTech == RenderTech::Draw);
+	Super::InnerRender(renderTech);
 
 	_desc.origin = CUR_SCENE->GetMainCamera()->GetTransform()->GetPosition();
 	_desc.time = _elapsedTime;
@@ -99,7 +99,7 @@ void SnowBillboard::InnerRender(bool isShadowTech)
 	_vertexBuffer->PushData();
 	_indexBuffer->PushData();
 
-	shader->DrawIndexed(GET_TECH(isShadowTech), _pass, _drawCount * 6);
+	shader->DrawIndexed(renderTech, _pass, _drawCount * 6);
 }
 
 void SnowBillboard::SetMaterial(shared_ptr<Material> material)

@@ -9,6 +9,14 @@ struct ShaderDesc
 	ComPtr<ID3DX11Effect> effect;
 };
 
+enum class RenderTech
+{
+	Shadow = 0,
+	Draw,
+	NormalDepth,
+	Max
+};
+
 class Shader
 {
 public:
@@ -23,8 +31,10 @@ public:
 
 	void Draw(UINT technique, UINT pass, UINT vertexCount, UINT startVertexLocation = 0);
 	void DrawIndexed(UINT technique, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
+	void DrawIndexed(RenderTech renderTech, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawInstanced(UINT technique, UINT pass, UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
 	void DrawIndexedInstanced(UINT technique, UINT pass, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
+	void DrawIndexedInstanced(RenderTech renderTech, UINT pass, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
 	void BeginDraw(UINT technique, UINT pass);
 	void EndDraw(UINT technique, UINT pass);
 
@@ -71,6 +81,8 @@ public:
 
 	vector<Technique>& GetTechniques() { return _techniques; }
 
+	int GetTechNum(RenderTech renderTech);
+
 private:
 	GlobalDesc _globalDesc;
 	shared_ptr<ConstantBuffer<GlobalDesc>> _globalBuffer;
@@ -111,6 +123,8 @@ private:
 	Matrix _shadowDesc;
 	shared_ptr<ConstantBuffer<Matrix>> _shadowBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _shadowEffectBuffer;
+
+	int _techNums[static_cast<int>(RenderTech::Max)];
 };
 
 class ShaderManager

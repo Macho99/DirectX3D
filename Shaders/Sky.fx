@@ -57,7 +57,7 @@ DepthStencilState LessEqualDSS
 	DepthFunc = LESS_EQUAL;
 };
 
-technique11 SkyTech
+technique11 Draw
 {
 	pass P0
 	{

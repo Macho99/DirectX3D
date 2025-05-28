@@ -20,7 +20,7 @@ public:
 	SnowBillboard(Vec3 extent, int32 drawCount = 100);
 	~SnowBillboard();
 
-	void InnerRender(bool isShadowTech) override;
+	void InnerRender(RenderTech renderTech) override;
 
 	//void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	void SetPass(uint8 pass) { _pass = pass; }

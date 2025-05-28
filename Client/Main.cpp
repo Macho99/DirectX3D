@@ -1,3 +1,6 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #include "pch.h"
 #include "Main.h"
 #include "Engine/Game.h"
@@ -6,6 +9,8 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+	//_CrtSetBreakAlloc(207);
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	GameDesc desc;
 	desc.appName = L"GameCoding";
 	desc.hInstance = hInstance;
@@ -18,5 +23,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	GAME->Run(desc);
 
+	//_CrtDumpMemoryLeaks();
 	return 0;
 }

@@ -13,20 +13,20 @@ Renderer::~Renderer()
 }
 
 // 여기서 검증하고 InnerRender를 호출
-bool Renderer::Render(bool isShadowTech)
+bool Renderer::Render(RenderTech renderTech)
 {
 	if (_material == nullptr)
 		return false;
 
-	if (_material->GetCastShadow() == false && isShadowTech == true)
+	if (_material->GetCastShadow() == false && renderTech == RenderTech::Shadow)
 		return false;
 
-	InnerRender(isShadowTech);
+	InnerRender(renderTech);
 
 	return true;
 }
 
-void Renderer::InnerRender(bool isShadowTech)
+void Renderer::InnerRender(RenderTech renderTech)
 {
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -34,7 +34,7 @@ void Renderer::InnerRender(bool isShadowTech)
 	if (shader == nullptr)
 		return;
 
-	if (isShadowTech == false)
+	if (renderTech != RenderTech::Shadow)
 	{
 		_material->Update();
 		// Light

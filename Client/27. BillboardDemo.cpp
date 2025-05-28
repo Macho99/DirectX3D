@@ -247,7 +247,7 @@ void BillboardDemo::Init()
 
 	// UI
 	{
-		const int debugUISize = 5;
+		const int debugUISize = 10;
 		auto obj = make_shared<GameObject>();
 		obj->SetLayerIndex(Layer_UI);
 		obj->AddComponent(make_shared<Button>());

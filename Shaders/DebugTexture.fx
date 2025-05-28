@@ -48,7 +48,7 @@ float4 PS(VertexOut pin, uniform int index) : SV_Target
 //	}
 //}
 
-technique11 ViewRedTech
+technique11 Draw//ViewRedTech
 {
 	pass P0
 	{

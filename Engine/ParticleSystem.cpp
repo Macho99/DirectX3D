@@ -34,12 +34,12 @@ void ParticleSystem::Update()
 	_age += _timeStep;
 }
 
-void ParticleSystem::InnerRender(bool isShadowTech)
+void ParticleSystem::InnerRender(RenderTech renderTech)
 {
 	// TODO: not Implemented
-	assert(!isShadowTech);
+	assert(renderTech == RenderTech::Draw);
 
-	Super::InnerRender(isShadowTech);
+	Super::InnerRender(renderTech);
 
 	const shared_ptr<Shader>& shader = _material->GetShader();
 	//

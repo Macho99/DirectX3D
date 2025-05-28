@@ -13,6 +13,27 @@ Shader::Shader(wstring file) : _file(L"..\\Shaders\\" + file)
 	}
 
 	CreateEffect();
+
+	for (int i = 0; i < static_cast<int>(RenderTech::Max); i++)
+	{
+		_techNums[i] = -1;
+	}
+
+	for (int i = 0; i < _techniques.size(); i++)
+	{
+		Technique technique = _techniques[i];
+		RenderTech renderTech;
+		if (technique.name == L"Shadow")
+			renderTech = RenderTech::Shadow;
+		else if (technique.name == L"Draw")
+			renderTech = RenderTech::Draw;
+		else if (technique.name == L"NormalDepth")
+			renderTech = RenderTech::NormalDepth;
+		else
+			continue;
+
+		_techNums[static_cast<int>(renderTech)] = i;
+	}
 }
 
 Shader::~Shader()
@@ -184,6 +205,12 @@ void Shader::DrawIndexed(UINT technique, UINT pass, UINT indexCount, UINT startI
 	_techniques[technique].passes[pass].DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
 }
 
+void Shader::DrawIndexed(RenderTech renderTech, UINT pass, UINT indexCount, UINT startIndexLocation, INT baseVertexLocation)
+{
+	UINT technique = GetTechNum(renderTech);
+	_techniques[technique].passes[pass].DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
+}
+
 void Shader::DrawInstanced(UINT technique, UINT pass, UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation)
 {
 	_techniques[technique].passes[pass].DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
@@ -191,6 +218,12 @@ void Shader::DrawInstanced(UINT technique, UINT pass, UINT vertexCountPerInstanc
 
 void Shader::DrawIndexedInstanced(UINT technique, UINT pass, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation)
 {
+	_techniques[technique].passes[pass].DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+}
+
+void Shader::DrawIndexedInstanced(RenderTech renderTech, UINT pass, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation)
+{
+	UINT technique = GetTechNum(renderTech);
 	_techniques[technique].passes[pass].DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
 
@@ -471,3 +504,9 @@ void Shader::PushShadowData(const Matrix& desc)
 	_shadowEffectBuffer->SetConstantBuffer(_shadowBuffer->GetComPtr().Get());
 }
 
+int Shader::GetTechNum(RenderTech renderTech)
+{ 
+	int num = _techNums[static_cast<int>(renderTech)];
+	assert(num != -1);
+	return num;
+}

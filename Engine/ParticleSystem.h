@@ -22,7 +22,7 @@ public:
 	void Reset();
 
 	void Update() override;
-	void InnerRender(bool isShadowTech) override;
+	void InnerRender(RenderTech renderTech) override;
 
 	void SetMaterial(shared_ptr<Material> material) override;
 

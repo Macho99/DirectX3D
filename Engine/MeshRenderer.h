@@ -14,7 +14,7 @@ public:
 
 	void SetMesh(shared_ptr<Mesh> mesh) { _mesh = mesh; }
 
-	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, bool isShadowTech);
+	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
 	InstanceID GetInstanceID();
 
 private:

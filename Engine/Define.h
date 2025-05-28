@@ -13,6 +13,7 @@ public:										\
 #define GET_SINGLE(classname)	classname::GetInstance()
 
 #define CHECK(p)	assert(SUCCEEDED(p))
+#define HR(p)		assert(SUCCEEDED(p))
 #define GAME		GET_SINGLE(Game)		
 #define GRAPHICS	GET_SINGLE(Graphics)
 #define DEVICE		GRAPHICS->GetDevice()
@@ -26,7 +27,7 @@ public:										\
 #define SCENE		GET_SINGLE(SceneManager)
 #define CUR_SCENE	SCENE->GetCurrentScene()
 
-#define GET_TECH(isShadow) isShadow == true ? 1 : 0
+//#define GET_TECH(isShadow) isShadow == true ? 1 : 0
 
 enum Layer_Mask
 {

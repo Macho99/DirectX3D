@@ -29,12 +29,12 @@ void ModelRenderer::SetModel(shared_ptr<Model> model)
 	}
 }
 
-void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, bool isShadowTech)
+void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
 {
 	if (_model == nullptr)
 		return;
 
-	if (Super::Render(isShadowTech) == false)
+	if (Super::Render(renderTech) == false)
 		return;
 
 	//// GlobalData
@@ -71,7 +71,7 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 
 		buffer->PushData();
 
-		_shader->DrawIndexedInstanced(GET_TECH(isShadowTech), _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
+		_shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
 	}
 }
 

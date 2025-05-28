@@ -1,5 +1,7 @@
 #pragma once
 #include "Component.h"
+enum class RenderTech;
+
 class Renderer : public Component
 {
 	using Super = Component;
@@ -11,10 +13,10 @@ public:
 	virtual void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	shared_ptr<Material> GetMaterial() { return _material; }
 
-	bool Render(bool isShadowTech);
+	bool Render(RenderTech renderTech);
 
 protected:
-	virtual void InnerRender(bool isShadowTech);
+	virtual void InnerRender(RenderTech renderTech);
 	shared_ptr<Material> _material;
 	uint8 _pass = 0;
 };

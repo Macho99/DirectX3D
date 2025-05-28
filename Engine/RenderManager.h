@@ -2,13 +2,14 @@
 #include "InstancingBuffer.h"
 
 class GameObject;
+enum class RenderTech;
 
 class RenderManager
 {
 	DECLARE_SINGLE(RenderManager);
 
 public:
-	void Render(vector<shared_ptr<GameObject>>& gameObjects, bool isShadowTech);
+	void Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech);
 
 private:
 	void ClearData();
@@ -21,6 +22,6 @@ private:
 
 private:
 	map<InstanceID, shared_ptr<InstancingBuffer>> _buffers;
-	bool _isShadowTech = false;
+	RenderTech _renderTech;
 };
 

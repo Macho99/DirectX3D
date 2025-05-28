@@ -11,14 +11,14 @@ float4 PS(MeshOutput input) : SV_TARGET
 	return color;
 }
 
-technique11 T0
+technique11 Draw
 {
 	PASS_VP(P0, VS_Mesh, PS)
 	PASS_VP(P1, VS_Model, PS)
 	PASS_VP(P2, VS_Animation, PS)
 };
 
-technique11 ShadowTech
+technique11 Shadow
 {
 	PASS_SHADOW_V(P0, VS_Mesh)
 	PASS_SHADOW_V(P1, VS_Model)

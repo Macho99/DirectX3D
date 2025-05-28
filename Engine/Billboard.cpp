@@ -34,9 +34,9 @@ Billboard::~Billboard()
 {
 }
 
-void Billboard::InnerRender(bool isShadowTech)
+void Billboard::InnerRender(RenderTech renderTech)
 {
-	Super::InnerRender(isShadowTech);
+	Super::InnerRender(renderTech);
 
 	if (_prevCount != _drawCount)
 	{
@@ -56,7 +56,7 @@ void Billboard::InnerRender(bool isShadowTech)
 	_vertexBuffer->PushData();
 	_indexBuffer->PushData();
 
-	shader->DrawIndexed(GET_TECH(isShadowTech), _pass, _drawCount * 6);
+	shader->DrawIndexed(renderTech, _pass, _drawCount * 6);
 }
 
 void Billboard::Add(Vec3 position, Vec2 scale)

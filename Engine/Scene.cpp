@@ -68,16 +68,16 @@ void Scene::RenderGameCamera(Camera* cam)
 	{
 		light->SetVPMatrix(cam, 100.0f, ::XMMatrixOrthographicLH(100, 100, 0, 200));
 
-		cam->Render_Forward(true);
-		Viewport& vp = GRAPHICS->GetShadowViewport();
-		cam->Render_Backward(true);
+		cam->Render_Forward(RenderTech::Shadow);
+		//Viewport& vp = GRAPHICS->GetShadowViewport();
+		cam->Render_Backward(RenderTech::Shadow);
 	}
 
 	GRAPHICS->SetRTVAndDSV();
-	cam->Render_Forward(false);
+	cam->Render_Forward(RenderTech::Draw);
 	if (_sky)
 		_sky->Render(cam);
-	cam->Render_Backward(false);
+	cam->Render_Backward(RenderTech::Draw);
 }
 
 void Scene::RenderUICamera(Camera* cam)
@@ -86,10 +86,8 @@ void Scene::RenderUICamera(Camera* cam)
 
 	cam->SetStaticData();
 	cam->SortGameObject();
-	cam->Render_Forward(false);
-	//if (cam->IsCulled(Layer_UI) == true && _sky)
-	//	_sky->Render(cam);
-	cam->Render_Backward(false);
+	cam->Render_Forward(RenderTech::Draw);
+	cam->Render_Backward(RenderTech::Draw);
 }
 
 void Scene::Add(shared_ptr<GameObject> gameObject)

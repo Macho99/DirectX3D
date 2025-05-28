@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Viewport.h"
+//class Ssao;
 
 class Graphics
 {
@@ -56,5 +57,7 @@ private:
 	//D3D11_VIEWPORT _viewport = { 0 };
 	Viewport _vp;
 	Viewport _shadowVP;
+
+    //unique_ptr<Ssao> _ssao;
 };
 

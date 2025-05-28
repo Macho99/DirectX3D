@@ -84,7 +84,7 @@ float4 PS(V_OUT input) : SV_Target
 	return diffuse;
 }
 
-technique11 T0
+technique11 Draw
 {
 	PASS_BS_VP(P0, AlphaBlend, VS, PS)
 };

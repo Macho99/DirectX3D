@@ -16,9 +16,9 @@ MeshRenderer::~MeshRenderer()
 
 }
 
-void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, bool isShadowTech)
+void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
 {
-	if (Super::Render(isShadowTech) == false)
+	if (Super::Render(renderTech) == false)
 	{
 		return;
 	}
@@ -34,7 +34,7 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 
 	buffer->PushData();
 
-	_material->GetShader()->DrawIndexedInstanced(GET_TECH(isShadowTech), _pass, _mesh->GetIndexBuffer()->GetCount(),
+	_material->GetShader()->DrawIndexedInstanced(renderTech, _pass, _mesh->GetIndexBuffer()->GetCount(),
 		buffer->GetCount());
 }
 

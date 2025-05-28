@@ -8,10 +8,10 @@
 #include "Billboard.h"
 #include "SnowBillboard.h"
 
-void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, bool isShadowTech)
+void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech)
 {
 	ClearData();
-	_isShadowTech = isShadowTech;
+	_renderTech = renderTech;
 	RenderMeshRenderer(gameObjects);
 	RenderModelRenderer(gameObjects);
 	RenderAnimRenderer(gameObjects);
@@ -20,15 +20,15 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, bool isS
 	{
 		shared_ptr<ParticleSystem> particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		if (particle != nullptr)
-			particle->Render(_isShadowTech);
+			particle->Render(_renderTech);
 
 		shared_ptr<Billboard> billboard = gameObject->GetFixedComponent<Billboard>(ComponentType::Billboard);
 		if (billboard != nullptr)
-			billboard->Render(_isShadowTech);
+			billboard->Render(_renderTech);
 
 		shared_ptr<SnowBillboard> snowBillboard = gameObject->GetFixedComponent<SnowBillboard>(ComponentType::SnowBillboard);
 		if (snowBillboard != nullptr)
-			snowBillboard->Render(_isShadowTech);
+			snowBillboard->Render(_renderTech);
 	}
 }
 
@@ -76,7 +76,7 @@ void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjec
 			}
 
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetMeshRenderer()->RenderInstancing(buffer, _isShadowTech);
+			vec[0]->GetMeshRenderer()->RenderInstancing(buffer, _renderTech);
 		}
 	}
 }
@@ -117,7 +117,7 @@ void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObje
 			}
 
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetModelRenderer()->RenderInstancing(buffer, _isShadowTech);
+			vec[0]->GetModelRenderer()->RenderInstancing(buffer, _renderTech);
 		}
 	}
 }
@@ -164,7 +164,7 @@ void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjec
 
 			vec[0]->GetModelAnimator()->GetShader()->PushTweenData(*tweenDesc.get());
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetModelAnimator()->RenderInstancing(buffer, _isShadowTech);
+			vec[0]->GetModelAnimator()->RenderInstancing(buffer, _renderTech);
 		}
 	}
 }

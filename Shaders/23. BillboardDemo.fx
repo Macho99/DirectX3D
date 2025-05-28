@@ -59,7 +59,7 @@ float4 ShadowedPS(V_OUT input) : SV_Target
 	return diffuse;
 }
 
-technique11 T0
+technique11 Draw
 {
 	pass P0
 	{
@@ -69,7 +69,7 @@ technique11 T0
 	}
 };
 
-technique11 ShadowTech
+technique11 Shadow
 {
 	pass P0
 	{
