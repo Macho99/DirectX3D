@@ -29,6 +29,8 @@ public:
 	wstring GetFile() { return _file; }
 	ComPtr<ID3DX11Effect> Effect() { return _shaderDesc.effect; }
 
+	void SetTechNum(RenderTech renderTech, int techNum);
+	bool CanDraw(RenderTech renderTech);
 	void Draw(UINT technique, UINT pass, UINT vertexCount, UINT startVertexLocation = 0);
 	void DrawIndexed(UINT technique, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawIndexed(RenderTech renderTech, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);

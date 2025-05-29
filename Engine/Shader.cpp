@@ -195,6 +195,17 @@ ComPtr<ID3D11InputLayout> Shader::CreateInputLayout(ComPtr<ID3DBlob> fxBlob, D3D
 	return nullptr;
 }
 
+void Shader::SetTechNum(RenderTech renderTech, int techNum)
+{
+	_techNums[static_cast<int>(renderTech)] = techNum;
+}
+
+bool Shader::CanDraw(RenderTech renderTech)
+{
+	int num = _techNums[static_cast<int>(renderTech)];
+	return num != -1;
+}
+
 void Shader::Draw(UINT technique, UINT pass, UINT vertexCount, UINT startVertexLocation)
 {
 	_techniques[technique].passes[pass].Draw(vertexCount, startVertexLocation);

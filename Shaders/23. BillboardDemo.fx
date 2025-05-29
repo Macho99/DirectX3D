@@ -79,3 +79,13 @@ technique11 Shadow
 		SetRasterizerState(DepthNoCull);
 	}
 };
+
+//technique11 NormalDepth
+//{
+//    pass P0
+//    {
+//		//SetRasterizerState(FillModeWireFrame)
+//        SetVertexShader(CompileShader(vs_5_0, VS()));
+//        SetPixelShader(CompileShader(ps_5_0, ShadowedPS()));
+//    }
+//};

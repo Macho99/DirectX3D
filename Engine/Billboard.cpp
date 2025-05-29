@@ -50,7 +50,7 @@ void Billboard::InnerRender(RenderTech renderTech)
 		DC->Unmap(_vertexBuffer->GetComPtr().Get(), 0);
 	}
 
-	shared_ptr<Shader> shader = _material->GetShader();
+	Shader* shader = _material->GetShader();
 	
 	// IA
 	_vertexBuffer->PushData();

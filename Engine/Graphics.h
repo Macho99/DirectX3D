@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Viewport.h"
-//class Ssao;
+class Ssao;
 
 class Graphics
 {
@@ -17,9 +17,15 @@ public:
 	ComPtr<ID3D11DeviceContext> GetDeviceContext() { return _deviceContext; }
 
 	void ClearDepthStencilView();
+
 	void ClearShadowDepthStencilView();
 	void SetShadowDepthStencilView();
+
+	void SetNormalDepthRenderTarget();
+	shared_ptr<Texture> GetNormalDepthMap();
 	void SetRTVAndDSV();
+
+	void SetSsaoSize(int32 width, int32 height, float fovy, float farZ);
 
 private:
 	void CreateDeviceAndSwapChain();
@@ -58,6 +64,7 @@ private:
 	Viewport _vp;
 	Viewport _shadowVP;
 
-    //unique_ptr<Ssao> _ssao;
+	shared_ptr<Ssao> _ssao;
+	shared_ptr<Texture> _normalDepthMap;
 };
 

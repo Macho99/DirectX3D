@@ -3,16 +3,21 @@
 
 class Ssao
 {
-	Ssao(int32 width, int32 height, float fovy, float farZ);
+public:
+	Ssao();
 	~Ssao();
+	void OnSize(int32 width, int32 height, float fovy, float farZ);
+
+	ComPtr<ID3D11ShaderResourceView> GetNormalDepthSRV() { return _normalDepthSRV; }
+	void SetNormalDepthRenderTarget(ID3D11DepthStencilView* dsv);
 
 private:
-	void OnSize(int32 width, int32 height, float fovy, float farZ);
     void BuildFrustumCorners(float fovy, float farZ);
 
 	void BuildQuad();
 	void BuildTextureViews();
     void BuildOffsetVectors();
+
 
 private:
     unique_ptr<VertexBuffer> _screenQuadVB;

@@ -265,8 +265,3 @@ void ModelAnimator::UpdateTweenData()
 		}
 	}
 }
-
-shared_ptr<Shader> ModelAnimator::GetShader()
-{
-	return _material->GetShader();
-}

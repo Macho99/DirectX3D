@@ -21,6 +21,9 @@ bool Renderer::Render(RenderTech renderTech)
 	if (_material->GetCastShadow() == false && renderTech == RenderTech::Shadow)
 		return false;
 
+	if (_material->GetShader()->CanDraw(renderTech) == false)
+		return false;
+
 	InnerRender(renderTech);
 
 	return true;

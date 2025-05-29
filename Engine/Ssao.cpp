@@ -4,10 +4,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
-Ssao::Ssao(int32 width, int32 height, float fovy, float farZ)
+Ssao::Ssao()
 {
-	OnSize(width, height, fovy, farZ);
-
     BuildQuad();
 	BuildOffsetVectors();
 }
@@ -134,4 +132,14 @@ void Ssao::BuildOffsetVectors()
 		_offsets[i].Normalize();
         _offsets[i] *= s;
 	}
+}
+
+void Ssao::SetNormalDepthRenderTarget(ID3D11DepthStencilView* dsv)
+{
+	ID3D11RenderTargetView* renderTargets[1] = { _normalDepthRTV.Get() };
+	DC->OMSetRenderTargets(1, renderTargets, dsv);
+
+	// Clear view space normal to (0,0,-1) and clear depth to be very far away.  
+	float clearColor[] = { 0.0f, 0.0f, -1.0f, 1e5f };
+	DC->ClearRenderTargetView(_normalDepthRTV.Get(), clearColor);
 }

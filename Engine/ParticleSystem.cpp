@@ -41,7 +41,7 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 
 	Super::InnerRender(renderTech);
 
-	const shared_ptr<Shader>& shader = _material->GetShader();
+	Shader* shader = _material->GetShader();
 	//
 	// Set constants.
 	//

@@ -57,6 +57,9 @@ void Scene::Render()
 
 void Scene::RenderGameCamera(Camera* cam)
 {
+	////////////////////////////////////////////
+	//				DrawShadow
+	////////////////////////////////////////////
 	GRAPHICS->ClearShadowDepthStencilView();
 	GRAPHICS->SetShadowDepthStencilView();
 
@@ -73,6 +76,20 @@ void Scene::RenderGameCamera(Camera* cam)
 		cam->Render_Backward(RenderTech::Shadow);
 	}
 
+
+	////////////////////////////////////////////
+	//				DrawNormalDepth
+	////////////////////////////////////////////
+	GRAPHICS->ClearDepthStencilView();
+	GRAPHICS->SetNormalDepthRenderTarget();
+
+	cam->Render_Forward(RenderTech::NormalDepth);
+	//cam->Render_Backward(RenderTech::NormalDepth);
+
+	////////////////////////////////////////////
+	//					Draw
+	////////////////////////////////////////////
+	GRAPHICS->ClearDepthStencilView();
 	GRAPHICS->SetRTVAndDSV();
 	cam->Render_Forward(RenderTech::Draw);
 	if (_sky)

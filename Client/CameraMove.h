@@ -10,7 +10,7 @@ public:
 private:
 	float _moveSpeed = 7.f;
 	float _sprintSpeed = 14.f;
-	float _mouseSpeed = 0.2f;
+	float _mouseSpeed = 0.002f;
 	POINT _prevMousePos;
 };
 

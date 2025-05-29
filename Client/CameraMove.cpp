@@ -59,8 +59,8 @@ void CameraMove::Update()
 	{
 		POINT curMousePos = INPUT->GetMousePos();
 		Vec2 delta = Vec2(curMousePos.x - _prevMousePos.x, curMousePos.y - _prevMousePos.y);
-		rotation.x += delta.y * _mouseSpeed * TIME->GetDeltaTime();
-		rotation.y += delta.x * _mouseSpeed * TIME->GetDeltaTime();
+		rotation.x += delta.y * _mouseSpeed;
+		rotation.y += delta.x * _mouseSpeed;
 		GetTransform()->SetLocalRotation(rotation);
 		_prevMousePos = curMousePos;
 	}

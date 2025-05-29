@@ -32,23 +32,23 @@ float4 PS(VertexOut pin) : SV_Target
 
 float4 PS(VertexOut pin, uniform int index) : SV_Target
 {
-	float4 c = DiffuseMap.Sample(samLinear, pin.Tex).r;
+	float3 c = DiffuseMap.Sample(samLinear, pin.Tex).rrr;
 
     // draw as grayscale
-	return float4(c.rrr, 1);
+	return float4(c.rgb, 1);
 }
 
-//technique11 ViewArgbTech
-//{
-//	pass P0
-//	{
-//		SetVertexShader(CompileShader(vs_5_0, VS()));
-//		SetGeometryShader(NULL);
-//		SetPixelShader(CompileShader(ps_5_0, PS()));
-//	}
-//}
+technique11 ViewArgbTech
+{
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS()));
+    }
+}
 
-technique11 Draw//ViewRedTech
+technique11 ViewRedTech
 {
 	pass P0
 	{

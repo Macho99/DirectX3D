@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Graphics.h"
+#include "Ssao.h"
 #include "Viewport.h"
 
 #define SHADOWMAP_SIZE 4096
@@ -13,6 +14,8 @@ void Graphics::Init(HWND hwnd)
 	CreateDepthStencilView();
 	
 	SetViewport(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
+	_ssao = make_shared<Ssao>();
+	_normalDepthMap = make_shared<Texture>();
 }
 
 void Graphics::RenderBegin()
@@ -50,10 +53,27 @@ void Graphics::SetShadowDepthStencilView()
 	_deviceContext->OMSetRenderTargets(1, renderTargets, _shadowDSV.Get());
 }
 
+void Graphics::SetNormalDepthRenderTarget()
+{
+	_vp.RSSetViewport();
+	_ssao->SetNormalDepthRenderTarget(_depthStencilView.Get());
+}
+
+shared_ptr<Texture> Graphics::GetNormalDepthMap()
+{
+	return _normalDepthMap;
+}
+
 void Graphics::SetRTVAndDSV()
 {
 	_vp.RSSetViewport();
 	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
+}
+
+void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
+{
+	_ssao->OnSize(width, height, fovy, farZ);
+	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
 }
 
 void Graphics::CreateDeviceAndSwapChain()

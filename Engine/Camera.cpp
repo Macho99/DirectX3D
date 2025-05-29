@@ -42,6 +42,11 @@ void Camera::UpdateMatrix()
 	}
 }
 
+void Camera::SetSsaoSize()
+{
+	GRAPHICS->SetSsaoSize(_width, _height, _fov, _far);
+}
+
 void Camera::SortGameObject()
 {
 	shared_ptr<Scene> scene = CUR_SCENE;

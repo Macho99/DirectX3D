@@ -7,6 +7,7 @@
 #include "ParticleSystem.h"
 #include "Billboard.h"
 #include "SnowBillboard.h"
+#include "Material.h"
 
 void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech)
 {
@@ -141,7 +142,8 @@ void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjec
 		shared_ptr<InstancedTweenDesc> tweenDesc = make_shared<InstancedTweenDesc>();
 		const vector<shared_ptr<GameObject>>& vec = pair.second;
 
-		/*if (vec.size() == 1)
+		/* TODO:
+		if (vec.size() == 1)
 		{
 
 		}
@@ -162,7 +164,7 @@ void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjec
 				tweenDesc->tweens[i] = desc;
 			}
 
-			vec[0]->GetModelAnimator()->GetShader()->PushTweenData(*tweenDesc.get());
+			vec[0]->GetModelAnimator()->GetMaterial()->GetShader()->PushTweenData(*tweenDesc.get());
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
 			vec[0]->GetModelAnimator()->RenderInstancing(buffer, _renderTech);
 		}

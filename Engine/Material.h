@@ -16,7 +16,7 @@ public:
 	Material();
 	virtual ~Material();
 
-	shared_ptr<Shader> GetShader() { return _shader; }
+	Shader* GetShader() { return _shader.get(); }
 
 	MaterialDesc& GetMaterialDesc() { return _desc; }
 	shared_ptr<Texture> GetDiffuseMap() { return _diffuseMap; }

@@ -41,6 +41,7 @@ void BillboardDemo::Init()
 		camera->AddComponent(make_shared<Camera>());
 		camera->AddComponent(make_shared<CameraMove>());
 		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
+		camera->GetCamera()->SetSsaoSize();
 		CUR_SCENE->Add(camera);
 	}
 
@@ -201,6 +202,8 @@ void BillboardDemo::Init()
 	}
 
 	{
+		shared_ptr<Shader> animShader = make_shared<Shader>(L"19. RenderDemo.fx");
+		//animShader->SetTechNum(RenderTech::NormalDepth, -1);
 		// Animation
 		shared_ptr<Model> m1 = make_shared<Model>();
 		m1->ReadModel(L"Kachujin/Kachujin");
@@ -209,12 +212,12 @@ void BillboardDemo::Init()
 		m1->ReadAnimation(L"Kachujin/Run");
 		m1->ReadAnimation(L"Kachujin/Slash");
 
-		for (int32 i = 0; i < 500; i++)
+		for (int32 i = 0; i < 100; i++)
 		{
 			auto obj = make_shared<GameObject>();
 			obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
 			obj->GetTransform()->SetScale(Vec3(0.01f));
-			obj->AddComponent(make_shared<ModelAnimator>(renderShader));
+			obj->AddComponent(make_shared<ModelAnimator>(animShader));
 			{
 				obj->GetModelAnimator()->SetModel(m1);
 				obj->GetModelAnimator()->SetPass(2);
@@ -245,22 +248,8 @@ void BillboardDemo::Init()
 		}
 	}
 
-	// UI
-	{
-		const int debugUISize = 10;
-		auto obj = make_shared<GameObject>();
-		obj->SetLayerIndex(Layer_UI);
-		obj->AddComponent(make_shared<Button>());
-		auto material = make_shared<Material>();
-		//auto texture = make_shared<Texture>();
-		//texture->SetSRV(GRAPHICS->GetShadowMapSRV());
-		material->SetDiffuseMap(GRAPHICS->GetShadowMap());
-		material->SetShader(make_shared<Shader>(L"DebugTexture.fx"));
-		obj->GetButton()->Create(Vec2(2048 / (debugUISize * 2) + 20, 2048 / (debugUISize * 2) + 20), Vec2(2048 / debugUISize, 2048 / debugUISize), material);
-		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
-
-		CUR_SCENE->Add(obj);
-	}
+	AddDebugImage(200, 200, GRAPHICS->GetShadowMap(), 1);
+	AddDebugImage(200 * 16 / 9 * 2, 200 * 2, GRAPHICS->GetNormalDepthMap(), 0);
 
 	{
 		// UICamera
@@ -295,4 +284,27 @@ void BillboardDemo::Update()
 
 void BillboardDemo::Render()
 {
+}
+
+void BillboardDemo::AddDebugImage(int32 width, int32 height, shared_ptr<Texture> texture, int techNum)
+{
+	// UI
+	{
+		const int debugUISize = 10;
+		auto obj = make_shared<GameObject>();
+		obj->SetLayerIndex(Layer_UI);
+		obj->AddComponent(make_shared<Button>());
+		auto material = make_shared<Material>();
+		//auto texture = make_shared<Texture>();
+		//texture->SetSRV(GRAPHICS->GetShadowMapSRV());
+		material->SetDiffuseMap(texture);
+		material->SetShader(make_shared<Shader>(L"DebugTexture.fx"));
+		material->GetShader()->SetTechNum(RenderTech::Draw, techNum);
+		obj->GetButton()->Create(Vec2(width / 2 + _debugImagePosX + 20, height / 2 + 20), Vec2(width, height), material);
+		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
+
+		CUR_SCENE->Add(obj);
+	}
+
+	_debugImagePosX += width + 5;
 }

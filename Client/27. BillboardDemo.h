@@ -12,5 +12,8 @@ public:
 	void Render() override;
 
 private:
-	//shared_ptr<Shader> _shader;
+	void AddDebugImage(int32 width, int32 height, shared_ptr<Texture> texture, int techNum);
+
+private:
+	int32 _debugImagePosX;
 };

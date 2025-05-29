@@ -88,6 +88,8 @@ struct MeshOutput
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float4 shadowPosH : TEXCOORD2;
+    float3 normalV : NORMAL_V;
+    float3 positionV : POSITION_V;
 };
 
 ////////////////

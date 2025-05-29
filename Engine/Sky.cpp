@@ -90,7 +90,7 @@ void Sky::Render(Camera* camera)
 	Matrix p = camera->GetProjectionMatrix();
 	Matrix wvp = world * v * p;
 
-	shared_ptr<Shader> shader = _material->GetShader();
+	Shader* shader = _material->GetShader();
 	shader->PushTransformData(TransformDesc(wvp));
 	shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
 	_material->Update();
