@@ -249,7 +249,8 @@ void BillboardDemo::Init()
 	}
 
 	AddDebugImage(200, 200, GRAPHICS->GetShadowMap(), 1);
-	AddDebugImage(200 * 16 / 9 * 2, 200 * 2, GRAPHICS->GetNormalDepthMap(), 0);
+	AddDebugImage(200 * 16 / 9, 200, GRAPHICS->GetNormalDepthMap(), 0);
+	AddDebugImage(200 * 16 / 9 * 2, 200 * 2, GRAPHICS->GetSsaoMap(), 1);
 
 	{
 		// UICamera

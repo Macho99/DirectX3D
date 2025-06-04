@@ -112,3 +112,16 @@ struct ParticleDesc
 	Vec3 emitDirW = Vec3(0, 0, 0);
 	float gameTime = 0.f;
 };
+
+struct SsaoDesc
+{
+	Matrix viewToTexSpace;
+	Vec4 offsetVectors[14];
+	Vec4 frustumCorners[4];
+
+	// Coordinates given in view space.
+	float gOcclusionRadius = 0.5f;
+	float gOcclusionFadeStart = 0.2f;
+	float gOcclusionFadeEnd = 2.0f;
+	float gSurfaceEpsilon = 0.05f;
+};

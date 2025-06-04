@@ -7,17 +7,17 @@ public:
 	Ssao();
 	~Ssao();
 	void OnSize(int32 width, int32 height, float fovy, float farZ);
+	void Draw();
 
 	ComPtr<ID3D11ShaderResourceView> GetNormalDepthSRV() { return _normalDepthSRV; }
+	ComPtr<ID3D11ShaderResourceView> GetSsaoMap() { return _ambientSRV0; }
 	void SetNormalDepthRenderTarget(ID3D11DepthStencilView* dsv);
 
 private:
     void BuildFrustumCorners(float fovy, float farZ);
-
 	void BuildQuad();
 	void BuildTextureViews();
     void BuildOffsetVectors();
-
 
 private:
     unique_ptr<VertexBuffer> _screenQuadVB;
@@ -38,9 +38,11 @@ private:
 	uint32 _renderTargetWidth;
 	uint32 _renderTargetHeight;
 
-	Vec4 _frustumFarCorner[4];
-	Vec4 _offsets[14];
+	//Vec4 _frustumFarCorner[4];
+	//Vec4 _offsets[14];
 
 	Viewport _ambientMapViewport;
+	shared_ptr<Material> _material;
+	SsaoDesc _ssaoDesc;
 };
 

@@ -3,6 +3,8 @@
 #include "MathUtils.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Material.h"
+#include "Camera.h"
 
 Ssao::Ssao()
 {
@@ -20,31 +22,68 @@ void Ssao::OnSize(int32 width, int32 height, float fovy, float farZ)
 	_renderTargetHeight = height;
 
 	// We render to ambient map at half the resolution.
-	_ambientMapViewport.Set(width, height);
+	_ambientMapViewport.Set(width * 0.5f, height * 0.5f);
 
 	BuildFrustumCorners(fovy, farZ);
 	BuildTextureViews();
+
+	if (_material == nullptr)
+	{
+		shared_ptr<Shader> shader = make_shared<Shader>(L"Ssao.fx");
+		shared_ptr<Material> material = make_shared<Material>();
+		material->SetShader(shader);
+		material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
+		material->SetNormalMap(GRAPHICS->GetNormalDepthMap());
+		_material = material;
+	}
+}
+
+void Ssao::Draw()
+{
+	ID3D11RenderTargetView* renderTargets[1] = { _ambientRTV0.Get() };
+	DC->OMSetRenderTargets(1, renderTargets, 0);
+	Color color{ 0.0f, 0.0f, 0.0f, 1.0f };
+	DC->ClearRenderTargetView(_ambientRTV0.Get(), reinterpret_cast<const float*>(&color));
+	_ambientMapViewport.RSSetViewport();
+
+	Shader* shader = _material->GetShader();
+	shader->PushSsaoData(_ssaoDesc);
+	_material->Update();
+
+	static const Matrix T(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+
+	Matrix P = Camera::S_MatProjection;
+	Matrix PT = P * T;
+	_ssaoDesc.viewToTexSpace = PT;
+
+	_screenQuadVB->PushData();
+	_screenQuadIB->PushData();
+	shader->DrawIndexed(RenderTech::Draw, 0, _screenQuadIB->GetCount());
 }
 
 void Ssao::BuildQuad()
 {
 	vector<VertexTextureNormalData> v(4);
 
-	v[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	v[1].position = XMFLOAT3(-1.0f, +1.0f, 0.0f);
-	v[2].position = XMFLOAT3(+1.0f, +1.0f, 0.0f);
-	v[3].position = XMFLOAT3(+1.0f, -1.0f, 0.0f);
+	v[0].position = Vec3(-1.0f, -1.0f, 0.0f);
+	v[1].position = Vec3(-1.0f, +1.0f, 0.0f);
+	v[2].position = Vec3(+1.0f, +1.0f, 0.0f);
+	v[3].position = Vec3(+1.0f, -1.0f, 0.0f);
 
 	// Stnre far plane frustum corner indices in Normal.x slot.
-	v[0].normal = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	v[1].normal = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	v[2].normal = XMFLOAT3(2.0f, 0.0f, 0.0f);
-	v[3].normal = XMFLOAT3(3.0f, 0.0f, 0.0f);
+	v[0].normal = Vec3(0.0f, 0.0f, 0.0f);
+	v[1].normal = Vec3(1.0f, 0.0f, 0.0f);
+	v[2].normal = Vec3(2.0f, 0.0f, 0.0f);
+	v[3].normal = Vec3(3.0f, 0.0f, 0.0f);
 
-	v[0].uv = XMFLOAT2(0.0f, 1.0f);
-	v[1].uv = XMFLOAT2(0.0f, 0.0f);
-	v[2].uv = XMFLOAT2(1.0f, 0.0f);
-	v[3].uv = XMFLOAT2(1.0f, 1.0f);
+	v[0].uv = Vec2(0.0f, 1.0f);
+	v[1].uv = Vec2(0.0f, 0.0f);
+	v[2].uv = Vec2(1.0f, 0.0f);
+	v[3].uv = Vec2(1.0f, 1.0f);
 
     _screenQuadVB = make_unique<VertexBuffer>();
     _screenQuadVB->Create(v, 0);
@@ -57,6 +96,15 @@ void Ssao::BuildQuad()
 
 void Ssao::BuildFrustumCorners(float fovy, float farZ)
 {
+	float aspect = (float)_renderTargetWidth / (float)_renderTargetHeight;
+
+	float halfHeight = farZ * tanf(0.5f * fovy);
+	float halfWidth = aspect * halfHeight;
+
+	_ssaoDesc.frustumCorners[0] = Vec4(-halfWidth, -halfHeight, farZ, 0.0f);
+	_ssaoDesc.frustumCorners[1] = Vec4(-halfWidth, +halfHeight, farZ, 0.0f);
+	_ssaoDesc.frustumCorners[2] = Vec4(+halfWidth, +halfHeight, farZ, 0.0f);
+	_ssaoDesc.frustumCorners[3] = Vec4(+halfWidth, -halfHeight, farZ, 0.0f);
 }
 
 void Ssao::BuildTextureViews()
@@ -103,34 +151,34 @@ void Ssao::BuildOffsetVectors()
 	// if we choose to use less than 14 samples.
 
 	// 8 cube corners
-	_offsets[0] = XMFLOAT4(+1.0f, +1.0f, +1.0f, 0.0f);
-	_offsets[1] = XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[0] = Vec4(+1.0f, +1.0f, +1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[1] = Vec4(-1.0f, -1.0f, -1.0f, 0.0f);
 
-	_offsets[2] = XMFLOAT4(-1.0f, +1.0f, +1.0f, 0.0f);
-	_offsets[3] = XMFLOAT4(+1.0f, -1.0f, -1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[2] = Vec4(-1.0f, +1.0f, +1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[3] = Vec4(+1.0f, -1.0f, -1.0f, 0.0f);
 
-	_offsets[4] = XMFLOAT4(+1.0f, +1.0f, -1.0f, 0.0f);
-	_offsets[5] = XMFLOAT4(-1.0f, -1.0f, +1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[4] = Vec4(+1.0f, +1.0f, -1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[5] = Vec4(-1.0f, -1.0f, +1.0f, 0.0f);
 
-	_offsets[6] = XMFLOAT4(-1.0f, +1.0f, -1.0f, 0.0f);
-	_offsets[7] = XMFLOAT4(+1.0f, -1.0f, +1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[6] = Vec4(-1.0f, +1.0f, -1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[7] = Vec4(+1.0f, -1.0f, +1.0f, 0.0f);
 
 	// 6 centers of cube faces
-	_offsets[8] = XMFLOAT4(-1.0f, 0.0f, 0.0f, 0.0f);
-	_offsets[9] = XMFLOAT4(+1.0f, 0.0f, 0.0f, 0.0f);
+	_ssaoDesc.offsetVectors[8] = Vec4(-1.0f, 0.0f, 0.0f, 0.0f);
+	_ssaoDesc.offsetVectors[9] = Vec4(+1.0f, 0.0f, 0.0f, 0.0f);
 
-	_offsets[10] = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
-	_offsets[11] = XMFLOAT4(0.0f, +1.0f, 0.0f, 0.0f);
+	_ssaoDesc.offsetVectors[10] = Vec4(0.0f, -1.0f, 0.0f, 0.0f);
+	_ssaoDesc.offsetVectors[11] = Vec4(0.0f, +1.0f, 0.0f, 0.0f);
 
-	_offsets[12] = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
-	_offsets[13] = XMFLOAT4(0.0f, 0.0f, +1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[12] = Vec4(0.0f, 0.0f, -1.0f, 0.0f);
+	_ssaoDesc.offsetVectors[13] = Vec4(0.0f, 0.0f, +1.0f, 0.0f);
 
 	for (int32 i = 0; i < 14; ++i)
 	{
 		// Create random lengths in [0.25, 1.0].
 		float s = MathUtils::Random(0.25f, 1.0f);
-		_offsets[i].Normalize();
-        _offsets[i] *= s;
+		_ssaoDesc.offsetVectors[i].Normalize();
+		_ssaoDesc.offsetVectors[i] *= s;
 	}
 }
 

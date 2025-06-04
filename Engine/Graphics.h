@@ -22,7 +22,9 @@ public:
 	void SetShadowDepthStencilView();
 
 	void SetNormalDepthRenderTarget();
+	void DrawSsaoMap();
 	shared_ptr<Texture> GetNormalDepthMap();
+	shared_ptr<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
 
 	void SetSsaoSize(int32 width, int32 height, float fovy, float farZ);
@@ -36,8 +38,6 @@ public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
 	Viewport& GetViewport() { return _vp; }
 	Viewport& GetShadowViewport() { return _shadowVP; }
-
-	//ComPtr<ID3D11ShaderResourceView> GetShadowMapSRV() { return _shadowSRV; }
 	shared_ptr<Texture> GetShadowMap() { return _shadowMap; }
 
 private:
@@ -66,5 +66,6 @@ private:
 
 	shared_ptr<Ssao> _ssao;
 	shared_ptr<Texture> _normalDepthMap;
+	shared_ptr<Texture> _ssaoMap;
 };
 

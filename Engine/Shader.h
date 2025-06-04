@@ -80,6 +80,7 @@ public:
 	void PushSnowData(const SnowBillboardDesc& desc);
 	void PushParticleData(const ParticleDesc& desc);
 	void PushShadowData(const Matrix& desc);
+	void PushSsaoData(const SsaoDesc& desc);
 
 	vector<Technique>& GetTechniques() { return _techniques; }
 
@@ -125,6 +126,10 @@ private:
 	Matrix _shadowDesc;
 	shared_ptr<ConstantBuffer<Matrix>> _shadowBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _shadowEffectBuffer;
+
+	SsaoDesc _ssaoDesc;
+	shared_ptr<ConstantBuffer<SsaoDesc>> _ssaoBuffer;
+	ComPtr<ID3DX11EffectConstantBuffer> _ssaoEffectBuffer;
 
 	int _techNums[static_cast<int>(RenderTech::Max)];
 };

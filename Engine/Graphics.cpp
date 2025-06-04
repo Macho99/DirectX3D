@@ -16,6 +16,7 @@ void Graphics::Init(HWND hwnd)
 	SetViewport(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
 	_ssao = make_shared<Ssao>();
 	_normalDepthMap = make_shared<Texture>();
+	_ssaoMap = make_shared<Texture>();
 }
 
 void Graphics::RenderBegin()
@@ -59,9 +60,19 @@ void Graphics::SetNormalDepthRenderTarget()
 	_ssao->SetNormalDepthRenderTarget(_depthStencilView.Get());
 }
 
+void Graphics::DrawSsaoMap()
+{
+	_ssao->Draw();
+}
+
 shared_ptr<Texture> Graphics::GetNormalDepthMap()
 {
 	return _normalDepthMap;
+}
+
+shared_ptr<Texture> Graphics::GetSsaoMap()
+{
+	return _ssaoMap;
 }
 
 void Graphics::SetRTVAndDSV()
@@ -74,6 +85,7 @@ void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
 {
 	_ssao->OnSize(width, height, fovy, farZ);
 	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
+	_ssaoMap->SetSRV(_ssao->GetSsaoMap());
 }
 
 void Graphics::CreateDeviceAndSwapChain()

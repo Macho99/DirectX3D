@@ -515,6 +515,19 @@ void Shader::PushShadowData(const Matrix& desc)
 	_shadowEffectBuffer->SetConstantBuffer(_shadowBuffer->GetComPtr().Get());
 }
 
+void Shader::PushSsaoData(const SsaoDesc& desc)
+{
+	if (_ssaoEffectBuffer == nullptr)
+	{
+		_ssaoBuffer = make_shared<ConstantBuffer<SsaoDesc>>();
+		_ssaoBuffer->Create();
+		_ssaoEffectBuffer = GetConstantBuffer("SsaoBuffer");
+	}
+	_ssaoDesc = desc;
+	_ssaoBuffer->CopyData(_ssaoDesc);
+	_ssaoEffectBuffer->SetConstantBuffer(_ssaoBuffer->GetComPtr().Get());
+}
+
 int Shader::GetTechNum(RenderTech renderTech)
 { 
 	int num = _techNums[static_cast<int>(renderTech)];
