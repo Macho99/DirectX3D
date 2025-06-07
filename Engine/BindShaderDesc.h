@@ -6,6 +6,7 @@ struct GlobalDesc
 	Matrix V = Matrix::Identity;
 	Matrix P = Matrix::Identity;
 	Matrix VP = Matrix::Identity;
+	Matrix VPT = Matrix::Identity;
 	Matrix VInv = Matrix::Identity;
 	Vec3 CamPos = Vec3(0, 0, 0);
 	float padding;
@@ -124,4 +125,11 @@ struct SsaoDesc
 	float gOcclusionFadeStart = 0.2f;
 	float gOcclusionFadeEnd = 2.0f;
 	float gSurfaceEpsilon = 0.05f;
+};
+
+struct BlurDesc
+{
+	float gTexelWidth;
+	float gTexelHeight;
+	Vec2 dummy;
 };

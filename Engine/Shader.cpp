@@ -380,9 +380,17 @@ void Shader::PushGlobalData(const Matrix& view, const Matrix& projection)
 		_globalEffectBuffer = GetConstantBuffer("GlobalBuffer");
 	}
 
+	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+	Matrix toTexSpace(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+
 	_globalDesc.V = view;
 	_globalDesc.P = projection;
 	_globalDesc.VP = view * projection;
+	_globalDesc.VPT = _globalDesc.VP * toTexSpace;
 	_globalDesc.VInv = view.Invert();
 	_globalDesc.CamPos = Camera::S_Pos;
 
@@ -526,6 +534,19 @@ void Shader::PushSsaoData(const SsaoDesc& desc)
 	_ssaoDesc = desc;
 	_ssaoBuffer->CopyData(_ssaoDesc);
 	_ssaoEffectBuffer->SetConstantBuffer(_ssaoBuffer->GetComPtr().Get());
+}
+
+void Shader::PushBlurData(const BlurDesc& desc)
+{
+	if (_blurEffectBuffer == nullptr)
+	{
+		_blurBuffer = make_shared<ConstantBuffer<BlurDesc>>();
+		_blurBuffer->Create();
+		_blurEffectBuffer = GetConstantBuffer("BlurBuffer");
+	}
+	_blurDesc = desc;
+	_blurBuffer->CopyData(_blurDesc);
+	_blurEffectBuffer->SetConstantBuffer(_blurBuffer->GetComPtr().Get());
 }
 
 int Shader::GetTechNum(RenderTech renderTech)

@@ -47,11 +47,15 @@ void Scene::Render()
 		{
 			RenderGameCamera(cam);
 		}
-		else
+	}
+
+	for (auto& camera : _cameras)
+	{
+		Camera* cam = camera->GetCamera().get();
+		if (cam->GetProjectionType() != ProjectionType::Perspective)
 		{
 			RenderUICamera(cam);
 		}
-
 	}
 }
 
@@ -89,7 +93,7 @@ void Scene::RenderGameCamera(Camera* cam)
 	////////////////////////////////////////////
 	//					Ssao
 	////////////////////////////////////////////
-	GRAPHICS->DrawSsaoMap();
+	GRAPHICS->DrawSsaoMap(INPUT->GetButton(KEY_TYPE::LCTRL));
 
 	////////////////////////////////////////////
 	//					Draw

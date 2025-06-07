@@ -5,7 +5,7 @@
 float4 PS(MeshOutput input) : SV_TARGET
 {
 	float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
-	float4 color = ComputeLight(input.normal, input.uv, input.worldPosition, shadow);
+	float4 color = ComputeLight(input.normal, input.uv, input.worldPosition, input.ssaoPosH, shadow);
 	//float4 color = DiffuseMap.Sample(LinearSampler, input.uv);
 	
 	return color;

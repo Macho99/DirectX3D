@@ -55,28 +55,6 @@
     <FxCompile Include="..\Shaders\00. Global.fx" />
     <FxCompile Include="..\Shaders\00. Light.fx" />
     <FxCompile Include="..\Shaders\00. Render.fx" />
-    <FxCompile Include="..\Shaders\01. Triangle.fx">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\02. Quad.fx" />
-    <FxCompile Include="..\Shaders\03. ConstantBuffer.fx" />
-    <FxCompile Include="..\Shaders\04. Texture.fx" />
-    <FxCompile Include="..\Shaders\05. Terrain.fx" />
-    <FxCompile Include="..\Shaders\06. Normal.fx" />
-    <FxCompile Include="..\Shaders\07. GlobalTest.fx" />
-    <FxCompile Include="..\Shaders\08. Lighting_Ambient.fx" />
-    <FxCompile Include="..\Shaders\09. Lighting_Diffuse.fx" />
-    <FxCompile Include="..\Shaders\10. Lighting_Specular.fx" />
-    <FxCompile Include="..\Shaders\11. Lighting_Emissive.fx" />
-    <FxCompile Include="..\Shaders\12. Lighting.fx" />
-    <FxCompile Include="..\Shaders\13. NormalMapping.fx" />
     <FxCompile Include="..\Shaders\14. ModelDemo.fx" />
     <FxCompile Include="..\Shaders\15. AnimationDemo.fx" />
     <FxCompile Include="..\Shaders\16. TweenDemo.fx" />
@@ -88,6 +66,7 @@
     <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx" />
     <FxCompile Include="..\Shaders\23. BillboardDemo.fx" />
     <FxCompile Include="..\Shaders\24. SnowDemo.fx" />
+    <FxCompile Include="..\Shaders\Blur.fx" />
     <FxCompile Include="..\Shaders\DebugTexture.fx" />
     <FxCompile Include="..\Shaders\ParticleSystem.fx" />
     <FxCompile Include="..\Shaders\Sky.fx" />

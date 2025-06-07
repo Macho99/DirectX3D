@@ -52,12 +52,13 @@ Texture2D DiffuseMap;
 Texture2D SpecularMap;
 Texture2D NormalMap;
 Texture2D ShadowMap;
+Texture2D SsaoMap;
 
 //////////////
 // Function //
 //////////////
 
-float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition, float shadow = 1)
+float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition, float4 ssaoPosH, float shadow = 1)
 {
 	float4 ambientColor = 0;
 	float4 diffuseColor = 0;
@@ -68,7 +69,12 @@ float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition, float shadow
 	{
 		float4 color = GlobalLight.ambient * Material.ambient;
 		ambientColor = DiffuseMap.Sample(LinearSampler, uv) * color;
-	}
+        
+		ssaoPosH /= ssaoPosH.w;
+        float ambientAccess = SsaoMap.SampleLevel(LinearSampler, ssaoPosH.xy, 0.0f).r;
+		
+        ambientColor *= ambientAccess;
+    }
 
 	// Diffuse
 	{

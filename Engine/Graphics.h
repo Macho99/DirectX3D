@@ -22,7 +22,7 @@ public:
 	void SetShadowDepthStencilView();
 
 	void SetNormalDepthRenderTarget();
-	void DrawSsaoMap();
+	void DrawSsaoMap(bool clearOnly);
 	shared_ptr<Texture> GetNormalDepthMap();
 	shared_ptr<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
@@ -66,6 +66,5 @@ private:
 
 	shared_ptr<Ssao> _ssao;
 	shared_ptr<Texture> _normalDepthMap;
-	shared_ptr<Texture> _ssaoMap;
 };
 

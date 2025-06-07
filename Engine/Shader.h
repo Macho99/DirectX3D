@@ -81,6 +81,7 @@ public:
 	void PushParticleData(const ParticleDesc& desc);
 	void PushShadowData(const Matrix& desc);
 	void PushSsaoData(const SsaoDesc& desc);
+	void PushBlurData(const BlurDesc& desc);
 
 	vector<Technique>& GetTechniques() { return _techniques; }
 
@@ -130,6 +131,10 @@ private:
 	SsaoDesc _ssaoDesc;
 	shared_ptr<ConstantBuffer<SsaoDesc>> _ssaoBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _ssaoEffectBuffer;
+
+	BlurDesc _blurDesc;
+	shared_ptr<ConstantBuffer<BlurDesc>> _blurBuffer;
+	ComPtr<ID3DX11EffectConstantBuffer> _blurEffectBuffer;
 
 	int _techNums[static_cast<int>(RenderTech::Max)];
 };

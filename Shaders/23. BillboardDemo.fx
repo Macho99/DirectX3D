@@ -13,7 +13,8 @@ struct V_OUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
-	float4 shadowPosH : TEXCOORD2;
+	float4 shadowPosH : TEXCOORD1;
+    float4 ssaoPosH : TEXCOORD2;
 };
 
 V_OUT VS(VertexInput input)
@@ -31,6 +32,7 @@ V_OUT VS(VertexInput input)
 	position.w = 1.0f;
 
 	output.shadowPosH = mul(position, ShadowTransform);
+    output.ssaoPosH = mul(position, VPT);
 	
 	output.position = mul(mul(position, V), P);
 	output.uv = input.uv;

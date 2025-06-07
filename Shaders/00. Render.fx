@@ -35,7 +35,8 @@ MeshOutput VS_Mesh(VertexMesh input)
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
 	output.shadowPosH = mul(worldPos, ShadowTransform);
-
+    output.ssaoPosH = mul(worldPos, VPT);
+	
 	return output;
 }
 
@@ -77,7 +78,8 @@ MeshOutput VS_Model(VertexModel input)
     output.normal = mul(input.normal, (float3x3) BoneTransforms[BoneIndex]);
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
-	output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.ssaoPosH = mul(worldPos, VPT);
 
 	return output;
 }
@@ -199,7 +201,8 @@ MeshOutput VS_Animation(VertexModel input)
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
 	output.tangent = mul(input.tangent, (float3x3) input.world);
-	output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.ssaoPosH = mul(worldPos, VPT);
 
 	return output;
 }

@@ -62,5 +62,6 @@ private:
 	ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _cubeMapEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _shadowMapEffectBuffer;
+	ComPtr<ID3DX11EffectShaderResourceVariable> _ssaoMapEffectBuffer;
 };
 
