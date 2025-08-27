@@ -104,6 +104,7 @@ void Scene::RenderGameCamera(Camera* cam)
 	if (_sky)
 		_sky->Render(cam);
 	cam->Render_Backward(RenderTech::Draw);
+	GRAPHICS->PostProcessBegin();
 }
 
 void Scene::RenderUICamera(Camera* cam)

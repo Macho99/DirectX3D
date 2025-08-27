@@ -55,6 +55,9 @@
     <Filter Include="04. Component\VFX">
       <UniqueIdentifier>{3825520e-41ed-4825-9109-d383c5921973}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. Graphics\PostProcess">
+      <UniqueIdentifier>{20d240fa-c542-4c7d-a34c-d3e6fce29a41}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -270,6 +273,12 @@
     <ClInclude Include="Ssao.h">
       <Filter>01. Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcess.h">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="Bloom.h">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -472,6 +481,12 @@
     </ClCompile>
     <ClCompile Include="Ssao.cpp">
       <Filter>01. Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Bloom.cpp">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcess.cpp">
+      <Filter>01. Graphics\PostProcess</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

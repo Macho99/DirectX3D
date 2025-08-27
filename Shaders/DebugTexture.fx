@@ -3,39 +3,39 @@
 
 SamplerState samLinear
 {
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 struct VertexOut
 {
-	float4 PosH : SV_POSITION;
-	float2 Tex : TEXCOORD;
+    float4 PosH : SV_POSITION;
+    float2 Tex : TEXCOORD;
 };
 
 VertexOut VS(VertexTextureNormalTangent vin)
 {
-	VertexOut vout;
+    VertexOut vout;
 	
-	vout.PosH = mul(vin.position, W);
-	vout.PosH = mul(vout.PosH, VP);
-	vout.Tex = vin.uv;
+    vout.PosH = mul(vin.position, W);
+    vout.PosH = mul(vout.PosH, VP);
+    vout.Tex = vin.uv;
 
-	return vout;
+    return vout;
 }
 
 float4 PS(VertexOut pin) : SV_Target
 {
-	return DiffuseMap.Sample(samLinear, pin.Tex);
+    return DiffuseMap.Sample(samLinear, pin.Tex);
 }
 
 float4 PS(VertexOut pin, uniform int index) : SV_Target
 {
-	float3 c = DiffuseMap.Sample(samLinear, pin.Tex).rrr;
+    float3 c = DiffuseMap.Sample(samLinear, pin.Tex).rrr;
 
     // draw as grayscale
-	return float4(c.rgb, 1);
+    return float4(c.rgb, 1);
 }
 
 technique11 ViewArgbTech
@@ -50,40 +50,40 @@ technique11 ViewArgbTech
 
 technique11 ViewRedTech
 {
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(0)));
-	}
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS(0)));
+    }
 }
 
 technique11 ViewGreenTech
 {
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(1)));
-	}
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS(1)));
+    }
 }
 
 technique11 ViewBlueTech
 {
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(2)));
-	}
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS(2)));
+    }
 }
 
 technique11 ViewAlphaTech
 {
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3)));
-	}
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS(3)));
+    }
 }

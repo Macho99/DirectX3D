@@ -13,7 +13,7 @@ public:
 	virtual void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	shared_ptr<Material> GetMaterial() { return _material; }
 
-	bool Render(RenderTech renderTech);
+	virtual bool Render(RenderTech renderTech);
 
 protected:
 	virtual void InnerRender(RenderTech renderTech);

@@ -2,12 +2,15 @@
 #include "Graphics.h"
 #include "Ssao.h"
 #include "Viewport.h"
+#include "Bloom.h"
 
 #define SHADOWMAP_SIZE 4096
 
 void Graphics::Init(HWND hwnd)
 {
 	_hwnd = hwnd;
+
+	_postProcessDebugTexture = make_shared<Texture>();
 
 	CreateDeviceAndSwapChain();
 	CreateRenderTargetView();
@@ -16,6 +19,7 @@ void Graphics::Init(HWND hwnd)
 	SetViewport(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
 	_ssao = make_shared<Ssao>();
 	_normalDepthMap = make_shared<Texture>();
+    _postProcesses.push_back(make_shared<Bloom>());
 }
 
 void Graphics::RenderBegin()
@@ -88,6 +92,25 @@ void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
 	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
 }
 
+void Graphics::PostProcessBegin()
+{
+	_deviceContext->CopyResource(_postProcessTexture0.Get(), _backBufferTexture.Get());
+	for (int i = 0; i < _postProcesses.size(); i++)
+	{
+		PostProcess* postProcess = _postProcesses[i].get();
+        if (postProcess->IsEnabled() == false)
+            continue;
+		postProcess->Render(_postProcessSRV0, _postProcessRTV1);
+
+        swap(_postProcessTexture0, _postProcessTexture1);
+        swap(_postProcessSRV0, _postProcessSRV1);
+        swap(_postProcessRTV0, _postProcessRTV1);
+	}
+    _postProcessDebugTexture->SetSRV(_postProcessSRV0);
+
+    _deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), 0);
+}
+
 void Graphics::CreateDeviceAndSwapChain()
 {
 	DXGI_SWAP_CHAIN_DESC desc;
@@ -131,12 +154,35 @@ void Graphics::CreateRenderTargetView()
 {
 	HRESULT hr;
 
-	ComPtr<ID3D11Texture2D> backBuffer = nullptr;
-	hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)backBuffer.GetAddressOf());
+	//ComPtr<ID3D11Texture2D> backBuffer = nullptr;
+	hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf());
 	CHECK(hr);
 
-	hr = _device->CreateRenderTargetView(backBuffer.Get(), nullptr, _renderTargetView.GetAddressOf());
+	hr = _device->CreateRenderTargetView(_backBufferTexture.Get(), nullptr, _renderTargetView.GetAddressOf());
 	CHECK(hr);
+
+	{
+		D3D11_TEXTURE2D_DESC texDesc;
+		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().width);
+		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().height);
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MiscFlags = 0;
+
+		HR(DEVICE->CreateTexture2D(&texDesc, 0, _postProcessTexture0.GetAddressOf()));
+		HR(DEVICE->CreateShaderResourceView(_postProcessTexture0.Get(), 0, _postProcessSRV0.GetAddressOf()));
+		HR(DEVICE->CreateRenderTargetView(_postProcessTexture0.Get(), 0, _postProcessRTV0.GetAddressOf()));
+
+		HR(DEVICE->CreateTexture2D(&texDesc, 0, _postProcessTexture1.GetAddressOf()));
+		HR(DEVICE->CreateShaderResourceView(_postProcessTexture1.Get(), 0, _postProcessSRV1.GetAddressOf()));
+		HR(DEVICE->CreateRenderTargetView(_postProcessTexture1.Get(), 0, _postProcessRTV1.GetAddressOf()));
+	}
 }
 
 void Graphics::CreateDepthStencilView()

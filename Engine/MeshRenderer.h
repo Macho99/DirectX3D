@@ -13,7 +13,7 @@ public:
 	virtual ~MeshRenderer();
 
 	void SetMesh(shared_ptr<Mesh> mesh) { _mesh = mesh; }
-
+	bool Render(RenderTech renderTech) override;
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
 	InstanceID GetInstanceID();
 

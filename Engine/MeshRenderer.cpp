@@ -16,6 +16,25 @@ MeshRenderer::~MeshRenderer()
 
 }
 
+bool MeshRenderer::Render(RenderTech renderTech)
+{
+	if (Super::Render(renderTech) == false)
+	{
+		return false;
+	}
+
+	if (_mesh == nullptr)
+		return false;
+
+	// Light
+	//_material->Update();
+
+	_mesh->GetVertexBuffer()->PushData();
+	_mesh->GetIndexBuffer()->PushData();
+    _material->GetShader()->DrawIndexed(renderTech, _pass, _mesh->GetIndexBuffer()->GetCount());
+	return true;
+}
+
 void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
 {
 	if (Super::Render(renderTech) == false)

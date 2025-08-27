@@ -172,5 +172,8 @@
     <FxCompile Include="..\Shaders\Blur.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\Bloom.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

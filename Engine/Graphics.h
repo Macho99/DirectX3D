@@ -2,6 +2,7 @@
 
 #include "Viewport.h"
 class Ssao;
+class PostProcess;
 
 class Graphics
 {
@@ -29,6 +30,8 @@ public:
 
 	void SetSsaoSize(int32 width, int32 height, float fovy, float farZ);
 
+	void PostProcessBegin();
+
 private:
 	void CreateDeviceAndSwapChain();
 	void CreateRenderTargetView();
@@ -39,6 +42,7 @@ public:
 	Viewport& GetViewport() { return _vp; }
 	Viewport& GetShadowViewport() { return _shadowVP; }
 	shared_ptr<Texture> GetShadowMap() { return _shadowMap; }
+    shared_ptr<Texture> GetPostProcessDebugTexture() { return _postProcessDebugTexture; }
 
 private:
 	HWND _hwnd = {};
@@ -49,6 +53,7 @@ private:
 	ComPtr<IDXGISwapChain> _swapChain = nullptr;
 
 	// RTV
+	ComPtr<ID3D11Texture2D> _backBufferTexture;
 	ComPtr<ID3D11RenderTargetView> _renderTargetView;
 
 	// DSV
@@ -66,5 +71,15 @@ private:
 
 	shared_ptr<Ssao> _ssao;
 	shared_ptr<Texture> _normalDepthMap;
+
+    vector<shared_ptr<PostProcess>> _postProcesses;
+
+    shared_ptr<Texture> _postProcessDebugTexture;
+    ComPtr<ID3D11Texture2D> _postProcessTexture0;
+	ComPtr<ID3D11ShaderResourceView> _postProcessSRV0;
+	ComPtr<ID3D11RenderTargetView> _postProcessRTV0;
+	ComPtr<ID3D11Texture2D> _postProcessTexture1;
+	ComPtr<ID3D11ShaderResourceView> _postProcessSRV1;
+	ComPtr<ID3D11RenderTargetView> _postProcessRTV1;
 };
 
