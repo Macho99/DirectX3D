@@ -30,7 +30,7 @@ public:
 
 	void SetSsaoSize(int32 width, int32 height, float fovy, float farZ);
 
-	void PostProcessBegin();
+	void DrawPostProcesses();
 
 private:
 	void CreateDeviceAndSwapChain();
@@ -42,7 +42,7 @@ public:
 	Viewport& GetViewport() { return _vp; }
 	Viewport& GetShadowViewport() { return _shadowVP; }
 	shared_ptr<Texture> GetShadowMap() { return _shadowMap; }
-    shared_ptr<Texture> GetPostProcessDebugTexture() { return _postProcessDebugTexture; }
+    shared_ptr<Texture> GetPostProcessDebugTexture(int index) { return _ppDebugTextures[index]; }
 
 private:
 	HWND _hwnd = {};
@@ -73,13 +73,13 @@ private:
 	shared_ptr<Texture> _normalDepthMap;
 
     vector<shared_ptr<PostProcess>> _postProcesses;
+    vector<shared_ptr<Texture>> _ppDebugTextures;
+	vector<ComPtr<ID3D11Texture2D>> _ppTextures;
+    vector<ComPtr<ID3D11ShaderResourceView>> _ppSRVs;
+    vector<ComPtr<ID3D11RenderTargetView>> _ppRTVs;
 
-    shared_ptr<Texture> _postProcessDebugTexture;
-    ComPtr<ID3D11Texture2D> _postProcessTexture0;
-	ComPtr<ID3D11ShaderResourceView> _postProcessSRV0;
-	ComPtr<ID3D11RenderTargetView> _postProcessRTV0;
-	ComPtr<ID3D11Texture2D> _postProcessTexture1;
-	ComPtr<ID3D11ShaderResourceView> _postProcessSRV1;
-	ComPtr<ID3D11RenderTargetView> _postProcessRTV1;
+    ComPtr<ID3D11Texture2D> _hdrTexture;
+	ComPtr<ID3D11ShaderResourceView> _hdrSRV;
+	ComPtr<ID3D11RenderTargetView> _hdrRTV;
 };
 

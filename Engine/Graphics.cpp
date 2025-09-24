@@ -10,7 +10,7 @@ void Graphics::Init(HWND hwnd)
 {
 	_hwnd = hwnd;
 
-	_postProcessDebugTexture = make_shared<Texture>();
+	_postProcesses.push_back(make_shared<Bloom>());
 
 	CreateDeviceAndSwapChain();
 	CreateRenderTargetView();
@@ -19,15 +19,14 @@ void Graphics::Init(HWND hwnd)
 	SetViewport(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
 	_ssao = make_shared<Ssao>();
 	_normalDepthMap = make_shared<Texture>();
-    _postProcesses.push_back(make_shared<Bloom>());
 }
 
 void Graphics::RenderBegin()
 {
-	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
+	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
 	//ClearDepthStencilView();
 	//씬에서 카메라마다 클리어해줌
-	_deviceContext->ClearRenderTargetView(_renderTargetView.Get(), (float*)(&GAME->GetGameDesc().clearColor));
+	_deviceContext->ClearRenderTargetView(_hdrRTV.Get(), (float*)(&GAME->GetGameDesc().clearColor));
 	_vp.RSSetViewport();
 }
 
@@ -83,7 +82,7 @@ shared_ptr<Texture> Graphics::GetSsaoMap()
 void Graphics::SetRTVAndDSV()
 {
 	_vp.RSSetViewport();
-	_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), _depthStencilView.Get());
+	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
 }
 
 void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
@@ -92,21 +91,17 @@ void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
 	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
 }
 
-void Graphics::PostProcessBegin()
+void Graphics::DrawPostProcesses()
 {
-	_deviceContext->CopyResource(_postProcessTexture0.Get(), _backBufferTexture.Get());
 	for (int i = 0; i < _postProcesses.size(); i++)
 	{
 		PostProcess* postProcess = _postProcesses[i].get();
         if (postProcess->IsEnabled() == false)
             continue;
-		postProcess->Render(_postProcessSRV0, _postProcessRTV1);
-
-        swap(_postProcessTexture0, _postProcessTexture1);
-        swap(_postProcessSRV0, _postProcessSRV1);
-        swap(_postProcessRTV0, _postProcessRTV1);
+		postProcess->Render(_hdrSRV, _ppRTVs[i]);
+		_ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
+		_deviceContext->CopyResource(_hdrTexture.Get(), _ppTextures[i].Get());
 	}
-    _postProcessDebugTexture->SetSRV(_postProcessSRV0);
 
     _deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), 0);
 }
@@ -167,7 +162,7 @@ void Graphics::CreateRenderTargetView()
 		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().height);
 		texDesc.MipLevels = 1;
 		texDesc.ArraySize = 1;
-		texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		texDesc.SampleDesc.Count = 1;
 		texDesc.SampleDesc.Quality = 0;
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -175,13 +170,26 @@ void Graphics::CreateRenderTargetView()
 		texDesc.CPUAccessFlags = 0;
 		texDesc.MiscFlags = 0;
 
-		HR(DEVICE->CreateTexture2D(&texDesc, 0, _postProcessTexture0.GetAddressOf()));
-		HR(DEVICE->CreateShaderResourceView(_postProcessTexture0.Get(), 0, _postProcessSRV0.GetAddressOf()));
-		HR(DEVICE->CreateRenderTargetView(_postProcessTexture0.Get(), 0, _postProcessRTV0.GetAddressOf()));
+		HR(DEVICE->CreateTexture2D(&texDesc, 0, _hdrTexture.GetAddressOf()));
+		HR(DEVICE->CreateShaderResourceView(_hdrTexture.Get(), 0, _hdrSRV.GetAddressOf()));
+		HR(DEVICE->CreateRenderTargetView(_hdrTexture.Get(), 0, _hdrRTV.GetAddressOf()));
 
-		HR(DEVICE->CreateTexture2D(&texDesc, 0, _postProcessTexture1.GetAddressOf()));
-		HR(DEVICE->CreateShaderResourceView(_postProcessTexture1.Get(), 0, _postProcessSRV1.GetAddressOf()));
-		HR(DEVICE->CreateRenderTargetView(_postProcessTexture1.Get(), 0, _postProcessRTV1.GetAddressOf()));
+		for (int i = 0; i < _postProcesses.size(); i++)
+		{
+            ComPtr<ID3D11Texture2D> ppTex;
+            ComPtr<ID3D11ShaderResourceView> ppSRV;
+            ComPtr<ID3D11RenderTargetView> ppRTV;
+
+			HR(DEVICE->CreateTexture2D(&texDesc, 0, ppTex.GetAddressOf()));
+			HR(DEVICE->CreateShaderResourceView(ppTex.Get(), 0, ppSRV.GetAddressOf()));
+			HR(DEVICE->CreateRenderTargetView(ppTex.Get(), 0, ppRTV.GetAddressOf()));
+
+            _ppTextures.push_back(ppTex);
+            _ppSRVs.push_back(ppSRV);
+            _ppRTVs.push_back(ppRTV);
+
+            _ppDebugTextures.push_back(make_shared<Texture>());
+		}
 	}
 }
 

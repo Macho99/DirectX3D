@@ -5,16 +5,16 @@
 
 Bloom::Bloom()
 {
-	_material = make_shared<Material>();
+	_brightFilterMat = make_shared<Material>();
 	shared_ptr<Texture> texture = make_shared<Texture>();
-	_material->SetDiffuseMap(texture);
-	_material->SetShader(make_shared<Shader>(L"Bloom.fx"));
-	_material->GetShader()->SetTechNum(RenderTech::Draw, 0);
+	_brightFilterMat->SetDiffuseMap(texture);
+	_brightFilterMat->SetShader(make_shared<Shader>(L"Bloom.fx"));
+	_brightFilterMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
 }
 
 void Bloom::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv)
 {
     Super::Render(srv, rtv);
-    _material->GetDiffuseMap()->SetSRV(srv.Get());
-    DrawQuad(_material.get());
+    _brightFilterMat->GetDiffuseMap()->SetSRV(srv.Get());
+    DrawQuad(_brightFilterMat.get());
 }

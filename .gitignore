@@ -78,3 +78,5 @@ crashlytics-build.properties
 /Binaries/*
 /Libraries/*
 /Intermediate
+/Client/Binaries
+/Client/Intermediate/Debug
