@@ -3,6 +3,7 @@
 #include "Ssao.h"
 #include "Viewport.h"
 #include "Bloom.h"
+#include "ToneMapping.h"
 
 #define SHADOWMAP_SIZE 4096
 
@@ -10,9 +11,12 @@ void Graphics::Init(HWND hwnd)
 {
 	_hwnd = hwnd;
 
-	_postProcesses.push_back(make_shared<Bloom>());
-
 	CreateDeviceAndSwapChain();
+
+	_postProcesses.push_back(make_shared<Bloom>());
+	//_postProcesses[0]->SetEnabled(false);
+    _postProcesses.push_back(make_shared<ToneMapping>());
+
 	CreateRenderTargetView();
 	CreateDepthStencilView();
 	
@@ -93,7 +97,7 @@ void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
 
 void Graphics::DrawPostProcesses()
 {
-	for (int i = 0; i < _postProcesses.size(); i++)
+	for (int i = 0; i < _postProcesses.size() - 1; i++)
 	{
 		PostProcess* postProcess = _postProcesses[i].get();
         if (postProcess->IsEnabled() == false)
@@ -101,9 +105,15 @@ void Graphics::DrawPostProcesses()
 		postProcess->Render(_hdrSRV, _ppRTVs[i]);
 		_ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
 		_deviceContext->CopyResource(_hdrTexture.Get(), _ppTextures[i].Get());
+        postProcess->SetDebugTextureSRV(_ppDebugTextures[i]);
+		_vp.RSSetViewport();
 	}
 
     _deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), 0);
+
+    PostProcess* toneMapping = _postProcesses.back().get();
+    if (toneMapping->IsEnabled())
+        toneMapping->Render(_hdrSRV, _renderTargetView);
 }
 
 void Graphics::CreateDeviceAndSwapChain()
@@ -174,7 +184,7 @@ void Graphics::CreateRenderTargetView()
 		HR(DEVICE->CreateShaderResourceView(_hdrTexture.Get(), 0, _hdrSRV.GetAddressOf()));
 		HR(DEVICE->CreateRenderTargetView(_hdrTexture.Get(), 0, _hdrRTV.GetAddressOf()));
 
-		for (int i = 0; i < _postProcesses.size(); i++)
+		for (int i = 0; i < _postProcesses.size() - 1; i++)
 		{
             ComPtr<ID3D11Texture2D> ppTex;
             ComPtr<ID3D11ShaderResourceView> ppSRV;

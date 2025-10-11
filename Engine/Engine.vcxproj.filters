@@ -279,6 +279,12 @@
     <ClInclude Include="Bloom.h">
       <Filter>01. Graphics\PostProcess</Filter>
     </ClInclude>
+    <ClInclude Include="ToneMapping.h">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="Blur.h">
+      <Filter>01. Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -487,6 +493,12 @@
     </ClCompile>
     <ClCompile Include="PostProcess.cpp">
       <Filter>01. Graphics\PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="ToneMapping.cpp">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="Blur.cpp">
+      <Filter>01. Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -175,5 +175,11 @@
     <FxCompile Include="..\Shaders\Bloom.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ToneMapping.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\PrintTexture.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

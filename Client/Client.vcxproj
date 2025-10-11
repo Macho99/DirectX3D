@@ -70,8 +70,10 @@
     <FxCompile Include="..\Shaders\Blur.fx" />
     <FxCompile Include="..\Shaders\DebugTexture.fx" />
     <FxCompile Include="..\Shaders\ParticleSystem.fx" />
+    <FxCompile Include="..\Shaders\PrintTexture.fx" />
     <FxCompile Include="..\Shaders\Sky.fx" />
     <FxCompile Include="..\Shaders\Ssao.fx" />
+    <FxCompile Include="..\Shaders\ToneMapping.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

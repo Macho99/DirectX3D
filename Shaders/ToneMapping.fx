@@ -30,28 +30,14 @@ VertexOut VS(VertexTextureNormalTangent vin)
 	return vout;
 }
 
-float GetBloomCurve(float intensity)
-{
-    float result = intensity;
-    intensity *= 2.0f;
-    
-    result = intensity * 0.05 + max(0, intensity - 1.26) * 0.5;
-    
-    return result * 0.5f;
-}
-
 float4 PS(VertexOut pin) : SV_Target
 {
-	float3 color = DiffuseMap.Sample(samLinear, pin.Tex).rgb;
-	
-    float intensity = dot(color, float3(0.3f, 0.3f, 0.3f));
-    float bloomIntensity = GetBloomCurve(intensity);
-    float3 bloomColor = color * bloomIntensity / intensity;
+	float4 color = DiffuseMap.Sample(samLinear, pin.Tex);
     
-    return float4(bloomColor, 1.0f);
+    return saturate(color);
 }
 
-technique11 ViewArgbTech
+technique11 T0
 {
     pass P0
     {

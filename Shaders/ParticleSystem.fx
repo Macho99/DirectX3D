@@ -30,7 +30,7 @@ cbuffer cbFixed
 		float2(0.0f, 0.0f),
 		float2(1.0f, 0.0f)
 	};
-};
+}; 
 
 //***********************************************
 // STREAM-OUT TECH                              *
@@ -191,7 +191,7 @@ void DrawGS(point VertexOut gin[1],
 float4 DrawPS(GeoOut pin) : SV_TARGET
 {
 	float4 diffuse = DiffuseMap.Sample(LinearSampler, pin.Tex);
-	float4 result = diffuse * pin.Color;
+	float4 result = diffuse * pin.Color * Material.diffuse;
 	return result;
 }
 

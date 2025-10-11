@@ -51,6 +51,5 @@ private:
 	shared_ptr<Material> _ssaoMaterial;
 	shared_ptr<Material> _blurMaterial;
 	SsaoDesc _ssaoDesc;
-	BlurDesc _blurDesc;
 };
 

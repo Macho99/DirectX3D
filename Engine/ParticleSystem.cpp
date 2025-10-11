@@ -128,6 +128,7 @@ void ParticleSystem::SetMaterial(shared_ptr<Material> material)
 	Super::SetMaterial(material);
 	material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
 	material->SetCastShadow(false);
+    material->GetShader()->SetTechNum(RenderTech::Draw, 1);
 }
 
 void ParticleSystem::BuildVB()
