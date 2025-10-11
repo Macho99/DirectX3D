@@ -181,5 +181,8 @@
     <FxCompile Include="..\Shaders\PrintTexture.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\BlurCombine.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

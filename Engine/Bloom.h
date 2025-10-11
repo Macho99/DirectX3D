@@ -1,5 +1,6 @@
 #pragma once
 #include "PostProcess.h"
+#include "Blur.h"
 
 class Bloom : public PostProcess
 {
@@ -13,6 +14,8 @@ public:
 
 private:
     void DownSample(int index, ComPtr<ID3D11ShaderResourceView> srv);
+    void UpSample(int index, ComPtr<ID3D11ShaderResourceView> accumulateSrv);
+    void ProcessBlur(int index);
 
 private:
     shared_ptr<Material> _brightFilterMat;
@@ -32,5 +35,11 @@ private:
     vector<ComPtr<ID3D11Texture2D>> _downSampleTextures;
     vector<ComPtr<ID3D11ShaderResourceView>> _downSampleSRVs;
     vector<ComPtr<ID3D11RenderTargetView>> _downSampleRTVs;
+
+    array<Blur, 3> _blurs;
+    vector<D3D11_TEXTURE2D_DESC> _upSampleDescs;
+    vector<ComPtr<ID3D11Texture2D>> _upSampleTextures;
+    vector<ComPtr<ID3D11ShaderResourceView>> _upSampleSRVs;
+    vector<ComPtr<ID3D11RenderTargetView>> _upSampleRTVs;
 };
 

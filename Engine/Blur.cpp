@@ -56,16 +56,14 @@ void Blur::OnSize(int32 width, int32 height)
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MiscFlags = 0;
 
-	ComPtr<ID3D11Texture2D> ambientTex0;
-	HR(DEVICE->CreateTexture2D(&texDesc, 0, ambientTex0.GetAddressOf()));
-	HR(DEVICE->CreateShaderResourceView(ambientTex0.Get(), 0, _ambientSRV0.GetAddressOf()));
-	HR(DEVICE->CreateRenderTargetView(ambientTex0.Get(), 0, _ambientRTV0.GetAddressOf()));
+	HR(DEVICE->CreateTexture2D(&texDesc, 0, _ambientTexture0.GetAddressOf()));
+	HR(DEVICE->CreateShaderResourceView(_ambientTexture0.Get(), 0, _ambientSRV0.GetAddressOf()));
+	HR(DEVICE->CreateRenderTargetView(_ambientTexture0.Get(), 0, _ambientRTV0.GetAddressOf()));
 	_texture0->SetSRV(_ambientSRV0);
 
-	ComPtr<ID3D11Texture2D> ambientTex1;
-	HR(DEVICE->CreateTexture2D(&texDesc, 0, ambientTex1.GetAddressOf()));
-	HR(DEVICE->CreateShaderResourceView(ambientTex1.Get(), 0, _ambientSRV1.GetAddressOf()));
-	HR(DEVICE->CreateRenderTargetView(ambientTex1.Get(), 0, _ambientRTV1.GetAddressOf()));
+	HR(DEVICE->CreateTexture2D(&texDesc, 0, _ambientTexture1.GetAddressOf()));
+	HR(DEVICE->CreateShaderResourceView(_ambientTexture1.Get(), 0, _ambientSRV1.GetAddressOf()));
+	HR(DEVICE->CreateRenderTargetView(_ambientTexture1.Get(), 0, _ambientRTV1.GetAddressOf()));
 	_texture1->SetSRV(_ambientSRV1);
 
 	if (_blurMat == nullptr)

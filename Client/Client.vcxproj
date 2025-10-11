@@ -68,6 +68,7 @@
     <FxCompile Include="..\Shaders\24. SnowDemo.fx" />
     <FxCompile Include="..\Shaders\Bloom.fx" />
     <FxCompile Include="..\Shaders\Blur.fx" />
+    <FxCompile Include="..\Shaders\BlurCombine.fx" />
     <FxCompile Include="..\Shaders\DebugTexture.fx" />
     <FxCompile Include="..\Shaders\ParticleSystem.fx" />
     <FxCompile Include="..\Shaders\PrintTexture.fx" />
