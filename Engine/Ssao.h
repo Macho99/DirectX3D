@@ -1,5 +1,6 @@
 #pragma once
 #include "Viewport.h"
+#include "Blur.h"
 
 class Ssao
 {
@@ -11,7 +12,7 @@ public:
 	void Draw();
 
 	ComPtr<ID3D11ShaderResourceView> GetNormalDepthSRV() { return _normalDepthSRV; }
-	shared_ptr<Texture> GetSsaoMap() { return _texture0; }
+	shared_ptr<Texture> GetSsaoMap() { return _blur.GetDebugTexture(); }
 	void SetNormalDepthRenderTarget(ID3D11DepthStencilView* dsv);
 
 private:
@@ -19,10 +20,10 @@ private:
 	void BuildQuad();
 	void BuildTextureViews();
     void BuildOffsetVectors();
-	void BlurAmbientMap(int32 blurCount);	
-	void BlurAmbientMap(shared_ptr<Texture> inputTexture, ComPtr<ID3D11RenderTargetView> outputRTV, bool horzBlur);
 
 private:
+	Blur _blur;
+
     unique_ptr<VertexBuffer> _screenQuadVB;
     unique_ptr<IndexBuffer> _screenQuadIB;
 	//ComPtr<ID3D11Buffer> _screenQuadVB;
@@ -32,15 +33,6 @@ private:
 	ComPtr<ID3D11RenderTargetView> _normalDepthRTV;
 	ComPtr<ID3D11ShaderResourceView> _normalDepthSRV;
 
-	// Need two for ping-ponging during blur.
-	ComPtr<ID3D11RenderTargetView> _ambientRTV0;
-	ComPtr<ID3D11ShaderResourceView> _ambientSRV0;
-	shared_ptr<Texture> _texture0;
-
-	ComPtr<ID3D11RenderTargetView> _ambientRTV1;
-	ComPtr<ID3D11ShaderResourceView> _ambientSRV1;
-	shared_ptr<Texture> _texture1;
-
 	uint32 _renderTargetWidth;
 	uint32 _renderTargetHeight;
 
@@ -49,8 +41,6 @@ private:
 
 	Viewport _ambientMapViewport;
 	shared_ptr<Material> _ssaoMaterial;
-	shared_ptr<Material> _blurMaterial;
 	SsaoDesc _ssaoDesc;
-	BlurDesc _blurDesc;
 };
 
