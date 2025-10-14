@@ -40,8 +40,8 @@ Blur::~Blur()
 
 void Blur::OnSize(int32 width, int32 height)
 {
-	_blurDesc.gTexelHeight = 1.0f / width;
-	_blurDesc.gTexelWidth = 1.0f / height;
+	_blurDesc.gTexelHeight = 1.0f / height;
+	_blurDesc.gTexelWidth = 1.0f / width;
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	texDesc.Width = width;

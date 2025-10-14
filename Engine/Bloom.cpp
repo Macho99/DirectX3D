@@ -2,6 +2,7 @@
 #include "Bloom.h"
 #include "MeshRenderer.h"
 #include "Material.h"
+#include "FileUtils.h"
 
 Bloom::Bloom()
 {
@@ -36,15 +37,14 @@ Bloom::Bloom()
 
 void Bloom::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv)
 {
-    DownSample(0, srv);
-    
-    _brightFilterMat->GetDiffuseMap()->SetSRV(_downSampleSRVs[0].Get());
+    _brightFilterMat->GetDiffuseMap()->SetSRV(srv.Get());
     DC->ClearRenderTargetView(_brightFilterRTV.Get(), reinterpret_cast<const float*>(&Colors::Black));
     DC->OMSetRenderTargets(1, _brightFilterRTV.GetAddressOf(), 0);
     DrawQuad(_brightFilterMat.get());
+
+    DownSample(0, _brightFilterSRV);
     
-    DownSample(1, _brightFilterSRV);
-    for (int i = 2; i < _sampleSize.size(); i++)
+    for (int i = 1; i < _sampleSize.size(); i++)
     {
         DownSample(i, _downSampleSRVs[i - 1]);
     }
@@ -57,7 +57,16 @@ void Bloom::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTarg
         ProcessBlur(i);
     }
     UpSample(_sampleSize.size() - 1, _brightFilterSRV);
-    
+
+    if (INPUT->GetButtonDown(KEY_TYPE::KEY_1) && INPUT->GetButton(KEY_TYPE::LSHIFT))
+    {
+        FileUtils::SaveTextureToFile(_brightFilterTexture.Get(), L"../DebugTextures/BrightFilterTex.png");
+        for (int i = 0; i < _downSampleTextures.size(); i++)
+            FileUtils::SaveTextureToFile(_downSampleTextures[i].Get(), (L"../DebugTextures/DownSampleTex" + to_wstring(i) + L".png").c_str());
+        for (int i = 0; i < _upSampleTextures.size(); i++)
+            FileUtils::SaveTextureToFile(_upSampleTextures[i].Get(), (L"../DebugTextures/UpSampleTex" + to_wstring(i + _downSampleTextures.size()) + L".png").c_str());
+    }
+
     GRAPHICS->GetViewport().RSSetViewport();
     Super::Render(srv, rtv);
     _combineMat->GetDiffuseMap()->SetSRV(_upSampleSRVs.back().Get());
@@ -127,7 +136,11 @@ void Bloom::OnSize(UINT width, UINT height)
     }
 
     {
-        HR(DEVICE->CreateTexture2D(&_downSampleDescs[0], 0, _brightFilterTexture.GetAddressOf()));
+        D3D11_TEXTURE2D_DESC desc = _downSampleDescs[0];
+        desc.Width = width;
+        desc.Height = height;
+
+        HR(DEVICE->CreateTexture2D(&desc, 0, _brightFilterTexture.GetAddressOf()));
         HR(DEVICE->CreateShaderResourceView(_brightFilterTexture.Get(), 0, _brightFilterSRV.GetAddressOf()));
         HR(DEVICE->CreateRenderTargetView(_brightFilterTexture.Get(), 0, _brightFilterRTV.GetAddressOf()));
     }

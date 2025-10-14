@@ -46,7 +46,7 @@ float4 PS(VertexOut pin) : SV_Target
 	
     float intensity = dot(color, float3(0.3f, 0.3f, 0.3f));
     float bloomIntensity = GetBloomCurve(intensity);
-    float3 bloomColor = color * bloomIntensity / intensity;
+    float3 bloomColor = color * bloomIntensity / max(intensity, 0.0001f);
     
     return float4(bloomColor, 1.0f);
 }

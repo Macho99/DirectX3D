@@ -47,6 +47,8 @@ public:
 
 	void Read(void** data, uint32 dataSize);
 	void Read(OUT string& data);
+	
+	void static SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filename);
 
 private:
 	HANDLE _handle = INVALID_HANDLE_VALUE;

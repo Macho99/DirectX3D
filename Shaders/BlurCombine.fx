@@ -35,7 +35,7 @@ float4 PS(VertexOut pin) : SV_Target
 	float4 color = DiffuseMap.Sample(samLinear, pin.Tex);
     float4 color2 = SpecularMap.Sample(samLinear, pin.Tex);
     
-    return color + color2;
+    return (color + color2);
 }
 
 technique11 T0

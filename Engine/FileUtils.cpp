@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "FileUtils.h"
+#include <d3d11.h>
+#include <wrl/client.h>
+using namespace Microsoft::WRL;
 
 FileUtils::FileUtils()
 {
@@ -83,4 +86,32 @@ void FileUtils::Read(OUT string& data)
 	Read((void**)&temp, size);
 	data = temp;
 	delete[] temp;
+}
+
+void FileUtils::SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filename)
+{
+	// 텍스처 설명 가져오기
+	D3D11_TEXTURE2D_DESC desc;
+	texture->GetDesc(&desc);
+
+	// CPU에서 읽을 수 있는 스테이징 텍스처 생성
+	D3D11_TEXTURE2D_DESC stagingDesc = desc;
+	stagingDesc.Usage = D3D11_USAGE_STAGING;
+	stagingDesc.BindFlags = 0;
+	stagingDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	stagingDesc.MiscFlags = 0;
+
+	ComPtr<ID3D11Texture2D> stagingTexture;
+	HR(DEVICE->CreateTexture2D(&stagingDesc, nullptr, &stagingTexture));
+
+	// 원본 텍스처를 스테이징 텍스처로 복사
+	DC->CopyResource(stagingTexture.Get(), texture);
+
+	// DirectXTex의 ScratchImage로 캡처
+	ScratchImage image;
+	HR(CaptureTexture(DEVICE.Get(), DC.Get(), texture, image));
+
+	// PNG 파일로 저장
+	HR(DirectX::SaveToWICFile(*image.GetImages(), WIC_FLAGS_NONE,
+		GetWICCodec(WIC_CODEC_PNG), filename));
 }
