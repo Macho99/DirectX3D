@@ -71,7 +71,7 @@
     <FxCompile Include="..\Shaders\BlurCombine.fx" />
     <FxCompile Include="..\Shaders\DebugTexture.fx" />
     <FxCompile Include="..\Shaders\ParticleSystem.fx" />
-    <FxCompile Include="..\Shaders\PrintTexture.fx" />
+    <FxCompile Include="..\Shaders\DownSample.fx" />
     <FxCompile Include="..\Shaders\Sky.fx" />
     <FxCompile Include="..\Shaders\Ssao.fx" />
     <FxCompile Include="..\Shaders\ToneMapping.fx" />

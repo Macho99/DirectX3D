@@ -112,6 +112,14 @@ SamplerState PointSampler
 	AddressV = Wrap;
 };
 
+SamplerState BorderBlackSampler
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Border;
+    AddressV = Border;
+    BorderColor = float4(0, 0, 0, 0);
+};
+
 ////////////////
 /// RasterizerState
 ////////////////

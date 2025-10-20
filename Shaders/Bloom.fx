@@ -1,13 +1,6 @@
 #include "00. Global.fx"
 #include "00. Light.fx"
 
-SamplerState samLinear
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
-};
-
 struct VertexOut
 {
 	float4 PosH : SV_POSITION;
@@ -42,13 +35,17 @@ float GetBloomCurve(float intensity)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-	float3 color = DiffuseMap.Sample(samLinear, pin.Tex).rgb;
-	
-    float intensity = dot(color, float3(0.3f, 0.3f, 0.3f));
-    float bloomIntensity = GetBloomCurve(intensity);
-    float3 bloomColor = color * bloomIntensity / max(intensity, 0.0001f);
+    float3 color = DiffuseMap.Sample(BorderBlackSampler, pin.Tex).rgb;
+    float threshold = 1.0f;
+    float softKnee = 0.5f;
     
-    return float4(bloomColor, 1.0f);
+    // Luminance
+    float luma = dot(color, float3(0.299f, 0.587f, 0.114f));
+    
+    // HDR ∞Óº±: π‡¿∫ ∫Œ∫–∏∏ √ﬂ√‚
+    float response = max(0.0f, luma - threshold) / (luma + 1.0f);
+    
+    return float4(color * response, 1.0f);
 }
 
 technique11 ViewArgbTech

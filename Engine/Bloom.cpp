@@ -18,7 +18,7 @@ Bloom::Bloom()
         _downSampleMat = make_shared<Material>();
         shared_ptr<Texture> texture = make_shared<Texture>();
         _downSampleMat->SetDiffuseMap(texture);
-        _downSampleMat->SetShader(make_shared<Shader>(L"PrintTexture.fx"));
+        _downSampleMat->SetShader(make_shared<Shader>(L"DownSample.fx"));
         _downSampleMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
     }
 
@@ -153,11 +153,15 @@ void Bloom::SetDebugTextureSRV(shared_ptr<Texture> texture)
 
 void Bloom::DownSample(int index, ComPtr<ID3D11ShaderResourceView> srv)
 {
-    _vp.Set(_downSampleDescs[index].Width, _downSampleDescs[index].Height);
+    int targetWidth = _downSampleDescs[index].Width;
+    int targetHeight = _downSampleDescs[index].Height;
+
+    _vp.Set(targetWidth, targetHeight);
     DC->ClearRenderTargetView(_downSampleRTVs[index].Get(), reinterpret_cast<const float*>(&Colors::Black));
     DC->OMSetRenderTargets(1, _downSampleRTVs[index].GetAddressOf(), 0);
     _vp.RSSetViewport();
 
+    _downSampleMat->GetShader()->PushBlurData({ 1.0f / targetWidth , 1.0f / targetHeight});
     _downSampleMat->GetDiffuseMap()->SetSRV(srv);
     DrawQuad(_downSampleMat.get());
 }

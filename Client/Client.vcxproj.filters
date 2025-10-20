@@ -178,7 +178,7 @@
     <FxCompile Include="..\Shaders\ToneMapping.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\PrintTexture.fx">
+    <FxCompile Include="..\Shaders\DownSample.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\BlurCombine.fx">

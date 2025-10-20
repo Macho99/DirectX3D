@@ -1,13 +1,6 @@
 #include "00. Global.fx"
 #include "00. Light.fx"
 
-SamplerState samLinear
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
-};
-
 struct VertexOut
 {
 	float4 PosH : SV_POSITION;
@@ -32,8 +25,8 @@ VertexOut VS(VertexTextureNormalTangent vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-	float4 color = DiffuseMap.Sample(samLinear, pin.Tex);
-    float4 color2 = SpecularMap.Sample(samLinear, pin.Tex);
+    float4 color = DiffuseMap.Sample(BorderBlackSampler, pin.Tex);
+    float4 color2 = SpecularMap.Sample(BorderBlackSampler, pin.Tex);
     
     return (color + color2);
 }

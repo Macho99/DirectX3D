@@ -19,21 +19,21 @@ cbuffer cbFixed
     static const int gBlurRadius = 5;
 };
  
-SamplerState samNormalDepth
-{
-    Filter = MIN_MAG_LINEAR_MIP_POINT;
-
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-};
-
-SamplerState samInputImage
-{
-    Filter = MIN_MAG_LINEAR_MIP_POINT;
-
-    AddressU = CLAMP;
-    AddressV = CLAMP;
-};
+//SamplerState samNormalDepth
+//{
+//    Filter = MIN_MAG_LINEAR_MIP_POINT;
+//
+//    AddressU = CLAMP;
+//    AddressV = CLAMP;
+//};
+//
+//SamplerState samInputImage
+//{
+//    Filter = MIN_MAG_LINEAR_MIP_POINT;
+//
+//    AddressU = CLAMP;
+//    AddressV = CLAMP;
+//};
 
 struct VertexIn
 {
@@ -75,7 +75,7 @@ float4 PS(VertexOut pin, uniform bool gHorizontalBlur) : SV_Target
     }
 
 	// The center value always contributes to the sum.
-    float4 color = gWeights[5] * DiffuseMap.SampleLevel(samInputImage, pin.Tex, 0.0);
+    float4 color = gWeights[5] * DiffuseMap.SampleLevel(BorderBlackSampler, pin.Tex, 0.0);
     float totalWeight = gWeights[5];
 	 
     //float4 centerNormalDepth = NormalMap.SampleLevel(samNormalDepth, pin.Tex, 0.0f);
@@ -89,7 +89,7 @@ float4 PS(VertexOut pin, uniform bool gHorizontalBlur) : SV_Target
         float2 tex = pin.Tex + i * texOffset;
 
         float4 neighborNormalDepth = NormalMap.SampleLevel(
-			samNormalDepth, tex, 0.0f);
+			BorderBlackSampler, tex, 0.0f);
 
 		//
 		// If the center value and neighbor values differ too much (either in 
@@ -104,7 +104,7 @@ float4 PS(VertexOut pin, uniform bool gHorizontalBlur) : SV_Target
 
 			// Add neighbor pixel to blur.
             color += weight * DiffuseMap.SampleLevel(
-				samInputImage, tex, 0.0);
+				BorderBlackSampler, tex, 0.0);
 		
             totalWeight += weight;
         }
