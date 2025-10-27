@@ -82,6 +82,7 @@ public:
 	void PushShadowData(const Matrix& desc);
 	void PushSsaoData(const SsaoDesc& desc);
 	void PushBlurData(const BlurDesc& desc);
+    void PushTerrainData(const TerrainDesc& desc);
 
 	vector<Technique>& GetTechniques() { return _techniques; }
 
@@ -135,6 +136,10 @@ private:
 	BlurDesc _blurDesc;
 	shared_ptr<ConstantBuffer<BlurDesc>> _blurBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _blurEffectBuffer;
+
+    TerrainDesc _terrainDesc;
+    shared_ptr<ConstantBuffer<TerrainDesc>> _terrainBuffer;
+    ComPtr<ID3DX11EffectConstantBuffer> _terrainEffectBuffer;
 
 	int _techNums[static_cast<int>(RenderTech::Max)];
 };

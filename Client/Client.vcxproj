@@ -74,6 +74,7 @@
     <FxCompile Include="..\Shaders\DownSample.fx" />
     <FxCompile Include="..\Shaders\Sky.fx" />
     <FxCompile Include="..\Shaders\Ssao.fx" />
+    <FxCompile Include="..\Shaders\Terrain.fx" />
     <FxCompile Include="..\Shaders\ToneMapping.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

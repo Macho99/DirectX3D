@@ -30,6 +30,7 @@ public:
 	void SetSpecularMap(shared_ptr<Texture> specularMap) { _specularMap = specularMap; }
 	void SetRandomTex(shared_ptr<Texture> randomTex) { _randomTex = randomTex; }
 	void SetCubeMap(shared_ptr<Texture> cubeMap) { _cubeMap = cubeMap; }
+    void SetLayerMapArraySRV(shared_ptr<ID3D11ShaderResourceView> srv) { _layerMapArraySRV = srv; }
 
 	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
 	RenderQueue GetRenderQueue() { return _renderQueue; }
@@ -54,6 +55,7 @@ private:
 	shared_ptr<Texture> _specularMap;
 	shared_ptr<Texture> _randomTex;
 	shared_ptr<Texture> _cubeMap;
+    shared_ptr<ID3D11ShaderResourceView> _layerMapArraySRV;
 
 	// Cache
 	ComPtr<ID3DX11EffectShaderResourceVariable> _diffuseEffectBuffer;
@@ -63,5 +65,6 @@ private:
 	ComPtr<ID3DX11EffectShaderResourceVariable> _cubeMapEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _shadowMapEffectBuffer;
 	ComPtr<ID3DX11EffectShaderResourceVariable> _ssaoMapEffectBuffer;
+    ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;
 };
 

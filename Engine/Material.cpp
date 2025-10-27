@@ -20,6 +20,7 @@ void Material::SetShader(shared_ptr<Shader> shader)
 	_cubeMapEffectBuffer = _shader->GetSRV("CubeMap");
 	_shadowMapEffectBuffer = _shader->GetSRV("ShadowMap");
 	_ssaoMapEffectBuffer = _shader->GetSRV("SsaoMap");
+    _layerMapArrayEffectBuffer = _shader->GetSRV("LayerMapArray");
 }
 
 void Material::Update()
@@ -59,6 +60,11 @@ void Material::Update()
 		_shadowMapEffectBuffer->SetResource(GRAPHICS->GetShadowMap()->GetComPtr().Get());
 	}
 
+    if (_layerMapArraySRV)
+    {
+        _layerMapArrayEffectBuffer->SetResource(_layerMapArraySRV.get());
+    }
+
 	// TODO: 필요할때만 업데이트하기
 	_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap()->GetComPtr().Get());
 }
@@ -76,6 +82,7 @@ shared_ptr<Material> Material::Clone()
 	newMat->_specularMap = _specularMap;
 	newMat->_randomTex = _randomTex;
 	newMat->_cubeMap = _cubeMap;
+    newMat->_layerMapArraySRV = _layerMapArraySRV;
 
 	newMat->_diffuseEffectBuffer = _diffuseEffectBuffer;
 	newMat->_normalEffectBuffer = _normalEffectBuffer;
@@ -83,6 +90,8 @@ shared_ptr<Material> Material::Clone()
 	newMat->_randomEffectBuffer = _randomEffectBuffer;
 	newMat->_cubeMapEffectBuffer = _cubeMapEffectBuffer;
 	newMat->_shadowMapEffectBuffer = _shadowMapEffectBuffer;
+    newMat->_ssaoMapEffectBuffer = _ssaoMapEffectBuffer;
+    newMat->_layerMapArrayEffectBuffer = _layerMapArrayEffectBuffer;
 
 	return newMat;
 }

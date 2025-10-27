@@ -52,11 +52,11 @@
     <Filter Include="04. Component\UI">
       <UniqueIdentifier>{335a9519-b0a2-4aac-ab8d-d75bb8970134}</UniqueIdentifier>
     </Filter>
-    <Filter Include="04. Component\VFX">
-      <UniqueIdentifier>{3825520e-41ed-4825-9109-d383c5921973}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01. Graphics\PostProcess">
       <UniqueIdentifier>{20d240fa-c542-4c7d-a34c-d3e6fce29a41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Component\Renderer">
+      <UniqueIdentifier>{3825520e-41ed-4825-9109-d383c5921973}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -247,28 +247,28 @@
       <Filter>04. Component\UI</Filter>
     </ClInclude>
     <ClInclude Include="Billboard.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="SnowBillboard.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Sky.h">
       <Filter>01. Graphics</Filter>
     </ClInclude>
     <ClInclude Include="ModelRenderer.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ModelAnimator.h">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Ssao.h">
       <Filter>01. Graphics</Filter>
@@ -284,6 +284,9 @@
     </ClInclude>
     <ClInclude Include="Blur.h">
       <Filter>01. Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="TessTerrain.h">
+      <Filter>04. Component\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -462,28 +465,28 @@
       <Filter>04. Component\UI</Filter>
     </ClCompile>
     <ClCompile Include="Billboard.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="SnowBillboard.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Sky.cpp">
       <Filter>01. Graphics</Filter>
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="ModelAnimator.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="ModelRenderer.cpp">
-      <Filter>04. Component\VFX</Filter>
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Ssao.cpp">
       <Filter>01. Graphics</Filter>
@@ -499,6 +502,9 @@
     </ClCompile>
     <ClCompile Include="Blur.cpp">
       <Filter>01. Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="TessTerrain.cpp">
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

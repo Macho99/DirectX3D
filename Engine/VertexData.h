@@ -43,3 +43,10 @@ struct VertexTextureNormalTangentBlendData
 };
 
 using ModelVertexType = VertexTextureNormalTangentBlendData;
+
+struct VertexTerrain
+{
+	Vec3 Pos;
+	Vec2 Tex;
+	Vec2 BoundsY;
+};

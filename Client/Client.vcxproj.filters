@@ -184,5 +184,8 @@
     <FxCompile Include="..\Shaders\BlurCombine.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\Terrain.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

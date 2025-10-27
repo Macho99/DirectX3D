@@ -549,6 +549,19 @@ void Shader::PushBlurData(const BlurDesc& desc)
 	_blurEffectBuffer->SetConstantBuffer(_blurBuffer->GetComPtr().Get());
 }
 
+void Shader::PushTerrainData(const TerrainDesc& desc)
+{
+    if (_terrainEffectBuffer == nullptr)
+    {
+        _terrainBuffer = make_shared<ConstantBuffer<TerrainDesc>>();
+        _terrainBuffer->Create();
+        _terrainEffectBuffer = GetConstantBuffer("TerrainBuffer");
+    }
+    _terrainDesc = desc;
+    _terrainBuffer->CopyData(_terrainDesc);
+    _terrainEffectBuffer->SetConstantBuffer(_terrainBuffer->GetComPtr().Get());
+}
+
 int Shader::GetTechNum(RenderTech renderTech)
 { 
 	int num = _techNums[static_cast<int>(renderTech)];

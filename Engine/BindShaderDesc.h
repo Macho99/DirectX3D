@@ -133,3 +133,32 @@ struct BlurDesc
 	float gTexelHeight;
 	Vec2 dummy;
 };
+
+struct TerrainDesc
+{
+	//DirectionalLight gDirLights[3];
+	//float3 gEyePosW;
+	
+	//float  gFogStart;
+	//float  gFogRange;
+	//float4 gFogColor;
+
+	// When distance is minimum, the tessellation is maximum.
+	// When distance is maximum, the tessellation is minimum.
+	float gMinDist;
+	float gMaxDist;
+
+	// Exponents for power of 2 tessellation.  The tessellation
+	// range is [2^(gMinTess), 2^(gMaxTess)].  Since the maximum
+	// tessellation is 64, this means gMaxTess can be at most 6
+	// since 2^6 = 64.
+	float gMinTess;
+	float gMaxTess;
+
+	float gTexelCellSpaceU;
+	float gTexelCellSpaceV;
+	float gWorldCellSpace;
+	Vec2 gTexScale = Vec2(50.0f, 50.0f);
+
+	Vec4 gWorldFrustumPlanes[6];
+};

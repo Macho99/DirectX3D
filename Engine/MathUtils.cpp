@@ -588,3 +588,38 @@ Vec3 MathUtils::RandomVec3(float r1, float r2)
 
 	return result;
 }
+
+uint16_t MathUtils::ConvertFloatToHalf(float value)
+{
+	uint32_t Result;
+
+	auto IValue = reinterpret_cast<uint32_t*>(&value)[0];
+	uint32_t Sign = (IValue & 0x80000000U) >> 16U;
+	IValue = IValue & 0x7FFFFFFFU;      // Hack off the sign
+	if (IValue >= 0x47800000 /*e+16*/)
+	{
+		// The number is too large to be represented as a half. Return infinity or NaN
+		Result = 0x7C00U | ((IValue > 0x7F800000) ? (0x200 | ((IValue >> 13U) & 0x3FFU)) : 0U);
+	}
+	else if (IValue <= 0x33000000U /*e-25*/)
+	{
+		Result = 0;
+	}
+	else if (IValue < 0x38800000U /*e-14*/)
+	{
+		// The number is too small to be represented as a normalized half.
+		// Convert it to a denormalized value.
+		uint32_t Shift = 125U - (IValue >> 23U);
+		IValue = 0x800000U | (IValue & 0x7FFFFFU);
+		Result = IValue >> (Shift + 1);
+		uint32_t s = (IValue & ((1U << Shift) - 1)) != 0;
+		Result += (Result | s) & ((IValue >> Shift) & 1U);
+	}
+	else
+	{
+		// Rebias the exponent to represent the value as a normalized half.
+		IValue += 0xC8000000U;
+		Result = ((IValue + 0x0FFFU + ((IValue >> 13U) & 1U)) >> 13U) & 0x7FFFU;
+	}
+	return static_cast<uint16_t>(Result | Sign);
+}

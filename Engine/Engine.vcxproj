@@ -229,6 +229,7 @@ xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"</
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TessTerrain.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureBuffer.h" />
     <ClInclude Include="TimeManager.h" />
@@ -332,6 +333,7 @@ xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"</
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TessTerrain.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureBuffer.cpp" />
     <ClCompile Include="TimeManager.cpp" />
