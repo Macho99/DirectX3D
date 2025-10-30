@@ -25,9 +25,11 @@ cbuffer TerrainBuffer
 	float gTexelCellSpaceU;
 	float gTexelCellSpaceV;
 	float gWorldCellSpace;
-	float2 gTexScale = 50.0f;
-
-	float4 gWorldFrustumPlanes[6];
+    float dummy;
+    float4 gWorldFrustumPlanes[6];
+    float2 gTexScale = 50.0f;
+    float dummy2;
+    float dummy3;
 };
 
 // Nonnumeric values cannot be added to a cbuffer.
@@ -86,7 +88,7 @@ VertexOut VS(VertexIn vin)
 
 float CalcTessFactor(float3 p)
 {
-	float d = distance(p, gEyePosW);
+	float d = distance(p, CamPos);
 
 	// max norm in xz plane (useful to see detail levels from a bird's eye).
 	//float d = max( abs(p.x-gEyePosW.x), abs(p.z-gEyePosW.z) );
@@ -225,7 +227,10 @@ struct DomainOut
 	float4 PosH     : SV_POSITION;
 	float3 PosW     : POSITION;
 	float2 Tex      : TEXCOORD0;
-	float2 TiledTex : TEXCOORD1;
+    float2 TiledTex : TEXCOORD1;
+    float4 shadowPosH : TEXCOORD2;
+    float4 ssaoPosH : TEXCOORD3;
+    float3 positionV : POSITION_V;
 };
 
 // The domain shader is called for every vertex created by the tessellator.  
@@ -260,14 +265,16 @@ DomainOut DS(PatchTess patchTess,
 	// we moved the calculation to the pixel shader.  
 
 	// Project to homogeneous clip space.
-	dout.PosH = mul(float4(dout.PosW, 1.0f), gViewProj);
+    float4 worldPos = float4(dout.PosW, 1.0f);
+    dout.PosH = mul(worldPos, VP);
+    dout.positionV = mul(worldPos, V);
+    dout.shadowPosH = mul(worldPos, ShadowTransform);
+    dout.ssaoPosH = mul(worldPos, VPT);
 
 	return dout;
 }
 
-float4 PS(DomainOut pin,
-	uniform int gLightCount,
-	uniform bool gFogEnabled) : SV_Target
+float4 PS(DomainOut pin) : SV_Target
 {
 	//
 	// Estimate normal and tangent using central differences.
@@ -288,7 +295,7 @@ float4 PS(DomainOut pin,
 
 
 	// The toEye vector is used in lighting.
-	float3 toEye = gEyePosW - pin.PosW;
+	float3 toEye = CamPos - pin.PosW;
 
 	// Cache the distance to the eye from this surface point.
 	float distToEye = length(toEye);
@@ -322,45 +329,47 @@ float4 PS(DomainOut pin,
 	//
 
 	float4 litColor = texColor;
-	if (gLightCount > 0)
-	{
-		// Start with a sum of zero. 
-		float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-		float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-		float4 spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-		// Sum the light contribution from each light source.  
-		[unroll]
-		for (int i = 0; i < gLightCount; ++i)
-		{
-			float4 A, D, S;
-			ComputeDirectionalLight(gMaterial, gDirLights[i], normalW, toEye,
-				A, D, S);
-
-			ambient += A;
-			diffuse += D;
-			spec += S;
-		}
-
-		litColor = texColor * (ambient + diffuse) + spec;
-	}
+    float shadow = CalcShadowFactor(ShadowMap, pin.shadowPosH);
+    litColor = ComputeLight(normalW, litColor, pin.PosW, pin.ssaoPosH, shadow);
 
 	//
 	// Fogging
 	//
 
-	if (gFogEnabled)
-	{
-		float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
-
-		// Blend the fog color and the lit color.
-		litColor = lerp(litColor, gFogColor, fogLerp);
-	}
+	//if (gFogEnabled)
+	//{
+	//	float fogLerp = saturate((distToEye - gFogStart) / gFogRange);
+	//
+	//	// Blend the fog color and the lit color.
+	//	litColor = lerp(litColor, gFogColor, fogLerp);
+	//}
 
 	return litColor;
 }
 
-technique11 Light1
+float4 NormalDepthPS(DomainOut pin) : SV_TARGET
+{
+	//
+	// Estimate normal and tangent using central differences.
+	//
+    float2 leftTex = pin.Tex + float2(-gTexelCellSpaceU, 0.0f);
+    float2 rightTex = pin.Tex + float2(gTexelCellSpaceU, 0.0f);
+    float2 bottomTex = pin.Tex + float2(0.0f, gTexelCellSpaceV);
+    float2 topTex = pin.Tex + float2(0.0f, -gTexelCellSpaceV);
+
+    float leftY = gHeightMap.SampleLevel(samHeightmap, leftTex, 0).r;
+    float rightY = gHeightMap.SampleLevel(samHeightmap, rightTex, 0).r;
+    float bottomY = gHeightMap.SampleLevel(samHeightmap, bottomTex, 0).r;
+    float topY = gHeightMap.SampleLevel(samHeightmap, topTex, 0).r;
+
+    float3 tangent = normalize(float3(2.0f * gWorldCellSpace, rightY - leftY, 0.0f));
+    float3 bitan = normalize(float3(0.0f, bottomY - topY, -2.0f * gWorldCellSpace));
+    float3 normalW = cross(tangent, bitan);
+	
+    return float4(normalW, pin.positionV.z);
+}
+
+technique11 Draw
 {
 	pass P0
 	{
@@ -368,66 +377,30 @@ technique11 Light1
 		SetHullShader(CompileShader(hs_5_0, HS()));
 		SetDomainShader(CompileShader(ds_5_0, DS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(1, false)));
+		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }
 
-technique11 Light2
+technique11 Shadow
 {
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetHullShader(CompileShader(hs_5_0, HS()));
-		SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(2, false)));
-	}
-}
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetHullShader(CompileShader(hs_5_0, HS()));
+        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(NULL);
+    }
+};
 
-technique11 Light3
+technique11 NormalDepth
 {
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetHullShader(CompileShader(hs_5_0, HS()));
-		SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, false)));
-	}
-}
-
-technique11 Light1Fog
-{
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetHullShader(CompileShader(hs_5_0, HS()));
-		SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(1, true)));
-	}
-}
-
-technique11 Light2Fog
-{
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetHullShader(CompileShader(hs_5_0, HS()));
-		SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(2, true)));
-	}
-}
-
-technique11 Light3Fog
-{
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetHullShader(CompileShader(hs_5_0, HS()));
-		SetDomainShader(CompileShader(ds_5_0, DS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS(3, true)));
-	}
-}
+    pass P0
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetHullShader(CompileShader(hs_5_0, HS()));
+        SetDomainShader(CompileShader(ds_5_0, DS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(NULL);
+    }
+};

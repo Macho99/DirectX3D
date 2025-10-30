@@ -29,6 +29,7 @@
 #include "SphereCollider.h"
 #include "ParticleSystem.h"
 #include <thread>
+#include "TessTerrain.h"
 
 void BillboardDemo::Init()
 {
@@ -247,6 +248,35 @@ void BillboardDemo::Init()
 
 			CUR_SCENE->Add(obj);
 		}
+	}
+
+	{
+        shared_ptr<TessTerrain> tessTerrain = make_shared<TessTerrain>();
+		TessTerrain::InitInfo info;
+        ZeroMemory(&info, sizeof(info));
+		info.heightMapFilename = L"../Resources/Textures/Terrain/terrain.raw";
+		info.layerMapFilename0 = L"../Resources/Textures/Terrain/grass.dds";
+		info.layerMapFilename1 = L"../Resources/Textures/Terrain/darkdirt.dds";
+		info.layerMapFilename2 = L"../Resources/Textures/Terrain/stone.dds";
+		info.layerMapFilename3 = L"../Resources/Textures/Terrain/lightdirt.dds";
+		info.layerMapFilename4 = L"../Resources/Textures/Terrain/snow.dds";
+		info.blendMapFilename = L"../Resources/Textures/Terrain/blend.dds";
+		info.heightScale = 50.0f;
+		info.heightmapWidth = 2049;
+		info.heightmapHeight = 2049;
+		info.cellSpacing = 0.5f;
+		tessTerrain->Init(info);
+
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(make_shared<Shader>(L"Terrain.fx"));
+		material->SetRenderQueue(RenderQueue::Opaque);
+		tessTerrain->SetMaterial(material);
+
+		auto obj = make_shared<GameObject>();
+		obj->GetTransform()->SetPosition(Vec3(0, 0, 0));
+		obj->AddComponent(tessTerrain);
+
+		CUR_SCENE->Add(obj);
 	}
 
 	AddDebugImage(200, 200, GRAPHICS->GetShadowMap(), 1);

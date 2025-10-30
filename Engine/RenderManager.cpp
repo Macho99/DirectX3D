@@ -8,6 +8,7 @@
 #include "Billboard.h"
 #include "SnowBillboard.h"
 #include "Material.h"
+#include "TessTerrain.h"
 
 void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech)
 {
@@ -30,6 +31,10 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTe
 		shared_ptr<SnowBillboard> snowBillboard = gameObject->GetFixedComponent<SnowBillboard>(ComponentType::SnowBillboard);
 		if (snowBillboard != nullptr)
 			snowBillboard->Render(_renderTech);
+
+        shared_ptr<TessTerrain> tessTerrain = gameObject->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain);
+        if (tessTerrain != nullptr)
+            tessTerrain->Render(_renderTech);
 	}
 }
 

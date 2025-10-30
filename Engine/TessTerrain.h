@@ -30,8 +30,7 @@ public:
 	float GetHeight(float x, float z) const;
 
 	void Init(const InitInfo& initInfo);
-	void Draw();
-	bool Render(RenderTech renderTech) override;
+	void InnerRender(RenderTech renderTech) override;
 
 private:
 	void LoadHeightmap();
@@ -56,7 +55,10 @@ private:
 
 	ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 	shared_ptr<Texture> _blendMapTexture;
+    shared_ptr<Texture> _heightMapTexture;
 	ComPtr<ID3D11ShaderResourceView> _heightMapSRV;
+
+    TerrainDesc _terrainDesc;
 
 	InitInfo _info;
 
@@ -64,8 +66,6 @@ private:
 	uint32 _numPatchQuadFaces = 0;
 	uint32 _numPatchVertRows = 0;
 	uint32 _numPatchVertCols = 0;
-
-	XMFLOAT4X4 _world;
 
 	shared_ptr<Material> _mat;
 

@@ -154,6 +154,8 @@ shared_ptr<Renderer> GameObject::GetRenderer()
 		renderer = GetFixedComponent(ComponentType::Billboard);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::SnowBillboard);
+	if (renderer == nullptr)
+		renderer = GetFixedComponent(ComponentType::TessTerrain);
 
 	return static_pointer_cast<Renderer>(renderer);
 }

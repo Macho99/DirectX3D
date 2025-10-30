@@ -70,5 +70,6 @@ struct MathUtils
 	static Vec3 RandomVec3(float r1, float r2);
 
 	static uint16_t ConvertFloatToHalf(float value);
+	static void ExtractFrustumPlanes(Vec4 planes[6], Matrix CM);
 };
 

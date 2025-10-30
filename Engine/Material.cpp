@@ -62,7 +62,7 @@ void Material::Update()
 
     if (_layerMapArraySRV)
     {
-        _layerMapArrayEffectBuffer->SetResource(_layerMapArraySRV.get());
+        _layerMapArrayEffectBuffer->SetResource(_layerMapArraySRV.Get());
     }
 
 	// TODO: 필요할때만 업데이트하기

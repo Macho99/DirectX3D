@@ -6,13 +6,16 @@
 #include <fstream>
 #include "VertexData.h"
 #include "MathUtils.h"
+#include "Camera.h"
 
 TessTerrain::TessTerrain() : Super(ComponentType::TessTerrain)
 {
-    _mat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    _mat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    _mat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
-    _mat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    //_mat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    //_mat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    //_mat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
+    //_mat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    _heightMapTexture = make_shared<Texture>();
 }
 
 TessTerrain::~TessTerrain()
@@ -102,8 +105,11 @@ void TessTerrain::Init(const InitInfo& initInfo)
     _blendMapTexture->Load(_info.blendMapFilename);
 }
 
-void TessTerrain::Draw()
+
+void TessTerrain::InnerRender(RenderTech renderTech)
 {
+    Super::InnerRender(renderTech);
+
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	//DC->IASetInputLayout(InputLayouts::Terrain.Get());
 
@@ -112,60 +118,40 @@ void TessTerrain::Draw()
 	DC->IASetVertexBuffers(0, 1, _quadPatchVB.GetAddressOf(), &stride, &offset);
 	DC->IASetIndexBuffer(_quadPatchIB.Get(), DXGI_FORMAT_R16_UINT, 0);
 
-	XMMATRIX viewProj = cam.ViewProj();
-	XMMATRIX world = XMLoadFloat4x4(&_world);
-	XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-	XMMATRIX worldViewProj = world * viewProj;
+	Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
+	Matrix world = GetTransform()->GetWorldMatrix();
+	//XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+	Matrix worldViewProj = world * viewProj;
 	
-	XMFLOAT4 worldPlanes[6];
+	Shader* shader = _material->GetShader();
+    _terrainDesc.gTexelCellSpaceU = 1.0f / _info.heightmapWidth;
+    _terrainDesc.gTexelCellSpaceV = 1.0f / _info.heightmapHeight;
+    _terrainDesc.gWorldCellSpace = _info.cellSpacing;
+	MathUtils::ExtractFrustumPlanes(_terrainDesc.gWorldFrustumPlanes, viewProj);
+	shader->PushTerrainData(_terrainDesc);
 
-	BoundingBox;
+    _material->SetLayerMapArraySRV(_layerMapArraySRV);
+    _material->SetDiffuseMap(_heightMapTexture);
+    _material->SetSpecularMap(_blendMapTexture);
 
-	MathHelper::ExtractFrustumPlanes(worldPlanes, viewProj);
+    shader->DrawIndexed(renderTech, 0, _numPatchQuadFaces * 4);
 
-	// Set per frame constants.
-	Effects::TerrainFX->SetViewProj(viewProj);
-	Effects::TerrainFX->SetEyePosW(cam.GetPosition());
-	Effects::TerrainFX->SetDirLights(lights);
-	Effects::TerrainFX->SetFogColor(Colors::Silver);
-	Effects::TerrainFX->SetFogStart(15.0f);
-	Effects::TerrainFX->SetFogRange(175.0f);
-	Effects::TerrainFX->SetMinDist(20.0f);
-	Effects::TerrainFX->SetMaxDist(500.0f);
-	Effects::TerrainFX->SetMinTess(0.0f);
-	Effects::TerrainFX->SetMaxTess(6.0f);
-	Effects::TerrainFX->SetTexelCellSpaceU(1.0f / _info.heightmapWidth);
-	Effects::TerrainFX->SetTexelCellSpaceV(1.0f / _info.heightmapHeight);
-	Effects::TerrainFX->SetWorldCellSpace(_info.cellSpacing);
-	Effects::TerrainFX->SetWorldFrustumPlanes(worldPlanes);
-
-	Effects::TerrainFX->SetLayerMapArray(_layerMapArraySRV.Get());
-	Effects::TerrainFX->SetBlendMap(_blendMapSRV.Get());
-	Effects::TerrainFX->SetHeightMap(_heightMapSRV.Get());
-
-	Effects::TerrainFX->SetMaterial(_mat);
-
-	ComPtr<ID3DX11EffectTechnique> tech = Effects::TerrainFX->Light1Tech;
-	D3DX11_TECHNIQUE_DESC techDesc;
-	tech->GetDesc(&techDesc);
-
-	for (uint32 i = 0; i < techDesc.Passes; ++i)
-	{
-		ComPtr<ID3DX11EffectPass> pass = tech->GetPassByIndex(i);
-		pass->Apply(0, DC.Get());
-
-		DC->DrawIndexed(_numPatchQuadFaces * 4, 0, 0);
-	}
+	//ComPtr<ID3DX11EffectTechnique> tech = Effects::TerrainFX->Light1Tech;
+	//D3DX11_TECHNIQUE_DESC techDesc;
+	//tech->GetDesc(&techDesc);
+	//
+	//for (uint32 i = 0; i < techDesc.Passes; ++i)
+	//{
+	//	ComPtr<ID3DX11EffectPass> pass = tech->GetPassByIndex(i);
+	//	pass->Apply(0, DC.Get());
+	//
+	//	DC->DrawIndexed(_numPatchQuadFaces * 4, 0, 0);
+	//}
 
 	// FX sets tessellation stages, but it does not disable them.  So do that here
 	// to turn off tessellation.
 	DC->HSSetShader(0, 0, 0);
 	DC->DSSetShader(0, 0, 0);
-}
-
-bool TessTerrain::Render(RenderTech renderTech)
-{
-    return false;
 }
 
 void TessTerrain::LoadHeightmap()
@@ -413,4 +399,6 @@ void TessTerrain::BuildHeightmapSRV()
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = -1;
 	HR(DEVICE->CreateShaderResourceView(hmapTex, &srvDesc, _heightMapSRV.GetAddressOf()));
+
+	_heightMapTexture->SetSRV(_heightMapSRV);
 }

@@ -145,20 +145,24 @@ struct TerrainDesc
 
 	// When distance is minimum, the tessellation is maximum.
 	// When distance is maximum, the tessellation is minimum.
-	float gMinDist;
-	float gMaxDist;
+	float gMinDist = 20.0f;
+	float gMaxDist = 500.0f;
 
 	// Exponents for power of 2 tessellation.  The tessellation
 	// range is [2^(gMinTess), 2^(gMaxTess)].  Since the maximum
 	// tessellation is 64, this means gMaxTess can be at most 6
 	// since 2^6 = 64.
-	float gMinTess;
-	float gMaxTess;
+	float gMinTess = 0.0f;
+	float gMaxTess = 6.0f;
 
 	float gTexelCellSpaceU;
 	float gTexelCellSpaceV;
 	float gWorldCellSpace;
-	Vec2 gTexScale = Vec2(50.0f, 50.0f);
+
+	float dummy;
 
 	Vec4 gWorldFrustumPlanes[6];
+	Vec2 gTexScale = Vec2(50.0f, 50.0f);
+	float dummy2;
+	float dummy3;
 };
