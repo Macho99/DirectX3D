@@ -118,16 +118,24 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 	DC->IASetVertexBuffers(0, 1, _quadPatchVB.GetAddressOf(), &stride, &offset);
 	DC->IASetIndexBuffer(_quadPatchIB.Get(), DXGI_FORMAT_R16_UINT, 0);
 
-	Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
 	Matrix world = GetTransform()->GetWorldMatrix();
-	//XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
-	Matrix worldViewProj = world * viewProj;
+	if (renderTech == RenderTech::Shadow)
+	{
+		Matrix viewProj = Light::S_MatView * Light::S_MatProjection;
+		Matrix worldViewProj = world * viewProj;
+		MathUtils::ExtractFrustumPlanes(_terrainDesc.gWorldFrustumPlanes, viewProj);
+	}
+	else
+	{
+		Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
+		Matrix worldViewProj = world * viewProj;
+		MathUtils::ExtractFrustumPlanes(_terrainDesc.gWorldFrustumPlanes, viewProj);
+	}
 	
 	Shader* shader = _material->GetShader();
     _terrainDesc.gTexelCellSpaceU = 1.0f / _info.heightmapWidth;
     _terrainDesc.gTexelCellSpaceV = 1.0f / _info.heightmapHeight;
     _terrainDesc.gWorldCellSpace = _info.cellSpacing;
-	MathUtils::ExtractFrustumPlanes(_terrainDesc.gWorldFrustumPlanes, viewProj);
 	shader->PushTerrainData(_terrainDesc);
 
     _material->SetLayerMapArraySRV(_layerMapArraySRV);

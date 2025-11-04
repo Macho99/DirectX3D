@@ -50,6 +50,7 @@ void Ssao::Clear()
 void Ssao::Draw()
 {
 	ID3D11RenderTargetView* renderTargets[1] = { _blur.GetRTV().Get() };
+	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DC->OMSetRenderTargets(1, renderTargets, 0);
 	//DC->ClearRenderTargetView(_ambientRTV0.Get(), reinterpret_cast<const float*>(&Colors::Black));
 	_ambientMapViewport.RSSetViewport();

@@ -390,6 +390,7 @@ technique11 Shadow
         SetDomainShader(CompileShader(ds_5_0, DS()));
         SetGeometryShader(NULL);
         SetPixelShader(NULL);
+        SetRasterizerState(Depth);
     }
 };
 
@@ -401,6 +402,6 @@ technique11 NormalDepth
         SetHullShader(CompileShader(hs_5_0, HS()));
         SetDomainShader(CompileShader(ds_5_0, DS()));
         SetGeometryShader(NULL);
-        SetPixelShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, NormalDepthPS()));
     }
 };
