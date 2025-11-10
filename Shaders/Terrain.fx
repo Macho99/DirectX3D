@@ -365,8 +365,9 @@ float4 NormalDepthPS(DomainOut pin) : SV_TARGET
     float3 tangent = normalize(float3(2.0f * gWorldCellSpace, rightY - leftY, 0.0f));
     float3 bitan = normalize(float3(0.0f, bottomY - topY, -2.0f * gWorldCellSpace));
     float3 normalW = cross(tangent, bitan);
+    float3 normalV = normalize(mul(normalW, (float3x3) V));
 	
-    return float4(normalW, pin.positionV.z);
+    return float4(normalV, pin.positionV.z);
 }
 
 technique11 Draw
