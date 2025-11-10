@@ -129,6 +129,11 @@ RasterizerState FillModeWireFrame
 	FillMode = WireFrame;
 };
 
+RasterizerState NoCull
+{
+    CullMode = NONE; // 앞, 뒤 컬링 안 함
+};
+
 RasterizerState FrontCounterClockwiseTrue
 {
 	FrontCounterClockwise = true;

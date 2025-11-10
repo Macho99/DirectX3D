@@ -99,6 +99,36 @@ void BillboardDemo::Init()
 		CUR_SCENE->Add(light);
 	}
 
+	shared_ptr<TessTerrain> tessTerrain = make_shared<TessTerrain>();
+	{
+		TessTerrain::InitInfo info;
+		ZeroMemory(&info, sizeof(info));
+		info.heightMapFilename = L"../Resources/Textures/Terrain/terrain.raw";
+		info.layerMapFilename0 = L"../Resources/Textures/Terrain/grass.dds";
+		info.layerMapFilename1 = L"../Resources/Textures/Terrain/darkdirt.dds";
+		info.layerMapFilename2 = L"../Resources/Textures/Terrain/stone.dds";
+		info.layerMapFilename3 = L"../Resources/Textures/Terrain/lightdirt.dds";
+		info.layerMapFilename4 = L"../Resources/Textures/Terrain/snow.dds";
+		info.blendMapFilename = L"../Resources/Textures/Terrain/blend.dds";
+		info.heightScale = 50.0f;
+		info.heightmapWidth = 2049;
+		info.heightmapHeight = 2049;
+		info.cellSpacing = 0.5f;
+		tessTerrain->Init(info);
+
+		shared_ptr<Material> material = make_shared<Material>();
+		material->SetShader(make_shared<Shader>(L"Terrain.fx"));
+		material->SetRenderQueue(RenderQueue::Opaque);
+		material->GetMaterialDesc().ambient = Vec4(1.f);
+		tessTerrain->SetMaterial(material);
+
+		auto obj = make_shared<GameObject>();
+		obj->GetTransform()->SetPosition(Vec3(0, 0, 0));
+		obj->AddComponent(tessTerrain);
+
+		CUR_SCENE->Add(obj);
+	}
+
 	// Billboard
 	{
 		shared_ptr<Shader> shader = make_shared<Shader>(L"23. BillboardDemo.fx");
@@ -127,14 +157,15 @@ void BillboardDemo::Init()
 		{
 			Vec2 scale = Vec2(1 + rand() % 3, 1 + rand() % 3);
 			Vec2 position = Vec2(-100 + rand() % 200, -100 + rand() % 200);
+			float height = tessTerrain->GetHeight(position.x, position.y);
 
-			obj->GetBillboard()->Add(Vec3(position.x, scale.y * 0.5f, position.y), scale);
+			obj->GetBillboard()->Add(Vec3(position.x, scale.y * 0.5f + height - 0.2f, position.y), scale);
 		}
 
 		CUR_SCENE->Add(obj);
 	}
 
-	// Terrain
+	/*// Terrain
 	{
 		//auto terrainShader = make_shared<Shader>(L"19. RenderDemo.fx");
 		{
@@ -153,7 +184,7 @@ void BillboardDemo::Init()
 		obj->AddComponent(make_shared<Terrain>());
 		obj->GetTerrain()->Create(200, 200, RESOURCES->Get<Material>(L"TerrainGrass"));
 		CUR_SCENE->Add(obj);
-	}
+	}*/
 
 	//Particle
 	{
@@ -249,34 +280,26 @@ void BillboardDemo::Init()
 			CUR_SCENE->Add(obj);
 		}
 	}
-
 	{
-        shared_ptr<TessTerrain> tessTerrain = make_shared<TessTerrain>();
-		TessTerrain::InitInfo info;
-        ZeroMemory(&info, sizeof(info));
-		info.heightMapFilename = L"../Resources/Textures/Terrain/terrain.raw";
-		info.layerMapFilename0 = L"../Resources/Textures/Terrain/grass.dds";
-		info.layerMapFilename1 = L"../Resources/Textures/Terrain/darkdirt.dds";
-		info.layerMapFilename2 = L"../Resources/Textures/Terrain/stone.dds";
-		info.layerMapFilename3 = L"../Resources/Textures/Terrain/lightdirt.dds";
-		info.layerMapFilename4 = L"../Resources/Textures/Terrain/snow.dds";
-		info.blendMapFilename = L"../Resources/Textures/Terrain/blend.dds";
-		info.heightScale = 50.0f;
-		info.heightmapWidth = 2049;
-		info.heightmapHeight = 2049;
-		info.cellSpacing = 0.5f;
-		tessTerrain->Init(info);
+		// Model
+		shared_ptr<Model> m2 = make_shared<Model>();
+		m2->ReadModel(L"Tree1/Tree");
+		m2->ReadMaterial(L"Tree1/Tree");
 
-        shared_ptr<Material> material = make_shared<Material>();
-        material->SetShader(make_shared<Shader>(L"Terrain.fx"));
-		material->SetRenderQueue(RenderQueue::Opaque);
-		tessTerrain->SetMaterial(material);
+		for (int32 i = 0; i < 10; i++)
+		{
+			auto obj = make_shared<GameObject>();
+			obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
+			obj->GetTransform()->SetScale(Vec3(5.f));
 
-		auto obj = make_shared<GameObject>();
-		obj->GetTransform()->SetPosition(Vec3(0, 0, 0));
-		obj->AddComponent(tessTerrain);
+			obj->AddComponent(make_shared<ModelRenderer>(renderShader));
+			{
+				obj->GetModelRenderer()->SetModel(m2);
+				obj->GetModelRenderer()->SetPass(3);
+			}
 
-		CUR_SCENE->Add(obj);
+			CUR_SCENE->Add(obj);
+		}
 	}
 
 	AddDebugImage(200, 200, GRAPHICS->GetShadowMap(), 1);

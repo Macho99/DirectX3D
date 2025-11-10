@@ -25,7 +25,6 @@ void ModelRenderer::SetModel(shared_ptr<Model> model)
 	{
 		material->SetShader(_shader);
 		_material = material;
-		break;
 	}
 }
 

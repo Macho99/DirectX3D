@@ -44,11 +44,6 @@ float4 PS(VertexOut pin) : SV_Target
 	return CubeMap.Sample(samTriLinearSam, pin.PosL);
 }
 
-RasterizerState NoCull
-{
-	CullMode = None;
-};
-
 DepthStencilState LessEqualDSS
 {
 	// Make sure the depth function is LESS_EQUAL and not just LESS.  
