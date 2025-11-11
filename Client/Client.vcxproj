@@ -70,6 +70,7 @@
     <FxCompile Include="..\Shaders\Blur.fx" />
     <FxCompile Include="..\Shaders\BlurCombine.fx" />
     <FxCompile Include="..\Shaders\DebugTexture.fx" />
+    <FxCompile Include="..\Shaders\Foliage.fx" />
     <FxCompile Include="..\Shaders\ParticleSystem.fx" />
     <FxCompile Include="..\Shaders\DownSample.fx" />
     <FxCompile Include="..\Shaders\Sky.fx" />

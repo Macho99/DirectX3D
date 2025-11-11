@@ -35,6 +35,7 @@ void BillboardDemo::Init()
 {
 	CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
 	shared_ptr<Shader> renderShader = make_shared<Shader>(L"19. RenderDemo.fx");
+    shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
 	{
 		// Camera
 		auto camera = make_shared<GameObject>();
@@ -292,10 +293,10 @@ void BillboardDemo::Init()
 			obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
 			obj->GetTransform()->SetScale(Vec3(5.f));
 
-			obj->AddComponent(make_shared<ModelRenderer>(renderShader));
+			obj->AddComponent(make_shared<ModelRenderer>(foliageShader));
 			{
 				obj->GetModelRenderer()->SetModel(m2);
-				obj->GetModelRenderer()->SetPass(3);
+				obj->GetModelRenderer()->SetPass(0);
 			}
 
 			CUR_SCENE->Add(obj);

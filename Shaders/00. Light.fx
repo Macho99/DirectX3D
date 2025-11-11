@@ -114,7 +114,10 @@ float4 ComputeLight(float3 normal, float4 litColor, float3 worldPosition, float4
         emissiveColor = GlobalLight.emissive * Material.emissive * emissive;
     }
 
-    return ambientColor + (diffuseColor + specularColor + emissiveColor) * shadow;
+    float alpha = diffuseColor.a;
+    float4 color = ambientColor + (diffuseColor + specularColor + emissiveColor) * shadow;
+    color.a = alpha;
+    return color;
 }
 
 float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition, float4 ssaoPosH, float shadow = 1)
