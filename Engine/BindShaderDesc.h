@@ -129,8 +129,8 @@ struct SsaoDesc
 
 struct BlurDesc
 {
-	float gTexelWidth;
-	float gTexelHeight;
+	float gTexelWidth = 0.f;
+	float gTexelHeight = 0.f;
 	Vec2 dummy;
 };
 
@@ -165,4 +165,19 @@ struct TerrainDesc
 	Vec2 gTexScale = Vec2(50.0f, 50.0f);
 	float dummy2;
 	float dummy3;
+};
+
+struct WindDesc
+{
+	Vec3 windDirection = Vec3(1.f,0.f,0.f); // 바람 방향 (정규화된 벡터)
+	float windStrength = 1.f; // 바람 강도 (흔들림 정도 조절)
+	float waveFrequency = 1.f; // 흔들림 파동의 빈도
+};
+
+struct FoliageDesc
+{
+	float time; // 현재 시간 (애니메이션 구동용)
+    WindDesc wind; // 바람 정보
+	float bendFactor = 1.f; // 수풀 하단 고정/상단 흔들림 정도 조절
+	float stiffness;
 };

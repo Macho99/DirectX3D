@@ -18,6 +18,7 @@ enum class ComponentType : uint8
 	Billboard,
 	SnowBillboard,
 	ParticleSystem,
+	FoliageController,
 	// ...
 	Script,
 

@@ -6,6 +6,7 @@ class SceneManager
 	DECLARE_SINGLE(SceneManager);
 
 public:
+	void Init() { _currentScene->Start(); }
 	void Update();
 
 	template<typename T>

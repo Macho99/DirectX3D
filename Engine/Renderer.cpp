@@ -37,6 +37,10 @@ void Renderer::InnerRender(RenderTech renderTech)
 	if (shader == nullptr)
 		return;
 
+	if (_beforeRender)
+		_beforeRender(_material.get());
+
+
 	if (renderTech != RenderTech::Shadow)
 	{
 		_material->Update();

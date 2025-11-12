@@ -288,6 +288,9 @@
     <ClInclude Include="TessTerrain.h">
       <Filter>04. Component\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="FoliageController.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -505,6 +508,9 @@
     </ClCompile>
     <ClCompile Include="TessTerrain.cpp">
       <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="FoliageController.cpp">
+      <Filter>04. Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,7 @@
 #include "ParticleSystem.h"
 #include <thread>
 #include "TessTerrain.h"
+#include "FoliageController.h"
 
 void BillboardDemo::Init()
 {
@@ -272,11 +273,10 @@ void BillboardDemo::Init()
 			obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
 			obj->GetTransform()->SetScale(Vec3(0.01f));
 
-			obj->AddComponent(make_shared<ModelRenderer>(renderShader));
-			{
-				obj->GetModelRenderer()->SetModel(m2);
-				obj->GetModelRenderer()->SetPass(1);
-			}
+			auto modelRenderer = make_shared<ModelRenderer>(renderShader);
+			modelRenderer->SetModel(m2);
+			modelRenderer->SetPass(1);
+			obj->AddComponent(modelRenderer);
 
 			CUR_SCENE->Add(obj);
 		}
@@ -299,8 +299,19 @@ void BillboardDemo::Init()
 				obj->GetModelRenderer()->SetPass(0);
 			}
 
+			auto foliageController = make_shared<FoliageController>();
+			foliageController->SetBendFactor(1.f);
+            foliageController->SetStiffness(0.8f);
+			obj->AddComponent(foliageController);
+
 			CUR_SCENE->Add(obj);
 		}
+
+		Vec3 windDir = Vec3(1.f, 0.f, 1.f);;
+		windDir.Normalize();
+		FoliageController::S_WindDesc.windDirection = windDir;
+		FoliageController::S_WindDesc.waveFrequency = 0.1f;
+		FoliageController::S_WindDesc.windStrength = 2.f;
 	}
 
 	AddDebugImage(200, 200, GRAPHICS->GetShadowMap(), 1);

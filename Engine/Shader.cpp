@@ -562,6 +562,19 @@ void Shader::PushTerrainData(const TerrainDesc& desc)
     _terrainEffectBuffer->SetConstantBuffer(_terrainBuffer->GetComPtr().Get());
 }
 
+void Shader::PushFoliageData(const FoliageDesc& desc)
+{
+    if (_foliageEffectBuffer == nullptr)
+    {
+        _foliageBuffer = make_shared<ConstantBuffer<FoliageDesc>>();
+        _foliageBuffer->Create();
+        _foliageEffectBuffer = GetConstantBuffer("FoliageBuffer");
+    }
+    _foliageDesc = desc;
+    _foliageBuffer->CopyData(_foliageDesc);
+    _foliageEffectBuffer->SetConstantBuffer(_foliageBuffer->GetComPtr().Get());
+}
+
 int Shader::GetTechNum(RenderTech renderTech)
 { 
 	int num = _techNums[static_cast<int>(renderTech)];
