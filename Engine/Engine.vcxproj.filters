@@ -291,6 +291,7 @@
     <ClInclude Include="FoliageController.h">
       <Filter>04. Component</Filter>
     </ClInclude>
+    <ClInclude Include="GrassRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -512,6 +513,7 @@
     <ClCompile Include="FoliageController.cpp">
       <Filter>04. Component</Filter>
     </ClCompile>
+    <ClCompile Include="GrassRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
