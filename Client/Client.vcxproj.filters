@@ -190,5 +190,14 @@
     <FxCompile Include="..\Shaders\Foliage.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\GrassCompute.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\00. GrassCommon.fx">
+      <Filter>Shaders\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\GrassRender.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

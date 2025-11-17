@@ -8,9 +8,6 @@ struct GrassData
 
 struct GrassConstant
 {
-    Matrix VP;
-    Vec3 camPos;
-    float time;
     UINT totalGrassCount; // 초기 풀 버퍼의 전체 개수
     Vec3 padding;
 };
@@ -33,6 +30,9 @@ class ConstantBuffer;
 class GrassRenderer : public Renderer
 {
     using Super = Renderer;
+public:
+    GrassRenderer();
+    ~GrassRenderer();
 
 protected:
     void InnerRender(RenderTech renderTech) override;
@@ -54,8 +54,10 @@ private:
 
     ComPtr<ID3D11Buffer> _indirectDrawBuffer; // 간접 드로우 인자 버퍼
 
-    GrassConstant _grassConstantsData;
+    GrassConstant _grassConstantData;
     shared_ptr<ConstantBuffer<GrassConstant>> _grassConstantBuffer;     // 상수 버퍼
     ComPtr<ID3DX11EffectConstantBuffer> _grassEffectBuffer;
+
+    int prevFrameCount = -1;
 };
 

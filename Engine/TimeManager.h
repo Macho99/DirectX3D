@@ -12,6 +12,7 @@ public:
 	uint32 GetFps() { return _fps; }
 	float GetDeltaTime() { return _deltaTime; }
 	float GetGameTime() { return _gameTime; }
+    uint64 GetTotalFrameCount() { return _totalFrameCount; }
 
 private:
 	uint64	_frequency = 0;
@@ -20,6 +21,7 @@ private:
 	float	_gameTime = 0.f;
 
 private:
+	uint64  _totalFrameCount = 0;
 	uint32	_frameCount = 0;
 	float	_frameTime = 0.f;
 	uint32	_fps = 0;

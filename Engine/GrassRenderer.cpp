@@ -2,8 +2,24 @@
 #include "GrassRenderer.h"
 #include "MathUtils.h"
 
+GrassRenderer::GrassRenderer() : Renderer(ComponentType::GrassRenderer)
+{
+    CreateResources();
+}
+
+GrassRenderer::~GrassRenderer()
+{
+}
+
 void GrassRenderer::InnerRender(RenderTech renderTech)
 {
+    Super::InnerRender(renderTech);
+
+    if (prevFrameCount != TIME->GetTotalFrameCount())
+    {
+        UpdateGrass();
+        prevFrameCount = TIME->GetTotalFrameCount();
+    }
 }
 
 void GrassRenderer::CreateResources()
@@ -54,7 +70,7 @@ void GrassRenderer::CreateResources()
     uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
     uavDesc.Buffer.FirstElement = 0;
     uavDesc.Buffer.NumElements = MAX_GRASS_COUNT;
-    uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND; // ★핵심★ Append Buffer로 설정
+    uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND; // Append Buffer로 설정
 
     HR(DEVICE->CreateUnorderedAccessView(_finalGrassBuffer.Get(), &uavDesc, _finalGrassUAV.GetAddressOf()));
 
@@ -91,13 +107,12 @@ void GrassRenderer::CreateResources()
 void GrassRenderer::UpdateGrass()
 {
     {
-        //_grassConstantsData 세팅
+        _grassConstantData.totalGrassCount = MAX_GRASS_COUNT;
+        _grassConstantBuffer->CopyData(_grassConstantData);
+        _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     }
 
-    _grassConstantBuffer->CopyData(_grassConstantsData);
-    _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());
-
     _finalGrassEffectBuffer->SetUnorderedAccessView(_finalGrassUAV.Get());
 
     UINT numThreadGroups = (MAX_GRASS_COUNT + THREAD_GROUP_SIZE - 1) / THREAD_GROUP_SIZE;

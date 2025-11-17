@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shaders\00. Global.fx" />
+    <FxCompile Include="..\Shaders\00. GrassCommon.fx" />
     <FxCompile Include="..\Shaders\00. Light.fx" />
     <FxCompile Include="..\Shaders\00. Render.fx" />
     <FxCompile Include="..\Shaders\14. ModelDemo.fx" />
@@ -71,6 +72,8 @@
     <FxCompile Include="..\Shaders\BlurCombine.fx" />
     <FxCompile Include="..\Shaders\DebugTexture.fx" />
     <FxCompile Include="..\Shaders\Foliage.fx" />
+    <FxCompile Include="..\Shaders\GrassCompute.fx" />
+    <FxCompile Include="..\Shaders\GrassRender.fx" />
     <FxCompile Include="..\Shaders\ParticleSystem.fx" />
     <FxCompile Include="..\Shaders\DownSample.fx" />
     <FxCompile Include="..\Shaders\Sky.fx" />

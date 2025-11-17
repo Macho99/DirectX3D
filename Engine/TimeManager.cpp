@@ -16,6 +16,7 @@ void TimeManager::Update()
 	_prevCount = currentCount;
 
 	_frameCount++;
+    _totalFrameCount++;
 	_frameTime += _deltaTime;
 	_gameTime += _deltaTime;
 
