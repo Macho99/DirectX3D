@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "GrassRenderer.h"
 #include "MathUtils.h"
+#include "Material.h"
 
-GrassRenderer::GrassRenderer() : Renderer(ComponentType::GrassRenderer)
+GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader)
+    : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer)
 {
     CreateResources();
 }
@@ -20,6 +22,15 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
         UpdateGrass();
         prevFrameCount = TIME->GetTotalFrameCount();
     }
+    DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+    auto shader = _material->GetShader();
+    shader->GetSRV("CulledGrassBuffer")->SetResource(_finalGrassSRV.Get());
+
+    //shader->DrawIndexedInstanced(renderTech, 0, 1, 100);
+    UINT techNum = shader->GetTechNum(renderTech);
+    shader->BeginDraw(techNum, 0);
+    DC->DrawInstancedIndirect(_indirectDrawBuffer.Get(), 0);
+    shader->EndDraw(techNum, 0);
 }
 
 void GrassRenderer::CreateResources()
@@ -82,11 +93,12 @@ void GrassRenderer::CreateResources()
     D3D11_BUFFER_DESC indirectDesc = {};
     indirectDesc.ByteWidth = sizeof(DrawInstancedIndirectArgs);
     indirectDesc.Usage = D3D11_USAGE_DEFAULT;
-    indirectDesc.MiscFlags = 0;
+    indirectDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    indirectDesc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
 
     // 초기값 설정 (InstanceCount는 0, VertexCountPerInstance는 풀잎 정점 수)
     DrawInstancedIndirectArgs args = {};
-    args.VertexCountPerInstance = 4; // 예: 쿼드(4개 정점)
+    args.VertexCountPerInstance = 1; // 예: 쿼드(4개 정점)
     args.InstanceCount = 0;          // CS가 매 프레임 이 값을 덮어씁니다.
     args.StartVertexLocation = 0;
     args.StartInstanceLocation = 0;
@@ -112,6 +124,7 @@ void GrassRenderer::UpdateGrass()
         _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     }
 
+    ID3D11UnorderedAccessView* nullUav[1] = { 0 };
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());
     _finalGrassEffectBuffer->SetUnorderedAccessView(_finalGrassUAV.Get());
 

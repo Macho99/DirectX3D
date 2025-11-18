@@ -9,6 +9,7 @@
 #include "SnowBillboard.h"
 #include "Material.h"
 #include "TessTerrain.h"
+#include "GrassRenderer.h"
 
 void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech)
 {
@@ -35,6 +36,10 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTe
         shared_ptr<TessTerrain> tessTerrain = gameObject->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain);
         if (tessTerrain != nullptr)
             tessTerrain->Render(_renderTech);
+
+        shared_ptr<GrassRenderer> grassRenderer = gameObject->GetFixedComponent<GrassRenderer>(ComponentType::GrassRenderer);
+        if (grassRenderer != nullptr)
+            grassRenderer->Render(_renderTech);
 	}
 }
 

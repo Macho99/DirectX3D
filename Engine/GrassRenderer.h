@@ -21,7 +21,7 @@ struct DrawInstancedIndirectArgs
 };
 
 // --- DX11 리소스 전역 변수 ---
-const UINT MAX_GRASS_COUNT = 1000000; // 최대 100만 개의 풀잎 (예시)
+const UINT MAX_GRASS_COUNT = 10000; // 최대 100만 개의 풀잎 (예시)
 const UINT THREAD_GROUP_SIZE = 256;   // CSMain의 [numthreads(256, 1, 1)]와 일치
 
 template<typename T>
@@ -31,7 +31,7 @@ class GrassRenderer : public Renderer
 {
     using Super = Renderer;
 public:
-    GrassRenderer();
+    GrassRenderer(shared_ptr<Shader> grassComputeShader);
     ~GrassRenderer();
 
 protected:
