@@ -172,7 +172,7 @@ void BillboardDemo::Init()
         shared_ptr<Shader> grassComputeShader = make_shared<Shader>(L"GrassCompute.fx");
         auto obj = make_shared<GameObject>();
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
-        auto grassRenderer = make_shared<GrassRenderer>(grassComputeShader);
+        auto grassRenderer = make_shared<GrassRenderer>(grassComputeShader, tessTerrain.get());
         obj->AddComponent(grassRenderer);
         {
             // Material

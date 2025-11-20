@@ -4,12 +4,14 @@
 struct GrassData
 {
     Vec3 position = { 0, 0, 0 };
+    float padding; // 16바이트 정렬을 위해 패딩 추가
 };
 
 struct GrassConstant
 {
     UINT totalGrassCount; // 초기 풀 버퍼의 전체 개수
     Vec3 padding;
+    Vec4 worldFrustumPlanes[6];
 };
 
 struct DrawInstancedIndirectArgs
@@ -21,24 +23,25 @@ struct DrawInstancedIndirectArgs
 };
 
 // --- DX11 리소스 전역 변수 ---
-const UINT MAX_GRASS_COUNT = 10000; // 최대 100만 개의 풀잎 (예시)
+const UINT MAX_GRASS_COUNT = 3000000; // 최대 100만 개의 풀잎 (예시)
 const UINT THREAD_GROUP_SIZE = 256;   // CSMain의 [numthreads(256, 1, 1)]와 일치
 
 template<typename T>
 class ConstantBuffer;
+class TessTerrain;
 
 class GrassRenderer : public Renderer
 {
     using Super = Renderer;
 public:
-    GrassRenderer(shared_ptr<Shader> grassComputeShader);
+    GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain);
     ~GrassRenderer();
 
 protected:
     void InnerRender(RenderTech renderTech) override;
 
 private:
-    void CreateResources();
+    void CreateResources(TessTerrain* terrain);
     void UpdateGrass();
 
 private:

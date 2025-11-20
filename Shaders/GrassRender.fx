@@ -19,8 +19,6 @@ VS_TO_GS VS(uint instanceID : SV_InstanceID)
     
     // 2. 월드 좌표계 위치를 GS로 그대로 전달합니다.
     output.worldPos = blade.position;
-    output.worldPos.x += instanceID * 0.1f;
-    //output.worldPos = float3(instanceID, 0, 0); // 임시 위치
     
     return output;
 }

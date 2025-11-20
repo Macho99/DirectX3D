@@ -319,4 +319,37 @@ float3 RandUnitVec3(float gameTime, float offset)
 	// project onto unit sphere
 	return normalize(v);
 }
+
+// Returns true if the box is completely behind (in negative half space) of plane.
+bool AabbBehindPlaneTest(float3 center, float3 extents, float4 plane)
+{
+    float3 n = abs(plane.xyz);
+
+	// This is always positive.
+    float r = dot(extents, n);
+
+	// signed distance from center point to plane.
+    float s = dot(float4(center, 1.0f), plane);
+
+	// If the center point of the box is a distance of e or more behind the
+	// plane (in which case s is negative since it is behind the plane),
+	// then the box is completely in the negative half space of the plane.
+    return (s + r) < 0.0f;
+}
+
+// Returns true if the box is completely outside the frustum.
+bool AabbOutsideFrustumTest(float3 center, float3 extents, float4 frustumPlanes[6])
+{
+    for (int i = 0; i < 6; ++i)
+    {
+		// If the box is completely behind any of the frustum planes
+		// then it is outside the frustum.
+        if (AabbBehindPlaneTest(center, extents, frustumPlanes[i]))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 #endif

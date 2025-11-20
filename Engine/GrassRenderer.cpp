@@ -2,46 +2,28 @@
 #include "GrassRenderer.h"
 #include "MathUtils.h"
 #include "Material.h"
+#include "TessTerrain.h"
+#include "Camera.h"
 
-GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader)
+GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain)
     : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer)
 {
-    CreateResources();
+    CreateResources(terrain);
 }
 
 GrassRenderer::~GrassRenderer()
 {
 }
 
-void GrassRenderer::InnerRender(RenderTech renderTech)
-{
-    Super::InnerRender(renderTech);
-
-    if (prevFrameCount != TIME->GetTotalFrameCount())
-    {
-        UpdateGrass();
-        prevFrameCount = TIME->GetTotalFrameCount();
-    }
-    DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-    auto shader = _material->GetShader();
-    shader->GetSRV("CulledGrassBuffer")->SetResource(_finalGrassSRV.Get());
-
-    //shader->DrawIndexedInstanced(renderTech, 0, 1, 100);
-    UINT techNum = shader->GetTechNum(renderTech);
-    shader->BeginDraw(techNum, 0);
-    DC->DrawInstancedIndirect(_indirectDrawBuffer.Get(), 0);
-    shader->EndDraw(techNum, 0);
-}
-
-void GrassRenderer::CreateResources()
+void GrassRenderer::CreateResources(TessTerrain* terrain)
 {
     // --- 1. 초기 풀 데이터 CPU에서 생성 ---
     vector<GrassData> grassData(MAX_GRASS_COUNT);
     for (UINT i = 0; i < MAX_GRASS_COUNT; ++i)
     {
-        float x = MathUtils::Random(-100.f, 100.f);
-        float z = MathUtils::Random(-100.f, 100.f);
-        float y = 0.f; // 지형 높이에 맞게 조정 가능
+        float x = MathUtils::Random(-500.f, 500.f);
+        float z = MathUtils::Random(-500.f, 500.f);
+        float y = terrain->GetHeight(x, z);
         grassData[i].position = Vec3(x, y, z);
     }
 
@@ -120,16 +102,46 @@ void GrassRenderer::UpdateGrass()
 {
     {
         _grassConstantData.totalGrassCount = MAX_GRASS_COUNT;
+
+        Matrix world = GetTransform()->GetWorldMatrix();
+        Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
+        Matrix worldViewProj = world * viewProj;
+        MathUtils::ExtractFrustumPlanes(_grassConstantData.worldFrustumPlanes, viewProj);
+
         _grassConstantBuffer->CopyData(_grassConstantData);
         _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     }
-
-    ID3D11UnorderedAccessView* nullUav[1] = { 0 };
+    _grassComputeShader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());
+
+    // 2. UAV 바인딩 및 카운터 리셋 (u0 레지스터에 바인딩)
+    UINT initCounts = 0;
+    ID3D11UnorderedAccessView* uavs[] = { _finalGrassUAV.Get() };
+    DC->CSSetUnorderedAccessViews(0, 1, uavs, &initCounts);
     _finalGrassEffectBuffer->SetUnorderedAccessView(_finalGrassUAV.Get());
 
     UINT numThreadGroups = (MAX_GRASS_COUNT + THREAD_GROUP_SIZE - 1) / THREAD_GROUP_SIZE;
     _grassComputeShader->Dispatch(0, 0, numThreadGroups, 1, 1);
 
     DC->CopyStructureCount(_indirectDrawBuffer.Get(), offsetof(DrawInstancedIndirectArgs, InstanceCount), _finalGrassUAV.Get());
+}
+
+void GrassRenderer::InnerRender(RenderTech renderTech)
+{
+    Super::InnerRender(renderTech);
+
+    if (prevFrameCount != TIME->GetTotalFrameCount())
+    {
+        UpdateGrass();
+        prevFrameCount = TIME->GetTotalFrameCount();
+    }
+    DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+    auto shader = _material->GetShader();
+    shader->GetSRV("CulledGrassBuffer")->SetResource(_finalGrassSRV.Get());
+
+    //shader->DrawIndexedInstanced(renderTech, 0, 1, 100);
+    UINT techNum = shader->GetTechNum(renderTech);
+    shader->BeginDraw(techNum, 0);
+    DC->DrawInstancedIndirect(_indirectDrawBuffer.Get(), 0);
+    shader->EndDraw(techNum, 0);
 }
