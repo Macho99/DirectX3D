@@ -103,9 +103,7 @@ void GrassRenderer::UpdateGrass()
     {
         _grassConstantData.totalGrassCount = MAX_GRASS_COUNT;
 
-        Matrix world = GetTransform()->GetWorldMatrix();
         Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
-        Matrix worldViewProj = world * viewProj;
         MathUtils::ExtractFrustumPlanes(_grassConstantData.worldFrustumPlanes, viewProj);
 
         _grassConstantBuffer->CopyData(_grassConstantData);

@@ -33,16 +33,16 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     float distSq = distance(initialBlade.position, CamPos);
     
     // 특정 거리(예: MaxRenderDistance) 밖에 있으면 컬링
-    if (distSq > 120)
+    if (distSq > 300)
     {
         return; // 컬링: 렌더링하지 않음
     }
     
     
-    //if (AabbOutsideFrustumTest(initialBlade.position, float3(1, 1, 1), worldFrustumPlanes))
-    //{
-    //    return;
-    //}
+    if (AabbOutsideFrustumTest(initialBlade.position, float3(1, 1, 1), worldFrustumPlanes))
+    {
+        return;
+    }
     
     // 3. 최종 풀 버퍼에 추가 (컬링을 통과한 풀잎만)
     Output.Append(initialBlade);

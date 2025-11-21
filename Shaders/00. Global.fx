@@ -340,16 +340,19 @@ bool AabbBehindPlaneTest(float3 center, float3 extents, float4 plane)
 // Returns true if the box is completely outside the frustum.
 bool AabbOutsideFrustumTest(float3 center, float3 extents, float4 frustumPlanes[6])
 {
+    bool result = false;
+	
+	[unroll]
     for (int i = 0; i < 6; ++i)
     {
 		// If the box is completely behind any of the frustum planes
 		// then it is outside the frustum.
         if (AabbBehindPlaneTest(center, extents, frustumPlanes[i]))
         {
-            return true;
+            result = true;
         }
     }
-
-    return false;
+	
+    return result;
 }
 #endif
