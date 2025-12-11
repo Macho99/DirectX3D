@@ -55,7 +55,7 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
     finalDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
     finalDesc.StructureByteStride = sizeof(GrassData);
 
-    HR(DEVICE->CreateBuffer(&finalDesc, nullptr, _finalGrassBuffer.GetAddressOf()));
+    HR(DEVICE->CreateBuffer(&finalDesc, nullptr, _distantGrassBuffer.GetAddressOf()));
 
     // UAV (Append Buffer로 생성)
     D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -65,11 +65,11 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
     uavDesc.Buffer.NumElements = MAX_GRASS_COUNT;
     uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND; // Append Buffer로 설정
 
-    HR(DEVICE->CreateUnorderedAccessView(_finalGrassBuffer.Get(), &uavDesc, _finalGrassUAV.GetAddressOf()));
+    HR(DEVICE->CreateUnorderedAccessView(_distantGrassBuffer.Get(), &uavDesc, _distantGrassUAV.GetAddressOf()));
 
     // SRV (나중에 렌더링 파이프라인(VS)에서 읽기 위함)
     srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
-    HR(DEVICE->CreateShaderResourceView(_finalGrassBuffer.Get(), &srvDesc, _finalGrassSRV.GetAddressOf()));
+    HR(DEVICE->CreateShaderResourceView(_distantGrassBuffer.Get(), &srvDesc, _distantGrassSRV.GetAddressOf()));
 
     // --- 4. IndirectDrawBuffer 생성 ---
     D3D11_BUFFER_DESC indirectDesc = {};
@@ -88,14 +88,14 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
     D3D11_SUBRESOURCE_DATA argData = {};
     argData.pSysMem = &args;
 
-    HR(DEVICE->CreateBuffer(&indirectDesc, &argData, _indirectDrawBuffer.GetAddressOf()));
+    HR(DEVICE->CreateBuffer(&indirectDesc, &argData, _distantDrawBuffer.GetAddressOf()));
 
     _grassConstantBuffer = make_shared<ConstantBuffer<GrassConstant>>();
     _grassConstantBuffer->Create();
     _grassEffectBuffer = _grassComputeShader->GetConstantBuffer("GrassConstant");
 
     _initGrassEffectBuffer = _grassComputeShader->GetSRV("Input");
-    _finalGrassEffectBuffer = _grassComputeShader->GetUAV("Output");
+    _distantGrassEffectBuffer = _grassComputeShader->GetUAV("DistantOutput");
 }
 
 void GrassRenderer::UpdateGrass()
@@ -114,14 +114,14 @@ void GrassRenderer::UpdateGrass()
 
     // 2. UAV 바인딩 및 카운터 리셋 (u0 레지스터에 바인딩)
     UINT initCounts = 0;
-    ID3D11UnorderedAccessView* uavs[] = { _finalGrassUAV.Get() };
+    ID3D11UnorderedAccessView* uavs[] = { _distantGrassUAV.Get() };
     DC->CSSetUnorderedAccessViews(0, 1, uavs, &initCounts);
-    _finalGrassEffectBuffer->SetUnorderedAccessView(_finalGrassUAV.Get());
+    _distantGrassEffectBuffer->SetUnorderedAccessView(_distantGrassUAV.Get());
 
     UINT numThreadGroups = (MAX_GRASS_COUNT + THREAD_GROUP_SIZE - 1) / THREAD_GROUP_SIZE;
     _grassComputeShader->Dispatch(0, 0, numThreadGroups, 1, 1);
 
-    DC->CopyStructureCount(_indirectDrawBuffer.Get(), offsetof(DrawInstancedIndirectArgs, InstanceCount), _finalGrassUAV.Get());
+    DC->CopyStructureCount(_distantDrawBuffer.Get(), offsetof(DrawInstancedIndirectArgs, InstanceCount), _distantGrassUAV.Get());
 }
 
 void GrassRenderer::InnerRender(RenderTech renderTech)
@@ -135,11 +135,11 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
     }
     DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
     auto shader = _material->GetShader();
-    shader->GetSRV("CulledGrassBuffer")->SetResource(_finalGrassSRV.Get());
+    shader->GetSRV("CulledGrassBuffer")->SetResource(_distantGrassSRV.Get());
 
     //shader->DrawIndexedInstanced(renderTech, 0, 1, 100);
     UINT techNum = shader->GetTechNum(renderTech);
     shader->BeginDraw(techNum, 0);
-    DC->DrawInstancedIndirect(_indirectDrawBuffer.Get(), 0);
+    DC->DrawInstancedIndirect(_distantDrawBuffer.Get(), 0);
     shader->EndDraw(techNum, 0);
 }

@@ -47,13 +47,24 @@ MeshOutput VS(VertexMesh input)
     return output;
 }
 
+float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
+{
+    float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
+	
+    if (litColor.a < 0.1f)
+        discard;
+	
+    return litColor;
+}
+
 float4 AlphaClipPS(MeshOutput input) : SV_TARGET
 {
-    float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
-    float4 color = ComputeLight(input.normal, input.uv, input.worldPosition, input.ssaoPosH, shadow);
-	
-	if(color.a < 0.1f)
+    float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
+    if (litColor.a < 0.1f)
         discard;
+    
+    float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
+    float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
 	
     return color;
 }
@@ -76,7 +87,7 @@ technique11 Draw
 
 technique11 Shadow
 {
-	PASS_RS_VP(P0, Depth, VS, AlphaClipPS)
+	PASS_RS_VP(P0, Depth, VS, AlphaClipShadowPS)
 };
 
 technique11 NormalDepth

@@ -12,7 +12,7 @@ cbuffer GrassConstant
 StructuredBuffer<GrassBlade> Input;
 // UAV: 쓰기 가능한 버퍼 (컬링된 풀잎을 여기에 모읍니다.)
 // AppendStructuredBuffer는 자동으로 카운터를 증가시킵니다.
-AppendStructuredBuffer<GrassBlade> Output : register(u0);
+AppendStructuredBuffer<GrassBlade> DistantOutput : register(u0);
 
 
 // 스레드 그룹 크기 정의 (예: 256)
@@ -33,7 +33,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     float distSq = distance(initialBlade.position, CamPos);
     
     // 특정 거리(예: MaxRenderDistance) 밖에 있으면 컬링
-    if (distSq > 300)
+    if (distSq < 100 || distSq > 500)
     {
         return; // 컬링: 렌더링하지 않음
     }
@@ -45,7 +45,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     }
     
     // 3. 최종 풀 버퍼에 추가 (컬링을 통과한 풀잎만)
-    Output.Append(initialBlade);
+    DistantOutput.Append(initialBlade);
 }
 
 technique11 T0

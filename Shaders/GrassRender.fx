@@ -38,7 +38,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     float3 worldUp = float3(0, 1, 0);
     
     // 빌보드의 'Right' 벡터 (X축)
-    float3 bladeRight = float3(1, 0, 0);
+    float3 bladeRight = normalize(cross(worldUp, vecToCam));
     
     // 빌보드의 'Up' 벡터 (Y축)
     float3 bladeUp = worldUp * 1;
@@ -70,7 +70,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     v[3].uv = float2(1, 0);
 
     // 빌보드의 법선 (조명용, 카메라를 향함)
-    float3 billboardNormal = -vecToCam;
+    float3 billboardNormal = worldUp;
 
     // --- 4. 정점 스트림에 추가 ---
     // 4개의 정점을 뷰-프로젝션 변환하여 스트림에 추가합니다.
@@ -94,12 +94,24 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     stream.RestartStrip();
 }
 
+float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
+{
+    float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
+	
+    if (litColor.a < 0.1f)
+        discard;
+	
+    return litColor;
+}
+
 float4 AlphaClipPS(MeshOutput input) : SV_TARGET
 {
+    float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
+    if (litColor.a < 0.1f)
+        discard;
+    
     float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
-    float4 color = ComputeLight(input.normal, input.uv, input.worldPosition, input.ssaoPosH, shadow);
-	
-    clip(color.a - 0.1f);
+    float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
 	
     return color;
 }
@@ -109,11 +121,12 @@ float4 AlphaClipNormalDepthPS(MeshOutput input) : SV_TARGET
     input.normalV = normalize(input.normalV);
 	
     float4 color = DiffuseMap.Sample(LinearSampler, input.uv);
-
-    clip(color.a - 0.1f);
+    if (color.a < 0.1f)
+        discard;
 	
     return float4(input.normalV, input.positionV.z);
 }
+
 
 technique11 Draw
 {
@@ -133,7 +146,7 @@ technique11 Shadow
         SetRasterizerState(Depth);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
-        SetPixelShader(CompileShader(ps_5_0, AlphaClipPS()));
+        SetPixelShader(CompileShader(ps_5_0, AlphaClipShadowPS()));
     }
 };
 
