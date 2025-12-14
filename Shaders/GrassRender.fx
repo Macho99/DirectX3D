@@ -8,12 +8,13 @@ struct VS_TO_GS
     float3 worldPos : POSITION;
 };
 
-StructuredBuffer<GrassBlade> CulledGrassBuffer;
+StructuredBuffer<GrassBlade> NearbyGrassBuffer;
+StructuredBuffer<GrassBlade> DistantGrassBuffer;
 
-VS_TO_GS VS(uint instanceID : SV_InstanceID)
+VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
 {
     // 1. CS가 생성한 버퍼에서 현재 인스턴스 ID에 해당하는 풀잎 데이터를 읽어옵니다.
-    GrassBlade blade = CulledGrassBuffer[instanceID];
+    GrassBlade blade = DistantGrassBuffer[instanceID];
     
     VS_TO_GS output;
     
@@ -94,6 +95,43 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     stream.RestartStrip();
 }
 
+MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
+{
+    GrassBlade blade = NearbyGrassBuffer[instanceID];
+    
+    float2 quadOffset[4] =
+    {
+        float2(-1.0f, 0.0f), // 0: Bottom-Left (BL)
+        float2(1.0f, 0.0f), // 1: Bottom-Right (BR)
+        float2(-1.0f, 1.0f), // 2: Top-Left (TL)
+        float2(1.0f, 1.0f) // 3: Top-Right (TR)
+    };
+
+    // 3. 텍스처 좌표 정의
+    float2 texCoords[4] =
+    {
+        float2(0.0f, 1.0f), // 0: BL
+        float2(1.0f, 1.0f), // 1: BR
+        float2(0.0f, 0.0f), // 2: TL
+        float2(1.0f, 0.0f) // 3: TR
+    };
+    
+    MeshOutput output;
+    output.worldPosition = blade.position + float3(quadOffset[vertexID].x, quadOffset[vertexID].y, 0.0f);
+    output.uv = texCoords[vertexID];
+    
+    float4 worldPos = float4(output.worldPosition, 1.0f);
+        
+    output.position = mul(worldPos, VP);
+    output.normal = float3(0, 1, 0);
+    output.normalV = mul(output.normal, (float3x3) V);
+    output.positionV = mul(worldPos, V);
+    output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.ssaoPosH = mul(worldPos, VPT);
+    
+    return output;
+}
+
 float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
@@ -133,7 +171,13 @@ technique11 Draw
     pass P0
     {
         SetRasterizerState(NoCull);
-        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetVertexShader(CompileShader(vs_5_0, NearbyVS()));
+        SetPixelShader(CompileShader(ps_5_0, AlphaClipPS()));
+    }
+    pass P1
+    {
+        SetRasterizerState(NoCull);
+        SetVertexShader(CompileShader(vs_5_0, DistantVS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, AlphaClipPS()));
     }
@@ -144,7 +188,13 @@ technique11 Shadow
     pass P0
     {
         SetRasterizerState(Depth);
-        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetVertexShader(CompileShader(vs_5_0, NearbyVS()));
+        SetPixelShader(CompileShader(ps_5_0, AlphaClipShadowPS()));
+    }
+    pass P1
+    {
+        SetRasterizerState(Depth);
+        SetVertexShader(CompileShader(vs_5_0, DistantVS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, AlphaClipShadowPS()));
     }
@@ -155,7 +205,13 @@ technique11 NormalDepth
     pass P0
     {
         SetRasterizerState(NoCull);
-        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetVertexShader(CompileShader(vs_5_0, NearbyVS()));
+        SetPixelShader(CompileShader(ps_5_0, AlphaClipNormalDepthPS()));
+    }
+    pass P1
+    {
+        SetRasterizerState(NoCull);
+        SetVertexShader(CompileShader(vs_5_0, DistantVS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, AlphaClipNormalDepthPS()));
     }
