@@ -98,6 +98,8 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
     _grassConstantBuffer = make_shared<ConstantBuffer<GrassConstant>>();
     _grassConstantBuffer->Create();
     _grassEffectBuffer = _grassComputeShader->GetConstantBuffer("GrassConstant");
+    _randomEffectBuffer = _grassComputeShader->GetSRV("RandomMap");
+    _randomTex = RESOURCES->Get<Texture>(L"RandomTex");
 
     _initGrassEffectBuffer = _grassComputeShader->GetSRV("Input");
     _nearbyGrassEffectBuffer = _grassComputeShader->GetUAV("NearbyOutput");
@@ -115,6 +117,7 @@ void GrassRenderer::UpdateGrass()
         _grassConstantBuffer->CopyData(_grassConstantData);
         _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     }
+    _randomEffectBuffer->SetResource(_randomTex->GetComPtr().Get());
     _grassComputeShader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());
 
@@ -168,6 +171,7 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
         shader->EndDraw(techNum, 0);
     }
 
+    if(renderTech == RenderTech::Draw)
     {
         DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
         shader->GetSRV("DistantGrassBuffer")->SetResource(_distantGrassSRV.Get());

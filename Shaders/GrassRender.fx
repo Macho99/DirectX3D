@@ -8,13 +8,13 @@ struct VS_TO_GS
     float3 worldPos : POSITION;
 };
 
-StructuredBuffer<GrassBlade> NearbyGrassBuffer;
-StructuredBuffer<GrassBlade> DistantGrassBuffer;
+StructuredBuffer<NearbyGrassData> NearbyGrassBuffer;
+StructuredBuffer<DistantGrassData> DistantGrassBuffer;
 
 VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
 {
     // 1. CS가 생성한 버퍼에서 현재 인스턴스 ID에 해당하는 풀잎 데이터를 읽어옵니다.
-    GrassBlade blade = DistantGrassBuffer[instanceID];
+    DistantGrassData blade = DistantGrassBuffer[instanceID];
     
     VS_TO_GS output;
     
@@ -97,14 +97,14 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
 
 MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
-    GrassBlade blade = NearbyGrassBuffer[instanceID];
+    NearbyGrassData blade = NearbyGrassBuffer[instanceID];
     
-    float2 quadOffset[4] =
+    float3 quadOffset[4] =
     {
-        float2(-1.0f, 0.0f), // 0: Bottom-Left (BL)
-        float2(1.0f, 0.0f), // 1: Bottom-Right (BR)
-        float2(-1.0f, 1.0f), // 2: Top-Left (TL)
-        float2(1.0f, 1.0f) // 3: Top-Right (TR)
+        float3(-1.0f, 0.0f, 0.0f), // 0: Bottom-Left (BL)
+        float3(1.0f, 0.0f, 0.0f), // 1: Bottom-Right (BR)
+        float3(-1.0f, 1.0f, 0.0f), // 2: Top-Left (TL)
+        float3(1.0f, 1.0f, 0.0f) // 3: Top-Right (TR)
     };
 
     // 3. 텍스처 좌표 정의
@@ -115,9 +115,11 @@ MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID
         float2(0.0f, 0.0f), // 2: TL
         float2(1.0f, 0.0f) // 3: TR
     };
-    
+        
     MeshOutput output;
-    output.worldPosition = blade.position + float3(quadOffset[vertexID].x, quadOffset[vertexID].y, 0.0f);
+    float3 localPosition = quadOffset[vertexID];
+    
+    output.worldPosition = mul(blade.worldMatrix, float4(localPosition, 1.0f)).xyz;
     output.uv = texCoords[vertexID];
     
     float4 worldPos = float4(output.worldPosition, 1.0f);

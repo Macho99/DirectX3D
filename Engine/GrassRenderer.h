@@ -66,6 +66,8 @@ private:
     GrassConstant _grassConstantData;
     shared_ptr<ConstantBuffer<GrassConstant>> _grassConstantBuffer;     // 상수 버퍼
     ComPtr<ID3DX11EffectConstantBuffer> _grassEffectBuffer;
+    ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
+    shared_ptr<Texture> _randomTex;
 
     int prevFrameCount = -1;
 };

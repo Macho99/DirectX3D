@@ -187,8 +187,6 @@ void BillboardDemo::Init()
                 desc.diffuse = Vec4(1.f);
                 desc.specular = Vec4(1.f);
                 RESOURCES->Add(L"Grass", material);
-                grassRenderShader->SetTechNum(RenderTech::NormalDepth, -1);
-                grassRenderShader->SetTechNum(RenderTech::Shadow, -1);
                 grassRenderer->SetMaterial(material);
             }
         }

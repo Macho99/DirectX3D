@@ -299,6 +299,8 @@ pass name											\
     SetPixelShader(CompileShader(ps_5_0, ps()));	\
 }
 
+#define PI 3.14159265359
+
 ////////////////
 /// Function
 ////////////////
