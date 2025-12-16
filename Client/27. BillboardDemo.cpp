@@ -172,14 +172,14 @@ void BillboardDemo::Init()
         shared_ptr<Shader> grassComputeShader = make_shared<Shader>(L"GrassCompute.fx");
         auto obj = make_shared<GameObject>();
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
-        auto grassRenderer = make_shared<GrassRenderer>(grassComputeShader, tessTerrain.get());
+        auto grassRenderer = make_shared<GrassRenderer>(grassComputeShader, tessTerrain.get(), L"..\\Resources\\Textures\\Grass\\Grass_A_BaseColor_Split.txt");
         obj->AddComponent(grassRenderer);
         {
             // Material
             {
                 shared_ptr<Material> material = make_shared<Material>();
                 material->SetShader(grassRenderShader);
-                auto texture = RESOURCES->Load<Texture>(L"Grass", L"..\\Resources\\Textures\\grass.png");
+                auto texture = RESOURCES->Load<Texture>(L"Grass", L"..\\Resources\\Textures\\Grass\\Grass_A_BaseColor.tif");
                 //auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
                 material->SetDiffuseMap(texture);
                 MaterialDesc& desc = material->GetMaterialDesc();
@@ -190,6 +190,11 @@ void BillboardDemo::Init()
                 grassRenderer->SetMaterial(material);
             }
         }
+
+        auto foliageController = make_shared<FoliageController>();
+        foliageController->SetBendFactor(0.1f);
+        foliageController->SetStiffness(0.65f);
+        obj->AddComponent(foliageController);
         CUR_SCENE->Add(obj);
     }
 
@@ -273,7 +278,7 @@ void BillboardDemo::Init()
         m1->ReadAnimation(L"Kachujin/Run");
         m1->ReadAnimation(L"Kachujin/Slash");
 
-        for (int32 i = 0; i < 100; i++)
+        for (int32 i = 0; i < 10; i++)
         {
             auto obj = make_shared<GameObject>();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));

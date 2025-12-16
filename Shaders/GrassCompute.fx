@@ -1,11 +1,15 @@
 #include "00. GrassCommon.fx"
 #include "00. Global.fx"
 
+#define MAX_UV_COUNT 30
+
 cbuffer GrassConstant
 {
     uint totalGrassCount; // 초기 풀 버퍼의 전체 개수
-    float3 padding2;
+    float2 padding2;
+    uint uvCount;
     float4 worldFrustumPlanes[6];
+    float4 uvs[MAX_UV_COUNT];
 };
 
 // SRV: 읽기 전용 버퍼 (초기 풀 위치 데이터)
@@ -100,15 +104,20 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     }
     
     
-    if (AabbOutsideFrustumTest(position, float3(1, 1, 1), worldFrustumPlanes))
+    if (AabbOutsideFrustumTest(position, float3(5, 5, 5), worldFrustumPlanes))
     {
         return;
     }
     
     float randomKey = position.x + position.y + position.z;
     int seed = 0;
+    int uvIndex = (SampleRandom(randomKey, seed++).x + 1) * 0.5 * uvCount;
     if (distSq < 120)
     {
+        float4 uvMinMax = uvs[uvIndex];
+        float3 scaleBase = float3(uvMinMax.z - uvMinMax.x, uvMinMax.w - uvMinMax.y, 1);
+        scaleBase *= 8.f;
+        
         [unroll]
         for (int i = 0; i < 3; i++)
         {
@@ -116,19 +125,22 @@ void CS(uint3 DTid : SV_DispatchThreadID)
             float3 rotation = SampleRandom(randomKey, seed++);
             rotation.x *= 0.25f * PI;
             rotation.y *= 2.f * PI;
-            rotation.z = 0;
-            float3 scale = SampleRandom(randomKey, seed++);
-            scale *= 0.5f;
-            scale += 1.f;
+            rotation.z = 0.f;
+            float3 scaleOffset = SampleRandom(randomKey, seed++);
+            scaleOffset *= 0.2f;
+            float3 scale = scaleBase + scaleOffset;
+            scale.z = 1.f;
+            
             float3 positionOffset = SampleRandom(randomKey, seed++);
-            positionOffset *= 0.3f;
+            positionOffset *= 0.1f;
             positionOffset.y = 0;
             
-            float4x4 S = ScaleMatrix(scale);
+            float4x4 S = ScaleMatrix(scaleBase);
             float4x4 R = RotationMatrixXYZ(rotation);
             float4x4 T = TranslationMatrix(position + positionOffset);
         
             output.worldMatrix = mul(T, mul(R, S));
+            output.uvMinMax = uvMinMax;
             NearbyOutput.Append(output);
         }
     }
@@ -136,6 +148,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     {
         DistantGrassData output;
         output.position = position;
+        output.uvMinMax = uvs[uvIndex];
         DistantOutput.Append(output);
     }
 }

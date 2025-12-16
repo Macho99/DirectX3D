@@ -1,11 +1,12 @@
-#include "00. GrassCommon.fx"
 #include "00. Global.fx"
 #include "00. Render.fx"
 #include "00. Light.fx"
+#include "00. GrassCommon.fx"
 
 struct VS_TO_GS
 {
     float3 worldPos : POSITION;
+    float4 uvMinMax : UV_MIN_MAX;
 };
 
 StructuredBuffer<NearbyGrassData> NearbyGrassBuffer;
@@ -20,6 +21,7 @@ VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
     
     // 2. 월드 좌표계 위치를 GS로 그대로 전달합니다.
     output.worldPos = blade.position;
+    output.uvMinMax = blade.uvMinMax;
     
     return output;
 }
@@ -28,6 +30,7 @@ VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
 void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
 {
     float3 bladeBasePos = input[0].worldPos; // 풀잎이 자라날 바닥 위치
+    float4 uv = input[0].uvMinMax;
     
     // --- 1. 빌보딩(Billboarding) 계산 ---
     // 카메라를 항상 바라보도록 쿼드의 방향을 설정합니다.
@@ -44,31 +47,27 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     // 빌보드의 'Up' 벡터 (Y축)
     float3 bladeUp = worldUp * 1;
     
-
-    // --- 2. (선택) 바람 애니메이션 ---
-    // CS와 동일한 로직으로 바람을 계산하되, 풀잎의 위쪽 정점에만 적용합니다.
-    //float windStrength = sin(g_Time * 1.5 + bladeBasePos.x * 0.1) * 0.5;
-    float3 windOffset = float3(0, 0, 0); // X축으로만 간단히 흔들림
-    
-    
-    // --- 3. 4개의 정점 생성 (쿼드) ---
     MeshOutput v[4];
     
     // 0: Bottom-Left
     v[0].worldPosition = bladeBasePos - bladeRight;
-    v[0].uv = float2(0, 1);
+    v[0].worldPosition += CalculateWindOffset(v[0].worldPosition, 0);
+    v[0].uv = float2(uv.x, uv.w); // (0,1)
     
     // 1: Bottom-Right
     v[1].worldPosition = bladeBasePos + bladeRight;
-    v[1].uv = float2(1, 1);
+    v[1].worldPosition += CalculateWindOffset(v[1].worldPosition, 0);
+    v[1].uv = float2(uv.z, uv.w); // (1,1)
     
     // 2: Top-Left (바람 적용)
-    v[2].worldPosition = bladeBasePos - bladeRight + bladeUp + windOffset;
-    v[2].uv = float2(0, 0);
+    v[2].worldPosition = bladeBasePos - bladeRight + bladeUp;
+    v[2].worldPosition += CalculateWindOffset(v[2].worldPosition, bladeUp.y);
+    v[2].uv = float2(uv.x, uv.y); // (0,0)
 
     // 3: Top-Right (바람 적용)
-    v[3].worldPosition = bladeBasePos + bladeRight + bladeUp + windOffset;
-    v[3].uv = float2(1, 0);
+    v[3].worldPosition = bladeBasePos + bladeRight + bladeUp;
+    v[3].worldPosition += CalculateWindOffset(v[3].worldPosition, bladeUp.y);
+    v[3].uv = float2(uv.z, uv.y); // (1,0)
 
     // 빌보드의 법선 (조명용, 카메라를 향함)
     float3 billboardNormal = worldUp;
@@ -98,6 +97,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
 MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
     NearbyGrassData blade = NearbyGrassBuffer[instanceID];
+    float4 uv = blade.uvMinMax;
     
     float3 quadOffset[4] =
     {
@@ -110,16 +110,21 @@ MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID
     // 3. 텍스처 좌표 정의
     float2 texCoords[4] =
     {
-        float2(0.0f, 1.0f), // 0: BL
-        float2(1.0f, 1.0f), // 1: BR
-        float2(0.0f, 0.0f), // 2: TL
-        float2(1.0f, 0.0f) // 3: TR
+        //float2(0.0f, 1.0f), // 0: BL
+        //float2(1.0f, 1.0f), // 1: BR
+        //float2(0.0f, 0.0f), // 2: TL
+        //float2(1.0f, 0.0f) // 3: TR
+        float2(uv.x, uv.w), // 0: BL
+        float2(uv.z, uv.w), // 1: BR
+        float2(uv.x, uv.y), // 2: TL
+        float2(uv.z, uv.y) // 3: TR
     };
         
     MeshOutput output;
     float3 localPosition = quadOffset[vertexID];
     
     output.worldPosition = mul(blade.worldMatrix, float4(localPosition, 1.0f)).xyz;
+    output.worldPosition += CalculateWindOffset(output.worldPosition, localPosition.y);
     output.uv = texCoords[vertexID];
     
     float4 worldPos = float4(output.worldPosition, 1.0f);

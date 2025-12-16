@@ -15,5 +15,7 @@ public:
 	static string ToString(Vec3& value);	
 	
 	static ComPtr<ID3D11ShaderResourceView> CreateTexture2DArraySRV(vector<wstring>& filenames);
+
+	static vector<Vec4> ParseUVText(const wstring& path);
 };
 

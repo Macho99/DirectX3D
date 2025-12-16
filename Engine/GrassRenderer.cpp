@@ -4,11 +4,20 @@
 #include "Material.h"
 #include "TessTerrain.h"
 #include "Camera.h"
+#include "Utils.h"
 
-GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain)
+GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain, const wstring& uvFilePath)
     : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer)
 {
     CreateResources(terrain);
+
+    ZeroMemory(&_grassConstantData, sizeof(GrassConstant));
+    vector<Vec4> uvs = Utils::ParseUVText(uvFilePath);
+    for (int i = 0; i < uvs.size(); i++)
+    {
+        _grassConstantData.uvs[i] = uvs[i];
+    }
+    _grassConstantData.uvCount = static_cast<UINT>(uvs.size());
 }
 
 GrassRenderer::~GrassRenderer()
@@ -49,13 +58,16 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
 
     // --- 3. FinalGrassBuffer 생성 (Append Buffer: UAV + SRV) ---
     D3D11_BUFFER_DESC finalDesc = {};
-    finalDesc.ByteWidth = sizeof(GrassData) * MAX_GRASS_COUNT; // 최대 크기
+    finalDesc.ByteWidth = sizeof(NearbyGrassData) * MAX_GRASS_COUNT; // 최대 크기
+    finalDesc.StructureByteStride = sizeof(NearbyGrassData);
     finalDesc.Usage = D3D11_USAGE_DEFAULT;
     finalDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
     finalDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-    finalDesc.StructureByteStride = sizeof(GrassData);
 
     HR(DEVICE->CreateBuffer(&finalDesc, nullptr, _nearbyGrassBuffer.GetAddressOf()));
+
+    finalDesc.ByteWidth = sizeof(DistantGrassData) * MAX_GRASS_COUNT; // 최대 크기
+    finalDesc.StructureByteStride = sizeof(DistantGrassData);
     HR(DEVICE->CreateBuffer(&finalDesc, nullptr, _distantGrassBuffer.GetAddressOf()));
 
     // UAV (Append Buffer로 생성)

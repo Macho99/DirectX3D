@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Utils.h"
+#include <fstream>
+#include <sstream>
 
 bool Utils::StartsWith(string str, string comp)
 {
@@ -160,4 +162,36 @@ ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<wstring>&
 
 	return texArraySRV;
 
+}
+
+vector<Vec4> Utils::ParseUVText(const wstring& filePath)
+{
+	std::vector<Vec4> result;
+
+	std::ifstream file(filePath);
+	if (!file.is_open())
+		return result;
+
+	std::string line;
+	while (std::getline(file, line))
+	{
+		if (line.empty())
+			continue;
+
+		std::stringstream ss(line);
+
+		Vec4 v;
+		char comma;
+
+		// float , float , float , float
+		if (ss >> v.x >> comma
+			>> v.y >> comma
+			>> v.z >> comma
+			>> v.w)
+		{
+			result.push_back(v);
+		}
+	}
+
+	return result;
 }

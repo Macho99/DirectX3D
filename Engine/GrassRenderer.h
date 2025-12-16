@@ -1,17 +1,36 @@
 #pragma once
 #include "Renderer.h"
 
+// --- DX11 리소스 전역 변수 ---
+const UINT MAX_GRASS_COUNT = 1000000;
+const UINT THREAD_GROUP_SIZE = 256;   // CSMain의 [numthreads(256, 1, 1)]와 일치
+const UINT MAX_UV_COUNT = 30;
+
 struct GrassData
 {
     Vec3 position = { 0, 0, 0 };
     float padding; // 16바이트 정렬을 위해 패딩 추가
 };
 
+struct NearbyGrassData
+{
+    Matrix worldMatrix;
+    Vec4 uvMinMax;
+};
+
+struct DistantGrassData
+{
+    Vec3 position;
+    Vec4 uvMinMax;
+};
+
 struct GrassConstant
 {
     UINT totalGrassCount; // 초기 풀 버퍼의 전체 개수
-    Vec3 padding;
+    Vec2 padding;
+    UINT uvCount;
     Vec4 worldFrustumPlanes[6];
+    Vec4 uvs[MAX_UV_COUNT];
 };
 
 struct DrawInstancedIndirectArgs
@@ -22,10 +41,6 @@ struct DrawInstancedIndirectArgs
     UINT StartInstanceLocation;  // 0
 };
 
-// --- DX11 리소스 전역 변수 ---
-const UINT MAX_GRASS_COUNT = 1000000;
-const UINT THREAD_GROUP_SIZE = 256;   // CSMain의 [numthreads(256, 1, 1)]와 일치
-
 template<typename T>
 class ConstantBuffer;
 class TessTerrain;
@@ -34,7 +49,7 @@ class GrassRenderer : public Renderer
 {
     using Super = Renderer;
 public:
-    GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain);
+    explicit GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain, const wstring& uvFilePath);
     ~GrassRenderer();
 
 protected:
