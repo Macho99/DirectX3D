@@ -16,6 +16,7 @@ struct NearbyGrassData
 struct DistantGrassData
 {
     float3 position;
+    float2 scale;
     float4 uvMinMax;
 };
 

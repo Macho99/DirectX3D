@@ -175,7 +175,7 @@ vector<Vec4> Utils::ParseUVText(const wstring& filePath)
 	std::string line;
 	while (std::getline(file, line))
 	{
-		if (line.empty())
+		if (line.empty() || line[0] == ';')
 			continue;
 
 		std::stringstream ss(line);

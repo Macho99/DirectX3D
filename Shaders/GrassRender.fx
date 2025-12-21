@@ -6,6 +6,7 @@
 struct VS_TO_GS
 {
     float3 worldPos : POSITION;
+    float2 scale : SCALE;
     float4 uvMinMax : UV_MIN_MAX;
 };
 
@@ -21,6 +22,7 @@ VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
     
     // 2. 월드 좌표계 위치를 GS로 그대로 전달합니다.
     output.worldPos = blade.position;
+    output.scale = blade.scale;
     output.uvMinMax = blade.uvMinMax;
     
     return output;
@@ -30,6 +32,7 @@ VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
 void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
 {
     float3 bladeBasePos = input[0].worldPos; // 풀잎이 자라날 바닥 위치
+    float2 scale = input[0].scale; // 풀잎의 스케일 (너비, 높이)
     float4 uv = input[0].uvMinMax;
     
     // --- 1. 빌보딩(Billboarding) 계산 ---
@@ -43,31 +46,32 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     
     // 빌보드의 'Right' 벡터 (X축)
     float3 bladeRight = normalize(cross(worldUp, vecToCam));
+    bladeRight *= scale.x * 0.5f;
     
     // 빌보드의 'Up' 벡터 (Y축)
-    float3 bladeUp = worldUp * 1;
+    float3 bladeUp = worldUp * scale.y;
     
     MeshOutput v[4];
     
     // 0: Bottom-Left
     v[0].worldPosition = bladeBasePos - bladeRight;
     v[0].worldPosition += CalculateWindOffset(v[0].worldPosition, 0);
-    v[0].uv = float2(uv.x, uv.w); // (0,1)
+    v[0].uv = float2(uv.x, uv.y);
     
     // 1: Bottom-Right
     v[1].worldPosition = bladeBasePos + bladeRight;
     v[1].worldPosition += CalculateWindOffset(v[1].worldPosition, 0);
-    v[1].uv = float2(uv.z, uv.w); // (1,1)
+    v[1].uv = float2(uv.z, uv.y); // (1,1)
     
     // 2: Top-Left (바람 적용)
     v[2].worldPosition = bladeBasePos - bladeRight + bladeUp;
     v[2].worldPosition += CalculateWindOffset(v[2].worldPosition, bladeUp.y);
-    v[2].uv = float2(uv.x, uv.y); // (0,0)
+    v[2].uv = float2(uv.x, uv.w); // (0,0)
 
     // 3: Top-Right (바람 적용)
     v[3].worldPosition = bladeBasePos + bladeRight + bladeUp;
     v[3].worldPosition += CalculateWindOffset(v[3].worldPosition, bladeUp.y);
-    v[3].uv = float2(uv.z, uv.y); // (1,0)
+    v[3].uv = float2(uv.z, uv.w); // (1,0)
 
     // 빌보드의 법선 (조명용, 카메라를 향함)
     float3 billboardNormal = worldUp;
@@ -101,23 +105,19 @@ MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID
     
     float3 quadOffset[4] =
     {
-        float3(-1.0f, 0.0f, 0.0f), // 0: Bottom-Left (BL)
-        float3(1.0f, 0.0f, 0.0f), // 1: Bottom-Right (BR)
-        float3(-1.0f, 1.0f, 0.0f), // 2: Top-Left (TL)
-        float3(1.0f, 1.0f, 0.0f) // 3: Top-Right (TR)
+        float3(-0.5f, 0.0f, 0.0f),
+        float3(0.5f, 0.0f, 0.0f),
+        float3(-0.5f, 1.0f, 0.0f),
+        float3(0.5f, 1.0f, 0.0f)
     };
 
     // 3. 텍스처 좌표 정의
     float2 texCoords[4] =
     {
-        //float2(0.0f, 1.0f), // 0: BL
-        //float2(1.0f, 1.0f), // 1: BR
-        //float2(0.0f, 0.0f), // 2: TL
-        //float2(1.0f, 0.0f) // 3: TR
-        float2(uv.x, uv.w), // 0: BL
-        float2(uv.z, uv.w), // 1: BR
-        float2(uv.x, uv.y), // 2: TL
-        float2(uv.z, uv.y) // 3: TR
+        float2(uv.x, uv.y),
+        float2(uv.z, uv.y),
+        float2(uv.x, uv.w),
+        float2(uv.z, uv.w) 
     };
         
     MeshOutput output;

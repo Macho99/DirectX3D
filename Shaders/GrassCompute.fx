@@ -112,12 +112,11 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     float randomKey = position.x + position.y + position.z;
     int seed = 0;
     int uvIndex = (SampleRandom(randomKey, seed++).x + 1) * 0.5 * uvCount;
+    float4 uvMinMax = uvs[uvIndex];
+    float3 scaleBase = float3(uvMinMax.z - uvMinMax.x, uvMinMax.y - uvMinMax.w, 1);
+    scaleBase *= 8.f;
     if (distSq < 120)
     {
-        float4 uvMinMax = uvs[uvIndex];
-        float3 scaleBase = float3(uvMinMax.z - uvMinMax.x, uvMinMax.w - uvMinMax.y, 1);
-        scaleBase *= 8.f;
-        
         [unroll]
         for (int i = 0; i < 3; i++)
         {
@@ -148,7 +147,8 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     {
         DistantGrassData output;
         output.position = position;
-        output.uvMinMax = uvs[uvIndex];
+        output.uvMinMax = uvMinMax;
+        output.scale = scaleBase.xy;
         DistantOutput.Append(output);
     }
 }
