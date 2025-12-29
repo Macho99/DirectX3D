@@ -16,6 +16,7 @@ struct NearbyGrassData
 {
     Matrix worldMatrix;
     Vec4 uvMinMax;
+    Vec4 terrainColor;
 };
 
 struct DistantGrassData
@@ -23,15 +24,17 @@ struct DistantGrassData
     Vec3 position;
     Vec2 scale;
     Vec4 uvMinMax;
+    Vec4 terrainColor;
 };
 
 struct GrassConstant
 {
     UINT totalGrassCount; // 초기 풀 버퍼의 전체 개수
-    Vec2 padding;
+    float terrainWidth;
+    float terrainDepth;
     UINT uvCount;
-    Vec4 worldFrustumPlanes[6];
     Vec4 uvs[MAX_UV_COUNT];
+    Vec4 worldFrustumPlanes[6];
 };
 
 struct DrawInstancedIndirectArgs
@@ -50,14 +53,14 @@ class GrassRenderer : public Renderer
 {
     using Super = Renderer;
 public:
-    explicit GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain, const wstring& uvFilePath);
+    explicit GrassRenderer(shared_ptr<Shader> grassComputeShader, shared_ptr<TessTerrain> terrain, const wstring& uvFilePath);
     ~GrassRenderer();
 
 protected:
     void InnerRender(RenderTech renderTech) override;
 
 private:
-    void CreateResources(TessTerrain* terrain);
+    void CreateResources();
     void UpdateGrass();
 
 private:
@@ -84,6 +87,10 @@ private:
     ComPtr<ID3DX11EffectConstantBuffer> _grassEffectBuffer;
     ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
     shared_ptr<Texture> _randomTex;
+
+    shared_ptr<TessTerrain> _terrain;
+    ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;
+    ComPtr<ID3DX11EffectShaderResourceVariable> _blendMapEffectBuffer;
 
     int prevFrameCount = -1;
 };

@@ -6,10 +6,10 @@
 #include "Camera.h"
 #include "Utils.h"
 
-GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, TessTerrain* terrain, const wstring& uvFilePath)
-    : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer)
+GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, shared_ptr<TessTerrain> terrain, const wstring& uvFilePath)
+    : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer), _terrain(terrain)
 {
-    CreateResources(terrain);
+    CreateResources();
 
     ZeroMemory(&_grassConstantData, sizeof(GrassConstant));
     vector<Vec4> uvs = Utils::ParseUVText(uvFilePath);
@@ -24,7 +24,7 @@ GrassRenderer::~GrassRenderer()
 {
 }
 
-void GrassRenderer::CreateResources(TessTerrain* terrain)
+void GrassRenderer::CreateResources()
 {
     // --- 1. 초기 풀 데이터 CPU에서 생성 ---
     vector<GrassData> grassData(MAX_GRASS_COUNT);
@@ -32,7 +32,7 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
     {
         float x = MathUtils::Random(-500.f, 500.f);
         float z = MathUtils::Random(-500.f, 500.f);
-        float y = terrain->GetHeight(x, z);
+        float y = _terrain->GetHeight(x, z);
         grassData[i].position = Vec3(x, y, z);
     }
 
@@ -113,6 +113,9 @@ void GrassRenderer::CreateResources(TessTerrain* terrain)
     _randomEffectBuffer = _grassComputeShader->GetSRV("RandomMap");
     _randomTex = RESOURCES->Get<Texture>(L"RandomTex");
 
+    _layerMapArrayEffectBuffer = _grassComputeShader->GetSRV("LayerMapArray");
+    _blendMapEffectBuffer = _grassComputeShader->GetSRV("BlendMap");
+
     _initGrassEffectBuffer = _grassComputeShader->GetSRV("Input");
     _nearbyGrassEffectBuffer = _grassComputeShader->GetUAV("NearbyOutput");
     _distantGrassEffectBuffer = _grassComputeShader->GetUAV("DistantOutput");
@@ -122,6 +125,8 @@ void GrassRenderer::UpdateGrass()
 {
     {
         _grassConstantData.totalGrassCount = MAX_GRASS_COUNT;
+        _grassConstantData.terrainWidth = _terrain->GetWidth();
+        _grassConstantData.terrainDepth = _terrain->GetDepth();
 
         Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
         MathUtils::ExtractFrustumPlanes(_grassConstantData.worldFrustumPlanes, viewProj);
@@ -129,6 +134,9 @@ void GrassRenderer::UpdateGrass()
         _grassConstantBuffer->CopyData(_grassConstantData);
         _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     }
+    _layerMapArrayEffectBuffer->SetResource(_terrain->GetLayerMapArraySRV());
+    _blendMapEffectBuffer->SetResource(_terrain->GetBlendMapSRV());
+
     _randomEffectBuffer->SetResource(_randomTex->GetComPtr().Get());
     _grassComputeShader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());

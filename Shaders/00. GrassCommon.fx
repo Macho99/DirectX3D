@@ -11,6 +11,7 @@ struct NearbyGrassData
 {
     float4x4 worldMatrix;
     float4 uvMinMax;
+    float4 terrainColor;
 };
 
 struct DistantGrassData
@@ -18,6 +19,7 @@ struct DistantGrassData
     float3 position;
     float2 scale;
     float4 uvMinMax;
+    float4 terrainColor;
 };
 
 cbuffer FoliageBuffer

@@ -31,6 +31,8 @@ public:
 
 	void Init(const InitInfo& initInfo);
 	void InnerRender(RenderTech renderTech) override;
+    ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
+    ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture->GetComPtr().Get(); }
 
 private:
 	void LoadHeightmap();

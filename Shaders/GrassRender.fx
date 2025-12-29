@@ -8,6 +8,21 @@ struct VS_TO_GS
     float3 worldPos : POSITION;
     float2 scale : SCALE;
     float4 uvMinMax : UV_MIN_MAX;
+    float4 terrainColor : COLOR0;
+};
+
+struct GrassOutput
+{
+    float4 position : SV_POSITION;
+    float3 worldPosition : POSITION1;
+    float2 uv : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float4 shadowPosH : TEXCOORD1;
+    float4 ssaoPosH : TEXCOORD2;
+    float3 normalV : NORMAL_V;
+    float3 positionV : POSITION_V;
+    float4 terrainColor : COLOR0;
 };
 
 StructuredBuffer<NearbyGrassData> NearbyGrassBuffer;
@@ -24,12 +39,13 @@ VS_TO_GS DistantVS(uint instanceID : SV_InstanceID)
     output.worldPos = blade.position;
     output.scale = blade.scale;
     output.uvMinMax = blade.uvMinMax;
+    output.terrainColor = blade.terrainColor;
     
     return output;
 }
 
 [maxvertexcount(4)]
-void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
+void GS(point VS_TO_GS input[1], inout TriangleStream<GrassOutput> stream)
 {
     float3 bladeBasePos = input[0].worldPos; // 풀잎이 자라날 바닥 위치
     float2 scale = input[0].scale; // 풀잎의 스케일 (너비, 높이)
@@ -51,7 +67,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     // 빌보드의 'Up' 벡터 (Y축)
     float3 bladeUp = worldUp * scale.y;
     
-    MeshOutput v[4];
+    GrassOutput v[4];
     
     // 0: Bottom-Left
     v[0].worldPosition = bladeBasePos - bladeRight;
@@ -90,6 +106,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
         v[i].positionV = mul(worldPos, V);
         v[i].shadowPosH = mul(worldPos, ShadowTransform);
         v[i].ssaoPosH = mul(worldPos, VPT);
+        v[i].terrainColor = input[0].terrainColor;
         
         stream.Append(v[i]);
     }
@@ -98,7 +115,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<MeshOutput> stream)
     stream.RestartStrip();
 }
 
-MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
+GrassOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
     NearbyGrassData blade = NearbyGrassBuffer[instanceID];
     float4 uv = blade.uvMinMax;
@@ -120,7 +137,7 @@ MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID
         float2(uv.z, uv.w) 
     };
         
-    MeshOutput output;
+    GrassOutput output;
     float3 localPosition = quadOffset[vertexID];
     
     output.worldPosition = mul(blade.worldMatrix, float4(localPosition, 1.0f)).xyz;
@@ -135,11 +152,12 @@ MeshOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID
     output.positionV = mul(worldPos, V);
     output.shadowPosH = mul(worldPos, ShadowTransform);
     output.ssaoPosH = mul(worldPos, VPT);
+    output.terrainColor = blade.terrainColor;
     
     return output;
 }
 
-float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
+float4 AlphaClipShadowPS(GrassOutput input) : SV_TARGET
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
 	
@@ -149,7 +167,7 @@ float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
     return litColor;
 }
 
-float4 AlphaClipPS(MeshOutput input) : SV_TARGET
+float4 AlphaClipPS(GrassOutput input) : SV_TARGET
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
     if (litColor.a < 0.1f)
@@ -157,11 +175,12 @@ float4 AlphaClipPS(MeshOutput input) : SV_TARGET
     
     float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
     float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
-	
+    color = lerp(color, input.terrainColor, 0.4f);
+    
     return color;
 }
 
-float4 AlphaClipNormalDepthPS(MeshOutput input) : SV_TARGET
+float4 AlphaClipNormalDepthPS(GrassOutput input) : SV_TARGET
 {
     input.normalV = normalize(input.normalV);
 	
