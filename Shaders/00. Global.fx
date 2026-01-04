@@ -300,6 +300,7 @@ pass name											\
 }
 
 #define PI 3.14159265359
+#define NUM_SHADOW_CASCADES 3
 
 ////////////////
 /// Function

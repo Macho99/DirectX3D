@@ -46,18 +46,18 @@ void Graphics::ClearDepthStencilView()
 		1, 0);
 }
 
-void Graphics::ClearShadowDepthStencilView()
+void Graphics::ClearShadowDepthStencilView(int index)
 {
-	_deviceContext->ClearDepthStencilView(_shadowDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+	_deviceContext->ClearDepthStencilView(_shadowDSV[index].Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1, 0);
 }
 
-void Graphics::SetShadowDepthStencilView()
+void Graphics::SetShadowDepthStencilView(int index)
 {
 	_shadowVP.RSSetViewport();
 
 	ID3D11RenderTargetView* renderTargets[1] = { 0 };
-	_deviceContext->OMSetRenderTargets(1, renderTargets, _shadowDSV.Get());
+	_deviceContext->OMSetRenderTargets(1, renderTargets, _shadowDSV[index].Get());
 }
 
 void Graphics::SetNormalDepthRenderTarget()
@@ -230,6 +230,7 @@ void Graphics::CreateDepthStencilView()
 
 		desc.Width = SHADOWMAP_SIZE;
 		desc.Height = SHADOWMAP_SIZE;
+		desc.ArraySize = NUM_SHADOW_CASCADES;
 		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		hr = DEVICE->CreateTexture2D(&desc, nullptr, _shadowDSTexture.GetAddressOf());
@@ -247,7 +248,11 @@ void Graphics::CreateDepthStencilView()
 		HRESULT hr = DEVICE->CreateDepthStencilView(_depthStencilTexture.Get(), &desc, _depthStencilView.GetAddressOf());
 		CHECK(hr);
 
-		hr = DEVICE->CreateDepthStencilView(_shadowDSTexture.Get(), &desc, _shadowDSV.GetAddressOf());
+		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+		{
+			desc.Texture2DArray.FirstArraySlice = i;
+			hr = DEVICE->CreateDepthStencilView(_shadowDSTexture.Get(), &desc, _shadowDSV[i].GetAddressOf());
+		}
 		CHECK(hr);
 	}
 
@@ -257,12 +262,23 @@ void Graphics::CreateDepthStencilView()
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		ComPtr<ID3D11ShaderResourceView> srv;
-		HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, srv.GetAddressOf());
-		CHECK(hr);
 
-		_shadowMap = make_shared<Texture>();
-		_shadowMap->SetSRV(srv);
+
+		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+		{
+			ComPtr<ID3D11ShaderResourceView> srv;
+			srvDesc.Texture2DArray.FirstArraySlice = i;
+			HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, srv.GetAddressOf());
+			CHECK(hr);
+
+			_shadowMap[i] = make_shared<Texture>();
+			_shadowMap[i]->SetSRV(srv);
+		}
+
+        srvDesc.Texture2DArray.FirstArraySlice = 0;
+		srvDesc.Texture2DArray.ArraySize = NUM_SHADOW_CASCADES;
+        HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV.GetAddressOf());
+        CHECK(hr);
 	}
 }
 

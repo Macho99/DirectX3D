@@ -57,7 +57,7 @@ void Material::Update()
 
 	if (_castShadow)
 	{
-		_shadowMapEffectBuffer->SetResource(GRAPHICS->GetShadowMap()->GetComPtr().Get());
+		_shadowMapEffectBuffer->SetResource(GRAPHICS->GetShadowArraySRV().Get());
 	}
 
     if (_layerMapArraySRV)

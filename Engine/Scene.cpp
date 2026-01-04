@@ -64,8 +64,6 @@ void Scene::RenderGameCamera(Camera* cam)
 	////////////////////////////////////////////
 	//				DrawShadow
 	////////////////////////////////////////////
-	GRAPHICS->ClearShadowDepthStencilView();
-	GRAPHICS->SetShadowDepthStencilView();
 
 	Light* light = GetLight()->GetLight().get();
 
@@ -73,11 +71,30 @@ void Scene::RenderGameCamera(Camera* cam)
 	cam->SortGameObject();
 	if (light)
 	{
-		light->SetVPMatrix(cam, 100.0f, ::XMMatrixOrthographicLH(100, 100, 0, 200));
+        Matrix VPinv = (cam->GetViewMatrix() * cam->GetProjectionMatrix()).Invert();
 
-		cam->Render_Forward(RenderTech::Shadow);
-		//Viewport& vp = GRAPHICS->GetShadowViewport();
-		cam->Render_Backward(RenderTech::Shadow);
+		Vec3 corners[NUM_SHADOW_CASCADES][FRUSTUM_CORNERS];
+        ZeroMemory(corners, sizeof(corners));
+
+		for (int cascadeIdx = 0; cascadeIdx < NUM_SHADOW_CASCADES; cascadeIdx++)
+		{
+			for (int cornerIdx = 0; cornerIdx < FRUSTUM_CORNERS; cornerIdx++)
+			{
+				corners[cascadeIdx][cornerIdx] = Vec3::Transform(GRAPHICS->GetFrustumCornerNDC(cornerIdx), VPinv);
+			}
+		}
+
+		for (int cascadeIdx = 0; cascadeIdx < NUM_SHADOW_CASCADES; cascadeIdx++)
+		{
+			GRAPHICS->ClearShadowDepthStencilView(cascadeIdx);
+			GRAPHICS->SetShadowDepthStencilView(cascadeIdx);
+
+			light->SetVPMatrix(cam, 100.0f, ::XMMatrixOrthographicLH(100, 100, 0, 200));
+
+			cam->Render_Forward(RenderTech::Shadow);
+			//Viewport& vp = GRAPHICS->GetShadowViewport();
+			cam->Render_Backward(RenderTech::Shadow);
+		}
 	}
 
 
