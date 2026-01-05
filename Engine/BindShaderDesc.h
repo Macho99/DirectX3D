@@ -181,3 +181,11 @@ struct FoliageDesc
 	float bendFactor = 1.f; // 수풀 하단 고정/상단 흔들림 정도 조절
 	float stiffness;
 };
+
+struct ShadowDesc
+{
+	Matrix Transforms[NUM_SHADOW_CASCADES];
+	Vec4 cascadeEnds;
+	float farLength;
+	float shaodwPadding[3];
+};

@@ -9,6 +9,11 @@
 
 void Graphics::Init(HWND hwnd)
 {
+	_cascadeEnds[0] = 0.0f;
+	_cascadeEnds[1] = 0.05f;
+	_cascadeEnds[2] = 0.2f;
+	_cascadeEnds[3] = 1.0f;
+
 	_hwnd = hwnd;
 
 	CreateDeviceAndSwapChain();
@@ -248,9 +253,11 @@ void Graphics::CreateDepthStencilView()
 		HRESULT hr = DEVICE->CreateDepthStencilView(_depthStencilTexture.Get(), &desc, _depthStencilView.GetAddressOf());
 		CHECK(hr);
 
+		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
 		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
 		{
 			desc.Texture2DArray.FirstArraySlice = i;
+			desc.Texture2DArray.ArraySize = 1;
 			hr = DEVICE->CreateDepthStencilView(_shadowDSTexture.Get(), &desc, _shadowDSV[i].GetAddressOf());
 		}
 		CHECK(hr);
@@ -259,7 +266,7 @@ void Graphics::CreateDepthStencilView()
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 
@@ -268,6 +275,7 @@ void Graphics::CreateDepthStencilView()
 		{
 			ComPtr<ID3D11ShaderResourceView> srv;
 			srvDesc.Texture2DArray.FirstArraySlice = i;
+			srvDesc.Texture2DArray.ArraySize = 1;
 			HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, srv.GetAddressOf());
 			CHECK(hr);
 

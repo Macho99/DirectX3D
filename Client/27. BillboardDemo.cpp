@@ -46,6 +46,7 @@ void BillboardDemo::Init()
         camera->AddComponent(make_shared<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
         camera->GetCamera()->SetSsaoSize();
+        camera->GetCamera()->SetFar(500.f);
         CUR_SCENE->Add(camera);
     }
 
@@ -345,7 +346,9 @@ void BillboardDemo::Init()
         FoliageController::S_WindDesc.windStrength = 2.f;
     }
 
-    AddDebugImage(200, 200, GRAPHICS->GetShadowMap(), 1);
+    AddDebugImage(200, 200, GRAPHICS->GetShadowMap(0), 1);
+    AddDebugImage(200, 200, GRAPHICS->GetShadowMap(1), 1);
+    AddDebugImage(200, 200, GRAPHICS->GetShadowMap(2), 1);
     AddDebugImage(200 * 16 / 9, 200, GRAPHICS->GetNormalDepthMap(), 0);
     AddDebugImage(200 * 16 / 9, 200, GRAPHICS->GetSsaoMap(), 1);
     AddDebugImage(200 * 16 / 9, 200, GRAPHICS->GetPostProcessDebugTexture(0), 0);

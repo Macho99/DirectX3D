@@ -24,10 +24,10 @@ public:
 	void SetLightDirection(Vec3 direction) { _desc.direction = direction; }
 
 public:
-	void SetVPMatrix(Camera* camera, float backDist, Matrix matProjection);
+	void SetVPMatrix(Matrix matView, Matrix matProjection, int cascadeIdx);
 	static Matrix S_MatView;
 	static Matrix S_MatProjection;
-	static Matrix S_ShadowTransform;
+	static ShadowDesc S_ShadowData;
 
 private:
 	LightDesc _desc;

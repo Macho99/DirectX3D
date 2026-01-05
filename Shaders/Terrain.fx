@@ -195,8 +195,8 @@ struct DomainOut
 	float3 PosW     : POSITION;
 	float2 Tex      : TEXCOORD0;
     float2 TiledTex : TEXCOORD1;
-    float4 shadowPosH : TEXCOORD2;
-    float4 ssaoPosH : TEXCOORD3;
+    float4 ssaoPosH : TEXCOORD2;
+    float viewZ : VIEW_Z;
     float3 positionV : POSITION_V;
 };
 
@@ -235,7 +235,7 @@ DomainOut DS(PatchTess patchTess,
     float4 worldPos = float4(dout.PosW, 1.0f);
     dout.PosH = mul(worldPos, VP);
     dout.positionV = mul(worldPos, V);
-    dout.shadowPosH = mul(worldPos, ShadowTransform);
+    dout.viewZ = dout.positionV.z;
     dout.ssaoPosH = mul(worldPos, VPT);
 
 	return dout;
@@ -296,7 +296,7 @@ float4 PS(DomainOut pin) : SV_Target
 	//
 
 	float4 litColor = texColor;
-    float shadow = CalcShadowFactor(ShadowMap, pin.shadowPosH);
+    float shadow = CalcCascadeShadowFactor(pin.PosW, pin.viewZ);
     litColor = ComputeLight(normalW, litColor, pin.PosW, pin.ssaoPosH, shadow);
 
 	//

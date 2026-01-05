@@ -12,9 +12,10 @@ struct VertexInput
 struct V_OUT
 {
 	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD;
-	float4 shadowPosH : TEXCOORD1;
-    float4 ssaoPosH : TEXCOORD2;
+    float3 worldPosition : POSITION1;
+    float2 uv : TEXCOORD;
+    float viewZ : VIEW_Z;
+    float4 ssaoPosH : TEXCOORD1;
 };
 
 V_OUT VS(VertexInput input)
@@ -30,11 +31,13 @@ V_OUT VS(VertexInput input)
 	position.xyz += (input.uv.x - 0.5f) * right * input.scale.x;
 	position.xyz += (0.5f - input.uv.y) * up * input.scale.y;
 	position.w = 1.0f;
-
-	output.shadowPosH = mul(position, ShadowTransform);
+    output.worldPosition = position;
+	
+    float4 positionV = mul(position, V);
+    output.viewZ = positionV.z;
     output.ssaoPosH = mul(position, VPT);
 	
-	output.position = mul(mul(position, V), P);
+    output.position = mul(positionV, P);
 	output.uv = input.uv;
 	return output;
 }
@@ -56,7 +59,7 @@ float4 ShadowedPS(V_OUT input) : SV_Target
 	if (diffuse.a < 0.5f)
 		discard;
 	
-	float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
+    float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
 	diffuse = diffuse * saturate(GlobalLight.ambient.r + shadow);
 	return diffuse;
 }

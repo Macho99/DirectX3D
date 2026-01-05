@@ -4,7 +4,7 @@
 
 Matrix Light::S_MatView = Matrix::Identity;
 Matrix Light::S_MatProjection = Matrix::Identity;
-Matrix Light::S_ShadowTransform = Matrix::Identity;
+ShadowDesc Light::S_ShadowData = {};
 
 Light::Light() : Super(ComponentType::Light)
 {
@@ -20,16 +20,9 @@ void Light::Update()
 	//RENDER->PushLightData(_desc);
 }
 
-void Light::SetVPMatrix(Camera* camera, float backDist, Matrix matProjection)
+void Light::SetVPMatrix(Matrix matView, Matrix matProjection, int cascadeIdx)
 {
-	Vec3 camPos = camera->GetTransform()->GetPosition();
-	Vec3 camLook = camera->GetTransform()->GetLook();
-	Vec3 lookVec = GetTransform()->GetLook();
-
-	Vec3 eyePosition = camPos - lookVec * backDist + camLook * 50;
-	Vec3 focusPosition = eyePosition + lookVec;
-	Vec3 upDirection = Vec3::Up;
-	S_MatView = ::XMMatrixLookAtLH(eyePosition, focusPosition, upDirection);
+	S_MatView = matView;
 	S_MatProjection = matProjection;
 
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
@@ -39,5 +32,5 @@ void Light::SetVPMatrix(Camera* camera, float backDist, Matrix matProjection)
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
-	S_ShadowTransform = S_MatView * S_MatProjection * T;
+	S_ShadowData.Transforms[cascadeIdx] = S_MatView * S_MatProjection * T;
 }

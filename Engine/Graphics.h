@@ -50,10 +50,11 @@ public:
 
 public:
     float GetCascadeEnd(int index) const { return _cascadeEnds[index]; }
-    Vec3 GetFrustumCornerNDC(int index) const { return _frustumCornersNDC[index]; }
+    const float* GetCascadeEnds() { return _cascadeEnds; }
+    const Vec3* GetFrustumCornerNDC() { return _frustumCornersNDC; }
 
 private:
-	float _cascadeEnds[NUM_SHADOW_CASCADES + 1] = { 0.0f, 0.2f, 0.4f, 1.0f };
+	float _cascadeEnds[NUM_SHADOW_CASCADES + 1];
 	// NDC Space Unit Cube (DX11 ±‚¡ÿ)
 	Vec3 _frustumCornersNDC[FRUSTUM_CORNERS] =
 	{

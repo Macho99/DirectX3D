@@ -510,11 +510,11 @@ void Shader::PushParticleData(const ParticleDesc& desc)
 	_particleEffectBuffer->SetConstantBuffer(_particleBuffer->GetComPtr().Get());
 }
 
-void Shader::PushShadowData(const Matrix& desc)
+void Shader::PushShadowData(const ShadowDesc& desc)
 {
 	if (_shadowEffectBuffer == nullptr)
 	{
-		_shadowBuffer = make_shared<ConstantBuffer<Matrix>>();
+		_shadowBuffer = make_shared<ConstantBuffer<ShadowDesc>>();
 		_shadowBuffer->Create();
 		_shadowEffectBuffer = GetConstantBuffer("ShadowBuffer");
 	}

@@ -73,23 +73,55 @@ void Scene::RenderGameCamera(Camera* cam)
 	{
         Matrix VPinv = (cam->GetViewMatrix() * cam->GetProjectionMatrix()).Invert();
 
-		Vec3 corners[NUM_SHADOW_CASCADES][FRUSTUM_CORNERS];
-        ZeroMemory(corners, sizeof(corners));
-
-		for (int cascadeIdx = 0; cascadeIdx < NUM_SHADOW_CASCADES; cascadeIdx++)
-		{
-			for (int cornerIdx = 0; cornerIdx < FRUSTUM_CORNERS; cornerIdx++)
-			{
-				corners[cascadeIdx][cornerIdx] = Vec3::Transform(GRAPHICS->GetFrustumCornerNDC(cornerIdx), VPinv);
-			}
-		}
-
 		for (int cascadeIdx = 0; cascadeIdx < NUM_SHADOW_CASCADES; cascadeIdx++)
 		{
 			GRAPHICS->ClearShadowDepthStencilView(cascadeIdx);
 			GRAPHICS->SetShadowDepthStencilView(cascadeIdx);
 
-			light->SetVPMatrix(cam, 100.0f, ::XMMatrixOrthographicLH(100, 100, 0, 200));
+			Vec3 frustumCornersWS[FRUSTUM_CORNERS];
+			memcpy(frustumCornersWS, GRAPHICS->GetFrustumCornerNDC(), sizeof(frustumCornersWS));
+			for (uint32 i = 0; i < 8; ++i)
+				frustumCornersWS[i] = Vec3::Transform(frustumCornersWS[i], VPinv);
+
+			// Unit Cube의 각 코너 위치를 Slice에 맞게 설정
+			for (uint32 i = 0; i < 4; ++i)
+			{
+				Vec3 cornerRay = frustumCornersWS[i + 4] - frustumCornersWS[i];
+				Vec3 nearCornerRay = cornerRay * GRAPHICS->GetCascadeEnd(cascadeIdx);
+				Vec3 farCornerRay = cornerRay * GRAPHICS->GetCascadeEnd(cascadeIdx + 1);
+				frustumCornersWS[i + 4] = frustumCornersWS[i] + farCornerRay;
+				frustumCornersWS[i] = frustumCornersWS[i] + nearCornerRay;
+			}
+
+			// 뷰 프러스텀의 중심을 구함
+			Vec3 frustumCenter(0.0f);
+			for (uint32 i = 0; i < 8; ++i)
+				frustumCenter += frustumCornersWS[i];
+			frustumCenter *= (1.0f / 8.0f);
+
+			// 뷰프러스텀의 바운드스피어의 반지름을 구함
+			float sphereRadius = 0.0f;
+			for (uint32 i = 0; i < 8; ++i)
+			{
+				float dist = (frustumCornersWS[i] - frustumCenter).Length();
+				sphereRadius = max(sphereRadius, dist);
+			}
+
+			// 바운드 스피어의 반지름으로 AABB 정보 구성
+			Vec3 mins(FLT_MAX);
+			Vec3 maxes(-FLT_MAX);
+
+			sphereRadius = std::ceil(sphereRadius * 16.0f) / 16.0f;
+			maxes = Vec3(sphereRadius, sphereRadius, sphereRadius);
+			mins = -maxes;
+
+			// AABB의 크기를 구함
+			Vec3 cascadeExtents = maxes - mins;
+
+            Vec3 lightLook = light->GetTransform()->GetLook();
+            Vec3 lightPos = frustumCenter - lightLook * fabs(mins.z);
+			Matrix matView = ::XMMatrixLookAtLH(lightPos, lightPos + lightLook, Vec3::Up);
+			light->SetVPMatrix(matView, ::XMMatrixOrthographicLH(cascadeExtents.x, cascadeExtents.y, 0, cascadeExtents.z), cascadeIdx);
 
 			cam->Render_Forward(RenderTech::Shadow);
 			//Viewport& vp = GRAPHICS->GetShadowViewport();
@@ -97,6 +129,8 @@ void Scene::RenderGameCamera(Camera* cam)
 		}
 	}
 
+	memcpy(&Light::S_ShadowData.cascadeEnds, GRAPHICS->GetCascadeEnds(), sizeof(Light::S_ShadowData.cascadeEnds));
+    Light::S_ShadowData.farLength = cam->GetFar();
 
 	////////////////////////////////////////////
 	//				DrawNormalDepth

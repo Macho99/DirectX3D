@@ -18,8 +18,8 @@ struct GrassOutput
     float2 uv : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
-    float4 shadowPosH : TEXCOORD1;
-    float4 ssaoPosH : TEXCOORD2;
+    float viewZ : VIEW_Z;
+    float4 ssaoPosH : TEXCOORD1;
     float3 normalV : NORMAL_V;
     float3 positionV : POSITION_V;
     float4 terrainColor : COLOR0;
@@ -104,7 +104,7 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<GrassOutput> stream)
         v[i].normal = billboardNormal;
         v[i].normalV = mul(v[i].normal, (float3x3) V);
         v[i].positionV = mul(worldPos, V);
-        v[i].shadowPosH = mul(worldPos, ShadowTransform);
+        v[i].viewZ = v[i].positionV.z;
         v[i].ssaoPosH = mul(worldPos, VPT);
         v[i].terrainColor = input[0].terrainColor;
         
@@ -150,7 +150,7 @@ GrassOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceI
     output.normal = float3(0, 1, 0);
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
-    output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.viewZ = output.positionV.z;
     output.ssaoPosH = mul(worldPos, VPT);
     output.terrainColor = blade.terrainColor;
     
@@ -173,7 +173,7 @@ float4 AlphaClipPS(GrassOutput input) : SV_TARGET
     if (litColor.a < 0.1f)
         discard;
     
-    float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
+    float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
     float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
     color = lerp(color, input.terrainColor, 0.4f);
     

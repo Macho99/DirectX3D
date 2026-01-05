@@ -34,6 +34,8 @@ public:
 
 	float GetWidht() { return _width; }
 	float GetHeight() { return _height; }
+    float GetNear() { return _near; }
+    float GetFar() { return _far; }
 
 private:
 	ProjectionType _type = ProjectionType::Perspective;

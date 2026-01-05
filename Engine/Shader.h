@@ -79,7 +79,7 @@ public:
 	void PushTweenData(const InstancedTweenDesc& desc);
 	void PushSnowData(const SnowBillboardDesc& desc);
 	void PushParticleData(const ParticleDesc& desc);
-	void PushShadowData(const Matrix& desc);
+	void PushShadowData(const ShadowDesc& desc);
 	void PushSsaoData(const SsaoDesc& desc);
 	void PushBlurData(const BlurDesc& desc);
     void PushTerrainData(const TerrainDesc& desc);
@@ -126,8 +126,8 @@ private:
 	shared_ptr<ConstantBuffer<ParticleDesc>> _particleBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _particleEffectBuffer;
 
-	Matrix _shadowDesc;
-	shared_ptr<ConstantBuffer<Matrix>> _shadowBuffer;
+	ShadowDesc _shadowDesc;
+	shared_ptr<ConstantBuffer<ShadowDesc>> _shadowBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _shadowEffectBuffer;
 
 	SsaoDesc _ssaoDesc;

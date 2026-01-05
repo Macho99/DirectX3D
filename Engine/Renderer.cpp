@@ -51,7 +51,7 @@ void Renderer::InnerRender(RenderTech renderTech)
 			shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 		}
 		shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
-		shader->PushShadowData(Light::S_ShadowTransform);
+		shader->PushShadowData(Light::S_ShadowData);
 	}
 	else
 	{

@@ -41,7 +41,10 @@ cbuffer MaterialBuffer
 
 cbuffer ShadowBuffer
 {
-	float4x4 ShadowTransform;
+    float4x4 ShadowTransform[NUM_SHADOW_CASCADES];
+    float4 cascadeEnds;
+    float farLength;
+    float shaodwPadding[3];
 };
 
 /////////
@@ -171,14 +174,14 @@ float CalcShadowFactor(Texture2D shadowMap,	float4 shadowPosH)
 	const float dx = SMAP_DX;
 	//return shadowMap.SampleCmpLevelZero(samShadow, shadowPosH.xy, depth).r;
 
-	float percentLit = 0.0f;
 	const float2 offsets[9] =
 	{
 		float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
 		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
 		float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
 	};
-
+	
+    float percentLit = 0.0f;
 	[unroll]
     for (int i = 0; i < 9; ++i)
     {
@@ -187,5 +190,39 @@ float CalcShadowFactor(Texture2D shadowMap,	float4 shadowPosH)
     }
 	return percentLit /= 9.0f;
 }
-#endif
 
+float CalcCascadeShadowFactor(float3 worldPosition, float viewZ)
+{
+	// 1. 선형 깊이값 가져오기 (VS에서 넘겨받은 viewZ 사용 권장)
+    float depth = viewZ;
+
+	// 2. 0~1 사이 비율로 정규화
+    float normalizedDepth = depth / farLength;
+    uint cascadeIdx = 0;
+    if (normalizedDepth > cascadeEnds[1])
+        cascadeIdx = 1;
+    if (normalizedDepth > cascadeEnds[2])
+        cascadeIdx = 2;
+	    
+    float4 shadowPosH = mul(float4(worldPosition, 1.0f), ShadowTransform[cascadeIdx]);
+	
+	// Texel size.
+    const float dx = SMAP_DX;
+	//return shadowMap.SampleCmpLevelZero(samShadow, shadowPosH.xy, depth).r;
+
+    const float2 offsets[9] =
+    {
+        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+    };
+	
+    float percentLit = 0.0f;
+	[unroll]
+    for (int i = 0; i < 9; ++i)
+    {
+        percentLit += ShadowMap.SampleCmpLevelZero(samShadow, float3(shadowPosH.xy + offsets[i], cascadeIdx), saturate(shadowPosH.z)).r;
+    }
+    return percentLit /= 9.0f;
+}
+#endif

@@ -19,7 +19,7 @@ MeshOutput VS(VertexMesh input)
     output.normal = mul(input.normal, (float3x3) W);
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
-    output.shadowPosH = mul(worldPos, ShadowTransform);
+    output.viewZ = output.positionV.z;
     output.ssaoPosH = mul(worldPos, VPT);
 	
     return output;
@@ -41,7 +41,7 @@ float4 AlphaClipPS(MeshOutput input) : SV_TARGET
     if (litColor.a < 0.1f)
         discard;
     
-    float shadow = CalcShadowFactor(ShadowMap, input.shadowPosH);
+    float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
     float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
 	
     return color;
