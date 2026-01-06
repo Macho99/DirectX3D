@@ -213,13 +213,13 @@ technique11 Shadow
 {
     pass P0
     {
-        SetRasterizerState(Depth);
+        SetRasterizerState(DepthNoCull);
         SetVertexShader(CompileShader(vs_5_0, NearbyVS()));
         SetPixelShader(CompileShader(ps_5_0, AlphaClipShadowPS()));
     }
     pass P1
     {
-        SetRasterizerState(Depth);
+        SetRasterizerState(DepthNoCull);
         SetVertexShader(CompileShader(vs_5_0, DistantVS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, AlphaClipShadowPS()));
