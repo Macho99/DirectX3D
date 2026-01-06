@@ -35,13 +35,16 @@ float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
     return litColor;
 }
 
-float4 AlphaClipPS(MeshOutput input) : SV_TARGET
+float4 AlphaClipPS(MeshOutput input,
+    bool isFrontFace : SV_IsFrontFace) : SV_TARGET
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
     if (litColor.a < 0.1f)
         discard;
     
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
+    if (isFrontFace == false)
+        input.normal = -input.normal;
     float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
 	
     return color;
