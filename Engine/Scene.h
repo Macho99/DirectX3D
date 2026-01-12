@@ -6,7 +6,12 @@ class Camera;
 class Scene
 {
 public:
+	Scene();
+	virtual ~Scene();
+
+public:
 	virtual void Start();
+    virtual void OnDestroy();
 	virtual void Update();
 	virtual void LateUpdate();
 

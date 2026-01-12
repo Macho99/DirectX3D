@@ -191,7 +191,7 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
         shader->EndDraw(techNum, 0);
     }
 
-    if(renderTech == RenderTech::Draw)
+    if(renderTech != RenderTech::NormalDepth)
     {
         DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
         shader->GetSRV("DistantGrassBuffer")->SetResource(_distantGrassSRV.Get());

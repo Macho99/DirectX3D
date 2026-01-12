@@ -7,6 +7,7 @@ class SceneManager
 
 public:
 	void Init() { _currentScene->Start(); }
+	void OnDestroy();
 	void Update();
 
 	template<typename T>

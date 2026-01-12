@@ -25,14 +25,12 @@ MeshOutput VS(VertexMesh input)
     return output;
 }
 
-float4 AlphaClipShadowPS(MeshOutput input) : SV_TARGET
+void AlphaClipShadowPS(MeshOutput input)
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
 	
     if (litColor.a < 0.1f)
         discard;
-	
-    return litColor;
 }
 
 float4 AlphaClipPS(MeshOutput input,

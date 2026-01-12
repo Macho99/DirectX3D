@@ -26,6 +26,7 @@ public:
 	void Update();
 	void LateUpdate();
 	void FixedUpdate();
+    void OnDestroy();
 
 	shared_ptr<Component> GetFixedComponent(ComponentType type);
 	shared_ptr<Transform> GetTransform();

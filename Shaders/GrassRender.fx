@@ -157,14 +157,12 @@ GrassOutput NearbyVS(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceI
     return output;
 }
 
-float4 AlphaClipShadowPS(GrassOutput input) : SV_TARGET
+void AlphaClipShadowPS(GrassOutput input)
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, input.uv);
 	
     if (litColor.a < 0.1f)
         discard;
-	
-    return litColor;
 }
 
 float4 AlphaClipPS(GrassOutput input) : SV_TARGET

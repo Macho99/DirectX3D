@@ -13,12 +13,15 @@ class Graphics
 
 public:
 	void Init(HWND hwnd);
+    void OnDestroy();
 
 	void RenderBegin();
 	void RenderEnd();
 
 	ComPtr<ID3D11Device> GetDevice() { return _device; }
 	ComPtr<ID3D11DeviceContext> GetDeviceContext() { return _deviceContext; }
+
+	void ClearShaderResources();
 
 	void ClearDepthStencilView();
 

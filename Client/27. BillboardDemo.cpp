@@ -51,6 +51,22 @@ void BillboardDemo::Init()
     }
 
     {
+        // Light
+        auto light = make_shared<GameObject>();
+        light->AddComponent(make_shared<Light>());
+    
+        LightDesc lightDesc;
+        lightDesc.ambient = Vec4(0.4f);
+        lightDesc.diffuse = Vec4(1.f);
+        lightDesc.specular = Vec4(0.1f);
+        lightDesc.direction = Vec3(1.f, -1.f, 1.f);
+        light->GetTransform()->SetRotation(lightDesc.direction);
+        static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
+        CUR_SCENE->Add(light);
+    }
+
+
+    {
         // Mesh
         // Material
         {
@@ -88,20 +104,6 @@ void BillboardDemo::Init()
         }
     }
 
-    {
-        // Light
-        auto light = make_shared<GameObject>();
-        light->AddComponent(make_shared<Light>());
-
-        LightDesc lightDesc;
-        lightDesc.ambient = Vec4(0.4f);
-        lightDesc.diffuse = Vec4(1.f);
-        lightDesc.specular = Vec4(0.1f);
-        lightDesc.direction = Vec3(1.f, -1.f, 1.f);
-        light->GetTransform()->SetRotation(lightDesc.direction);
-        static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
-        CUR_SCENE->Add(light);
-    }
 
     shared_ptr<TessTerrain> tessTerrain = make_shared<TessTerrain>();
     {
@@ -381,6 +383,12 @@ void BillboardDemo::Update()
             CUR_SCENE->Remove(pickObj);
         }
     }
+    bool showDemo = true;
+    ImGui::ShowDemoWindow(&showDemo);
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+
+
     //this_thread::sleep_for(chrono::seconds(1));
 }
 

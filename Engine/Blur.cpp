@@ -89,6 +89,8 @@ void Blur::ProcessBlur(int32 blurCount)
 
 void Blur::ProcessBlur(shared_ptr<Texture> inputTexture, ComPtr<ID3D11RenderTargetView> outputRTV, bool horzBlur)
 {
+	GRAPHICS->ClearShaderResources();
+
 	ID3D11RenderTargetView* renderTargets[1] = { outputRTV.Get() };
 	DC->OMSetRenderTargets(1, renderTargets, 0);
 	DC->ClearRenderTargetView(outputRTV.Get(), reinterpret_cast<const float*>(&Colors::Black));

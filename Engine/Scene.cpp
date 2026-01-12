@@ -7,6 +7,15 @@
 #include "Button.h"
 #include "Sky.h"
 
+Scene::Scene()
+{
+}
+
+Scene::~Scene()
+{
+	int a = 1;
+}
+
 void Scene::Start()
 {
 	auto copys = _gameObjects;
@@ -14,6 +23,15 @@ void Scene::Start()
 	{
 		obj->Start();
 	}
+}
+
+void Scene::OnDestroy()
+{
+    auto copys = _gameObjects;
+    for (shared_ptr<GameObject> obj : copys)
+    {
+        obj->OnDestroy();
+    }
 }
 
 void Scene::Update()

@@ -93,6 +93,19 @@ void GameObject::FixedUpdate()
 	}
 }
 
+void GameObject::OnDestroy()
+{
+    for (shared_ptr<Component>& component : _components)
+    {
+        if (component)
+            component->OnDestroy();
+    }
+    for (shared_ptr<MonoBehaviour>& script : _scripts)
+    {
+        script->OnDestroy();
+    }
+}
+
 std::shared_ptr<Component> GameObject::GetFixedComponent(ComponentType type)
 {
 	uint8 index = static_cast<uint8>(type);

@@ -30,8 +30,32 @@ void Graphics::Init(HWND hwnd)
 	_normalDepthMap = make_shared<Texture>();
 }
 
+void Graphics::OnDestroy()
+{
+	// 1. 모든 바인딩 해제
+	_deviceContext->ClearState();
+	_deviceContext->Flush();
+
+	//// 2. 엔진 리소스 전부 해제
+	//ReleaseAllAssets();
+	//ReleaseAllRenderResources();
+
+	ID3D11Debug* d3dDebug = nullptr;
+	if (SUCCEEDED(_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug)))
+	{
+		// D3D11_RLDO_DETAIL을 사용하면 어떤 객체(Texture, Buffer 등)가 남았는지 상세히 보여줍니다.
+		d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		d3dDebug->Release();
+	}
+	_swapChain.Reset();
+	_deviceContext.Reset();
+	_device.Reset();
+}
+
 void Graphics::RenderBegin()
 {
+	ClearShaderResources();
+
 	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
 	//ClearDepthStencilView();
 	//씬에서 카메라마다 클리어해줌
@@ -43,6 +67,13 @@ void Graphics::RenderEnd()
 {
 	HRESULT hr = _swapChain->Present(0, 0);
 	CHECK(hr);
+}
+
+void Graphics::ClearShaderResources()
+{
+    ID3D11ShaderResourceView* nullSRVs[4] = { nullptr, nullptr, nullptr, nullptr };
+    _deviceContext->PSSetShaderResources(0, 4, nullSRVs);
+    _deviceContext->VSSetShaderResources(0, 4, nullSRVs);
 }
 
 void Graphics::ClearDepthStencilView()
@@ -147,13 +178,18 @@ void Graphics::CreateDeviceAndSwapChain()
 		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	}
 
+	D3D_FEATURE_LEVEL featureLevels[] =
+	{
+		D3D_FEATURE_LEVEL_11_0
+	};
+
 	HRESULT hr = ::D3D11CreateDeviceAndSwapChain(
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
 		D3D11_CREATE_DEVICE_DEBUG,
-		nullptr,
-		0,
+		featureLevels,
+		1,
 		D3D11_SDK_VERSION,
 		&desc,
 		_swapChain.GetAddressOf(),
@@ -163,6 +199,19 @@ void Graphics::CreateDeviceAndSwapChain()
 	);
 
 	CHECK(hr);
+
+	ComPtr<ID3D11InfoQueue> infoQueue;
+	if (SUCCEEDED(DEVICE->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
+	{
+		// 경고(Warning)가 발생했을 때 브레이크포인트를 겁니다.
+		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+
+		// 에러(Error)가 발생했을 때 브레이크포인트를 겁니다.
+		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+
+		// 치명적인 오류(Corruption) 발생 시에도 걸고 싶다면
+		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+	}
 }
 
 void Graphics::CreateRenderTargetView()

@@ -42,6 +42,7 @@ public:
 	virtual void Update() { }
 	virtual void LateUpdate() { }
 	virtual void FixedUpdate() { }
+    virtual void OnDestroy() {}
 
 public:
 	ComponentType GetType() { return _type; }
