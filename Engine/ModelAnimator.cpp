@@ -146,8 +146,7 @@ void ModelAnimator::CreateTexture()
 			subResources[c].SysMemSlicePitch = pageSize;
 		}
 
-		HRESULT hr = DEVICE->CreateTexture2D(&desc, subResources.data(), _texture.GetAddressOf());
-		CHECK(hr);
+		DX_CREATE_TEXTURE2D(&desc, subResources.data(), _texture);
 
 		::free(mallocPtr);
 	}
@@ -161,8 +160,7 @@ void ModelAnimator::CreateTexture()
 		desc.Texture2DArray.MipLevels = 1;
 		desc.Texture2DArray.ArraySize = _model->GetAnimationCount();
 
-		HRESULT hr = DEVICE->CreateShaderResourceView(_texture.Get(), &desc, _srv.GetAddressOf());
-		CHECK(hr);
+		DX_CREATE_SRV(_texture.Get(), &desc, _srv);
 	}
 }
 

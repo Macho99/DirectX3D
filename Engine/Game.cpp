@@ -37,10 +37,15 @@ WPARAM Game::Run(GameDesc& desc)
 			Update();
 		}
 	}
-
+	OutputDebugStringW(L"==============SHADER============\n");
+	ShaderManager::OnDestroy();
+	OutputDebugStringW(L"==============SCENE============\n");
 	SCENE->OnDestroy();
+	OutputDebugStringW(L"==============RESOURCES============\n");
     RESOURCES->OnDestroy();
+	OutputDebugStringW(L"==============GUI============\n");
 	GUI->OnDestroy();
+	OutputDebugStringW(L"==============GRAPHICS============\n");
     GRAPHICS->OnDestroy();
 	return msg.wParam;
 }

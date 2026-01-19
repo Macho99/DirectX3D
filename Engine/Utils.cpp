@@ -121,7 +121,7 @@ ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<wstring>&
 	texArrayDesc.MiscFlags = 0;
 
 	ComPtr<ID3D11Texture2D> texArray;
-	HR(device->CreateTexture2D(&texArrayDesc, 0, texArray.GetAddressOf()));
+	DX_CREATE_TEXTURE2D(&texArrayDesc, 0, texArray);
 
 	//
 	// Copy individual texture elements into texture array.
@@ -158,7 +158,7 @@ ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<wstring>&
 	viewDesc.Texture2DArray.ArraySize = size;
 
 	ComPtr<ID3D11ShaderResourceView> texArraySRV;
-	HR(device->CreateShaderResourceView(texArray.Get(), &viewDesc, texArraySRV.GetAddressOf()));
+	DX_CREATE_SRV(texArray.Get(), &viewDesc, texArraySRV);
 
 	return texArraySRV;
 

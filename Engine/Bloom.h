@@ -8,6 +8,7 @@ class Bloom : public PostProcess
 
 public:
     Bloom();
+    ~Bloom();
     void Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv) override;
     void OnSize(UINT width, UINT height) override;
     void SetDebugTextureSRV(shared_ptr<Texture> texture) override;

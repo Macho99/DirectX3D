@@ -35,6 +35,10 @@ Bloom::Bloom()
     OnSize(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
 }
 
+Bloom::~Bloom()
+{
+}
+
 void Bloom::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv)
 {
     _brightFilterMat->GetDiffuseMap()->SetSRV(srv.Get());
@@ -123,15 +127,15 @@ void Bloom::OnSize(UINT width, UINT height)
 		texDesc.MiscFlags = 0;
 
         _downSampleDescs[i] = texDesc;
-		HR(DEVICE->CreateTexture2D(&texDesc, 0, _downSampleTextures[i].GetAddressOf()));
-		HR(DEVICE->CreateShaderResourceView(_downSampleTextures[i].Get(), 0, _downSampleSRVs[i].GetAddressOf()));
-		HR(DEVICE->CreateRenderTargetView(_downSampleTextures[i].Get(), 0, _downSampleRTVs[i].GetAddressOf()));
+        DX_CREATE_TEXTURE2D(&texDesc, 0, _downSampleTextures[i]);
+        DX_CREATE_SRV(_downSampleTextures[i].Get(), 0, _downSampleSRVs[i]);
+        DX_CREATE_RTV(_downSampleTextures[i].Get(), 0, _downSampleRTVs[i]);
 
         int upSampleIdx = _sampleSize.size() - 1 - i;
         _upSampleDescs[upSampleIdx] = texDesc;
-		HR(DEVICE->CreateTexture2D(&texDesc, 0, _upSampleTextures[upSampleIdx].GetAddressOf()));
-		HR(DEVICE->CreateShaderResourceView(_upSampleTextures[upSampleIdx].Get(), 0, _upSampleSRVs[upSampleIdx].GetAddressOf()));
-		HR(DEVICE->CreateRenderTargetView(_upSampleTextures[upSampleIdx].Get(), 0, _upSampleRTVs[upSampleIdx].GetAddressOf()));
+        DX_CREATE_TEXTURE2D(&texDesc, 0, _upSampleTextures[upSampleIdx]);
+        DX_CREATE_SRV(_upSampleTextures[upSampleIdx].Get(), 0, _upSampleSRVs[upSampleIdx]);
+        DX_CREATE_RTV(_upSampleTextures[upSampleIdx].Get(), 0, _upSampleRTVs[upSampleIdx]);
         _blurs[upSampleIdx].OnSize(curWidth, curHeight);
     }
 
@@ -140,9 +144,9 @@ void Bloom::OnSize(UINT width, UINT height)
         desc.Width = width;
         desc.Height = height;
 
-        HR(DEVICE->CreateTexture2D(&desc, 0, _brightFilterTexture.GetAddressOf()));
-        HR(DEVICE->CreateShaderResourceView(_brightFilterTexture.Get(), 0, _brightFilterSRV.GetAddressOf()));
-        HR(DEVICE->CreateRenderTargetView(_brightFilterTexture.Get(), 0, _brightFilterRTV.GetAddressOf()));
+        DX_CREATE_TEXTURE2D(&desc, 0, _brightFilterTexture);
+        DX_CREATE_SRV(_brightFilterTexture.Get(), 0, _brightFilterSRV);
+        DX_CREATE_RTV(_brightFilterTexture.Get(), 0, _brightFilterRTV);
     }
 }
 

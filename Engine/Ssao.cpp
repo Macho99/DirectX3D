@@ -134,9 +134,9 @@ void Ssao::BuildTextureViews()
 	texDesc.MiscFlags = 0;
 
 	ComPtr<ID3D11Texture2D> normalDepthTex;
-	HR(DEVICE->CreateTexture2D(&texDesc, 0, normalDepthTex.GetAddressOf()));
-	HR(DEVICE->CreateShaderResourceView(normalDepthTex.Get(), 0, _normalDepthSRV.GetAddressOf()));
-	HR(DEVICE->CreateRenderTargetView(normalDepthTex.Get(), 0, _normalDepthRTV.GetAddressOf()));
+	DX_CREATE_TEXTURE2D(&texDesc, 0, normalDepthTex);
+	DX_CREATE_SRV(normalDepthTex.Get(), 0, _normalDepthSRV);
+	DX_CREATE_RTV(normalDepthTex.Get(), 0, _normalDepthRTV);
 
     _blur.OnSize(_renderTargetWidth / 2, _renderTargetHeight / 2);
 }

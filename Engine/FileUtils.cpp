@@ -102,7 +102,7 @@ void FileUtils::SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filenam
 	stagingDesc.MiscFlags = 0;
 
 	ComPtr<ID3D11Texture2D> stagingTexture;
-	HR(DEVICE->CreateTexture2D(&stagingDesc, nullptr, &stagingTexture));
+	DX_CREATE_TEXTURE2D(&stagingDesc, nullptr, stagingTexture);
 
 	// 원본 텍스처를 스테이징 텍스처로 복사
 	DC->CopyResource(stagingTexture.Get(), texture);

@@ -59,7 +59,7 @@ void StructuredBuffer::CreateSRV()
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
 	srvDesc.BufferEx.NumElements = _inputCount;
 
-	CHECK(DEVICE->CreateShaderResourceView(_input.Get(), &srvDesc, _srv.GetAddressOf()));
+	DX_CREATE_SRV(_input.Get(), &srvDesc, _srv);
 }
 
 void StructuredBuffer::CreateOutput()
@@ -86,7 +86,7 @@ void StructuredBuffer::CreateUAV()
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.NumElements = _outputCount;
 
-	CHECK(DEVICE->CreateUnorderedAccessView(_output.Get(), &uavDesc, _uav.GetAddressOf()));
+	DX_CREATE_UAV(_output.Get(), &uavDesc, _uav);
 }
 
 

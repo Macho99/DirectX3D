@@ -41,13 +41,6 @@ void Graphics::OnDestroy()
 		_swapChain.Reset();
 	}
 
-	if (_deviceContext)
-	{
-		// 1. 모든 바인딩 해제
-		_deviceContext->ClearState();
-		_deviceContext->Flush();
-	}
-
 	// =========================
 	// PostProcess / 공유 객체
 	// =========================
@@ -97,9 +90,13 @@ void Graphics::OnDestroy()
 	_backBufferTexture.Reset();
 	_depthStencilTexture.Reset();
 
+	_deviceContext->ClearState();
+	_deviceContext->Flush();
 	_deviceContext.Reset();
-	ID3D11Debug* d3dDebug = nullptr;
-	if (SUCCEEDED(_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug)))
+	ID3D11Debug* d3dDebug = nullptr; 
+	HRESULT hr = _device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug);
+	_device.Reset();
+	if (SUCCEEDED(hr))
 	{
 		OutputDebugStringW(L"==============출력 시작============\n");
 		// D3D11_RLDO_DETAIL을 사용하면 어떤 객체(Texture, Buffer 등)가 남았는지 상세히 보여줍니다.
@@ -107,8 +104,6 @@ void Graphics::OnDestroy()
 		d3dDebug->Release();
 		OutputDebugStringW(L"==============출력 종료============\n");
 	}
-
-	_device.Reset();
 
 	_hwnd = nullptr;
 }
@@ -230,7 +225,7 @@ void Graphics::CreateDeviceAndSwapChain()
 		desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		desc.SampleDesc.Count = 4;
+		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.BufferCount = 1;
@@ -284,8 +279,7 @@ void Graphics::CreateRenderTargetView()
 	hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf());
 	CHECK(hr);
 
-	hr = _device->CreateRenderTargetView(_backBufferTexture.Get(), nullptr, _renderTargetView.GetAddressOf());
-	CHECK(hr);
+	DX_CREATE_RTV(_backBufferTexture.Get(), nullptr, _renderTargetView);
 	_backBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_backBufferTexture") - 1, "_backBufferTexture");
 	_renderTargetView->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_renderTargetView") - 1, "_renderTargetView");
 
@@ -303,9 +297,9 @@ void Graphics::CreateRenderTargetView()
 		texDesc.CPUAccessFlags = 0;
 		texDesc.MiscFlags = 0;
 
-		HR(DEVICE->CreateTexture2D(&texDesc, 0, _hdrTexture.GetAddressOf()));
-		HR(DEVICE->CreateShaderResourceView(_hdrTexture.Get(), 0, _hdrSRV.GetAddressOf()));
-		HR(DEVICE->CreateRenderTargetView(_hdrTexture.Get(), 0, _hdrRTV.GetAddressOf()));
+		DX_CREATE_TEXTURE2D(&texDesc, 0, _hdrTexture);
+		DX_CREATE_SRV(_hdrTexture.Get(), 0, _hdrSRV);
+		DX_CREATE_RTV(_hdrTexture.Get(), 0, _hdrRTV);
 
 		for (int i = 0; i < _postProcesses.size() - 1; i++)
 		{
@@ -313,9 +307,9 @@ void Graphics::CreateRenderTargetView()
             ComPtr<ID3D11ShaderResourceView> ppSRV;
             ComPtr<ID3D11RenderTargetView> ppRTV;
 
-			HR(DEVICE->CreateTexture2D(&texDesc, 0, ppTex.GetAddressOf()));
-			HR(DEVICE->CreateShaderResourceView(ppTex.Get(), 0, ppSRV.GetAddressOf()));
-			HR(DEVICE->CreateRenderTargetView(ppTex.Get(), 0, ppRTV.GetAddressOf()));
+			DX_CREATE_TEXTURE2D(&texDesc, 0, ppTex);
+			DX_CREATE_SRV(ppTex.Get(), 0, ppSRV);
+			DX_CREATE_RTV(ppTex.Get(), 0, ppRTV);
 
             _ppTextures.push_back(ppTex);
             _ppSRVs.push_back(ppSRV);
@@ -343,16 +337,14 @@ void Graphics::CreateDepthStencilView()
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
-		HRESULT hr = DEVICE->CreateTexture2D(&desc, nullptr, _depthStencilTexture.GetAddressOf());
-		CHECK(hr);
+		DX_CREATE_TEXTURE2D(&desc, nullptr, _depthStencilTexture);
 
 		desc.Width = SHADOWMAP_SIZE;
 		desc.Height = SHADOWMAP_SIZE;
 		desc.ArraySize = NUM_SHADOW_CASCADES;
 		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-		hr = DEVICE->CreateTexture2D(&desc, nullptr, _shadowDSTexture.GetAddressOf());
-		CHECK(hr);
+		DX_CREATE_TEXTURE2D(&desc, nullptr, _shadowDSTexture);
 	}
 
 	{
@@ -389,8 +381,7 @@ void Graphics::CreateDepthStencilView()
 			ComPtr<ID3D11ShaderResourceView> srv;
 			srvDesc.Texture2DArray.FirstArraySlice = i;
 			srvDesc.Texture2DArray.ArraySize = 1;
-			HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, srv.GetAddressOf());
-			CHECK(hr);
+			DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, srv);
 
 			_shadowMap[i] = make_shared<Texture>();
 			_shadowMap[i]->SetSRV(srv);
@@ -398,8 +389,7 @@ void Graphics::CreateDepthStencilView()
 
         srvDesc.Texture2DArray.FirstArraySlice = 0;
 		srvDesc.Texture2DArray.ArraySize = NUM_SHADOW_CASCADES;
-        HRESULT hr = DEVICE->CreateShaderResourceView(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV.GetAddressOf());
-        CHECK(hr);
+		DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV);
 	}
 }
 

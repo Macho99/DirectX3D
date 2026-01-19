@@ -371,6 +371,11 @@ ShaderDesc ShaderManager::GetEffect(wstring fileName)
 	return ShaderDesc{ desc.blob, effect };
 }
 
+void ShaderManager::OnDestroy()
+{
+    shaders.clear();
+}
+
 void Shader::PushGlobalData(const Matrix& view, const Matrix& projection)
 {
 	if (_globalEffectBuffer == nullptr)

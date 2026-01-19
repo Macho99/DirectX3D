@@ -81,7 +81,7 @@ void RawBuffer::CreateSRV()
 	srvDesc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
 	srvDesc.BufferEx.NumElements = desc.ByteWidth / 4; // 전체 데이터 개수
 
-	CHECK(DEVICE->CreateShaderResourceView(_input.Get(), &srvDesc, _srv.GetAddressOf()));
+	DX_CREATE_SRV(_input.Get(), &srvDesc, _srv);
 }
 
 void RawBuffer::CreateOutput()
@@ -107,7 +107,7 @@ void RawBuffer::CreateUAV()
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
 	uavDesc.Buffer.NumElements = desc.ByteWidth / 4;
 
-	CHECK(DEVICE->CreateUnorderedAccessView(_output.Get(), &uavDesc, _uav.GetAddressOf()));
+	DX_CREATE_UAV(_output.Get(), &uavDesc, _uav);
 }
 
 void RawBuffer::CreateResult()

@@ -40,7 +40,7 @@ void TextureBuffer::CreateInput(ComPtr<ID3D11Texture2D> src)
 	desc.MipLevels = 1;
 	desc.SampleDesc.Count = 1;
 
-	CHECK(DEVICE->CreateTexture2D(&desc, NULL, _input.GetAddressOf()));
+	DX_CREATE_TEXTURE2D(&desc, NULL, _input);
 
 	DC->CopyResource(_input.Get(), src.Get());
 }
@@ -57,7 +57,8 @@ void TextureBuffer::CreateSRV()
 	srvDesc.Texture2DArray.MipLevels = 1;
 	srvDesc.Texture2DArray.ArraySize = _arraySize;
 
-	CHECK(DEVICE->CreateShaderResourceView(_input.Get(), &srvDesc, _srv.GetAddressOf()));
+
+	DX_CREATE_SRV(_input.Get(), &srvDesc, _srv);
 }
 
 void TextureBuffer::CreateOutput()
@@ -72,7 +73,7 @@ void TextureBuffer::CreateOutput()
 	desc.MipLevels = 1;
 	desc.SampleDesc.Count = 1;
 
-	CHECK(DEVICE->CreateTexture2D(&desc, nullptr, _output.GetAddressOf()));
+	DX_CREATE_TEXTURE2D(&desc, nullptr, _output);
 }
 
 void TextureBuffer::CreateUAV()
@@ -86,7 +87,7 @@ void TextureBuffer::CreateUAV()
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
 	uavDesc.Texture2DArray.ArraySize = _arraySize;
 
-	CHECK(DEVICE->CreateUnorderedAccessView(_output.Get(), &uavDesc, _uav.GetAddressOf()));
+	DX_CREATE_UAV(_output.Get(), &uavDesc, _uav);
 }
 
 void TextureBuffer::CreateResult()
@@ -101,5 +102,5 @@ void TextureBuffer::CreateResult()
 	srvDesc.Texture2DArray.MipLevels = 1;
 	srvDesc.Texture2DArray.ArraySize = _arraySize;
 
-	CHECK(DEVICE->CreateShaderResourceView(_output.Get(), &srvDesc, _outputSRV.GetAddressOf()));
+	DX_CREATE_SRV(_output.Get(), &srvDesc, _outputSRV);
 }

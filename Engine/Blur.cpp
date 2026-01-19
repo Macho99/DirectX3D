@@ -56,14 +56,14 @@ void Blur::OnSize(int32 width, int32 height)
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MiscFlags = 0;
 
-	HR(DEVICE->CreateTexture2D(&texDesc, 0, _ambientTexture0.GetAddressOf()));
-	HR(DEVICE->CreateShaderResourceView(_ambientTexture0.Get(), 0, _ambientSRV0.GetAddressOf()));
-	HR(DEVICE->CreateRenderTargetView(_ambientTexture0.Get(), 0, _ambientRTV0.GetAddressOf()));
+	DX_CREATE_TEXTURE2D(&texDesc, 0, _ambientTexture0);
+	DX_CREATE_SRV(_ambientTexture0.Get(), 0, _ambientSRV0);
+	DX_CREATE_RTV(_ambientTexture0.Get(), 0, _ambientRTV0);
 	_texture0->SetSRV(_ambientSRV0);
 
-	HR(DEVICE->CreateTexture2D(&texDesc, 0, _ambientTexture1.GetAddressOf()));
-	HR(DEVICE->CreateShaderResourceView(_ambientTexture1.Get(), 0, _ambientSRV1.GetAddressOf()));
-	HR(DEVICE->CreateRenderTargetView(_ambientTexture1.Get(), 0, _ambientRTV1.GetAddressOf()));
+	DX_CREATE_TEXTURE2D(&texDesc, 0, _ambientTexture1);
+	DX_CREATE_SRV(_ambientTexture1.Get(), 0, _ambientSRV1);
+	DX_CREATE_RTV(_ambientTexture1.Get(), 0, _ambientRTV1);
 	_texture1->SetSRV(_ambientSRV1);
 
 	if (_blurMat == nullptr)

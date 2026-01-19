@@ -28,6 +28,7 @@ void Texture::Load(const wstring& path)
 
 	CHECK(hr);
 
+	_shaderResourveView.Reset();
 	hr = ::CreateShaderResourceView(DEVICE.Get(), _img.GetImages(), _img.GetImageCount(), md, _shaderResourveView.GetAddressOf());
 	CHECK(hr);
 	

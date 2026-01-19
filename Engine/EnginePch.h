@@ -109,8 +109,7 @@ inline void DX_SetDebugName(
 }
 
 #define DX_INTERNAL_CREATE(call, outObj) \
-    HRESULT hr__ = (call); \
-    if (FAILED(hr__)) return hr__; \
+    CHECK(call); \
     DX_SetDebugName( \
         reinterpret_cast<ID3D11DeviceChild*>(outObj), \
         __FILE__, \
@@ -118,49 +117,59 @@ inline void DX_SetDebugName(
     );
 
 #else
-inline void DX_SetDebugName(ID3D11DeviceChild*, const char*, int) {}
 
 #define DX_INTERNAL_CREATE(call, outObj) \
-   HRESULT hr__ = (call); \
-   if (FAILED(hr__)) return hr__; \
-   DX_SetDebugName( \
-       reinterpret_cast<ID3D11DeviceChild*>(outObj), \
-       __FILE__, \
-       __LINE__ \
-   );
+    CHECK(call);
 
 #endif
 
 #define DX_CREATE_BUFFER(desc, data, outBuffer) \
     DX_INTERNAL_CREATE( \
-        DEVICE->CreateBuffer((desc), (data), (outBuffer).GetAddressOf()), \
+        DEVICE->CreateBuffer( \
+            (desc), (data), (outBuffer).GetAddressOf() \
+        ), \
         (outBuffer).Get() \
     )
+
 #define DX_CREATE_TEXTURE2D(desc, data, outTex) \
     DX_INTERNAL_CREATE( \
-        DEVICE->CreateTexture2D((desc), (data), (outTex).GetAddressOf()), \
+        DEVICE->CreateTexture2D( \
+            (desc), (data), (outTex).GetAddressOf() \
+        ), \
         (outTex).Get() \
     )
+
 #define DX_CREATE_SRV(resource, desc, outView) \
     DX_INTERNAL_CREATE( \
-        DEVICE->CreateShaderResourceView((resource), (desc), (outView).GetAddressOf()), \
+        DEVICE->CreateShaderResourceView( \
+            (resource), (desc), (outView).GetAddressOf() \
+        ), \
         (outView).Get() \
     )
+
 #define DX_CREATE_RTV(resource, desc, outView) \
     DX_INTERNAL_CREATE( \
-        DEVICE->CreateRenderTargetView((resource), (desc), (outView).GetAddressOf()), \
+        DEVICE->CreateRenderTargetView( \
+            (resource), (desc), (outView).GetAddressOf() \
+        ), \
         (outView).Get() \
     )
+
 #define DX_CREATE_DSV(resource, desc, outView) \
     DX_INTERNAL_CREATE( \
-        DEVICE->CreateDepthStencilView((resource), (desc), (outView).GetAddressOf()), \
+        DEVICE->CreateDepthStencilView( \
+            (resource), (desc), (outView).GetAddressOf() \
+        ), \
         (outView).Get() \
     )
 #define DX_CREATE_UAV(resource, desc, outView) \
     DX_INTERNAL_CREATE( \
-        DEVICE->CreateUnorderedAccessView((resource), (desc), (outView).GetAddressOf()), \
+        DEVICE->CreateUnorderedAccessView( \
+            (resource), (desc), (outView).GetAddressOf() \
+        ), \
         (outView).Get() \
     )
+
 
 //#if defined(_DEBUG)
 //#define CreateBuffer                DO_NOT_USE_CreateBuffer

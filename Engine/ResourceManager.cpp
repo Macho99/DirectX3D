@@ -105,7 +105,7 @@ void ResourceManager::CreateRandomTexture()
 	viewDesc.Texture1D.MostDetailedMip = 0;
 
 	ComPtr<ID3D11ShaderResourceView> randomTexSRV;
-	CHECK(DEVICE->CreateShaderResourceView(randomTex.Get(), &viewDesc, randomTexSRV.GetAddressOf()));
+	DX_CREATE_SRV(randomTex.Get(), &viewDesc, randomTexSRV);
 	texture->SetSRV(randomTexSRV);
 	Add(L"RandomTex", texture);
 }

@@ -398,15 +398,15 @@ void TessTerrain::BuildHeightmapSRV()
 	data.SysMemPitch = _info.heightmapWidth * sizeof(uint16);
 	data.SysMemSlicePitch = 0;
 
-	ID3D11Texture2D* hmapTex = 0;
-	HR(DEVICE->CreateTexture2D(&texDesc, &data, &hmapTex));
+	ComPtr<ID3D11Texture2D> hmapTex;
+	DX_CREATE_TEXTURE2D(&texDesc, &data, hmapTex);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = texDesc.Format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = -1;
-	HR(DEVICE->CreateShaderResourceView(hmapTex, &srvDesc, _heightMapSRV.GetAddressOf()));
+	DX_CREATE_SRV(hmapTex.Get(), &srvDesc, _heightMapSRV);
 
 	_heightMapTexture->SetSRV(_heightMapSRV);
 }

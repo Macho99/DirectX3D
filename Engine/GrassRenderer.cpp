@@ -54,7 +54,7 @@ void GrassRenderer::CreateResources()
     srvDesc.Buffer.FirstElement = 0;
     srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
 
-    HR(DEVICE->CreateShaderResourceView(_initGrassBuffer.Get(), &srvDesc, _initGrassSRV.GetAddressOf()));
+    DX_CREATE_SRV(_initGrassBuffer.Get(), &srvDesc, _initGrassSRV);
 
     // --- 3. FinalGrassBuffer 생성 (Append Buffer: UAV + SRV) ---
     D3D11_BUFFER_DESC finalDesc = {};
@@ -78,13 +78,13 @@ void GrassRenderer::CreateResources()
     uavDesc.Buffer.NumElements = MAX_GRASS_COUNT;
     uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND; // Append Buffer로 설정
 
-    HR(DEVICE->CreateUnorderedAccessView(_nearbyGrassBuffer.Get(), &uavDesc, _nearbyGrassUAV.GetAddressOf()));
-    HR(DEVICE->CreateUnorderedAccessView(_distantGrassBuffer.Get(), &uavDesc, _distantGrassUAV.GetAddressOf()));
+    DX_CREATE_UAV(_nearbyGrassBuffer.Get(), &uavDesc, _nearbyGrassUAV);
+    DX_CREATE_UAV(_distantGrassBuffer.Get(), &uavDesc, _distantGrassUAV);
 
     // SRV (나중에 렌더링 파이프라인(VS)에서 읽기 위함)
     srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
-    HR(DEVICE->CreateShaderResourceView(_nearbyGrassBuffer.Get(), &srvDesc, _nearbyGrassSRV.GetAddressOf()));
-    HR(DEVICE->CreateShaderResourceView(_distantGrassBuffer.Get(), &srvDesc, _distantGrassSRV.GetAddressOf()));
+    DX_CREATE_SRV(_nearbyGrassBuffer.Get(), &srvDesc, _nearbyGrassSRV);
+    DX_CREATE_SRV(_distantGrassBuffer.Get(), &srvDesc, _distantGrassSRV);
 
     // --- 4. IndirectDrawBuffer 생성 ---
     D3D11_BUFFER_DESC indirectDesc = {};

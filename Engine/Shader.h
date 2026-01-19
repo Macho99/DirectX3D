@@ -153,6 +153,7 @@ class ShaderManager
 {
 public:
 	static ShaderDesc GetEffect(wstring fileName);
+	static void OnDestroy();
 
 private:
 	static unordered_map<wstring, ShaderDesc> shaders;
