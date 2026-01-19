@@ -12,6 +12,14 @@ void ResourceManager::Init()
 	CreateRandomTexture();
 }
 
+void ResourceManager::OnDestroy()
+{
+    for (auto& keyObjMap : _resources)
+    {
+        keyObjMap.clear();
+    }
+}
+
 shared_ptr<Texture> ResourceManager::GetOrAddTexture(const wstring& key, const wstring& path)
 {
 	shared_ptr<Texture> texture = Get<Texture>(key);

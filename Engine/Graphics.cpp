@@ -32,24 +32,85 @@ void Graphics::Init(HWND hwnd)
 
 void Graphics::OnDestroy()
 {
-	// 1. 모든 바인딩 해제
-	_deviceContext->ClearState();
-	_deviceContext->Flush();
+	// =========================
+	// SwapChain
+	// =========================
+	if (_swapChain)
+	{
+		_swapChain->SetFullscreenState(FALSE, nullptr);
+		_swapChain.Reset();
+	}
 
-	//// 2. 엔진 리소스 전부 해제
-	//ReleaseAllAssets();
-	//ReleaseAllRenderResources();
+	if (_deviceContext)
+	{
+		// 1. 모든 바인딩 해제
+		_deviceContext->ClearState();
+		_deviceContext->Flush();
+	}
 
+	// =========================
+	// PostProcess / 공유 객체
+	// =========================
+	_postProcesses.clear();
+	_ppDebugTextures.clear();
+
+	_ssao.reset();
+	_normalDepthMap.reset();
+
+	for (int i = 0; i < NUM_SHADOW_CASCADES; ++i)
+	{
+		_shadowMap[i].reset();
+	}
+
+	// =========================
+	// Shadow resources
+	// =========================
+	_shadowArraySRV.Reset();
+
+	for (int i = 0; i < NUM_SHADOW_CASCADES; ++i)
+	{
+		_shadowDSV[i].Reset();
+	}
+
+	_shadowDSTexture.Reset();
+
+	// =========================
+	// HDR
+	// =========================
+	_hdrRTV.Reset();
+	_hdrSRV.Reset();
+	_hdrTexture.Reset();
+	
+	// =========================
+	// PostProcess buffers
+	// =========================
+	_ppRTVs.clear();
+	_ppSRVs.clear();
+	_ppTextures.clear();
+
+	// =========================
+	// Main RTV / DSV
+	// =========================
+	_renderTargetView.Reset();
+	_depthStencilView.Reset();
+
+	_backBufferTexture.Reset();
+	_depthStencilTexture.Reset();
+
+	_deviceContext.Reset();
 	ID3D11Debug* d3dDebug = nullptr;
 	if (SUCCEEDED(_device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug)))
 	{
+		OutputDebugStringW(L"==============출력 시작============\n");
 		// D3D11_RLDO_DETAIL을 사용하면 어떤 객체(Texture, Buffer 등)가 남았는지 상세히 보여줍니다.
 		d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 		d3dDebug->Release();
+		OutputDebugStringW(L"==============출력 종료============\n");
 	}
-	_swapChain.Reset();
-	_deviceContext.Reset();
+
 	_device.Reset();
+
+	_hwnd = nullptr;
 }
 
 void Graphics::RenderBegin()
@@ -197,14 +258,15 @@ void Graphics::CreateDeviceAndSwapChain()
 		nullptr,
 		_deviceContext.GetAddressOf()
 	);
-
+	_device->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Device") - 1, "Device");
+	_deviceContext->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("DeviceCtx") - 1, "DeviceCtx");
 	CHECK(hr);
 
 	ComPtr<ID3D11InfoQueue> infoQueue;
 	if (SUCCEEDED(DEVICE->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
 	{
 		// 경고(Warning)가 발생했을 때 브레이크포인트를 겁니다.
-		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+		//infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 
 		// 에러(Error)가 발생했을 때 브레이크포인트를 겁니다.
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -224,6 +286,8 @@ void Graphics::CreateRenderTargetView()
 
 	hr = _device->CreateRenderTargetView(_backBufferTexture.Get(), nullptr, _renderTargetView.GetAddressOf());
 	CHECK(hr);
+	_backBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_backBufferTexture") - 1, "_backBufferTexture");
+	_renderTargetView->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_renderTargetView") - 1, "_renderTargetView");
 
 	{
 		D3D11_TEXTURE2D_DESC texDesc;

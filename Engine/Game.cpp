@@ -39,6 +39,7 @@ WPARAM Game::Run(GameDesc& desc)
 	}
 
 	SCENE->OnDestroy();
+    RESOURCES->OnDestroy();
 	GUI->OnDestroy();
     GRAPHICS->OnDestroy();
 	return msg.wParam;

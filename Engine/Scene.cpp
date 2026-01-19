@@ -27,11 +27,14 @@ void Scene::Start()
 
 void Scene::OnDestroy()
 {
-    auto copys = _gameObjects;
-    for (shared_ptr<GameObject> obj : copys)
+	_cameras.clear();
+    _lights.clear();
+	_sky.reset();
+    for (shared_ptr<GameObject> obj : _gameObjects)
     {
         obj->OnDestroy();
     }
+	_gameObjects.clear();
 }
 
 void Scene::Update()

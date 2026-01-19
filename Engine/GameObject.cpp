@@ -100,10 +100,12 @@ void GameObject::OnDestroy()
         if (component)
             component->OnDestroy();
     }
+    _components.fill(nullptr);
     for (shared_ptr<MonoBehaviour>& script : _scripts)
     {
         script->OnDestroy();
     }
+	_scripts.clear();
 }
 
 std::shared_ptr<Component> GameObject::GetFixedComponent(ComponentType type)

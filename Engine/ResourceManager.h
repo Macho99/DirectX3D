@@ -12,6 +12,7 @@ class ResourceManager
 	DECLARE_SINGLE(ResourceManager);
 public:
 	void Init();
+	void OnDestroy();
 
 	template<typename T>
 	shared_ptr<T> Load(const wstring& key, const wstring& path);
