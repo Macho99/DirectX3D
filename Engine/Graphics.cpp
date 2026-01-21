@@ -260,7 +260,7 @@ void Graphics::CreateDeviceAndSwapChain()
 	if (SUCCEEDED(DEVICE->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
 	{
 		// 경고(Warning)가 발생했을 때 브레이크포인트를 겁니다.
-		//infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 
 		// 에러(Error)가 발생했을 때 브레이크포인트를 겁니다.
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -277,10 +277,9 @@ void Graphics::CreateRenderTargetView()
 	//ComPtr<ID3D11Texture2D> backBuffer = nullptr;
 	hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf());
 	CHECK(hr);
+	//_backBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_backBufferTexture") - 1, "_backBufferTexture");
 
 	DX_CREATE_RTV(_backBufferTexture.Get(), nullptr, _renderTargetView);
-	_backBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_backBufferTexture") - 1, "_backBufferTexture");
-	_renderTargetView->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_renderTargetView") - 1, "_renderTargetView");
 
 	{
 		D3D11_TEXTURE2D_DESC texDesc;

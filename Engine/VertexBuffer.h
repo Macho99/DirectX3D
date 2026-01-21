@@ -79,7 +79,9 @@ public:
 
 		HRESULT hr = DEVICE->CreateBuffer(&vbd, 0, _vertexBuffer.GetAddressOf());
 		CHECK(hr);
+#ifdef _DEBUG
 		_vertexBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("VertexBuffer(Stream)") - 1, "VertexBuffer(Stream)");
+#endif // _DEBUG
 	}
 
 	void PushData()

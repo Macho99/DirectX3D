@@ -20,7 +20,9 @@ public:
 
 		HRESULT hr = DEVICE->CreateBuffer(&desc, nullptr, _constantBuffer.GetAddressOf());
 		CHECK(hr);
-        _constantBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("ConstantBuffer") - 1, "ConstantBuffer");
+#ifdef _DEBUG
+		_constantBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("ConstantBuffer") - 1, "ConstantBuffer");
+#endif // _DEBUG
 	}
 
 	void CopyData(const T& data)
