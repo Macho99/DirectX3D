@@ -43,9 +43,13 @@ void StructuredBuffer::CreateInput()
 	subResource.pSysMem = _inputData;
 
 	if (_inputData != nullptr)
-		CHECK(DEVICE->CreateBuffer(&desc, &subResource, _input.GetAddressOf()));
+	{
+		DX_CREATE_BUFFER(&desc, &subResource, _input);
+	}
 	else
-		CHECK(DEVICE->CreateBuffer(&desc, nullptr, _input.GetAddressOf()));
+	{
+		DX_CREATE_BUFFER(&desc, nullptr, _input);
+	}
 }
 
 void StructuredBuffer::CreateSRV()
@@ -72,7 +76,7 @@ void StructuredBuffer::CreateOutput()
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.StructureByteStride = _outputStride;
 
-	CHECK(DEVICE->CreateBuffer(&desc, nullptr, _output.GetAddressOf()));
+	DX_CREATE_BUFFER(&desc, nullptr, _output);
 }
 
 void StructuredBuffer::CreateUAV()
@@ -100,7 +104,7 @@ void StructuredBuffer::CreateResult()
 	desc.BindFlags = 0;
 	desc.MiscFlags = 0;
 
-	CHECK(DEVICE->CreateBuffer(&desc, NULL, _result.GetAddressOf()));
+	DX_CREATE_BUFFER(&desc, NULL, _result);
 }
 
 

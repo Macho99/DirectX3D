@@ -124,6 +124,7 @@ inline void DX_SetDebugName(
 #endif
 
 #define DX_CREATE_BUFFER(desc, data, outBuffer) \
+    outBuffer.Reset();\
     DX_INTERNAL_CREATE( \
         DEVICE->CreateBuffer( \
             (desc), (data), (outBuffer).GetAddressOf() \
@@ -132,6 +133,7 @@ inline void DX_SetDebugName(
     )
 
 #define DX_CREATE_TEXTURE2D(desc, data, outTex) \
+    outTex.Reset();\
     DX_INTERNAL_CREATE( \
         DEVICE->CreateTexture2D( \
             (desc), (data), (outTex).GetAddressOf() \
@@ -140,6 +142,7 @@ inline void DX_SetDebugName(
     )
 
 #define DX_CREATE_SRV(resource, desc, outView) \
+    outView.Reset();\
     DX_INTERNAL_CREATE( \
         DEVICE->CreateShaderResourceView( \
             (resource), (desc), (outView).GetAddressOf() \
@@ -148,6 +151,7 @@ inline void DX_SetDebugName(
     )
 
 #define DX_CREATE_RTV(resource, desc, outView) \
+    outView.Reset();\
     DX_INTERNAL_CREATE( \
         DEVICE->CreateRenderTargetView( \
             (resource), (desc), (outView).GetAddressOf() \
@@ -156,6 +160,7 @@ inline void DX_SetDebugName(
     )
 
 #define DX_CREATE_DSV(resource, desc, outView) \
+    outView.Reset();\
     DX_INTERNAL_CREATE( \
         DEVICE->CreateDepthStencilView( \
             (resource), (desc), (outView).GetAddressOf() \
@@ -163,6 +168,7 @@ inline void DX_SetDebugName(
         (outView).Get() \
     )
 #define DX_CREATE_UAV(resource, desc, outView) \
+    outView.Reset();\
     DX_INTERNAL_CREATE( \
         DEVICE->CreateUnorderedAccessView( \
             (resource), (desc), (outView).GetAddressOf() \

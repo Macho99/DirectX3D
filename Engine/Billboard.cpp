@@ -12,7 +12,7 @@ Billboard::Billboard()
 
 	_vertices.resize(vertexCount);
 	_vertexBuffer = make_shared<VertexBuffer>();
-	_vertexBuffer->Create(_vertices, 0, true);
+	_vertexBuffer->Create(_vertices, "BillboardVB", 0, true);
 
 	_indices.resize(indexCount);
 	

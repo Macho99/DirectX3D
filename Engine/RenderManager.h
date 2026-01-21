@@ -9,6 +9,8 @@ class RenderManager
 	DECLARE_SINGLE(RenderManager);
 
 public:
+	void OnDestroy();
+
 	void Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech);
 
 private:

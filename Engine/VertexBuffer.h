@@ -13,7 +13,7 @@ public:
 	uint32 GetSlot() { return _slot; }
 
 	template<typename T>
-	void Create(const vector<T>& vertices, uint32 slot = 0, bool cpuWrite = false, bool gpuWrite = false)
+	void Create(const vector<T>& vertices, string debugString, uint32 slot = 0, bool cpuWrite = false, bool gpuWrite = false)
 	{
 		_stride = sizeof(T);
 		_count = static_cast<uint32>(vertices.size());
@@ -52,6 +52,10 @@ public:
 
 		HRESULT hr = DEVICE->CreateBuffer(&desc, &data, _vertexBuffer.GetAddressOf());
 		CHECK(hr);
+#ifdef _DEBUG
+        const char* debugName = debugString.c_str();
+		_vertexBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, debugString.length(), debugName);
+#endif // _DEBUG
 	}
 
 	template<typename T>
@@ -75,6 +79,7 @@ public:
 
 		HRESULT hr = DEVICE->CreateBuffer(&vbd, 0, _vertexBuffer.GetAddressOf());
 		CHECK(hr);
+		_vertexBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("VertexBuffer(Stream)") - 1, "VertexBuffer(Stream)");
 	}
 
 	void PushData()

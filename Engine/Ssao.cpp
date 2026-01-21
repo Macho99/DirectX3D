@@ -97,7 +97,7 @@ void Ssao::BuildQuad()
 	v[3].uv = Vec2(1.0f, 1.0f);
 
     _screenQuadVB = make_unique<VertexBuffer>();
-    _screenQuadVB->Create(v, 0);
+    _screenQuadVB->Create(v, "SsaoScreenQuadVB", 0);
 
 	vector<uint32> indices = { 0, 1, 2, 0, 2, 3 };
 

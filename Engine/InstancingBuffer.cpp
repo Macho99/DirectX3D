@@ -42,5 +42,5 @@ void InstancingBuffer::CreateBuffer(uint32 maxCount)
 	_instanceBuffer = make_shared<VertexBuffer>();
 
 	vector<InstancingData> temp(maxCount);
-	_instanceBuffer->Create(temp, 1, true);
+	_instanceBuffer->Create(temp, "InstancingVB", 1, true);
 }

@@ -176,7 +176,7 @@ void ParticleSystem::BuildVB()
 	vector<ParticleVertex> vertices;
 	vertices.push_back(p);
 	_initVB = make_shared<VertexBuffer>();
-	_initVB->Create(vertices, 0, false, true);
+	_initVB->Create(vertices, "ParticleInitVB", 0, false, true);
 
 	_drawVB = make_shared<VertexBuffer>();
 	_drawVB->CreateStreamOut<ParticleVertex>(MAX_PARTICLES);

@@ -46,7 +46,7 @@ void GrassRenderer::CreateResources()
 
     D3D11_SUBRESOURCE_DATA initData = {};
     initData.pSysMem = grassData.data();
-    HR(DEVICE->CreateBuffer(&initialDesc, &initData, _initGrassBuffer.GetAddressOf()));
+    DX_CREATE_BUFFER(&initialDesc, &initData, _initGrassBuffer);
 
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -64,11 +64,11 @@ void GrassRenderer::CreateResources()
     finalDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
     finalDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 
-    HR(DEVICE->CreateBuffer(&finalDesc, nullptr, _nearbyGrassBuffer.GetAddressOf()));
+    DX_CREATE_BUFFER(&finalDesc, nullptr, _nearbyGrassBuffer);
 
     finalDesc.ByteWidth = sizeof(DistantGrassData) * MAX_GRASS_COUNT; // 최대 크기
     finalDesc.StructureByteStride = sizeof(DistantGrassData);
-    HR(DEVICE->CreateBuffer(&finalDesc, nullptr, _distantGrassBuffer.GetAddressOf()));
+    DX_CREATE_BUFFER(&finalDesc, nullptr, _distantGrassBuffer);
 
     // UAV (Append Buffer로 생성)
     D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -103,9 +103,9 @@ void GrassRenderer::CreateResources()
     D3D11_SUBRESOURCE_DATA argData = {};
     argData.pSysMem = &args;
 
-    HR(DEVICE->CreateBuffer(&indirectDesc, &argData, _nearbyDrawBuffer.GetAddressOf()));
+    DX_CREATE_BUFFER(&indirectDesc, &argData, _nearbyDrawBuffer);
     args.VertexCountPerInstance = 1;
-    HR(DEVICE->CreateBuffer(&indirectDesc, &argData, _distantDrawBuffer.GetAddressOf()));
+    DX_CREATE_BUFFER(&indirectDesc, &argData, _distantDrawBuffer);
 
     _grassConstantBuffer = make_shared<ConstantBuffer<GrassConstant>>();
     _grassConstantBuffer->Create();

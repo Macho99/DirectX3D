@@ -33,15 +33,6 @@ void Graphics::Init(HWND hwnd)
 void Graphics::OnDestroy()
 {
 	// =========================
-	// SwapChain
-	// =========================
-	if (_swapChain)
-	{
-		_swapChain->SetFullscreenState(FALSE, nullptr);
-		_swapChain.Reset();
-	}
-
-	// =========================
 	// PostProcess / 공유 객체
 	// =========================
 	_postProcesses.clear();
@@ -90,21 +81,31 @@ void Graphics::OnDestroy()
 	_backBufferTexture.Reset();
 	_depthStencilTexture.Reset();
 
+	// =========================
+	// SwapChain
+	// =========================
+	if (_swapChain)
+	{
+		_swapChain->SetFullscreenState(FALSE, nullptr);
+		_swapChain.Reset();
+	}
+
 	_deviceContext->ClearState();
 	_deviceContext->Flush();
 	_deviceContext.Reset();
-	ID3D11Debug* d3dDebug = nullptr; 
-	HRESULT hr = _device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug);
-	_device.Reset();
-	if (SUCCEEDED(hr))
-	{
-		OutputDebugStringW(L"==============출력 시작============\n");
-		// D3D11_RLDO_DETAIL을 사용하면 어떤 객체(Texture, Buffer 등)가 남았는지 상세히 보여줍니다.
-		d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-		d3dDebug->Release();
-		OutputDebugStringW(L"==============출력 종료============\n");
-	}
 
+	//ID3D11Debug* d3dDebug = nullptr; 
+	//HRESULT hr = _device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug);
+	//if (SUCCEEDED(hr))
+	//{
+	//	OutputDebugStringW(L"==============출력 시작============\n");
+	//	// D3D11_RLDO_DETAIL을 사용하면 어떤 객체(Texture, Buffer 등)가 남았는지 상세히 보여줍니다.
+	//	d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	//	d3dDebug->Release();
+	//	OutputDebugStringW(L"==============출력 종료============\n");
+	//}
+
+	_device.Reset();
 	_hwnd = nullptr;
 }
 
@@ -253,8 +254,6 @@ void Graphics::CreateDeviceAndSwapChain()
 		nullptr,
 		_deviceContext.GetAddressOf()
 	);
-	_device->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("Device") - 1, "Device");
-	_deviceContext->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("DeviceCtx") - 1, "DeviceCtx");
 	CHECK(hr);
 
 	ComPtr<ID3D11InfoQueue> infoQueue;

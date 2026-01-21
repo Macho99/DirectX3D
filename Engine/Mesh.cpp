@@ -43,7 +43,7 @@ void Mesh::CreateSphere()
 void Mesh::CreateBuffers()
 {
 	_vertexBuffer = make_shared<VertexBuffer>();
-	_vertexBuffer->Create(_geometry->GetVertices());
+	_vertexBuffer->Create(_geometry->GetVertices(), "MeshVB");
 	_indexBuffer = make_shared<IndexBuffer>();
 	_indexBuffer->Create(_geometry->GetIndices());
 }

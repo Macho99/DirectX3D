@@ -26,6 +26,5 @@ void IndexBuffer::Create(const vector<uint32>& indices)
 	ZeroMemory(&data, sizeof(data));
 	data.pSysMem = indices.data();
 
-	HRESULT hr = DEVICE->CreateBuffer(&desc, &data, _indexBuffer.GetAddressOf());
-	CHECK(hr);
+	DX_CREATE_BUFFER(&desc, &data, _indexBuffer);
 }

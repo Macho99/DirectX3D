@@ -61,9 +61,13 @@ void RawBuffer::CreateInput()
 	subResource.pSysMem = _inputData;
 
 	if (_inputData != nullptr)
-		CHECK(DEVICE->CreateBuffer(&desc, &subResource, _input.GetAddressOf()));
+	{
+		DX_CREATE_BUFFER(&desc, &subResource, _input);
+	}
 	else
-		CHECK(DEVICE->CreateBuffer(&desc, nullptr, _input.GetAddressOf()));
+	{
+		DX_CREATE_BUFFER(&desc, nullptr, _input);
+	}
 }
 
 void RawBuffer::CreateSRV()
@@ -92,7 +96,7 @@ void RawBuffer::CreateOutput()
 	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 
-	CHECK(DEVICE->CreateBuffer(&desc, NULL, _output.GetAddressOf()));
+	DX_CREATE_BUFFER(&desc, NULL, _output);
 }
 
 void RawBuffer::CreateUAV()
@@ -120,5 +124,5 @@ void RawBuffer::CreateResult()
 	desc.BindFlags = D3D11_USAGE_DEFAULT; // UAV가 연결되려면, USAGE는 DEFAULT여야 함.
 	desc.MiscFlags = 0;
 
-	CHECK(DEVICE->CreateBuffer(&desc, nullptr, _result.GetAddressOf()));
+	DX_CREATE_BUFFER(&desc, nullptr, _result);
 }

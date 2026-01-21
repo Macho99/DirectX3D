@@ -11,6 +11,11 @@
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
 
+void RenderManager::OnDestroy()
+{
+    _buffers.clear();
+}
+
 void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech)
 {
 	ClearData();

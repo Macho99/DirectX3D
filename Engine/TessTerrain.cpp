@@ -336,7 +336,7 @@ void TessTerrain::BuildQuadPatchVB()
 
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = &patchVertices[0];
-	HR(DEVICE->CreateBuffer(&vbd, &vinitData, _quadPatchVB.GetAddressOf()));
+	DX_CREATE_BUFFER(&vbd, &vinitData, _quadPatchVB);
 }
 
 void TessTerrain::BuildQuadPatchIB()
@@ -371,7 +371,7 @@ void TessTerrain::BuildQuadPatchIB()
 
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
-	HR(DEVICE->CreateBuffer(&ibd, &iinitData, _quadPatchIB.GetAddressOf()));
+	DX_CREATE_BUFFER(&ibd, &iinitData, _quadPatchIB);
 }
 
 void TessTerrain::BuildHeightmapSRV()

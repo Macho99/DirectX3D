@@ -47,7 +47,7 @@ SnowBillboard::SnowBillboard(Vec3 extent, int32 drawCount)
 	}
 
 	_vertexBuffer = make_shared<VertexBuffer>();
-	_vertexBuffer->Create(_vertices, 0);
+	_vertexBuffer->Create(_vertices, "SnowBillboardVB", 0);
 
 	const int32 indexCount = _drawCount * 6;
 	_indices.resize(indexCount);

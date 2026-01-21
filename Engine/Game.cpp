@@ -37,6 +37,8 @@ WPARAM Game::Run(GameDesc& desc)
 			Update();
 		}
 	}
+	OutputDebugStringW(L"==============RENDER============\n");
+	GET_SINGLE(RenderManager)->OnDestroy();
 	OutputDebugStringW(L"==============SHADER============\n");
 	ShaderManager::OnDestroy();
 	OutputDebugStringW(L"==============SCENE============\n");

@@ -36,7 +36,7 @@ Sky::Sky(const std::wstring& cubemapFilename, const wstring& shaderFileName)
 	//
 	//CHECK(DEVICE->CreateBuffer(&vbd, &vinitData, _vb.GetAddressOf()));
 	_vb = make_shared<VertexBuffer>();
-	_vb->Create(vertices, 0, false, true);
+	_vb->Create(vertices, "SkyVB", 0, false, true);
 
 	const vector<uint32>& geoindices = sphereGeometry->GetIndices();
 	_indexCount = geoindices.size();
