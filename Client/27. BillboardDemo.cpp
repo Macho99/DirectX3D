@@ -45,7 +45,6 @@ void BillboardDemo::Init()
         camera->AddComponent(make_shared<Camera>());
         camera->AddComponent(make_shared<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
-        camera->GetCamera()->SetSsaoSize();
         camera->GetCamera()->SetFar(500.f);
         CUR_SCENE->Add(camera);
     }

@@ -32,5 +32,7 @@ private:
 	
 private:
 	GameDesc _desc;
+    static int pendingWidth;
+    static int pendingHeight;
 };
 

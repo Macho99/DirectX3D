@@ -23,6 +23,7 @@ public:
 	virtual void Remove(shared_ptr<GameObject> gameObject);
 
 	unordered_set<shared_ptr<GameObject>>& GetObjects() { return _gameObjects; }
+    unordered_set<shared_ptr<GameObject>>& GetCameras() { return _cameras; }
 	shared_ptr<GameObject> GetMainCamera();
 	shared_ptr<GameObject> GetUICamera();
 	shared_ptr<GameObject> GetLight() { return _lights.empty() ? nullptr : *_lights.begin(); }

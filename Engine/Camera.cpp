@@ -10,13 +10,18 @@ Vec3 Camera::S_Pos = Vec3::Zero;
 
 Camera::Camera() : Super(ComponentType::Camera)
 {
-	_width = static_cast<float>(GAME->GetGameDesc().width);
-	_height = static_cast<float>(GAME->GetGameDesc().height);
+    OnSize();
 }
 
 Camera::~Camera()
 {
 
+}
+
+void Camera::OnSize()
+{
+	_width = static_cast<float>(GAME->GetGameDesc().width);
+	_height = static_cast<float>(GAME->GetGameDesc().height);
 }
 
 void Camera::LateUpdate()
@@ -40,11 +45,6 @@ void Camera::UpdateMatrix()
 	{
 		_matProjection = ::XMMatrixOrthographicLH(_width, _height, _near, _far);
 	}
-}
-
-void Camera::SetSsaoSize()
-{
-	GRAPHICS->SetSsaoSize(_width, _height, _fov, _far);
 }
 
 void Camera::SortGameObject()

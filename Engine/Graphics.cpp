@@ -4,6 +4,7 @@
 #include "Viewport.h"
 #include "Bloom.h"
 #include "ToneMapping.h"
+#include "Camera.h"
 
 #define SHADOWMAP_SIZE 4096
 
@@ -25,7 +26,6 @@ void Graphics::Init(HWND hwnd)
 	CreateRenderTargetView();
 	CreateDepthStencilView();
 	
-	SetViewport(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
 	_ssao = make_shared<Ssao>();
 	_normalDepthMap = make_shared<Texture>();
 }
@@ -109,6 +109,56 @@ void Graphics::OnDestroy()
 	_hwnd = nullptr;
 }
 
+void Graphics::OnSize(bool isFirst)
+{
+	int width = GAME->GetGameDesc().width;
+	int height = GAME->GetGameDesc().height;
+	if (isFirst == false)
+	{
+		// 1) GPU 파이프라인에서 백버퍼/DS를 먼저 떼기
+		ID3D11RenderTargetView* nullRTV[1] = { nullptr };
+		_deviceContext->OMSetRenderTargets(1, nullRTV, nullptr);
+
+		// (선택) 혹시 다른 곳에 바인딩된 SRV/UAV도 확실히 떼기
+		ID3D11ShaderResourceView* nullSRV[16] = {};
+		_deviceContext->PSSetShaderResources(0, 16, nullSRV);
+		_deviceContext->CSSetShaderResources(0, 16, nullSRV);
+		// UAV까지 쓰면 CSSetUnorderedAccessViews도 null로
+
+		// (선택) 즉시 해제 큐 처리
+		_deviceContext->Flush();
+
+		// 2) 스왑체인 버퍼로부터 만든 리소스들 Release
+		_renderTargetView.Reset();
+		_backBufferTexture.Reset();
+		// 백버퍼로 만든 SRV/기타도 Reset
+
+        HRESULT hr = _swapChain->ResizeBuffers(0,
+			width,
+			height,
+            DXGI_FORMAT_UNKNOWN,
+            0);
+        CHECK(hr);
+
+        _swapChain->GetBuffer(0, IID_PPV_ARGS(&_backBufferTexture));
+        CreateRenderTargetView();
+        CreateDepthStencilView();
+	}
+
+    auto& cameras = CUR_SCENE->GetCameras();
+    for (auto& camera : cameras)
+    {
+        camera->GetCamera()->OnSize();
+    }
+
+	shared_ptr<Camera> mainCam = CUR_SCENE->GetMainCamera()->GetCamera();
+    float fov = mainCam->GetFOV();
+    float farZ = mainCam->GetFar();
+	_ssao->OnSize(width, height, fov, farZ);
+	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
+	SetViewport(width, height);
+}
+
 void Graphics::RenderBegin()
 {
 	ClearShaderResources();
@@ -180,12 +230,6 @@ void Graphics::SetRTVAndDSV()
 {
 	_vp.RSSetViewport();
 	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
-}
-
-void Graphics::SetSsaoSize(int32 width, int32 height, float fovy, float farZ)
-{
-	_ssao->OnSize(width, height, fovy, farZ);
-	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
 }
 
 void Graphics::DrawPostProcesses()
@@ -273,8 +317,12 @@ void Graphics::CreateDeviceAndSwapChain()
 void Graphics::CreateRenderTargetView()
 {
 	HRESULT hr;
+	_ppTextures.clear();
+	_ppSRVs.clear();
+	_ppRTVs.clear();
+    _ppDebugTextures.clear();
 
-	//ComPtr<ID3D11Texture2D> backBuffer = nullptr;
+    _backBufferTexture.Reset();
 	hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf());
 	CHECK(hr);
 	//_backBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_backBufferTexture") - 1, "_backBufferTexture");
@@ -353,17 +401,15 @@ void Graphics::CreateDepthStencilView()
 		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		desc.Texture2D.MipSlice = 0;
 
-		HRESULT hr = DEVICE->CreateDepthStencilView(_depthStencilTexture.Get(), &desc, _depthStencilView.GetAddressOf());
-		CHECK(hr);
+		DX_CREATE_DSV(_depthStencilTexture.Get(), &desc, _depthStencilView);
 
 		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
 		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
 		{
 			desc.Texture2DArray.FirstArraySlice = i;
 			desc.Texture2DArray.ArraySize = 1;
-			hr = DEVICE->CreateDepthStencilView(_shadowDSTexture.Get(), &desc, _shadowDSV[i].GetAddressOf());
+			DX_CREATE_DSV(_shadowDSTexture.Get(), &desc, _shadowDSV[i]);
 		}
-		CHECK(hr);
 	}
 
 	{

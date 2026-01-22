@@ -15,6 +15,8 @@ public:
 	void Init(HWND hwnd);
     void OnDestroy();
 
+	void OnSize(bool isFirst);
+
 	void RenderBegin();
 	void RenderEnd();
 
@@ -33,8 +35,6 @@ public:
 	shared_ptr<Texture> GetNormalDepthMap();
 	shared_ptr<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
-
-	void SetSsaoSize(int32 width, int32 height, float fovy, float farZ);
 
 	void DrawPostProcesses();
 

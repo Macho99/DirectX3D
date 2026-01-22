@@ -14,6 +14,8 @@ public:
 	Camera();
 	virtual ~Camera();
 	
+	void OnSize();
+
 	virtual void LateUpdate() override;
 
 	void SetProjectionType(ProjectionType type) { _type = type; }
@@ -27,8 +29,6 @@ public:
 	void SetWidth(float value) { _width = value; }
 	void SetHeight(float value) { _height = value; }
 
-	void SetSsaoSize();
-
 	Matrix& GetViewMatrix() { return _matView; }
 	Matrix& GetProjectionMatrix() { return _matProjection; }
 
@@ -36,6 +36,7 @@ public:
 	float GetHeight() { return _height; }
     float GetNear() { return _near; }
     float GetFar() { return _far; }
+    float GetFOV() { return _fov; }
 
 private:
 	ProjectionType _type = ProjectionType::Perspective;

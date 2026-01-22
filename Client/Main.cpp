@@ -16,8 +16,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.hInstance = hInstance;
 	desc.vsync = false;
 	desc.hWnd = NULL;
-	desc.width = 1920;
-	desc.height = 1080;
+	desc.width = 900;
+	desc.height = 800;
 	desc.clearColor = Color(0.0f, 0.0f, 0.0f, 1.f);
 	desc.app = make_shared<BillboardDemo>();
 

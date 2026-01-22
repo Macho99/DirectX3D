@@ -2,6 +2,9 @@
 #include "Game.h"
 #include "IExecute.h"
 
+int Game::pendingWidth = 0;
+int Game::pendingHeight = 0;
+
 WPARAM Game::Run(GameDesc& desc)
 {
 	_desc = desc;
@@ -25,17 +28,30 @@ WPARAM Game::Run(GameDesc& desc)
 
 	MSG msg = { 0 };
 
+	GRAPHICS->OnSize(true);
+
 	while (msg.message != WM_QUIT)
 	{
 		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			::TranslateMessage(&msg);
 			::DispatchMessage(&msg);
+			continue;
 		}
-		else
-		{
-			Update();
-		}
+
+        if (pendingWidth != 0 && pendingHeight != 0)
+        {
+			if (_desc.width != pendingWidth || _desc.height != pendingHeight)
+			{
+				_desc.width = pendingWidth;
+				_desc.height = pendingHeight;
+				GRAPHICS->OnSize(false);
+			}
+            pendingWidth = 0;
+            pendingHeight = 0;
+        }
+
+		Update();
 	}
 	OutputDebugStringW(L"==============RENDER============\n");
 	GET_SINGLE(RenderManager)->OnDestroy();
@@ -102,6 +118,11 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 	switch (message)
 	{
 	case WM_SIZE:
+		if (wParam != SIZE_MINIMIZED)
+		{
+			pendingWidth = LOWORD(lParam);
+			pendingHeight = HIWORD(lParam);
+		}
 		break;
 	case WM_CLOSE:
 	case WM_DESTROY:
