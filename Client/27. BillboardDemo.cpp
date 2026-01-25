@@ -382,13 +382,6 @@ void BillboardDemo::Update()
             CUR_SCENE->Remove(pickObj);
         }
     }
-    bool showDemo = true;
-    ImGui::ShowDemoWindow(&showDemo);
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
-
-
-    //this_thread::sleep_for(chrono::seconds(1));
 }
 
 void BillboardDemo::Render()

@@ -7,6 +7,8 @@ int Game::pendingHeight = 0;
 
 WPARAM Game::Run(GameDesc& desc)
 {
+	desc.isEditor = true;
+
 	_desc = desc;
 	assert(_desc.app != nullptr);
 
@@ -142,14 +144,16 @@ void Game::Update()
 
 	GRAPHICS->RenderBegin();
 
-	GUI->Update();
 	SCENE->Update();
+	GRAPHICS->SetBackBufferRenderTarget();
+	GUI->Update();
 
 	_desc.app->Update();
 	_desc.app->Render();
-	GUI->Render();
 
+	GUI->Render();
 	GRAPHICS->RenderEnd();
+
 }
 
 void Game::ShowFps()
@@ -159,7 +163,7 @@ void Game::ShowFps()
 	WCHAR text[100] = L"";
 	int len = ::wsprintf(text, L"FPS: %d ", fps);
 	if(fps != 0)
-		swprintf(text + len, 100 - len, L"Frame Time: %.6f", 1.f / fps);
+		swprintf(text + len, 100 - len, L"Frame Time: %.2fms", 1000.f / fps);
 
 	::SetWindowText(_desc.hWnd, text);
 }

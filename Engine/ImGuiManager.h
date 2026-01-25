@@ -7,6 +7,7 @@ class ImGuiManager
 public:
 	void Init();
 	void Update();
+	void DrawDockSpace();
 	void Render();
     void OnDestroy();
 };

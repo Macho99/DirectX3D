@@ -24,7 +24,7 @@ void Graphics::Init(HWND hwnd)
     _postProcesses.push_back(make_shared<ToneMapping>());
 
 	CreateRenderTargetView();
-	CreateDepthStencilView();
+	CreateDSVAndShadowMap(true);
 	
 	_ssao = make_shared<Ssao>();
 	_normalDepthMap = make_shared<Texture>();
@@ -142,7 +142,7 @@ void Graphics::OnSize(bool isFirst)
 
         _swapChain->GetBuffer(0, IID_PPV_ARGS(&_backBufferTexture));
         CreateRenderTargetView();
-        CreateDepthStencilView();
+		CreateDSVAndShadowMap(false);
 	}
 
     auto& cameras = CUR_SCENE->GetCameras();
@@ -232,6 +232,11 @@ void Graphics::SetRTVAndDSV()
 	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
 }
 
+void Graphics::SetBackBufferRenderTarget()
+{
+    _deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), nullptr);
+}
+
 void Graphics::DrawPostProcesses()
 {
 	if (INPUT->GetButtonDown(KEY_TYPE::KEY_1) && !INPUT->GetButton(KEY_TYPE::LSHIFT))
@@ -251,11 +256,12 @@ void Graphics::DrawPostProcesses()
 		_vp.RSSetViewport();
 	}
 
-    _deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), 0);
+	ComPtr<ID3D11RenderTargetView> rtv = GAME->GetGameDesc().isEditor ? _sceneRTV : _renderTargetView;
+    _deviceContext->OMSetRenderTargets(1, rtv.GetAddressOf(), 0);
 
     PostProcess* toneMapping = _postProcesses.back().get();
     if (toneMapping->IsEnabled())
-        toneMapping->Render(_hdrSRV, _renderTargetView);
+        toneMapping->Render(_hdrSRV, rtv);
 }
 
 void Graphics::CreateDeviceAndSwapChain()
@@ -323,9 +329,25 @@ void Graphics::CreateRenderTargetView()
     _ppDebugTextures.clear();
 
     _backBufferTexture.Reset();
-	hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf());
-	CHECK(hr);
-	//_backBufferTexture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("_backBufferTexture") - 1, "_backBufferTexture");
+	CHECK(_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf()));
+	if (GAME->GetGameDesc().isEditor)
+	{
+		D3D11_TEXTURE2D_DESC texDesc;
+		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().width);
+		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().height);
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MiscFlags = 0;
+		DX_CREATE_TEXTURE2D(&texDesc, 0, _sceneTexture);
+		DX_CREATE_SRV(_sceneTexture.Get(), 0, _sceneSRV);
+		DX_CREATE_RTV(_sceneTexture.Get(), nullptr, _sceneRTV);
+	}
 
 	DX_CREATE_RTV(_backBufferTexture.Get(), nullptr, _renderTargetView);
 
@@ -366,7 +388,7 @@ void Graphics::CreateRenderTargetView()
 	}
 }
 
-void Graphics::CreateDepthStencilView()
+void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 {
 	{
 		D3D11_TEXTURE2D_DESC desc;
@@ -385,12 +407,15 @@ void Graphics::CreateDepthStencilView()
 
 		DX_CREATE_TEXTURE2D(&desc, nullptr, _depthStencilTexture);
 
-		desc.Width = SHADOWMAP_SIZE;
-		desc.Height = SHADOWMAP_SIZE;
-		desc.ArraySize = NUM_SHADOW_CASCADES;
-		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-		DX_CREATE_TEXTURE2D(&desc, nullptr, _shadowDSTexture);
+		if (createShadowMap)
+		{
+			desc.Width = SHADOWMAP_SIZE;
+			desc.Height = SHADOWMAP_SIZE;
+			desc.ArraySize = NUM_SHADOW_CASCADES;
+			desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+			desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+			DX_CREATE_TEXTURE2D(&desc, nullptr, _shadowDSTexture);
+		}
 	}
 
 	{
@@ -403,12 +428,15 @@ void Graphics::CreateDepthStencilView()
 
 		DX_CREATE_DSV(_depthStencilTexture.Get(), &desc, _depthStencilView);
 
-		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
-		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+		if (createShadowMap)
 		{
-			desc.Texture2DArray.FirstArraySlice = i;
-			desc.Texture2DArray.ArraySize = 1;
-			DX_CREATE_DSV(_shadowDSTexture.Get(), &desc, _shadowDSV[i]);
+			desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+			for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+			{
+				desc.Texture2DArray.FirstArraySlice = i;
+				desc.Texture2DArray.ArraySize = 1;
+				DX_CREATE_DSV(_shadowDSTexture.Get(), &desc, _shadowDSV[i]);
+			}
 		}
 	}
 
@@ -419,21 +447,23 @@ void Graphics::CreateDepthStencilView()
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 
-
-		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+		if (createShadowMap)
 		{
-			ComPtr<ID3D11ShaderResourceView> srv;
-			srvDesc.Texture2DArray.FirstArraySlice = i;
-			srvDesc.Texture2DArray.ArraySize = 1;
-			DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, srv);
+			for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+			{
+				ComPtr<ID3D11ShaderResourceView> srv;
+				srvDesc.Texture2DArray.FirstArraySlice = i;
+				srvDesc.Texture2DArray.ArraySize = 1;
+				DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, srv);
 
-			_shadowMap[i] = make_shared<Texture>();
-			_shadowMap[i]->SetSRV(srv);
+				_shadowMap[i] = make_shared<Texture>();
+				_shadowMap[i]->SetSRV(srv);
+			}
+
+			srvDesc.Texture2DArray.FirstArraySlice = 0;
+			srvDesc.Texture2DArray.ArraySize = NUM_SHADOW_CASCADES;
+			DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV);
 		}
-
-        srvDesc.Texture2DArray.FirstArraySlice = 0;
-		srvDesc.Texture2DArray.ArraySize = NUM_SHADOW_CASCADES;
-		DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV);
 	}
 }
 

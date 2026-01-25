@@ -35,13 +35,14 @@ public:
 	shared_ptr<Texture> GetNormalDepthMap();
 	shared_ptr<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
+    void SetBackBufferRenderTarget();
 
 	void DrawPostProcesses();
 
 private:
 	void CreateDeviceAndSwapChain();
 	void CreateRenderTargetView();
-	void CreateDepthStencilView();
+	void CreateDSVAndShadowMap(bool createShadowMap);
 
 public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
@@ -83,6 +84,11 @@ private:
 	// RTV
 	ComPtr<ID3D11Texture2D> _backBufferTexture;
 	ComPtr<ID3D11RenderTargetView> _renderTargetView;
+    ComPtr<ID3D11ShaderResourceView> _backBufferSRV;
+
+	ComPtr<ID3D11Texture2D> _sceneTexture;
+	ComPtr<ID3D11RenderTargetView> _sceneRTV;
+	ComPtr<ID3D11ShaderResourceView> _sceneSRV;
 
 	// DSV
 	ComPtr<ID3D11Texture2D> _depthStencilTexture;

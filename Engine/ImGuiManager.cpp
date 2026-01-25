@@ -25,6 +25,55 @@ void ImGuiManager::Update()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+    DrawDockSpace();    
+    bool showDemo = true;
+    ImGui::ShowDemoWindow(&showDemo);
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+}
+
+void ImGuiManager::DrawDockSpace()
+{
+    static bool dockspaceOpen = true;
+    static bool opt_fullscreen = true;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+
+    ImGuiWindowFlags window_flags =
+        ImGuiWindowFlags_MenuBar |
+        ImGuiWindowFlags_NoDocking;
+
+    if (opt_fullscreen)
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+
+        window_flags |=
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoNavFocus;
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+    ImGui::Begin("DockSpaceRoot", &dockspaceOpen, window_flags);
+
+    ImGui::PopStyleVar(2);
+
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::DockSpace(
+        dockspace_id,
+        ImVec2(0.0f, 0.0f),
+        dockspace_flags
+    );
+
+    ImGui::End();
 }
 
 void ImGuiManager::Render()

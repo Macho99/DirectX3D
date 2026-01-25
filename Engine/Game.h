@@ -11,6 +11,7 @@ struct GameDesc
 	bool vsync = false;
 	bool windowed = true;
 	Color clearColor = Color(0.5f, 0.5f, 0.5f, 0.5f);
+    bool isEditor = false;
 };
 
 class Game
