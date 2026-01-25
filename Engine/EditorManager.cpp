@@ -1,8 +1,20 @@
 #include "pch.h"
-#include "ImGuiManager.h"
+#include "EditorManager.h"
+#include "SceneView.h"
+#include "Hierarchy.h"
+#include "Console.h"
+#include "Inspector.h"
 
+EditorManager::EditorManager()
+{
+}
 
-void ImGuiManager::Init()
+EditorManager::~EditorManager()
+{
+
+}
+
+void EditorManager::Init()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -18,22 +30,44 @@ void ImGuiManager::Init()
 	// Setup Platform/Renderer backends
 	ImGui_ImplWin32_Init(GAME->GetGameDesc().hWnd);
 	ImGui_ImplDX11_Init(DEVICE.Get(), DC.Get());
+
+    _sceneView = make_unique<SceneView>();
+    _hierarchy = make_unique<Hierarchy>();
+    _console = make_unique<Console>();
+    _inspector = make_unique<Inspector>();
 }
 
-void ImGuiManager::Update()
+void EditorManager::Update()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-    DrawDockSpace();    
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("Window"))
+        {
+            ImGui::MenuItem("Hierarchy", nullptr, &_hierarchy->IsOpen);
+            ImGui::MenuItem("Scene", nullptr, & _sceneView->IsOpen);
+            ImGui::MenuItem("Inspector", nullptr, &_inspector->IsOpen);
+            ImGui::MenuItem("Console", nullptr, &_console->IsOpen);
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+    DrawDockSpace();
     bool showDemo = true;
     ImGui::ShowDemoWindow(&showDemo);
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+
+    _hierarchy->CheckAndOnGUI();
+    _sceneView->CheckAndOnGUI();
+    _console->CheckAndOnGUI();
+    _inspector->CheckAndOnGUI();
 }
 
-void ImGuiManager::DrawDockSpace()
+void EditorManager::DrawDockSpace()
 {
     static bool dockspaceOpen = true;
     static bool opt_fullscreen = true;
@@ -76,14 +110,14 @@ void ImGuiManager::DrawDockSpace()
     ImGui::End();
 }
 
-void ImGuiManager::Render()
+void EditorManager::Render()
 {
 	// Rendering
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiManager::OnDestroy()
+void EditorManager::OnDestroy()
 {    // Cleanup
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();

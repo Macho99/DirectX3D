@@ -11,8 +11,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.hInstance = hInstance;
 	desc.vsync = false;
 	desc.hWnd = NULL;
-	desc.width = 800;
-	desc.height = 600;
+	desc.sceneWidth = 800;
+	desc.sceneHeight = 600;
 	desc.clearColor = Color(0.0f, 0.0f, 0.0f, 1.f);
 	desc.app = make_shared<AssimpTool>();
 

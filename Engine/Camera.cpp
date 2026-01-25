@@ -20,8 +20,8 @@ Camera::~Camera()
 
 void Camera::OnSize()
 {
-	_width = static_cast<float>(GAME->GetGameDesc().width);
-	_height = static_cast<float>(GAME->GetGameDesc().height);
+	_width = static_cast<float>(GAME->GetGameDesc().sceneWidth);
+	_height = static_cast<float>(GAME->GetGameDesc().sceneHeight);
 }
 
 void Camera::LateUpdate()

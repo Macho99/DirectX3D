@@ -32,7 +32,7 @@ Bloom::Bloom()
         _combineMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
     }
 
-    OnSize(GAME->GetGameDesc().width, GAME->GetGameDesc().height);
+    OnSize(GAME->GetGameDesc().sceneWidth, GAME->GetGameDesc().sceneHeight);
 }
 
 Bloom::~Bloom()

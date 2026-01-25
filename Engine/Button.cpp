@@ -21,8 +21,8 @@ void Button::Create(Vec2 screenPos, Vec2 size, shared_ptr<Material> material)
 {
 	shared_ptr<GameObject> go = _gameObject.lock();
 
-	float height = GAME->GetGameDesc().height;
-	float width = GAME->GetGameDesc().width;
+	float height = GAME->GetGameDesc().sceneHeight;
+	float width = GAME->GetGameDesc().sceneWidth;
 
 	float x = screenPos.x - width / 2;
 	float y = height / 2 - screenPos.y;

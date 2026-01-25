@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "IExecute.h"
+#include "EditorManager.h"
 
 int Game::pendingWidth = 0;
 int Game::pendingHeight = 0;
@@ -8,6 +9,8 @@ int Game::pendingHeight = 0;
 WPARAM Game::Run(GameDesc& desc)
 {
 	desc.isEditor = true;
+    curSceneWidth = desc.sceneWidth;
+    curSceneHeight = desc.sceneHeight;
 
 	_desc = desc;
 	assert(_desc.app != nullptr);
@@ -22,7 +25,7 @@ WPARAM Game::Run(GameDesc& desc)
 	GRAPHICS->Init(_desc.hWnd);
 	TIME->Init();
 	INPUT->Init(_desc.hWnd);
-	GUI->Init();
+	EDITOR->Init();
 	RESOURCES->Init();
 	
 	_desc.app->Init();
@@ -41,7 +44,7 @@ WPARAM Game::Run(GameDesc& desc)
 			continue;
 		}
 
-        if (pendingWidth != 0 && pendingHeight != 0)
+        if (pendingWidth != 0 || pendingHeight != 0)
         {
 			if (_desc.width != pendingWidth || _desc.height != pendingHeight)
 			{
@@ -52,6 +55,12 @@ WPARAM Game::Run(GameDesc& desc)
             pendingWidth = 0;
             pendingHeight = 0;
         }
+		else if (curSceneWidth != _desc.sceneWidth || curSceneHeight != _desc.sceneHeight)
+		{
+			curSceneWidth = _desc.sceneWidth;
+			curSceneHeight = _desc.sceneHeight;
+			GRAPHICS->OnSize(false);
+		}
 
 		Update();
 	}
@@ -64,7 +73,7 @@ WPARAM Game::Run(GameDesc& desc)
 	OutputDebugStringW(L"==============RESOURCES============\n");
     RESOURCES->OnDestroy();
 	OutputDebugStringW(L"==============GUI============\n");
-	GUI->OnDestroy();
+	EDITOR->OnDestroy();
 	OutputDebugStringW(L"==============GRAPHICS============\n");
     GRAPHICS->OnDestroy();
 	return msg.wParam;
@@ -146,12 +155,12 @@ void Game::Update()
 
 	SCENE->Update();
 	GRAPHICS->SetBackBufferRenderTarget();
-	GUI->Update();
+	EDITOR->Update();
 
 	_desc.app->Update();
 	_desc.app->Render();
 
-	GUI->Render();
+	EDITOR->Render();
 	GRAPHICS->RenderEnd();
 
 }

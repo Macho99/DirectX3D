@@ -48,6 +48,7 @@ public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
 	Viewport& GetViewport() { return _vp; }
 	Viewport& GetShadowViewport() { return _shadowVP; }
+    ComPtr<ID3D11ShaderResourceView> GetSceneViewSRV() { return _sceneSRV; }
     ComPtr<ID3D11ShaderResourceView> GetShadowArraySRV() { return _shadowArraySRV; }
 	shared_ptr<Texture> GetShadowMap(int index) { return _shadowMap[index]; }
     shared_ptr<Texture> GetPostProcessDebugTexture(int index) { return _ppDebugTextures[index]; }

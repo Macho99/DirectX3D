@@ -113,6 +113,8 @@ void Graphics::OnSize(bool isFirst)
 {
 	int width = GAME->GetGameDesc().width;
 	int height = GAME->GetGameDesc().height;
+    int sceneWidth = GAME->GetGameDesc().sceneWidth;
+    int sceneHeight = GAME->GetGameDesc().sceneHeight;
 	if (isFirst == false)
 	{
 		// 1) GPU 파이프라인에서 백버퍼/DS를 먼저 떼기
@@ -154,9 +156,9 @@ void Graphics::OnSize(bool isFirst)
 	shared_ptr<Camera> mainCam = CUR_SCENE->GetMainCamera()->GetCamera();
     float fov = mainCam->GetFOV();
     float farZ = mainCam->GetFar();
-	_ssao->OnSize(width, height, fov, farZ);
+	_ssao->OnSize(sceneWidth, sceneHeight, fov, farZ);
 	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
-	SetViewport(width, height);
+	SetViewport(sceneWidth, sceneHeight);
 }
 
 void Graphics::RenderBegin()
@@ -333,8 +335,8 @@ void Graphics::CreateRenderTargetView()
 	if (GAME->GetGameDesc().isEditor)
 	{
 		D3D11_TEXTURE2D_DESC texDesc;
-		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().width);
-		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().height);
+		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().sceneWidth);
+		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().sceneHeight);
 		texDesc.MipLevels = 1;
 		texDesc.ArraySize = 1;
 		texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -353,8 +355,8 @@ void Graphics::CreateRenderTargetView()
 
 	{
 		D3D11_TEXTURE2D_DESC texDesc;
-		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().width);
-		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().height);
+		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().sceneWidth);
+		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().sceneHeight);
 		texDesc.MipLevels = 1;
 		texDesc.ArraySize = 1;
 		texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -393,8 +395,8 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 	{
 		D3D11_TEXTURE2D_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
-		desc.Width = static_cast<uint32>(GAME->GetGameDesc().width);
-		desc.Height = static_cast<uint32>(GAME->GetGameDesc().height);
+		desc.Width = static_cast<uint32>(GAME->GetGameDesc().sceneWidth);
+		desc.Height = static_cast<uint32>(GAME->GetGameDesc().sceneHeight);
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -440,6 +442,7 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 		}
 	}
 
+	if (createShadowMap)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
@@ -447,23 +450,20 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 
-		if (createShadowMap)
+		for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
 		{
-			for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
-			{
-				ComPtr<ID3D11ShaderResourceView> srv;
-				srvDesc.Texture2DArray.FirstArraySlice = i;
-				srvDesc.Texture2DArray.ArraySize = 1;
-				DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, srv);
+			ComPtr<ID3D11ShaderResourceView> srv;
+			srvDesc.Texture2DArray.FirstArraySlice = i;
+			srvDesc.Texture2DArray.ArraySize = 1;
+			DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, srv);
 
-				_shadowMap[i] = make_shared<Texture>();
-				_shadowMap[i]->SetSRV(srv);
-			}
-
-			srvDesc.Texture2DArray.FirstArraySlice = 0;
-			srvDesc.Texture2DArray.ArraySize = NUM_SHADOW_CASCADES;
-			DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV);
+			_shadowMap[i] = make_shared<Texture>();
+			_shadowMap[i]->SetSRV(srv);
 		}
+
+		srvDesc.Texture2DArray.FirstArraySlice = 0;
+		srvDesc.Texture2DArray.ArraySize = NUM_SHADOW_CASCADES;
+		DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, _shadowArraySRV);
 	}
 }
 

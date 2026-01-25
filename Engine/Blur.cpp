@@ -44,6 +44,7 @@ void Blur::OnSize(int32 width, int32 height)
 	_blurDesc.gTexelWidth = 1.0f / width;
 
 	D3D11_TEXTURE2D_DESC texDesc;
+	ZeroMemory(&texDesc, sizeof(texDesc));
 	texDesc.Width = width;
 	texDesc.Height = height;
 	texDesc.MipLevels = 1;
