@@ -8,6 +8,13 @@ struct ImRect
     float GetHeight() const { return Max.y - Min.y; }
 };
 
+enum class DropAction
+{
+    InsertBefore,
+    InsertAfter,
+    MakeChild
+};
+
 class Hierarchy : public EditorWindow
 {
     using Super = EditorWindow;
@@ -22,5 +29,10 @@ protected:
 private:
     void DrawInsertLine(const ImRect& r, bool top);
     void DrawChildHighlight(const ImRect& r);
+    void ShowHierarchy();
+    void DrawNode(shared_ptr<Transform>& node);
+
+private:
+    TransformID _selectedId;
 };
 

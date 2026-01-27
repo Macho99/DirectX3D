@@ -37,6 +37,7 @@ void Scene::OnDestroy()
         obj->OnDestroy();
     }
 	_gameObjects.clear();
+	_removeLists.clear();
 }
 
 void Scene::Update()
@@ -212,15 +213,24 @@ void Scene::Add(shared_ptr<GameObject> gameObject)
 
 void Scene::Remove(shared_ptr<GameObject> gameObject)
 {
-	shared_ptr<Transform> transform = gameObject->GetTransform();
-	if (transform->HasParent() == false)
-	{
-		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
-	}
+	_removeLists.push_back(gameObject);
+}
 
-	_gameObjects.erase(transform->GetID());
-	_cameras.erase(gameObject);
-	_lights.erase(gameObject);
+void Scene::CleanUpRemoveLists()
+{
+	for (shared_ptr<GameObject>& gameObject : _removeLists)
+	{
+		shared_ptr<Transform> transform = gameObject->GetTransform();
+		if (transform->HasParent() == false)
+		{
+			_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
+		}
+
+		_gameObjects.erase(transform->GetID());
+		_cameras.erase(gameObject);
+		_lights.erase(gameObject);
+	}
+	_removeLists.clear();
 }
 
 shared_ptr<GameObject> Scene::GetMainCamera()
@@ -362,4 +372,15 @@ void Scene::CheckCollision()
 
 		}
 	}
+}
+
+bool Scene::TryGetTransform(TransformID id, OUT shared_ptr<Transform>& transform)
+{
+	auto iter = _gameObjects.find(id);
+	if (iter != _gameObjects.end())
+	{
+		transform = (*iter).second->GetTransform();
+		return true;
+	}
+	return false;
 }

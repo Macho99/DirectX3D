@@ -53,7 +53,14 @@ public:
 		return static_pointer_cast<T>(GetFixedComponent(type));
 	}
 
-protected:
+	wstring GetName() { return _name; }
+	void SetName(wstring name) { _name = name; }
+	bool IsActive() { return _isActive; }
+	void SetActive(bool active) { _isActive = active; }
+
+private:
+	bool _isActive;
+	
 	array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
 	vector<shared_ptr<MonoBehaviour>> _scripts;
 

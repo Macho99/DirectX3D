@@ -49,7 +49,7 @@ public:
 	void SetParent(shared_ptr<Transform> parent);
 	void SetSiblingIndex(int index);
 
-	const vector<shared_ptr<Transform>>& GetChildren() { return _children; }
+	vector<shared_ptr<Transform>>& GetChildren() { return _children; }
 
     TransformID GetID() const { return _id; }
 

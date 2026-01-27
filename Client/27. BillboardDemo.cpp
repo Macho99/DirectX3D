@@ -40,7 +40,7 @@ void BillboardDemo::Init()
     shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
     {
         // Camera
-        auto camera = make_shared<GameObject>();
+        auto camera = make_shared<GameObject>(L"Camera");
         camera->GetTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
         camera->AddComponent(make_shared<Camera>());
         camera->AddComponent(make_shared<CameraMove>());
@@ -51,7 +51,7 @@ void BillboardDemo::Init()
 
     {
         // Light
-        auto light = make_shared<GameObject>();
+        auto light = make_shared<GameObject>(L"Light");
         light->AddComponent(make_shared<Light>());
     
         LightDesc lightDesc;
@@ -82,7 +82,7 @@ void BillboardDemo::Init()
 
         for (int32 i = 0; i < 1; i++)
         {
-            auto obj = make_shared<GameObject>();
+            auto obj = make_shared<GameObject>(L"Veigar");
             obj->GetTransform()->SetLocalPosition(Vec3(0, 1, 0));
             obj->GetTransform()->SetLocalScale(Vec3(1.f));
             obj->AddComponent(make_shared<MeshRenderer>());
@@ -127,7 +127,7 @@ void BillboardDemo::Init()
         material->GetMaterialDesc().ambient = Vec4(1.f);
         tessTerrain->SetMaterial(material);
 
-        auto obj = make_shared<GameObject>();
+        auto obj = make_shared<GameObject>(L"Terrain");
         obj->GetTransform()->SetPosition(Vec3(0, 0, 0));
         obj->AddComponent(tessTerrain);
 
@@ -172,7 +172,7 @@ void BillboardDemo::Init()
     {
         shared_ptr<Shader> grassRenderShader = make_shared<Shader>(L"GrassRender.fx");
         shared_ptr<Shader> grassComputeShader = make_shared<Shader>(L"GrassCompute.fx");
-        auto obj = make_shared<GameObject>();
+        auto obj = make_shared<GameObject>(L"GrassRenderer");
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
         auto grassRenderer = make_shared<GrassRenderer>(grassComputeShader, tessTerrain, L"..\\Resources\\Textures\\Grass\\Grass_A_BaseColor_Split.txt");
         obj->AddComponent(grassRenderer);
@@ -224,7 +224,7 @@ void BillboardDemo::Init()
     //Particle
     {
         auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
-        auto obj = make_shared<GameObject>();
+        auto obj = make_shared<GameObject>(L"Fire");
         obj->GetTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
         obj->AddComponent(make_shared<ParticleSystem>());
         shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
@@ -244,7 +244,7 @@ void BillboardDemo::Init()
     {	// Billboard
         {
             auto snowShader = make_shared<Shader>(L"24. SnowDemo.fx");
-            auto obj = make_shared<GameObject>();
+            auto obj = make_shared<GameObject>(L"Snow");
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
             obj->AddComponent(make_shared<SnowBillboard>(Vec3(100, 100, 100), 10000));
             {
@@ -282,7 +282,7 @@ void BillboardDemo::Init()
 
         for (int32 i = 0; i < 10; i++)
         {
-            auto obj = make_shared<GameObject>();
+            auto obj = make_shared<GameObject>(L"Kachujin" + std::to_wstring(i));
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
             obj->AddComponent(make_shared<ModelAnimator>(animShader));
@@ -300,9 +300,9 @@ void BillboardDemo::Init()
         m2->ReadModel(L"Tower/Tower");
         m2->ReadMaterial(L"Tower/Tower");
 
-        for (int32 i = 0; i < 100; i++)
+        for (int32 i = 0; i < 5; i++)
         {
-            auto obj = make_shared<GameObject>();
+            auto obj = make_shared<GameObject>(L"Tower" + std::to_wstring(i));
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
 
@@ -322,7 +322,7 @@ void BillboardDemo::Init()
 
         for (int32 i = 0; i < 10; i++)
         {
-            auto obj = make_shared<GameObject>();
+            auto obj = make_shared<GameObject>(L"Tree" + std::to_wstring(i));
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(5.f));
 
@@ -356,7 +356,7 @@ void BillboardDemo::Init()
 
     {
         // UICamera
-        auto camera = make_shared<GameObject>();
+        auto camera = make_shared<GameObject>(L"UICamera");
         camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
         camera->AddComponent(make_shared<Camera>());
         camera->GetCamera()->SetProjectionType(ProjectionType::Orthographic);
