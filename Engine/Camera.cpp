@@ -50,13 +50,14 @@ void Camera::UpdateMatrix()
 void Camera::SortGameObject()
 {
 	shared_ptr<Scene> scene = CUR_SCENE;
-	unordered_set<shared_ptr<GameObject>>& gameObjects = scene->GetObjects();
+	unordered_map<TransformID, shared_ptr<GameObject>>& gameObjects = scene->GetObjects();
 
 	_vecForward.clear();
 	_vecBackward.clear();
 
-	for (auto& gameObject : gameObjects)
+	for (auto& pair : gameObjects)
 	{
+		shared_ptr<GameObject>& gameObject = pair.second;
 		if (IsCulled(gameObject->GetLayerIndex()))
 			continue;
 

@@ -6,6 +6,7 @@
 #include "Terrain.h"
 #include "Button.h"
 #include "Sky.h"
+#include "Transform.h"
 
 Scene::Scene()
 {
@@ -18,9 +19,9 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	auto copys = _gameObjects;
-	for (shared_ptr<GameObject> obj : copys)
+	for (auto& pair : _gameObjects)
 	{
+        shared_ptr<GameObject>& obj = pair.second;
 		obj->Start();
 	}
 }
@@ -30,8 +31,9 @@ void Scene::OnDestroy()
 	_cameras.clear();
     _lights.clear();
 	_sky.reset();
-    for (shared_ptr<GameObject> obj : _gameObjects)
+    for (auto& pair : _gameObjects)
     {
+		shared_ptr<GameObject>& obj = pair.second;
         obj->OnDestroy();
     }
 	_gameObjects.clear();
@@ -39,9 +41,9 @@ void Scene::OnDestroy()
 
 void Scene::Update()
 {
-	auto copys = _gameObjects;
-	for (shared_ptr<GameObject> obj : copys)
+	for (auto& pair : _gameObjects)
 	{
+		shared_ptr<GameObject>& obj = pair.second;
 		obj->Update();
 	}
 
@@ -50,9 +52,9 @@ void Scene::Update()
 
 void Scene::LateUpdate()
 {
-	auto copys = _gameObjects;
-	for (shared_ptr<GameObject> obj : copys)
+	for (auto& pair : _gameObjects)
 	{
+		shared_ptr<GameObject>& obj = pair.second;
 		obj->LateUpdate();
 	}
 
@@ -191,7 +193,13 @@ void Scene::RenderUICamera(Camera* cam)
 
 void Scene::Add(shared_ptr<GameObject> gameObject)
 {
-	_gameObjects.insert(gameObject);
+	shared_ptr<Transform> transform = gameObject->GetTransform();
+	if (transform->HasParent() == false)
+	{
+		_rootObjects.push_back(transform);
+	}
+
+	_gameObjects.insert(make_pair(transform->GetID(), gameObject));
 	if (gameObject->GetFixedComponent(ComponentType::Camera) != nullptr)
 	{
 		_cameras.insert(gameObject);
@@ -204,7 +212,13 @@ void Scene::Add(shared_ptr<GameObject> gameObject)
 
 void Scene::Remove(shared_ptr<GameObject> gameObject)
 {
-	_gameObjects.erase(gameObject);
+	shared_ptr<Transform> transform = gameObject->GetTransform();
+	if (transform->HasParent() == false)
+	{
+		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
+	}
+
+	_gameObjects.erase(transform->GetID());
 	_cameras.erase(gameObject);
 	_lights.erase(gameObject);
 }
@@ -241,10 +255,9 @@ void Scene::PickUI()
 
 	shared_ptr<Camera> camera = GetUICamera()->GetCamera();
 	
-	const auto gameObjects = GetObjects();
-	
-	for (auto& gameObject : gameObjects)
+	for (auto& pair : _gameObjects)
 	{
+		shared_ptr<GameObject>& gameObject = pair.second;
 		if (gameObject->GetButton() == nullptr)
 			continue;
 
@@ -281,8 +294,9 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 	// WorldSpace에서 연산
 	Ray ray = Ray(worldRayOrigin, worldRayDir);
 
-	for (auto& gameObject : _gameObjects)
+	for (auto& pair : _gameObjects)
 	{
+        shared_ptr<GameObject>& gameObject = pair.second;
 		if (camera->IsCulled(gameObject->GetLayerIndex()))
 			continue;
 
@@ -300,8 +314,9 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 		}
 	}
 
-	for (auto& gameObject : _gameObjects)
+	for (auto& pair : _gameObjects)
 	{
+        shared_ptr<GameObject>& gameObject = pair.second;
 		if (gameObject->GetTerrain() == nullptr)
 			continue;
 
@@ -324,8 +339,9 @@ void Scene::CheckCollision()
 {
 	vector<shared_ptr<BaseCollider>> colliders;
 	
-	for (shared_ptr<GameObject> object : _gameObjects)
+	for (auto& pair : _gameObjects)
 	{
+        shared_ptr<GameObject>& object = pair.second;
 		if (object->GetCollider() == nullptr)
 			continue;
 

@@ -3,7 +3,8 @@
 
 Transform::Transform() : Super(ComponentType::Transform)
 {
-
+    static TransformID nextId = 1;
+    _id = nextId++;
 }
 
 Transform::~Transform()
@@ -13,6 +14,7 @@ Transform::~Transform()
 
 void Transform::Awake()
 {
+
 }
 
 void Transform::Update()
@@ -51,9 +53,10 @@ void Transform::UpdateTransform()
 
 	_matLocal = matScale * matRotation * matTranslation;
 
-	if (HasParent())
+	shared_ptr<Transform> parent;
+	if (TryGetParent(OUT parent))
 	{
-		_matWorld = _matLocal * _parent->GetWorldMatrix();
+		_matWorld = _matLocal * parent->GetWorldMatrix();
 	}
 	else
 	{
@@ -71,9 +74,10 @@ void Transform::UpdateTransform()
 
 void Transform::SetScale(const Vec3& worldScale)
 {
-	if (HasParent())
+	shared_ptr<Transform> parent;
+	if (TryGetParent(OUT parent))
 	{
-		Vec3 parentScale = _parent->GetScale();
+		Vec3 parentScale = parent->GetScale();
 		Vec3 scale = worldScale;
 		scale.x /= parentScale.x;
 		scale.y /= parentScale.y;
@@ -88,9 +92,10 @@ void Transform::SetScale(const Vec3& worldScale)
 
 void Transform::SetRotation(const Vec3& worldRotation)
 {
-	if (HasParent())
+	shared_ptr<Transform> parent;
+	if (TryGetParent(OUT parent))
 	{
-		Matrix inverseMatrix = _parent->GetWorldMatrix().Invert();
+		Matrix inverseMatrix = parent->GetWorldMatrix().Invert();
 
 		Vec3 rotation;
 		rotation.TransformNormal(worldRotation, inverseMatrix);
@@ -103,9 +108,10 @@ void Transform::SetRotation(const Vec3& worldRotation)
 
 void Transform::SetPosition(const Vec3& worldPosition)
 {
-	if (HasParent())
+	shared_ptr<Transform> parent;
+	if (TryGetParent(OUT parent))
 	{
-		Matrix worldToParentLocalMatrix = _parent->GetWorldMatrix().Invert();
+		Matrix worldToParentLocalMatrix = parent->GetWorldMatrix().Invert();
 
 		Vec3 position;
 		position.Transform(worldPosition, worldToParentLocalMatrix);
@@ -116,4 +122,106 @@ void Transform::SetPosition(const Vec3& worldPosition)
 	{
 		SetLocalPosition(worldPosition);
 	}
+}
+
+void Transform::SetParent(shared_ptr<Transform> newParent)
+{
+	const TransformID myID = GetID();
+	if (newParent != nullptr)
+	{
+		if (newParent->GetID() == myID)
+		{
+			wcout << L"자기 자신을 부모로 설정하려고 시도함" << endl;
+			return;
+		}
+
+		if (IsAncestorOf(newParent))
+		{
+			wcout << L"자손 노드를 부모로 설정하려고 시도함" << endl; // Prevent cycle
+			return;
+		}
+
+		newParent->_children.push_back(GetGameObject()->GetTransform());
+	}
+	// newParent == nullptr
+	else
+	{
+		if (CUR_SCENE->IsInScene(myID))
+		{
+			vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
+			rootObjects.push_back(GetGameObject()->GetTransform());
+		}
+	}
+
+
+	// oldParent Setting
+	{
+		shared_ptr<Transform> oldParent;
+		if (TryGetParent(OUT oldParent))
+		{
+			// Remove from old parent's children
+			vector<shared_ptr<Transform>>& siblings = oldParent->_children;
+			RemoveFromTransforms(siblings, myID);
+		}
+		// oldParent == nullptr
+		else
+		{
+			if (CUR_SCENE->IsInScene(myID))
+			{
+				vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
+				RemoveFromTransforms(rootObjects, myID);
+			}
+		}
+	}
+	
+	_parent = newParent;
+}
+
+void Transform::SetSiblingIndex(int index)
+{
+	vector<shared_ptr<Transform>>* siblings;
+
+	shared_ptr<Transform> parent;
+	if (TryGetParent(OUT parent))
+	{
+		siblings = &parent->_children;
+	}
+	else
+	{
+		if (CUR_SCENE->IsInScene(GetID() == false))
+		{
+			wcout << L"씬에 할당하지 않고 SetSiblingIndex()을 호출하였습니다." << endl;
+			return;
+		}
+		siblings = &CUR_SCENE->GetRootObjects();
+	}
+
+	index = min((uint64)index, siblings->size() - 1);
+
+}
+
+bool Transform::IsAncestorOf(shared_ptr<Transform>& target)
+{
+    if (target == nullptr)
+        return false;
+
+	const TransformID myID = this->GetID();
+    shared_ptr<Transform> current = target->GetParent();
+    while (current)
+    {
+        if (current->GetID() == myID)
+            return true;
+        current = current->GetParent();
+    }
+    return false;
+}
+
+void Transform::RemoveFromTransforms(vector<shared_ptr<Transform>>& transforms, TransformID targetId)
+{
+	auto iter = std::remove_if(transforms.begin(), transforms.end(),
+		[targetId](shared_ptr<Transform>& transform)
+		{
+			return transform->GetID() == targetId;
+		});
+	transforms.erase(iter, transforms.end());
 }

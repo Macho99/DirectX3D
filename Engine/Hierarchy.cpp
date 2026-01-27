@@ -1,6 +1,14 @@
 #include "pch.h"
 #include "Hierarchy.h"
 
+Hierarchy::Hierarchy()
+{
+}
+
+Hierarchy::~Hierarchy()
+{
+}
+
 void Hierarchy::Init()
 {
 }
@@ -14,7 +22,7 @@ void Hierarchy::OnGUI()
     ShowHierarchySample();
 }
 
-static void DrawInsertLine(const ImRect& r, bool top)
+void Hierarchy::DrawInsertLine(const ImRect& r, bool top)
 {
     ImDrawList* dl = ImGui::GetWindowDrawList();
     ImU32 col = ImGui::GetColorU32(ImGuiCol_PlotLinesHovered); // visible highlight
@@ -24,7 +32,7 @@ static void DrawInsertLine(const ImRect& r, bool top)
     dl->AddLine(ImVec2(r.Min.x + pad, y), ImVec2(r.Max.x - pad, y), col, 2.0f);
 }
 
-static void DrawChildHighlight(const ImRect& r)
+void Hierarchy::DrawChildHighlight(const ImRect& r)
 {
     ImDrawList* dl = ImGui::GetWindowDrawList();
     ImU32 col = ImGui::GetColorU32(ImGuiCol_HeaderHovered);

@@ -38,15 +38,28 @@ public:
 	Matrix GetWorldMatrix() { return _matWorld; }
 
 	// °èÃþ °ü°è
-	bool HasParent() { return _parent != nullptr; }
+	bool HasParent() { return _parent.lock() != nullptr; }
+    bool TryGetParent(OUT shared_ptr<Transform>& outParent)
+    {
+        outParent = _parent.lock();
+        return outParent != nullptr;
+    }
 	
-	shared_ptr<Transform> GetParent() { return _parent; }
-	void SetParent(shared_ptr<Transform> parent) { _parent = parent; }
+	shared_ptr<Transform> GetParent() { return _parent.lock(); }
+	void SetParent(shared_ptr<Transform> parent);
+	void SetSiblingIndex(int index);
 
 	const vector<shared_ptr<Transform>>& GetChildren() { return _children; }
-	void AddChild(shared_ptr<Transform> child) { _children.push_back(child); }
+
+    TransformID GetID() const { return _id; }
 
 private:
+    bool IsAncestorOf(shared_ptr<Transform>& transform);
+	void RemoveFromTransforms(vector<shared_ptr<Transform>>& transforms, TransformID targetId);
+
+private:
+	TransformID _id;
+
 	Vec3 _localScale = { 1.f, 1.f, 1.f }; 
 	Vec3 _localRotation = { 0.f, 0.f, 0.f };
 	Vec3 _localPosition = { 0.f, 0.f, 0.f };
@@ -60,7 +73,7 @@ private:
 	Vec3 _position;
 
 private:
-	shared_ptr<Transform> _parent;
+	weak_ptr<Transform> _parent;
 	vector<shared_ptr<Transform>> _children;
 };
 

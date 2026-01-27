@@ -12,11 +12,15 @@ class Hierarchy : public EditorWindow
 {
     using Super = EditorWindow;
 public:
-    Hierarchy() {}
-    ~Hierarchy() {}
+    Hierarchy();
+    ~Hierarchy();
     void Init() override;
 
 protected:
     void OnGUI() override;
+
+private:
+    void DrawInsertLine(const ImRect& r, bool top);
+    void DrawChildHighlight(const ImRect& r);
 };
 

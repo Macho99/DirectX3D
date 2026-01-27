@@ -14,7 +14,7 @@
 #include "SnowBillboard.h"
 #include "Renderer.h"
 
-GameObject::GameObject()
+GameObject::GameObject(wstring name) : _name(name)
 {
 }
 

@@ -18,7 +18,7 @@ class Renderer;
 class GameObject : public enable_shared_from_this<GameObject>
 {
 public:
-	GameObject();
+	GameObject(wstring name = L"GameObject");
 	~GameObject();
 
 	void Awake();
@@ -58,5 +58,6 @@ protected:
 	vector<shared_ptr<MonoBehaviour>> _scripts;
 
 	uint8 _layerIndex = 0;
+	wstring _name;
 };
 

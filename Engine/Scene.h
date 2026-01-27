@@ -2,6 +2,7 @@
 
 class Sky;
 class Camera;
+class Transform;
 
 class Scene
 {
@@ -22,7 +23,7 @@ public:
 	virtual void Add(shared_ptr<GameObject> gameObject);
 	virtual void Remove(shared_ptr<GameObject> gameObject);
 
-	unordered_set<shared_ptr<GameObject>>& GetObjects() { return _gameObjects; }
+	unordered_map<TransformID, shared_ptr<GameObject>>& GetObjects() { return _gameObjects; }
     unordered_set<shared_ptr<GameObject>>& GetCameras() { return _cameras; }
 	shared_ptr<GameObject> GetMainCamera();
 	shared_ptr<GameObject> GetUICamera();
@@ -34,9 +35,12 @@ public:
 	void SetSky(shared_ptr<Sky> sky) { _sky = sky; }
 
 	void CheckCollision();
+	bool IsInScene(TransformID id) { return _gameObjects.find(id) != _gameObjects.end(); }
+	vector<shared_ptr<Transform>>& GetRootObjects() { return _rootObjects; }
 
 private:
-	unordered_set<shared_ptr<GameObject>> _gameObjects;
+    vector<shared_ptr<Transform>> _rootObjects;
+	unordered_map<TransformID, shared_ptr<GameObject>> _gameObjects;
 	// Cache Camera
 	unordered_set<shared_ptr<GameObject>> _cameras;
 	// Cache Light
