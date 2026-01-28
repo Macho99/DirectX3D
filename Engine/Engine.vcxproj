@@ -175,6 +175,7 @@ xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"</
     <ClInclude Include="Component.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="DebugTexWindow.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="EnginePch.h" />
@@ -260,6 +261,7 @@ xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"</
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="DebugTexWindow.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="FoliageController.cpp" />

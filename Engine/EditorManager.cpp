@@ -4,6 +4,7 @@
 #include "Hierarchy.h"
 #include "Console.h"
 #include "Inspector.h"
+#include "DebugTexWindow.h"
 
 EditorManager::EditorManager()
 {
@@ -35,6 +36,12 @@ void EditorManager::Init()
     _hierarchy = make_unique<Hierarchy>();
     _console = make_unique<Console>();
     _inspector = make_unique<Inspector>();
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap0", GRAPHICS->GetShadowMap(0)));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap1", GRAPHICS->GetShadowMap(1)));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap2", GRAPHICS->GetShadowMap(2)));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"NormalDepthMap", GRAPHICS->GetNormalDepthMap()));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"SsaoMap", GRAPHICS->GetSsaoMap()));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"PostProcess", GRAPHICS->GetPostProcessDebugTexture(0)));
 }
 
 void EditorManager::Update()
@@ -52,6 +59,12 @@ void EditorManager::Update()
             ImGui::MenuItem("Inspector", nullptr, &_inspector->IsOpen);
             ImGui::MenuItem("Console", nullptr, &_console->IsOpen);
 
+            for (unique_ptr<DebugTexWindow>& debugTexWindow : _debugTexWindows)
+            {
+                wstring name = debugTexWindow->GetName();
+                ImGui::MenuItem(string(name.begin(), name.end()).c_str(), nullptr, &debugTexWindow->IsOpen);
+            }
+
             ImGui::EndMenu();
         }
 
@@ -65,6 +78,10 @@ void EditorManager::Update()
     _sceneView->CheckAndOnGUI();
     _console->CheckAndOnGUI();
     _inspector->CheckAndOnGUI();
+    for (unique_ptr<DebugTexWindow>& debugTexWindow : _debugTexWindows)
+    {
+        debugTexWindow->CheckAndOnGUI();
+    }
 }
 
 void EditorManager::DrawDockSpace()
@@ -122,4 +139,10 @@ void EditorManager::OnDestroy()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+
+    _sceneView.reset();
+    _hierarchy.reset();
+    _inspector.reset();
+    _console.reset();
+    _debugTexWindows.clear();
 }

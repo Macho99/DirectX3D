@@ -315,6 +315,9 @@
     <ClInclude Include="Hierarchy.h">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClInclude>
+    <ClInclude Include="DebugTexWindow.h">
+      <Filter>50. Editor\EditorWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -552,6 +555,9 @@
       <Filter>50. Editor\EditorWindow</Filter>
     </ClCompile>
     <ClCompile Include="Inspector.cpp">
+      <Filter>50. Editor\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugTexWindow.cpp">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClCompile>
   </ItemGroup>
