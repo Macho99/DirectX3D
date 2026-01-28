@@ -130,50 +130,53 @@ void Transform::SetParent(shared_ptr<Transform> newParent)
 	shared_ptr<Transform> oldParent;
 	TryGetParent(OUT oldParent);
 
-	if (newParent != nullptr || oldParent != nullptr)
+	if (newParent == nullptr && oldParent == nullptr)
+		return;
+
+	if (newParent == oldParent)
+		return;
+
+	if (newParent != nullptr)
 	{
-		if (newParent != nullptr)
+		if (newParent->GetID() == myID)
 		{
-			if (newParent->GetID() == myID)
-			{
-				wcout << L"자기 자신을 부모로 설정하려고 시도함" << endl;
-				return;
-			}
-
-			if (IsAncestorOf(newParent))
-			{
-				wcout << L"자손 노드를 부모로 설정하려고 시도함" << endl; // Prevent cycle
-				return;
-			}
-
-			newParent->_children.push_back(GetGameObject()->GetTransform());
+			wcout << L"자기 자신을 부모로 설정하려고 시도함" << endl;
+			return;
 		}
-		// newParent == nullptr
+
+		if (IsAncestorOf(newParent))
+		{
+			wcout << L"자손 노드를 부모로 설정하려고 시도함" << endl; // Prevent cycle
+			return;
+		}
+
+		newParent->_children.push_back(GetGameObject()->GetTransform());
+	}
+	// newParent == nullptr
+	else
+	{
+		if (CUR_SCENE->IsInScene(myID))
+		{
+			vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
+			rootObjects.push_back(GetGameObject()->GetTransform());
+		}
+	}
+
+	// oldParent Setting
+	{
+		if (oldParent)
+		{
+			// Remove from old parent's children
+			vector<shared_ptr<Transform>>& siblings = oldParent->_children;
+			RemoveFromTransforms(siblings, myID);
+		}
+		// oldParent == nullptr
 		else
 		{
 			if (CUR_SCENE->IsInScene(myID))
 			{
 				vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
-				rootObjects.push_back(GetGameObject()->GetTransform());
-			}
-		}
-
-		// oldParent Setting
-		{
-			if (oldParent)
-			{
-				// Remove from old parent's children
-				vector<shared_ptr<Transform>>& siblings = oldParent->_children;
-				RemoveFromTransforms(siblings, myID);
-			}
-			// oldParent == nullptr
-			else
-			{
-				if (CUR_SCENE->IsInScene(myID))
-				{
-					vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
-					RemoveFromTransforms(rootObjects, myID);
-				}
+				RemoveFromTransforms(rootObjects, myID);
 			}
 		}
 	}

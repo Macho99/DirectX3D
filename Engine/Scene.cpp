@@ -220,17 +220,27 @@ void Scene::CleanUpRemoveLists()
 {
 	for (shared_ptr<GameObject>& gameObject : _removeLists)
 	{
-		shared_ptr<Transform> transform = gameObject->GetTransform();
-		if (transform->HasParent() == false)
-		{
-			_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
-		}
-
-		_gameObjects.erase(transform->GetID());
-		_cameras.erase(gameObject);
-		_lights.erase(gameObject);
+		RemoveGameObjectRecur(gameObject);
 	}
 	_removeLists.clear();
+}
+
+void Scene::RemoveGameObjectRecur(const shared_ptr<GameObject>& gameObject)
+{
+	shared_ptr<Transform> transform = gameObject->GetTransform();
+
+	// 2) 자식 먼저 전부 삭제
+	for (auto& child : transform->GetChildren())
+		RemoveGameObjectRecur(child->GetGameObject());
+
+	if (transform->HasParent() == false)
+	{
+		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
+	}
+
+	_gameObjects.erase(transform->GetID());
+	_cameras.erase(gameObject);
+	_lights.erase(gameObject);
 }
 
 shared_ptr<GameObject> Scene::GetMainCamera()
@@ -383,4 +393,14 @@ bool Scene::TryGetTransform(TransformID id, OUT shared_ptr<Transform>& transform
 		return true;
 	}
 	return false;
+}
+
+shared_ptr<Transform> Scene::GetTransform(TransformID id)
+{
+	auto iter = _gameObjects.find(id);
+	if (iter != _gameObjects.end())
+	{
+		return (*iter).second->GetTransform();
+	}
+	return nullptr;
 }

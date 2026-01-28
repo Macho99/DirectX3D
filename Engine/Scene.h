@@ -23,6 +23,7 @@ public:
 	virtual void Add(shared_ptr<GameObject> gameObject);
 	virtual void Remove(shared_ptr<GameObject> gameObject);
 	void CleanUpRemoveLists();
+	void RemoveGameObjectRecur(const shared_ptr<GameObject>& gameObject);
 
 	unordered_map<TransformID, shared_ptr<GameObject>>& GetObjects() { return _gameObjects; }
     unordered_set<shared_ptr<GameObject>>& GetCameras() { return _cameras; }
@@ -39,6 +40,7 @@ public:
 	bool IsInScene(TransformID id) { return _gameObjects.find(id) != _gameObjects.end(); }
 	vector<shared_ptr<Transform>>& GetRootObjects() { return _rootObjects; }
 	bool TryGetTransform(TransformID id, OUT shared_ptr<Transform>& transform);
+	shared_ptr<Transform> GetTransform(TransformID id);
 
 private:
     vector<shared_ptr<Transform>> _rootObjects;

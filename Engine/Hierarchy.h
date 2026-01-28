@@ -15,6 +15,31 @@ enum class DropAction
     MakeChild
 };
 
+struct PendingOperation
+{
+    virtual ~PendingOperation() = default;
+    virtual void Do() = 0;
+};
+
+struct PendingReparent : PendingOperation
+{
+    PendingReparent(TransformID droppedId, TransformID targetId, DropAction action);
+
+    TransformID droppedId;
+    TransformID targetId;
+    DropAction action;
+
+    void Do() override;
+};
+
+struct PendingDelete : PendingOperation
+{
+    PendingDelete(TransformID targetId);
+    TransformID targetId;
+
+    void Do() override;
+};
+
 class Hierarchy : public EditorWindow
 {
     using Super = EditorWindow;
@@ -31,8 +56,10 @@ private:
     void DrawChildHighlight(const ImRect& r);
     void ShowHierarchy();
     void DrawNode(shared_ptr<Transform>& node);
+    void ApplyPending();
 
 private:
     TransformID _selectedId;
+    vector<unique_ptr<PendingOperation>> _pendingOps;
 };
 

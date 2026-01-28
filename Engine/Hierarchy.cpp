@@ -18,6 +18,7 @@ void Hierarchy::OnGUI()
     Super::OnGUI();
 
     ShowHierarchy();
+    ApplyPending();
 }
 
 void Hierarchy::DrawInsertLine(const ImRect& r, bool top)
@@ -107,11 +108,7 @@ void Hierarchy::ShowHierarchy()
             {
                 TransformID dropped = *(const TransformID*)p->Data;
 
-                shared_ptr<Transform> findTransform;
-                if (curScene->TryGetTransform(dropped, OUT findTransform))
-                {
-                    findTransform->SetParent(nullptr);
-                }
+                _pendingOps.push_back(make_unique<PendingReparent>(dropped, -1, DropAction::MakeChild));
             }
             ImGui::EndDragDropTarget();
         }
@@ -159,15 +156,12 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
     // Context menu on node
     if (ImGui::BeginPopupContextItem("NodeContext"))
     {
-        if (ImGui::MenuItem("Rename"))
-            gameObject->SetName(name + L" (Renamed)");
-
         if (ImGui::MenuItem("Toggle Active"))
             gameObject->SetActive(!gameObject->IsActive());
 
-        if (ImGui::MenuItem("Delete Subtree"))
+        if (ImGui::MenuItem("Delete"))
         {
-            wcout << "Delete TODO" << endl;
+            _pendingOps.push_back(make_unique<PendingDelete>(nodeId));
         }
 
         ImGui::EndPopup();
@@ -208,34 +202,7 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
         if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("DND_ENTITY"))
         {
             TransformID dropped = *(const TransformID*)p->Data;
-            shared_ptr<Transform> droppedTransform;
-
-            CUR_SCENE->TryGetTransform(dropped, OUT droppedTransform);
-
-            if (dropAction == DropAction::MakeChild)
-                droppedTransform->SetParent(node);
-            else
-            {
-                vector<shared_ptr<Transform>>* siblings;
-                shared_ptr<Transform> parent = nullptr;
-                if (node->TryGetParent(parent))
-                {
-                    siblings = &parent->GetChildren();
-                }
-                else
-                {
-                    siblings = &CUR_SCENE->GetRootObjects();
-                }
-                
-                int siblingIdx = std::find(siblings->begin(), siblings->end(), node) - siblings->begin();
-
-                droppedTransform->SetParent(node->GetParent());
-                if (dropAction == DropAction::InsertAfter)
-                {
-                    siblingIdx++;
-                }
-                droppedTransform->SetSiblingIndex(siblingIdx);
-            }
+            _pendingOps.push_back(make_unique<PendingReparent>(dropped, nodeId, dropAction));
         }
 
         ImGui::EndDragDropTarget();
@@ -250,4 +217,58 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
     }
 
     ImGui::PopID();
+}
+
+void Hierarchy::ApplyPending()
+{
+    for (auto& op : _pendingOps)
+    {
+        op->Do();
+    }
+    _pendingOps.clear();
+}
+
+PendingReparent::PendingReparent(TransformID droppedId, TransformID targetId, DropAction action)
+    :droppedId(droppedId), targetId(targetId), action(action)
+{
+}
+
+void PendingReparent::Do()
+{
+    shared_ptr<Transform> droppedTransform = CUR_SCENE->GetTransform(droppedId);
+    shared_ptr<Transform> targetTransform = CUR_SCENE->GetTransform(targetId);
+    if (droppedTransform == nullptr) 
+        return;
+
+    if (targetTransform == nullptr || action == DropAction::MakeChild)
+    {
+        droppedTransform->SetParent(targetTransform);
+    }
+    else
+    {
+        shared_ptr<Transform> parent = targetTransform->GetParent();
+        droppedTransform->SetParent(parent);
+
+        // siblings는 parent 기준/루트 기준으로 다시 계산
+        vector<shared_ptr<Transform>>& siblings = parent ? parent->GetChildren()
+            : CUR_SCENE->GetRootObjects();
+
+        int idx = int(std::find(siblings.begin(), siblings.end(), targetTransform) - siblings.begin());
+        if (action == DropAction::InsertAfter) idx++;
+        droppedTransform->SetSiblingIndex(idx);
+    }
+}
+
+PendingDelete::PendingDelete(TransformID targetId)
+    :targetId(targetId)
+{
+}
+
+void PendingDelete::Do()
+{
+    shared_ptr<Transform> targetTransform = CUR_SCENE->GetTransform(targetId);
+    if (targetTransform == nullptr)
+        return;
+
+    CUR_SCENE->Remove(targetTransform->GetGameObject());
 }
