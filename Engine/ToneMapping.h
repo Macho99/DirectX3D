@@ -7,7 +7,8 @@ class ToneMapping : public PostProcess
 
 public:
     ToneMapping();
-    void Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv) override;
+    void SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv) override;
+    void Render(ComPtr<ID3D11RenderTargetView> rtv) override;
 
 private:
     shared_ptr<Material> _toneMappingMat;

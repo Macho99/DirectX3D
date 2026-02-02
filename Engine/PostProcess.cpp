@@ -6,7 +6,7 @@ PostProcess::PostProcess()
 {
 }
 
-void PostProcess::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv)
+void PostProcess::Render(ComPtr<ID3D11RenderTargetView> rtv)
 {
     DC->ClearRenderTargetView(rtv.Get(), reinterpret_cast<const float*>(&Colors::Black));
     DC->OMSetRenderTargets(1, rtv.GetAddressOf(), 0);

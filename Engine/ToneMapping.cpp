@@ -12,9 +12,13 @@ ToneMapping::ToneMapping()
     _toneMappingMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
 }
 
-void ToneMapping::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv)
+void ToneMapping::SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv)
 {
-    Super::Render(srv, rtv);
-    _toneMappingMat->GetDiffuseMap()->SetSRV(srv.Get());
+    _toneMappingMat->GetDiffuseMap()->SetSRV(srv);
+}
+
+void ToneMapping::Render(ComPtr<ID3D11RenderTargetView> rtv)
+{
+    Super::Render(rtv);
     DrawQuad(_toneMappingMat.get());
 }

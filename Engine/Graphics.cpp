@@ -251,8 +251,7 @@ void Graphics::DrawPostProcesses()
 		PostProcess* postProcess = _postProcesses[i].get();
         if (postProcess->IsEnabled() == false)
             continue;
-		postProcess->Render(_hdrSRV, _ppRTVs[i]);
-		_ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
+		postProcess->Render(_ppRTVs[i]);
 		_deviceContext->CopyResource(_hdrTexture.Get(), _ppTextures[i].Get());
         postProcess->SetDebugTextureSRV(_ppDebugTextures[i]);
 		_vp.RSSetViewport();
@@ -263,7 +262,7 @@ void Graphics::DrawPostProcesses()
 
     PostProcess* toneMapping = _postProcesses.back().get();
     if (toneMapping->IsEnabled())
-        toneMapping->Render(_hdrSRV, rtv);
+        toneMapping->Render(rtv);
 }
 
 void Graphics::CreateDeviceAndSwapChain()
@@ -312,7 +311,7 @@ void Graphics::CreateDeviceAndSwapChain()
 	if (SUCCEEDED(DEVICE->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
 	{
 		// 경고(Warning)가 발생했을 때 브레이크포인트를 겁니다.
-		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+		//infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 
 		// 에러(Error)가 발생했을 때 브레이크포인트를 겁니다.
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -371,6 +370,12 @@ void Graphics::CreateRenderTargetView()
 		DX_CREATE_SRV(_hdrTexture.Get(), 0, _hdrSRV);
 		DX_CREATE_RTV(_hdrTexture.Get(), 0, _hdrRTV);
 
+		for (int i = 0; i < _postProcesses.size(); i++)
+		{
+			_postProcesses[i]->SetHDR_SRV(_hdrSRV);
+		}
+
+		// Without toneMapping
 		for (int i = 0; i < _postProcesses.size() - 1; i++)
 		{
             ComPtr<ID3D11Texture2D> ppTex;
@@ -386,6 +391,7 @@ void Graphics::CreateRenderTargetView()
             _ppRTVs.push_back(ppRTV);
 
             _ppDebugTextures.push_back(make_shared<Texture>());
+			_ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
 		}
 	}
 }

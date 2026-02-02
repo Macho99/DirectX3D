@@ -76,6 +76,7 @@ WPARAM Game::Run(GameDesc& desc)
 	EDITOR->OnDestroy();
 	OutputDebugStringW(L"==============GRAPHICS============\n");
     GRAPHICS->OnDestroy();
+	OutputDebugStringW(L"==============END=============\n");
 	return msg.wParam;
 }
 

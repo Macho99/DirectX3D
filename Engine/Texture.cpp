@@ -43,3 +43,7 @@ ComPtr<ID3D11Texture2D> Texture::GetTexture2D()
 	return texture;
 }
 
+void Texture::SetSRV(ComPtr<ID3D11ShaderResourceView> srv)
+{
+    _shaderResourveView = srv;
+}

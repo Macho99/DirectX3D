@@ -39,9 +39,14 @@ Bloom::~Bloom()
 {
 }
 
-void Bloom::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv)
+void Bloom::SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv)
 {
-    _brightFilterMat->GetDiffuseMap()->SetSRV(srv.Get());
+    _hdrSRV = srv;
+    _brightFilterMat->GetDiffuseMap()->SetSRV(srv);
+}
+
+void Bloom::Render(ComPtr<ID3D11RenderTargetView> rtv)
+{
     DC->ClearRenderTargetView(_brightFilterRTV.Get(), reinterpret_cast<const float*>(&Colors::Black));
     DC->OMSetRenderTargets(1, _brightFilterRTV.GetAddressOf(), 0);
     DrawQuad(_brightFilterMat.get());
@@ -72,9 +77,9 @@ void Bloom::Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTarg
     }
 
     GRAPHICS->GetViewport().RSSetViewport();
-    Super::Render(srv, rtv);
-    _combineMat->GetDiffuseMap()->SetSRV(_upSampleSRVs.back().Get());
-    _combineMat->GetSpecularMap()->SetSRV(srv);
+    Super::Render(rtv);
+    _combineMat->GetDiffuseMap()->SetSRV(_upSampleSRVs.back());
+    _combineMat->GetSpecularMap()->SetSRV(_hdrSRV);
     DrawQuad(_combineMat.get());
 }
 

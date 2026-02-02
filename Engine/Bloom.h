@@ -9,7 +9,8 @@ class Bloom : public PostProcess
 public:
     Bloom();
     ~Bloom();
-    void Render(ComPtr<ID3D11ShaderResourceView> srv, ComPtr<ID3D11RenderTargetView> rtv) override;
+    void SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv) override;
+    void Render(ComPtr<ID3D11RenderTargetView> rtv) override;
     void OnSize(UINT width, UINT height) override;
     void SetDebugTextureSRV(shared_ptr<Texture> texture) override;
 
@@ -19,6 +20,8 @@ private:
     void ProcessBlur(int index);
 
 private:
+    ComPtr<ID3D11ShaderResourceView> _hdrSRV;
+
     shared_ptr<Material> _brightFilterMat;
     shared_ptr<Material> _gaussianBlurMat;
     shared_ptr<Material> _downSampleMat;
