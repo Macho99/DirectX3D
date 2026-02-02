@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "DebugTexWindow.h"
 
-DebugTexWindow::DebugTexWindow(wstring windowName, shared_ptr<Texture> debugTexture)
-    :_windowName(windowName), _debugTexture(debugTexture)
+DebugTexWindow::DebugTexWindow(wstring windowName, function<Texture*()> getDebugTexture)
+    : _windowName(windowName)
+    , _getDebugTexture(getDebugTexture)
 {
 }
 
@@ -12,9 +13,15 @@ DebugTexWindow::~DebugTexWindow()
 
 void DebugTexWindow::OnGUI()
 {
-    ImGui::Begin(string(_windowName.begin(), _windowName.end()).c_str(), &IsOpen);
+    ImGui::Begin(string(_windowName.begin(), _windowName.end()).c_str(), &IsOpen); 
+    if (_windowName == L"PostProcess")
+    {
+        int a = 0;
+    }
 
-    Vec2 size = _debugTexture->GetSize();
+    Texture* debugTexture = _getDebugTexture();
+
+    Vec2 size = debugTexture->GetSize();
     if (size.x < 10 || size.y < 10)
     {
         ImGui::Text("Texture Size not available");
@@ -42,7 +49,7 @@ void DebugTexWindow::OnGUI()
 
     // ===== 이미지 출력 =====
     ImGui::Image(
-        (ImTextureID)_debugTexture->GetComPtr().Get(),
+        (ImTextureID)debugTexture->GetComPtr().Get(),
         imageSize
     );
 

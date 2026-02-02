@@ -36,12 +36,12 @@ void EditorManager::Init()
     _hierarchy = make_unique<Hierarchy>();
     _console = make_unique<Console>();
     _inspector = make_unique<Inspector>();
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap0", GRAPHICS->GetShadowMap(0)));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap1", GRAPHICS->GetShadowMap(1)));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap2", GRAPHICS->GetShadowMap(2)));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"NormalDepthMap", GRAPHICS->GetNormalDepthMap()));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"SsaoMap", GRAPHICS->GetSsaoMap()));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"PostProcess", GRAPHICS->GetPostProcessDebugTexture(0)));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).get(); }));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).get(); }));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).get(); }));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"NormalDepthMap", []() { return GRAPHICS->GetNormalDepthMap().get(); }));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"SsaoMap", []() { return GRAPHICS->GetSsaoMap().get(); }));
+    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"PostProcess", [](){ return GRAPHICS->GetPostProcessDebugTexture(0).get();}));
 }
 
 void EditorManager::Update()

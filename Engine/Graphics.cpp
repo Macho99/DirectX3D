@@ -160,6 +160,10 @@ void Graphics::OnSize(bool isFirst)
 	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
     _normalDepthMap->SetSize(Vec2((float)sceneWidth, (float)sceneHeight));
 	SetViewport(sceneWidth, sceneHeight);
+    for (auto& postProcess : _postProcesses)
+    {
+        postProcess->OnSize(sceneWidth, sceneHeight);
+    }
 }
 
 void Graphics::RenderBegin()
@@ -394,9 +398,10 @@ void Graphics::CreateRenderTargetView()
             _ppSRVs.push_back(ppSRV);
             _ppRTVs.push_back(ppRTV);
 
-            _ppDebugTextures.push_back(make_shared<Texture>());
-            _ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
-            _ppDebugTextures[i]->SetSize({ sceneWidth, sceneHeight });
+            shared_ptr<Texture> debugTexture = make_shared<Texture>();
+			debugTexture->SetSRV(_ppSRVs[i]);
+			debugTexture->SetSize({ sceneWidth, sceneHeight });
+            _ppDebugTextures.push_back(debugTexture);
 		}
 	}
 }

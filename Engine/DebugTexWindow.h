@@ -5,7 +5,7 @@ class DebugTexWindow : public EditorWindow
     using Super = EditorWindow;
 
 public:
-    DebugTexWindow(wstring windowName, shared_ptr<Texture> debugTexture);
+    DebugTexWindow(wstring windowName, function<Texture*()> getDebugTexture);
     ~DebugTexWindow();
 
     wstring GetName() const { return _windowName; }
@@ -14,6 +14,6 @@ protected:
 
 private:
     wstring _windowName;
-    shared_ptr<Texture> _debugTexture;
+    function<Texture*()> _getDebugTexture;
 };
 
