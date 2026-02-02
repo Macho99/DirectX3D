@@ -315,8 +315,19 @@ void Graphics::CreateDeviceAndSwapChain()
 	ComPtr<ID3D11InfoQueue> infoQueue;
 	if (SUCCEEDED(DEVICE->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
 	{
+		// 408을 “숨길” 필터
+		D3D11_MESSAGE_ID hide[] = {
+			(D3D11_MESSAGE_ID)408, // QUERY_BEGIN_ABANDONING_PREVIOUS_RESULTS
+		};
+
+		D3D11_INFO_QUEUE_FILTER f = {};
+		f.DenyList.NumIDs = _countof(hide);
+		f.DenyList.pIDList = hide;
+
+		infoQueue->AddStorageFilterEntries(&f);
+
 		// 경고(Warning)가 발생했을 때 브레이크포인트를 겁니다.
-		//infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 
 		// 에러(Error)가 발생했을 때 브레이크포인트를 겁니다.
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
