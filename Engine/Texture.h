@@ -15,13 +15,14 @@ public:
 	ComPtr<ID3D11Texture2D> GetTexture2D();
 	void SetSRV(ComPtr<ID3D11ShaderResourceView> srv);
 
+    void SetSize(Vec2 size) { _size = size; }
 	Vec2 GetSize() { return _size; }
 
 	const DirectX::ScratchImage& GetInfo() { return _img; }
 
 private:
 	ComPtr<ID3D11ShaderResourceView> _shaderResourveView;
-	Vec2 _size = {0.f, 0.f};
+	Vec2 _size = {1.f, 1.f};
 	DirectX::ScratchImage _img = {};
 };
 

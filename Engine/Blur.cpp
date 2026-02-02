@@ -61,6 +61,7 @@ void Blur::OnSize(int32 width, int32 height)
 	DX_CREATE_SRV(_ambientTexture0.Get(), 0, _ambientSRV0);
 	DX_CREATE_RTV(_ambientTexture0.Get(), 0, _ambientRTV0);
 	_texture0->SetSRV(_ambientSRV0);
+    _texture0->SetSize(Vec2((float)width, (float)height));
 
 	DX_CREATE_TEXTURE2D(&texDesc, 0, _ambientTexture1);
 	DX_CREATE_SRV(_ambientTexture1.Get(), 0, _ambientSRV1);

@@ -158,6 +158,7 @@ void Graphics::OnSize(bool isFirst)
     float farZ = mainCam->GetFar();
 	_ssao->OnSize(sceneWidth, sceneHeight, fov, farZ);
 	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
+    _normalDepthMap->SetSize(Vec2((float)sceneWidth, (float)sceneHeight));
 	SetViewport(sceneWidth, sceneHeight);
 }
 
@@ -329,13 +330,16 @@ void Graphics::CreateRenderTargetView()
 	_ppRTVs.clear();
     _ppDebugTextures.clear();
 
+    float sceneWidth = GAME->GetGameDesc().sceneWidth;
+    float sceneHeight = GAME->GetGameDesc().sceneHeight;
+
     _backBufferTexture.Reset();
 	CHECK(_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf()));
 	if (GAME->GetGameDesc().isEditor)
 	{
 		D3D11_TEXTURE2D_DESC texDesc;
-		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().sceneWidth);
-		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().sceneHeight);
+		texDesc.Width = static_cast<uint32>(sceneWidth);
+		texDesc.Height = static_cast<uint32>(sceneHeight);
 		texDesc.MipLevels = 1;
 		texDesc.ArraySize = 1;
 		texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -354,8 +358,8 @@ void Graphics::CreateRenderTargetView()
 
 	{
 		D3D11_TEXTURE2D_DESC texDesc;
-		texDesc.Width = static_cast<uint32>(GAME->GetGameDesc().sceneWidth);
-		texDesc.Height = static_cast<uint32>(GAME->GetGameDesc().sceneHeight);
+		texDesc.Width = static_cast<uint32>(sceneWidth);
+		texDesc.Height = static_cast<uint32>(sceneHeight);
 		texDesc.MipLevels = 1;
 		texDesc.ArraySize = 1;
 		texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -391,7 +395,8 @@ void Graphics::CreateRenderTargetView()
             _ppRTVs.push_back(ppRTV);
 
             _ppDebugTextures.push_back(make_shared<Texture>());
-			_ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
+            _ppDebugTextures[i]->SetSRV(_ppSRVs[i]);
+            _ppDebugTextures[i]->SetSize({ sceneWidth, sceneHeight });
 		}
 	}
 }
@@ -465,6 +470,7 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 
 			_shadowMap[i] = make_shared<Texture>();
 			_shadowMap[i]->SetSRV(srv);
+            _shadowMap[i]->SetSize({ SHADOWMAP_SIZE, SHADOWMAP_SIZE });
 		}
 
 		srvDesc.Texture2DArray.FirstArraySlice = 0;
