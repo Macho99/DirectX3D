@@ -318,6 +318,9 @@
     <ClInclude Include="DebugTexWindow.h">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClInclude>
+    <ClInclude Include="DebugManager.h">
+      <Filter>98. Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -559,6 +562,9 @@
     </ClCompile>
     <ClCompile Include="DebugTexWindow.cpp">
       <Filter>50. Editor\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugManager.cpp">
+      <Filter>98. Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

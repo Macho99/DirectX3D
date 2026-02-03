@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <filesystem>
+#include <mutex>
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -72,6 +73,7 @@ using namespace Microsoft::WRL;
 #include "ResourceManager.h"
 #include "RenderManager.h"
 #include "SceneManager.h"
+#include "DebugManager.h"
 
 // Engine
 #include "VertexData.h"

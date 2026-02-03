@@ -26,6 +26,7 @@ public:										\
 #define EDITOR		GET_SINGLE(EditorManager)
 #define SCENE		GET_SINGLE(SceneManager)
 #define CUR_SCENE	SCENE->GetCurrentScene()
+#define DBG			GET_SINGLE(DebugManager) // DEBUG라는 디파인은 있는 경우가 많으므로 DBG로 줄임
 
 //#define GET_TECH(isShadow) isShadow == true ? 1 : 0
 
