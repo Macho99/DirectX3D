@@ -32,16 +32,21 @@ void EditorManager::Init()
 	ImGui_ImplWin32_Init(GAME->GetGameDesc().hWnd);
 	ImGui_ImplDX11_Init(DEVICE.Get(), DC.Get());
 
-    _sceneView = make_unique<SceneView>();
-    _hierarchy = make_unique<Hierarchy>();
-    _console = make_unique<Console>();
-    _inspector = make_unique<Inspector>();
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).get(); }));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).get(); }));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).get(); }));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"NormalDepthMap", []() { return GRAPHICS->GetNormalDepthMap().get(); }));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"SsaoMap", []() { return GRAPHICS->GetSsaoMap().get(); }));
-    _debugTexWindows.push_back(make_unique<DebugTexWindow>(L"PostProcess", [](){ return GRAPHICS->GetPostProcessDebugTexture(0).get();}));
+    _editorWindows.push_back(make_unique<SceneView>());
+    _editorWindows.push_back(make_unique<Hierarchy>());
+    _editorWindows.push_back(make_unique<Console>());
+    _editorWindows.push_back(make_unique<Inspector>());
+    _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).get(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).get(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).get(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("NormalDepthMap", []() { return GRAPHICS->GetNormalDepthMap().get(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("SsaoMap", []() { return GRAPHICS->GetSsaoMap().get(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("PostProcess", [](){ return GRAPHICS->GetPostProcessDebugTexture(0).get();}));
+
+    for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
+    {
+        editorWindow->Init();
+    }
 }
 
 void EditorManager::Update()
@@ -54,15 +59,12 @@ void EditorManager::Update()
     {
         if (ImGui::BeginMenu("Window"))
         {
-            ImGui::MenuItem("Hierarchy", nullptr, &_hierarchy->IsOpen);
-            ImGui::MenuItem("Scene", nullptr, & _sceneView->IsOpen);
-            ImGui::MenuItem("Inspector", nullptr, &_inspector->IsOpen);
-            ImGui::MenuItem("Console", nullptr, &_console->IsOpen);
-
-            for (unique_ptr<DebugTexWindow>& debugTexWindow : _debugTexWindows)
+            for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
             {
-                wstring name = debugTexWindow->GetName();
-                ImGui::MenuItem(string(name.begin(), name.end()).c_str(), nullptr, &debugTexWindow->IsOpen);
+                if(editorWindow->IsMenuEnabled() == false)
+                    continue;
+
+                ImGui::MenuItem(editorWindow->GetName().c_str(), nullptr, &editorWindow->IsOpen);
             }
 
             ImGui::EndMenu();
@@ -74,13 +76,9 @@ void EditorManager::Update()
     bool showDemo = true;
     ImGui::ShowDemoWindow(&showDemo);
 
-    _hierarchy->CheckAndOnGUI();
-    _sceneView->CheckAndOnGUI();
-    _console->CheckAndOnGUI();
-    _inspector->CheckAndOnGUI();
-    for (unique_ptr<DebugTexWindow>& debugTexWindow : _debugTexWindows)
+    for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
     {
-        debugTexWindow->CheckAndOnGUI();
+        editorWindow->CheckAndOnGUI();
     }
 }
 
@@ -140,9 +138,5 @@ void EditorManager::OnDestroy()
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
-    _sceneView.reset();
-    _hierarchy.reset();
-    _inspector.reset();
-    _console.reset();
-    _debugTexWindows.clear();
+    _editorWindows.clear();
 }

@@ -2,6 +2,7 @@
 #include "Console.h"
 
 Console::Console()
+    : Super("Console")
 {
 }
 
@@ -17,7 +18,7 @@ void Console::OnGUI()
 {
     Super::OnGUI();
 
-    ImGui::Begin("Console", &IsOpen);
+    ImGui::Begin(_windowName.c_str(), &IsOpen);
     ImGui::Text("Console Content");
     ImGui::End();
 }

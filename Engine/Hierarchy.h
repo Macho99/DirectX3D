@@ -59,7 +59,7 @@ private:
     void ApplyPending();
 
 private:
-    TransformID _selectedId;
+    TransformID _selectedId = -1;
     vector<unique_ptr<PendingOperation>> _pendingOps;
 };
 

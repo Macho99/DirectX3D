@@ -2,6 +2,7 @@
 #include "Hierarchy.h"
 
 Hierarchy::Hierarchy()
+    :Super("Hierarchy")
 {
 }
 
@@ -43,7 +44,7 @@ void Hierarchy::DrawChildHighlight(const ImRect& r)
 void Hierarchy::ShowHierarchy()
 {
     // ===================== UI =====================
-    ImGui::Begin("Hierarchy");
+    ImGui::Begin(_windowName.c_str());
     shared_ptr<Scene> curScene = CUR_SCENE;
 
     // Right-click empty space menu
@@ -112,6 +113,12 @@ void Hierarchy::ShowHierarchy()
             }
             ImGui::EndDragDropTarget();
         }
+
+        if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+            _selectedId = -1;
+
+        if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+            _selectedId = -1;
     }
 
     ImGui::End();
@@ -149,8 +156,10 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
 
     bool open = ImGui::TreeNodeEx((void*)(intptr_t)node->GetID(), flags, "%s", string(name.begin(), name.end()).c_str());
 
-    // Click select
-    if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+    if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+        _selectedId = nodeId;
+
+    if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
         _selectedId = nodeId;
 
     // Context menu on node

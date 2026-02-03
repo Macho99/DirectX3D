@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "DebugTexWindow.h"
 
-DebugTexWindow::DebugTexWindow(wstring windowName, function<Texture*()> getDebugTexture)
-    : _windowName(windowName)
-    , _getDebugTexture(getDebugTexture)
+DebugTexWindow::DebugTexWindow(string windowName, function<Texture*()> getDebugTexture)
+    : Super(windowName), _getDebugTexture(getDebugTexture)
 {
+    _windowName = windowName;
 }
 
 DebugTexWindow::~DebugTexWindow()
@@ -13,11 +13,7 @@ DebugTexWindow::~DebugTexWindow()
 
 void DebugTexWindow::OnGUI()
 {
-    ImGui::Begin(string(_windowName.begin(), _windowName.end()).c_str(), &IsOpen); 
-    if (_windowName == L"PostProcess")
-    {
-        int a = 0;
-    }
+    ImGui::Begin(_windowName.c_str(), &IsOpen); 
 
     Texture* debugTexture = _getDebugTexture();
 

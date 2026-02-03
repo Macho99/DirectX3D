@@ -2,6 +2,7 @@
 #include "Inspector.h"
 
 Inspector::Inspector()
+    :Super("Inspector")
 {
 }
 
@@ -13,7 +14,7 @@ void Inspector::OnGUI()
 {
     Super::OnGUI();
 
-    ImGui::Begin("Inspector", &IsOpen);
+    ImGui::Begin(_windowName.c_str(), &IsOpen);
     ImGui::Text("Inspector Content");
     ImGui::End();
 }

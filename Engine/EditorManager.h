@@ -1,10 +1,6 @@
 #pragma once
 
-class SceneView;
-class Hierarchy;
-class Inspector;
-class Console;
-class DebugTexWindow;
+class EditorWindow;
 
 class EditorManager
 {
@@ -25,9 +21,5 @@ public:
     void OnDestroy();
 
 private:
-    unique_ptr<SceneView> _sceneView;
-    unique_ptr<Hierarchy> _hierarchy;
-    unique_ptr<Inspector> _inspector;
-    unique_ptr<Console>   _console;
-	vector<unique_ptr<DebugTexWindow>> _debugTexWindows;
+	vector<unique_ptr<EditorWindow>> _editorWindows;
 };
