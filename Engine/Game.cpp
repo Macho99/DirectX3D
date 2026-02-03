@@ -3,12 +3,12 @@
 #include "IExecute.h"
 #include "EditorManager.h"
 
-int Game::pendingWidth = 0;
-int Game::pendingHeight = 0;
+int Game::pendingWidth = -1;
+int Game::pendingHeight = -1;
 
 WPARAM Game::Run(GameDesc& desc)
 {
-	desc.isEditor = true;
+	//desc.isEditor = true;
     curSceneWidth = desc.sceneWidth;
     curSceneHeight = desc.sceneHeight;
 
@@ -22,18 +22,29 @@ WPARAM Game::Run(GameDesc& desc)
 	if (!InitInstance(SW_SHOWNORMAL))
 		return FALSE;
 		
+	DBG->Init();
 	GRAPHICS->Init(_desc.hWnd);
 	TIME->Init();
 	INPUT->Init(_desc.hWnd);
 	EDITOR->Init();
 	RESOURCES->Init();
+
 	
 	_desc.app->Init();
 	SCENE->Init();
 
 	MSG msg = { 0 };
 
+	if (_desc.isEditor == false)
+	{
+		_desc.sceneWidth = _desc.width;
+		_desc.sceneHeight = _desc.height;
+		curSceneWidth = _desc.sceneWidth;
+		curSceneHeight = _desc.sceneHeight;
+	}
+
 	GRAPHICS->OnSize(true);
+	GRAPHICS->OnSize(false);
 
 	while (msg.message != WM_QUIT)
 	{
@@ -44,14 +55,20 @@ WPARAM Game::Run(GameDesc& desc)
 			continue;
 		}
 
-        if (pendingWidth != 0 || pendingHeight != 0)
+        if (pendingWidth > 0 && pendingHeight > 0)
         {
-			if (_desc.width != pendingWidth || _desc.height != pendingHeight)
+			_desc.width = pendingWidth;
+			_desc.height = pendingHeight;
+
+			if (_desc.isEditor == false)
 			{
-				_desc.width = pendingWidth;
-				_desc.height = pendingHeight;
-				GRAPHICS->OnSize(false);
+				_desc.sceneWidth = pendingWidth;
+				_desc.sceneHeight = pendingHeight;
+				curSceneWidth = _desc.sceneWidth;
+				curSceneHeight = _desc.sceneHeight;
 			}
+
+			GRAPHICS->OnSize(false);
             pendingWidth = 0;
             pendingHeight = 0;
         }
@@ -76,6 +93,8 @@ WPARAM Game::Run(GameDesc& desc)
 	EDITOR->OnDestroy();
 	OutputDebugStringW(L"==============GRAPHICS============\n");
     GRAPHICS->OnDestroy();
+	OutputDebugStringW(L"==============DBG============\n");
+	DBG->OnDestroy();
 	OutputDebugStringW(L"==============END=============\n");
 	return msg.wParam;
 }
@@ -132,8 +151,17 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 	case WM_SIZE:
 		if (wParam != SIZE_MINIMIZED)
 		{
-			pendingWidth = LOWORD(lParam);
-			pendingHeight = HIWORD(lParam);
+			// 맨 처음 호출될 때 처리
+			if (pendingWidth < 0 || pendingHeight < 0)
+			{
+				pendingWidth = 0;
+                pendingHeight = 0;
+			}
+			else
+			{
+				pendingWidth = LOWORD(lParam);
+				pendingHeight = HIWORD(lParam);
+			}
 		}
 		break;
 	case WM_CLOSE:
@@ -156,12 +184,14 @@ void Game::Update()
 
 	SCENE->Update();
 	GRAPHICS->SetBackBufferRenderTarget();
-	EDITOR->Update();
+    if (_desc.isEditor)
+		EDITOR->Update();
 
 	_desc.app->Update();
 	_desc.app->Render();
 
-	EDITOR->Render();
+	if (_desc.isEditor)
+		EDITOR->Render();
 	GRAPHICS->RenderEnd();
 
 }
