@@ -19,7 +19,7 @@ void EditorManager::Init()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();// (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -51,6 +51,22 @@ void EditorManager::Init()
 
 void EditorManager::Update()
 {
+    ImGuiIO& io = ImGui::GetIO();
+    if (INPUT->GetButton(KEY_TYPE::LBUTTON) || INPUT->GetButton(KEY_TYPE::RBUTTON))
+    {
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+    }
+    else if (INPUT->GetButtonUp(KEY_TYPE::LBUTTON) || INPUT->GetButtonUp(KEY_TYPE::RBUTTON))
+    {
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+    }
+    else
+    {
+        io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+    }
+
+
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

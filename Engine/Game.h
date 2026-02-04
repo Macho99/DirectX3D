@@ -8,6 +8,8 @@ struct GameDesc
 	HWND hWnd = 0;
 	float sceneWidth = 800;
 	float sceneHeight = 600;
+    Vec2 scenePos = Vec2(100, 100);
+    bool sceneFocused = true;
     float width = 800;
     float height = 600;
 	bool vsync = false;

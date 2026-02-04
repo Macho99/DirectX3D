@@ -33,6 +33,12 @@ void DebugManager::AddLog(LogLevel level, const string& message)
 #endif
 
     lock_guard<mutex> lock(_logMutex);
+
+    if (_logs.size() >= 200)
+    {
+        _logs.pop_front();
+    }
+
     _logs.push_back(move(e));
 }
 
@@ -132,7 +138,7 @@ void DebugManager::LogErrorW(const wstring& message)
     AddLog(LogLevel::Error, Utils::ToString(message));
 }
 
-const vector<LogEntry>& DebugManager::GetLogs()
+const deque<LogEntry>& DebugManager::GetLogs()
 {
     return _logs;
 }

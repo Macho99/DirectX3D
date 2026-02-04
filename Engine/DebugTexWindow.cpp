@@ -13,15 +13,12 @@ DebugTexWindow::~DebugTexWindow()
 
 void DebugTexWindow::OnGUI()
 {
-    ImGui::Begin(_windowName.c_str(), &IsOpen); 
-
     Texture* debugTexture = _getDebugTexture();
 
     Vec2 size = debugTexture->GetSize();
     if (size.x < 10 || size.y < 10)
     {
         ImGui::Text("Texture Size not available");
-        ImGui::End();
         return;
     }
 
@@ -62,6 +59,4 @@ void DebugTexWindow::OnGUI()
         0,
         1.0f                          // µÎ²²
     );
-
-    ImGui::End();
 }

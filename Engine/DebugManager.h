@@ -1,4 +1,5 @@
 #pragma once
+#include <deque>
 
 enum class LogLevel
 {
@@ -34,7 +35,7 @@ public:
     void LogErrorW(const wstring& message);
 
     // Console에서 접근
-    const vector<LogEntry>& GetLogs();
+    const deque<LogEntry>& GetLogs();
     void Clear();
 
 private:
@@ -42,7 +43,7 @@ private:
     static vector<string> CaptureStackTrace(int skipFrames = 3, int maxFrames = 32);
 
 private:
-    vector<LogEntry> _logs;
+    deque<LogEntry> _logs;
     mutex _logMutex;
     int _nextId;
 };

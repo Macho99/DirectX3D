@@ -44,7 +44,6 @@ void Hierarchy::DrawChildHighlight(const ImRect& r)
 void Hierarchy::ShowHierarchy()
 {
     // ===================== UI =====================
-    ImGui::Begin(_windowName.c_str());
     shared_ptr<Scene> curScene = CUR_SCENE;
 
     // Right-click empty space menu
@@ -120,8 +119,6 @@ void Hierarchy::ShowHierarchy()
         if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
             _selectedId = -1;
     }
-
-    ImGui::End();
 }
 
 void Hierarchy::DrawNode(shared_ptr<Transform>& node)

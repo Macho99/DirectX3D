@@ -14,7 +14,5 @@ void Inspector::OnGUI()
 {
     Super::OnGUI();
 
-    ImGui::Begin(_windowName.c_str(), &IsOpen);
     ImGui::Text("Inspector Content");
-    ImGui::End();
 }

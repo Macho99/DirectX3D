@@ -63,6 +63,7 @@ public:
 
 private:
 	inline KEY_STATE GetState(KEY_TYPE key) { return _states[static_cast<uint8>(key)]; }
+	inline void SetState(KEY_TYPE key, KEY_STATE state) { _states[static_cast<uint8>(key)] = state; }
 
 private:
 	HWND _hwnd;

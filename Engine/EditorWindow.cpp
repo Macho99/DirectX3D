@@ -21,5 +21,14 @@ void EditorWindow::CheckAndOnGUI()
     if (IsOpen == false)
         return;
 
+    ImGui::Begin(_windowName.c_str(), &IsOpen);
+
+    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
+        ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+    {
+        ImGui::SetWindowFocus();
+    }
+
     OnGUI();
+    ImGui::End();
 }

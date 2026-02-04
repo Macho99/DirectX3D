@@ -27,7 +27,6 @@ void Console::OnGUI()
     //    nextLogTime = curTime + 1.0f;
     //}
 
-    ImGui::Begin(_windowName.c_str(), &IsOpen);
 
     // 상단 툴바
     if (ImGui::Button("Clear"))
@@ -131,7 +130,6 @@ void Console::OnGUI()
     {
         ImGui::TextDisabled("Select a log to see details.");
         ImGui::EndChild();
-        ImGui::End();
         return;
     }
 
@@ -161,7 +159,6 @@ void Console::OnGUI()
     }
 
     ImGui::EndChild();
-    ImGui::End();
 }
 
 bool Console::PassFilter(LogLevel lv)
