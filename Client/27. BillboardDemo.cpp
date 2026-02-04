@@ -420,3 +420,4 @@ void BillboardDemo::AddDebugImage(int32 width, int32 height, shared_ptr<Texture>
 
     _debugImagePosX += width + 5;
 }
+//Test
