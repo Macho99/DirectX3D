@@ -290,8 +290,11 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 {
 	shared_ptr<Camera> camera = GetMainCamera()->GetCamera();
 
-	float width = GRAPHICS->GetViewport().GetWidth();
-	float height = GRAPHICS->GetViewport().GetHeight();
+    const GameDesc& gameDesc = GAME->GetGameDesc();
+	float width = gameDesc.sceneWidth;
+	float height = gameDesc.sceneHeight;
+	screenX -= gameDesc.scenePos.x;
+	screenY -= gameDesc.scenePos.y;
 
 	Matrix projectionMatrix = camera->GetProjectionMatrix();
 

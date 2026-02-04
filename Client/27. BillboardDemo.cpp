@@ -379,7 +379,7 @@ void BillboardDemo::Update()
         auto pickObj = CUR_SCENE->Pick(mouseX, mouseY);
         if (pickObj)
         {
-            CUR_SCENE->Remove(pickObj);
+            DBG->Log("Picked!!");
         }
     }
 }
