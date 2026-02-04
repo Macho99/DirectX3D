@@ -72,6 +72,9 @@
     <ClCompile Include="28. ParticleDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
+    <ClCompile Include="29. SceneSerializeDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -111,6 +114,9 @@
       <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="28. ParticleDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="29. SceneSerializeDemo.h">
       <Filter>Game\Week3</Filter>
     </ClInclude>
   </ItemGroup>

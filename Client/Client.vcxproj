@@ -28,6 +28,7 @@
     <ClInclude Include="26. OrthographicDemo.h" />
     <ClInclude Include="27. BillboardDemo.h" />
     <ClInclude Include="28. ParticleDemo.h" />
+    <ClInclude Include="29. SceneSerializeDemo.h" />
     <ClInclude Include="MyBillboard.h" />
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
@@ -43,6 +44,7 @@
     <ClCompile Include="26. OrthographicDemo.cpp" />
     <ClCompile Include="27. BillboardDemo.cpp" />
     <ClCompile Include="28. ParticleDemo.cpp" />
+    <ClCompile Include="29. SceneSerializeDemo.cpp" />
     <ClCompile Include="MyBillboard.cpp" />
     <ClCompile Include="CameraMove.cpp" />
     <ClCompile Include="Main.cpp" />

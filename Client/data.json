@@ -1,0 +1,13 @@
+{
+    "m1": {
+        "intValue": 42,
+        "floatValue": 3.140000104904175,
+        "strValue": "Hello, Cereal!",
+        "innerData": {
+            "id": 1,
+            "name": "Inner"
+        }
+    },
+    "value0": 0,
+    "this_name_is_way_better": 313.0
+}
