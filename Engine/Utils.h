@@ -17,5 +17,10 @@ public:
 	static ComPtr<ID3D11ShaderResourceView> CreateTexture2DArraySRV(vector<wstring>& filenames);
 
 	static vector<Vec4> ParseUVText(const wstring& path);
+
+    static uint64 GetRandomUInt64();
+
+private:
+	static thread_local std::mt19937_64 s_rng;
 };
 

@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 
+thread_local std::mt19937_64 Utils::s_rng(std::random_device{}());
+
 bool Utils::StartsWith(string str, string comp)
 {
 	wstring::size_type index = str.find(comp);
@@ -194,4 +196,9 @@ vector<Vec4> Utils::ParseUVText(const wstring& filePath)
 	}
 
 	return result;
+}
+
+uint64 Utils::GetRandomUInt64()
+{
+    return s_rng();
 }

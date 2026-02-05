@@ -12,12 +12,12 @@ Component::~Component()
 
 }
 
-std::shared_ptr<GameObject> Component::GetGameObject()
+GameObject* Component::GetGameObject()
 {
-	return _gameObject.lock();
+	return _gameObject.Resolve();
 }
 
-std::shared_ptr<Transform> Component::GetTransform()
+Transform* Component::GetTransform()
 {
-	return _gameObject.lock()->GetTransform();
+	return _gameObject.Resolve()->GetTransform();
 }

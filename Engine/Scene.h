@@ -1,8 +1,15 @@
 #pragma once
 
+#include "ComponentRef.h"
+#include "GameObjectRef.h"
+
 class Sky;
 class Camera;
 class Transform;
+class Guid;
+
+template<class T>
+class SlotManager;
 
 class Scene
 {
@@ -20,16 +27,16 @@ public:
 	void RenderGameCamera(Camera* cam);
 	void RenderUICamera(Camera* cam);
 
-	virtual void Add(shared_ptr<GameObject> gameObject);
-	virtual void Remove(shared_ptr<GameObject> gameObject);
+	virtual void Add(unique_ptr<GameObject> gameObject);
+	virtual void Remove(unique_ptr<GameObject> gameObject);
 	void CleanUpRemoveLists();
 	void RemoveGameObjectRecur(const shared_ptr<GameObject>& gameObject);
 
-	unordered_map<TransformID, shared_ptr<GameObject>>& GetObjects() { return _gameObjects; }
-    unordered_set<shared_ptr<GameObject>>& GetCameras() { return _cameras; }
-	shared_ptr<GameObject> GetMainCamera();
-	shared_ptr<GameObject> GetUICamera();
-	shared_ptr<GameObject> GetLight() { return _lights.empty() ? nullptr : *_lights.begin(); }
+	GameObjectRefSet& GetObjects() { return _gameObjects; }
+	GameObjectRefSet& GetCameras() { return _cameras; }
+	GameObject* GetMainCamera();
+	GameObject* GetUICamera();
+	GameObject* GetLight() { return _lights.empty() ? nullptr : _lights.begin()->Resolve(); }
 
 	void PickUI();
 	shared_ptr<GameObject> Pick(int32 screenX, int32 screenY);
@@ -37,19 +44,21 @@ public:
 	void SetSky(shared_ptr<Sky> sky) { _sky = sky; }
 
 	void CheckCollision();
-	bool IsInScene(TransformID id) { return _gameObjects.find(id) != _gameObjects.end(); }
-	vector<shared_ptr<Transform>>& GetRootObjects() { return _rootObjects; }
-	bool TryGetTransform(TransformID id, OUT shared_ptr<Transform>& transform);
-	shared_ptr<Transform> GetTransform(TransformID id);
+	bool IsInScene(const GameObjectRef& ref) { return _gameObjects.find(ref) != _gameObjects.end(); }
+	vector<ComponentRef<Transform>>& GetRootObjects() { return _rootObjects; }
+
+    SlotManager<GameObject>* GetGameObjectSlotManager() { return _gameObjectSlotManager.get(); }
+    SlotManager<Component>* GetComponentSlotManager() { return _componentSlotManager.get(); }
 
 private:
-    vector<shared_ptr<Transform>> _rootObjects;
-	unordered_map<TransformID, shared_ptr<GameObject>> _gameObjects;
-	// Cache Camera
-	unordered_set<shared_ptr<GameObject>> _cameras;
-	// Cache Light
-	unordered_set<shared_ptr<GameObject>> _lights;
+    vector<TransformRef> _rootObjects;
+	GameObjectRefSet _gameObjects;
+	GameObjectRefSet _cameras;	// Cache Camera
+	GameObjectRefSet _lights;	// Cache Light
 	shared_ptr<Sky> _sky;
-	vector<shared_ptr<GameObject>> _removeLists;
+	vector<GameObjectRef> _removeLists;
+
+    unique_ptr<SlotManager<GameObject>> _gameObjectSlotManager;
+    unique_ptr<SlotManager<Component>> _componentSlotManager;
 };
 

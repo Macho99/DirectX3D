@@ -77,7 +77,6 @@ struct OtherData : InnerData
 {
     float factor = 1.0f;
     std::string name;
-    std::optional<int> newValue;
 
     std::string getType() const override
     {
@@ -90,8 +89,7 @@ struct OtherData : InnerData
         ar(
             cereal::make_nvp("base", cereal::base_class<InnerData>(this)),
             CEREAL_NVP(factor),
-            CEREAL_NVP(name),
-            CEREAL_NVP(newValue)
+            CEREAL_NVP(name)
             );
     }
 };
@@ -147,25 +145,25 @@ void SceneSerializeDemo::Init()
         CUR_SCENE->Add(light);
     }
 
-    //{
-    //    std::ofstream os("data.json");
-    //    cereal::JSONOutputArchive archive(os);
-    //
-    //    MyData m1;
-    //    m1.innerData.push_back(make_unique<ChildData>());
-    //    m1.innerData[0]->id = 100;
-    //    m1.innerData.push_back(make_unique<OtherData>());
-    //    m1.innerData[1]->id = 101;
-    //    int someInt =0 ;
-    //    double d = 313;
-    //
-    //    archive(CEREAL_NVP(m1), // Names the output the same as the variable name
-    //        someInt,        // No NVP - cereal will automatically generate an enumerated name
-    //        cereal::make_nvp("this_name_is_way_better", d)); // specify a name of your choosing
-    //}
+    {
+        std::ofstream os("data.scene");
+        cereal::JSONOutputArchive archive(os);
+    
+        MyData m1;
+        m1.innerData.push_back(make_unique<ChildData>());
+        m1.innerData[0]->id = 100;
+        m1.innerData.push_back(make_unique<OtherData>());
+        m1.innerData[1]->id = 101;
+        int someInt =0 ;
+        double d = 313;
+    
+        archive(CEREAL_NVP(m1), // Names the output the same as the variable name
+            someInt,        // No NVP - cereal will automatically generate an enumerated name
+            cereal::make_nvp("this_name_is_way_better", d)); // specify a name of your choosing
+    }
 
     {
-        std::ifstream is("data.json");
+        std::ifstream is("data.scene");
         cereal::JSONInputArchive archive(is);
 
         MyData m1;

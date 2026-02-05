@@ -6,10 +6,13 @@ class Shader;
 class Texture;
 class Mesh;
 class Material;
+template<class T>
+class SlotManager;
 
 class ResourceManager
 {
-	DECLARE_SINGLE(ResourceManager);
+	DECLARE_SINGLE_WITH_CONSTRUCTOR(ResourceManager);
+    ~ResourceManager();
 public:
 	void Init();
 	void OnDestroy();
@@ -38,6 +41,7 @@ private:
 private:
 	using KeyObjMap = map<wstring/*key*/, shared_ptr<ResourceBase>>;
 	array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
+    unique_ptr<SlotManager<ResourceBase>> _slotManager;
 };
 
 template<typename T>

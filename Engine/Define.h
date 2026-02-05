@@ -10,6 +10,16 @@ public:										\
 		return &s_instance;					\
 	}
 
+#define DECLARE_SINGLE_WITH_CONSTRUCTOR(classname)\
+private:									\
+	classname();							\
+public:										\
+	static classname* GetInstance()			\
+	{										\
+		static classname s_instance;		\
+		return &s_instance;					\
+	}
+
 #define GET_SINGLE(classname)	classname::GetInstance()
 
 #define CHECK(p)	assert(SUCCEEDED(p))

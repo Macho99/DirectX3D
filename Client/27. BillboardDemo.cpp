@@ -101,7 +101,7 @@ void BillboardDemo::Init()
 
             CUR_SCENE->Add(obj);
         }
-    }
+     }
 
 
     shared_ptr<TessTerrain> tessTerrain = make_shared<TessTerrain>();

@@ -3,8 +3,7 @@
 
 Transform::Transform() : Super(ComponentType::Transform)
 {
-    static TransformID nextId = 1;
-    _id = nextId++;
+
 }
 
 Transform::~Transform()
@@ -53,7 +52,7 @@ void Transform::UpdateTransform()
 
 	_matLocal = matScale * matRotation * matTranslation;
 
-	shared_ptr<Transform> parent;
+	Transform* parent;
 	if (TryGetParent(OUT parent))
 	{
 		_matWorld = _matLocal * parent->GetWorldMatrix();
@@ -68,13 +67,13 @@ void Transform::UpdateTransform()
 	_rotation = ToEulerAngles(quat);
 
 	// Children
-	for (const shared_ptr<Transform>& child : _children)
-		child->UpdateTransform();
+	for (const TransformRef& child : _children)
+		child.Resolve()->UpdateTransform();
 }
 
 void Transform::SetScale(const Vec3& worldScale)
 {
-	shared_ptr<Transform> parent;
+	Transform* parent;
 	if (TryGetParent(OUT parent))
 	{
 		Vec3 parentScale = parent->GetScale();
@@ -92,7 +91,7 @@ void Transform::SetScale(const Vec3& worldScale)
 
 void Transform::SetRotation(const Vec3& worldRotation)
 {
-	shared_ptr<Transform> parent;
+	Transform* parent;
 	if (TryGetParent(OUT parent))
 	{
 		Matrix inverseMatrix = parent->GetWorldMatrix().Invert();
@@ -108,7 +107,7 @@ void Transform::SetRotation(const Vec3& worldRotation)
 
 void Transform::SetPosition(const Vec3& worldPosition)
 {
-	shared_ptr<Transform> parent;
+	Transform* parent;
 	if (TryGetParent(OUT parent))
 	{
 		Matrix worldToParentLocalMatrix = parent->GetWorldMatrix().Invert();
@@ -124,11 +123,13 @@ void Transform::SetPosition(const Vec3& worldPosition)
 	}
 }
 
-void Transform::SetParent(shared_ptr<Transform> newParent)
+void Transform::SetParent(TransformRef& newParentRef)
 {
-	const TransformID myID = GetID();
-	shared_ptr<Transform> oldParent;
+	const Guid myID = _guid;
+	Transform* oldParent;
 	TryGetParent(OUT oldParent);
+    Transform* newParent = newParentRef.Resolve();
+    TransformRef myRef(_guid);
 
 	if (newParent == nullptr && oldParent == nullptr)
 		return;
@@ -138,27 +139,27 @@ void Transform::SetParent(shared_ptr<Transform> newParent)
 
 	if (newParent != nullptr)
 	{
-		if (newParent->GetID() == myID)
+		if (newParent->_guid == myID)
 		{
 			wcout << L"자기 자신을 부모로 설정하려고 시도함" << endl;
 			return;
 		}
 
-		if (IsAncestorOf(newParent))
+		if (IsAncestorOf(newParentRef))
 		{
 			wcout << L"자손 노드를 부모로 설정하려고 시도함" << endl; // Prevent cycle
 			return;
 		}
 
-		newParent->_children.push_back(GetGameObject()->GetTransform());
+		newParent->_children.push_back(myRef);
 	}
 	// newParent == nullptr
 	else
 	{
-		if (CUR_SCENE->IsInScene(myID))
+		if (CUR_SCENE->IsInScene(_gameObject))
 		{
-			vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
-			rootObjects.push_back(GetGameObject()->GetTransform());
+			vector<TransformRef>& rootObjects = CUR_SCENE->GetRootObjects();
+			rootObjects.push_back(myRef);
 		}
 	}
 
@@ -167,35 +168,35 @@ void Transform::SetParent(shared_ptr<Transform> newParent)
 		if (oldParent)
 		{
 			// Remove from old parent's children
-			vector<shared_ptr<Transform>>& siblings = oldParent->_children;
+			vector<TransformRef>& siblings = oldParent->_children;
 			RemoveFromTransforms(siblings, myID);
 		}
 		// oldParent == nullptr
 		else
 		{
-			if (CUR_SCENE->IsInScene(myID))
+			if (CUR_SCENE->IsInScene(_gameObject))
 			{
-				vector<shared_ptr<Transform>>& rootObjects = CUR_SCENE->GetRootObjects();
+				vector<TransformRef>& rootObjects = CUR_SCENE->GetRootObjects();
 				RemoveFromTransforms(rootObjects, myID);
 			}
 		}
 	}
 	
-	_parent = newParent;
+	_parent = newParentRef;
 }
 
 void Transform::SetSiblingIndex(int index)
 {
-	vector<shared_ptr<Transform>>* siblings;
+	vector<TransformRef>* siblings;
 
-	shared_ptr<Transform> parent;
+	Transform* parent;
 	if (TryGetParent(OUT parent))
 	{
 		siblings = &parent->_children;
 	}
 	else
 	{
-		if (CUR_SCENE->IsInScene(GetID()) == false)
+		if (CUR_SCENE->IsInScene(_gameObject) == false)
 		{
 			wcout << L"씬에 할당하지 않고 SetSiblingIndex()을 호출하였습니다." << endl;
 			return;
@@ -209,12 +210,7 @@ void Transform::SetSiblingIndex(int index)
     if (siblings->empty())
         return;
 
-	const TransformID myId = GetID();
-	auto it = std::find_if(siblings->begin(), siblings->end(),
-		[myId](const shared_ptr<Transform>& t)
-		{
-			return t->GetID() == myId;
-		});
+	auto it = std::find(siblings->begin(), siblings->end(), TransformRef(_guid));
 
 	size_t oldIndex = static_cast<size_t>(std::distance(siblings->begin(), it));
 
@@ -228,7 +224,7 @@ void Transform::SetSiblingIndex(int index)
 	if (oldIndex == newIndex)
 		return;
 
-	shared_ptr<Transform> self = *it;
+	TransformRef self = *it;
 	siblings->erase(it);
 
 	if (newIndex > oldIndex)
@@ -237,28 +233,25 @@ void Transform::SetSiblingIndex(int index)
 	siblings->insert(siblings->begin() + newIndex, std::move(self));
 }
 
-bool Transform::IsAncestorOf(shared_ptr<Transform>& target)
+bool Transform::IsAncestorOf(TransformRef& targetRef)
 {
+    Transform* target = targetRef.Resolve();
     if (target == nullptr)
         return false;
 
-	const TransformID myID = this->GetID();
-    shared_ptr<Transform> current = target->GetParent();
+	const Guid myID = this->_guid;
+    Transform* current = target->GetParent();
     while (current)
     {
-        if (current->GetID() == myID)
+        if (current->_guid == myID)
             return true;
         current = current->GetParent();
     }
     return false;
 }
 
-void Transform::RemoveFromTransforms(vector<shared_ptr<Transform>>& transforms, TransformID targetId)
+void Transform::RemoveFromTransforms(vector<TransformRef>& transforms, TransformRef targetId)
 {
-	auto iter = std::remove_if(transforms.begin(), transforms.end(),
-		[targetId](shared_ptr<Transform>& transform)
-		{
-			return transform->GetID() == targetId;
-		});
+	auto iter = std::remove(transforms.begin(), transforms.end(), targetId);
 	transforms.erase(iter, transforms.end());
 }

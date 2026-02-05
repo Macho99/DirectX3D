@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "ComponentRef.h"
 
 class Transform : public Component
 {
@@ -38,28 +39,24 @@ public:
 	Matrix GetWorldMatrix() { return _matWorld; }
 
 	// °èÃþ °ü°è
-	bool HasParent() { return _parent.lock() != nullptr; }
-    bool TryGetParent(OUT shared_ptr<Transform>& outParent)
+	bool HasParent() { return _parent.Resolve() != nullptr; }
+    bool TryGetParent(OUT Transform*& outParent)
     {
-        outParent = _parent.lock();
+        outParent = _parent.Resolve();
         return outParent != nullptr;
     }
 	
-	shared_ptr<Transform> GetParent() { return _parent.lock(); }
-	void SetParent(shared_ptr<Transform> parent);
+	Transform* GetParent() { return _parent.Resolve(); }
+	void SetParent(TransformRef& parent);
 	void SetSiblingIndex(int index);
 
-	vector<shared_ptr<Transform>>& GetChildren() { return _children; }
-
-    TransformID GetID() const { return _id; }
+	vector<TransformRef>& GetChildren() { return _children; }
 
 private:
-    bool IsAncestorOf(shared_ptr<Transform>& transform);
-	void RemoveFromTransforms(vector<shared_ptr<Transform>>& transforms, TransformID targetId);
+    bool IsAncestorOf(TransformRef& target);
+	void RemoveFromTransforms(vector<TransformRef>& transforms, TransformRef targetId);
 
 private:
-	TransformID _id;
-
 	Vec3 _localScale = { 1.f, 1.f, 1.f }; 
 	Vec3 _localRotation = { 0.f, 0.f, 0.f };
 	Vec3 _localPosition = { 0.f, 0.f, 0.f };
@@ -73,7 +70,7 @@ private:
 	Vec3 _position;
 
 private:
-	weak_ptr<Transform> _parent;
-	vector<shared_ptr<Transform>> _children;
+	TransformRef _parent;
+	vector<TransformRef> _children;
 };
 

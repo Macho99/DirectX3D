@@ -5,9 +5,20 @@
 #include "Mesh.h"
 #include <filesystem>
 #include "MathUtils.h"
+#include "SlotManager.h"
+
+ResourceManager::ResourceManager()
+{
+}
+
+ResourceManager::~ResourceManager()
+{
+}
 
 void ResourceManager::Init()
 {
+    _slotManager = make_unique<SlotManager<ResourceBase>>();
+
 	CreateDefaultMesh();
 	CreateRandomTexture();
 }

@@ -67,6 +67,9 @@
     <Filter Include="98. Utils\cereal">
       <UniqueIdentifier>{80d3c78a-0520-49b3-abdc-db2b948ff221}</UniqueIdentifier>
     </Filter>
+    <Filter Include="00. Engine\Guid">
+      <UniqueIdentifier>{7cacb3c1-a9b6-4dbc-8fb2-d5ffd759e6a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -582,6 +585,27 @@
     <ClInclude Include="ContentBrower.h">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentRef.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectRef.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
+    <ClInclude Include="Guid.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
+    <ClInclude Include="GuidRef.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceRef.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
+    <ClInclude Include="SlotManager.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.h">
+      <Filter>00. Engine\Guid</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -829,6 +853,27 @@
     </ClCompile>
     <ClCompile Include="ContentBrower.cpp">
       <Filter>50. Editor\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentRef.cpp">
+      <Filter>00. Engine\Guid</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectRef.cpp">
+      <Filter>00. Engine\Guid</Filter>
+    </ClCompile>
+    <ClCompile Include="Guid.cpp">
+      <Filter>00. Engine\Guid</Filter>
+    </ClCompile>
+    <ClCompile Include="GuidRef.cpp">
+      <Filter>00. Engine\Guid</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceRef.cpp">
+      <Filter>00. Engine\Guid</Filter>
+    </ClCompile>
+    <ClCompile Include="SlotManager.cpp">
+      <Filter>00. Engine\Guid</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle.cpp">
+      <Filter>00. Engine\Guid</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

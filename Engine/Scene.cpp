@@ -7,21 +7,25 @@
 #include "Button.h"
 #include "Sky.h"
 #include "Transform.h"
+#include "SlotManager.h"
+#include "Component.h"
 
 Scene::Scene()
 {
+    _gameObjectSlotManager = make_unique<SlotManager<GameObject>>();
+    _componentSlotManager = make_unique<SlotManager<Component>>();
 }
 
 Scene::~Scene()
 {
-	int a = 1;
+
 }
 
 void Scene::Start()
 {
 	for (auto& pair : _gameObjects)
 	{
-        shared_ptr<GameObject>& obj = pair.second;
+        GameObject* obj = pair.Resolve();
 		obj->Start();
 	}
 }
@@ -33,7 +37,7 @@ void Scene::OnDestroy()
 	_sky.reset();
     for (auto& pair : _gameObjects)
     {
-		shared_ptr<GameObject>& obj = pair.second;
+		GameObject* obj = pair.Resolve();
         obj->OnDestroy();
     }
 	_gameObjects.clear();
@@ -44,7 +48,7 @@ void Scene::Update()
 {
 	for (auto& pair : _gameObjects)
 	{
-		shared_ptr<GameObject>& obj = pair.second;
+		GameObject* obj = pair.Resolve();
 		obj->Update();
 	}
 
@@ -55,7 +59,7 @@ void Scene::LateUpdate()
 {
 	for (auto& pair : _gameObjects)
 	{
-		shared_ptr<GameObject>& obj = pair.second;
+		GameObject* obj = pair.Resolve();
 		obj->LateUpdate();
 	}
 
@@ -66,7 +70,7 @@ void Scene::Render()
 {
 	for (auto& camera : _cameras)
 	{
-		Camera* cam = camera->GetCamera().get();
+		Camera* cam = camera.Resolve()->GetCamera().get();
 		if (cam->GetProjectionType() == ProjectionType::Perspective)
 		{
 			RenderGameCamera(cam);
@@ -75,7 +79,7 @@ void Scene::Render()
 
 	for (auto& camera : _cameras)
 	{
-		Camera* cam = camera->GetCamera().get();
+		Camera* cam = camera.Resolve()->GetCamera().get();
 		if (cam->GetProjectionType() != ProjectionType::Perspective)
 		{
 			RenderUICamera(cam);
@@ -192,8 +196,11 @@ void Scene::RenderUICamera(Camera* cam)
 	cam->Render_Backward(RenderTech::Draw);
 }
 
-void Scene::Add(shared_ptr<GameObject> gameObject)
+void Scene::Add(unique_ptr<GameObject> gameObject)
 {
+	Guid id = 
+	_gameObjectSlotManager->RegisterExisting();
+
 	shared_ptr<Transform> transform = gameObject->GetTransform();
 	if (transform->HasParent() == false)
 	{
@@ -211,7 +218,7 @@ void Scene::Add(shared_ptr<GameObject> gameObject)
 	}
 }
 
-void Scene::Remove(shared_ptr<GameObject> gameObject)
+void Scene::Remove(unique_ptr<GameObject> gameObject)
 {
 	_removeLists.push_back(gameObject);
 }
@@ -243,20 +250,22 @@ void Scene::RemoveGameObjectRecur(const shared_ptr<GameObject>& gameObject)
 	_lights.erase(gameObject);
 }
 
-shared_ptr<GameObject> Scene::GetMainCamera()
+GameObject* Scene::GetMainCamera()
 {
-	for (auto& camera : _cameras)
+	for (auto& cameraRef : _cameras)
 	{
+        GameObject* camera = cameraRef.Resolve();
 		if (camera->GetCamera()->GetProjectionType() == ProjectionType::Perspective)
 			return camera;
 	}
 	return nullptr;
 }
 
-shared_ptr<GameObject> Scene::GetUICamera()
+GameObject* Scene::GetUICamera()
 {
-	for (auto& camera : _cameras)
+	for (auto& cameraRef : _cameras)
 	{
+		GameObject* camera = cameraRef.Resolve();
 		if (camera->GetCamera()->GetProjectionType() == ProjectionType::Orthographic)
 			return camera;
 	}
@@ -385,25 +394,4 @@ void Scene::CheckCollision()
 
 		}
 	}
-}
-
-bool Scene::TryGetTransform(TransformID id, OUT shared_ptr<Transform>& transform)
-{
-	auto iter = _gameObjects.find(id);
-	if (iter != _gameObjects.end())
-	{
-		transform = (*iter).second->GetTransform();
-		return true;
-	}
-	return false;
-}
-
-shared_ptr<Transform> Scene::GetTransform(TransformID id)
-{
-	auto iter = _gameObjects.find(id);
-	if (iter != _gameObjects.end())
-	{
-		return (*iter).second->GetTransform();
-	}
-	return nullptr;
 }
