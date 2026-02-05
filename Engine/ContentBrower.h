@@ -1,11 +1,12 @@
 #pragma once
 #include "EditorWindow.h"
-class Inspector : public EditorWindow
+class ContentBrower : public EditorWindow
 {
     using Super = EditorWindow;
+
 public:
-    Inspector();
-    ~Inspector();
+    ContentBrower();
+    ~ContentBrower();
 
 protected:
     void OnGUI() override;

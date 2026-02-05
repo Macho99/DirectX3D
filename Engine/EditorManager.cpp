@@ -5,6 +5,7 @@
 #include "Console.h"
 #include "Inspector.h"
 #include "DebugTexWindow.h"
+#include "ContentBrower.h"
 
 EditorManager::EditorManager()
 {
@@ -36,6 +37,7 @@ void EditorManager::Init()
     _editorWindows.push_back(make_unique<Hierarchy>());
     _editorWindows.push_back(make_unique<Console>());
     _editorWindows.push_back(make_unique<Inspector>());
+    _editorWindows.push_back(make_unique<ContentBrower>());
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).get(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).get(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).get(); }));

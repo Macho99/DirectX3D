@@ -28,29 +28,87 @@
 #include "SphereCollider.h"
 #include "ParticleSystem.h"
 #include <thread>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/memory.hpp>
 #include "cereal/types/string.hpp"
 #include "cereal/archives/xml.hpp"
 #include "cereal/archives/json.hpp"
+#include <cereal/types/polymorphic.hpp>
+#include <optional>
 #include <fstream>
+
+#define NAMEOF(x) (#x)
 
 struct InnerData
 {
-    int id;
-    string name;
+public:
+    virtual ~InnerData() = default;
+    virtual std::string getType() const = 0;
+
+    int id = 999;
     template <class Archive>
     void serialize(Archive& archive)
     {
-        archive(CEREAL_NVP(id),
-            CEREAL_NVP(name));
+        archive(CEREAL_NVP(id));
     }
 };
 
+
+struct ChildData : public InnerData
+{
+public:
+    int childValue;
+
+    std::string getType() const override
+    {
+        return NAMEOF(ChildData);
+    }
+    template <class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(
+            cereal::make_nvp("base", cereal::base_class<InnerData>(this)),
+            CEREAL_NVP(childValue)
+        );
+    }
+};
+
+struct OtherData : InnerData
+{
+    float factor = 1.0f;
+    std::string name;
+    std::optional<int> newValue;
+
+    std::string getType() const override
+    {
+        return NAMEOF(OtherData);
+    }
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(
+            cereal::make_nvp("base", cereal::base_class<InnerData>(this)),
+            CEREAL_NVP(factor),
+            CEREAL_NVP(name),
+            CEREAL_NVP(newValue)
+            );
+    }
+};
+
+CEREAL_REGISTER_TYPE(ChildData);
+CEREAL_REGISTER_TYPE(OtherData);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(InnerData, ChildData);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(InnerData, OtherData);
+
+
 struct MyData
 {
+public:
     int intValue = 42;
     float floatValue = 3.14f;
     string strValue = "Hello, Cereal!";
-    InnerData innerData;
+    vector<unique_ptr<InnerData>> innerData;
 
     template <class Archive>
     void serialize(Archive& archive)
@@ -94,6 +152,10 @@ void SceneSerializeDemo::Init()
     //    cereal::JSONOutputArchive archive(os);
     //
     //    MyData m1;
+    //    m1.innerData.push_back(make_unique<ChildData>());
+    //    m1.innerData[0]->id = 100;
+    //    m1.innerData.push_back(make_unique<OtherData>());
+    //    m1.innerData[1]->id = 101;
     //    int someInt =0 ;
     //    double d = 313;
     //
