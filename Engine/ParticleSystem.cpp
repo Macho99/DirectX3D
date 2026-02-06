@@ -6,6 +6,12 @@
 
 ParticleSystem::ParticleSystem()
 	: Super(ComponentType::ParticleSystem)
+	, _firstRun(true)
+	, _age(0.0f)
+	, _timeStep(0.0f)
+	, _gameTime(0.0f)
+	, _emitPosW(Vec3(0.f, 0.f, 0.f))
+	, _emitDirW(Vec3(0.f, 1.f, 0.f))
 {
 	BuildVB();
 
