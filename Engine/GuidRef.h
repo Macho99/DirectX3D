@@ -2,7 +2,7 @@
 #include "Guid.h"
 #include "Handle.h"
 
-class GuidRef
+struct GuidRef
 {
 public:
     GuidRef() : guid(), cached() {}
@@ -29,6 +29,16 @@ public:
     bool IsValid() const noexcept
     {
         return guid.IsValid();
+    }
+
+    uint64 GetInstanceId() const noexcept
+    {
+        return guid.GetInstanceId();
+    }
+
+    uint64 GetLocalId() const noexcept
+    {
+        return guid.GetLocalId();
     }
 
 public:

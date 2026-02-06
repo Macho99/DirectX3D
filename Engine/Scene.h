@@ -26,7 +26,9 @@ public:
 	void RenderGameCamera(Camera* cam);
 	void RenderUICamera(Camera* cam);
 
-	virtual void Add(unique_ptr<GameObject> gameObject);
+	GameObjectRef Add(unique_ptr<GameObject> gameObject);    
+	GameObjectRef Add(string name);
+	GuidRef AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
 	virtual void Remove(GameObjectRef gameObjectRef);
 	void CleanUpRemoveLists();
 	void RemoveGameObjectRecur(const GameObjectRef& gameObjectRef);
@@ -49,6 +51,11 @@ public:
     SlotManager<GameObject>* GetGameObjectSlotManager() { return _gameObjectSlotManager.get(); }
     SlotManager<Component>* GetComponentSlotManager() { return _componentSlotManager.get(); }
 
+    uint64 GetInstanceId() const { return _instanceId; }
+
+private:
+	GameObjectRef Add(GuidRef guidRef);
+
 private:
     vector<TransformRef> _rootObjects;
 	GameObjectRefSet _gameObjects;
@@ -59,5 +66,6 @@ private:
 
     unique_ptr<SlotManager<GameObject>> _gameObjectSlotManager;
     unique_ptr<SlotManager<Component>> _componentSlotManager;
-};
 
+	uint64 _instanceId;
+};

@@ -39,73 +39,70 @@ void BillboardDemo::Init()
     shared_ptr<Shader> renderShader = make_shared<Shader>(L"19. RenderDemo.fx");
     shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
     {
-        // Camera
-        auto camera = make_shared<GameObject>(L"Camera");
+        GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
+        GameObject* camera = cameraRef.Resolve();
         camera->GetTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
-        camera->AddComponent(make_shared<Camera>());
-        camera->AddComponent(make_shared<CameraMove>());
+        camera->AddComponent(make_unique<Camera>());
+        camera->AddComponent(make_unique<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
         camera->GetCamera()->SetFar(500.f);
-        CUR_SCENE->Add(camera);
     }
 
     {
         // Light
-        auto light = make_shared<GameObject>(L"Light");
-        light->AddComponent(make_shared<Light>());
+        GameObjectRef light = CUR_SCENE->Add("Light");
+        light.Resolve()->AddComponent(make_unique<Light>());
     
         LightDesc lightDesc;
         lightDesc.ambient = Vec4(0.4f);
         lightDesc.diffuse = Vec4(1.f);
         lightDesc.specular = Vec4(0.1f);
         lightDesc.direction = Vec3(1.f, -1.f, 1.f);
-        light->GetTransform()->SetRotation(lightDesc.direction);
-        static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
-        CUR_SCENE->Add(light);
+        light.Resolve()->GetTransform()->SetRotation(lightDesc.direction);
+        static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
 
 
-     {
-        // Mesh
-        // Material
-        {
-            shared_ptr<Material> material = make_shared<Material>();
-            material->SetShader(renderShader);
-            auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
-            material->SetDiffuseMap(texture);
-            MaterialDesc& desc = material->GetMaterialDesc();
-            desc.ambient = Vec4(1.f);
-            desc.diffuse = Vec4(1.f);
-            desc.specular = Vec4(1.f);
-            RESOURCES->Add(L"Veigar", material);
-        }
-
-        for (int32 i = 0; i < 1; i++)
-        {
-            auto obj = make_shared<GameObject>(L"Veigar");
-            obj->GetTransform()->SetLocalPosition(Vec3(0, 1, 0));
-            obj->GetTransform()->SetLocalScale(Vec3(1.f));
-            obj->AddComponent(make_shared<MeshRenderer>());
-            {
-                obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
-            }
-            {
-                auto mesh = RESOURCES->Get<Mesh>(L"Cube");
-                obj->GetMeshRenderer()->SetMesh(mesh);
-                obj->GetMeshRenderer()->SetPass(0);
-            }
-            {
-                auto collider = make_shared<OBBBoxCollider>();
-                obj->AddComponent(collider);
-            }
-
-            CUR_SCENE->Add(obj);
-        }
-     }
-
-
-    shared_ptr<TessTerrain> tessTerrain = make_shared<TessTerrain>();
     {
+       // Mesh
+       // Material
+       {
+           shared_ptr<Material> material = make_shared<Material>();
+           material->SetShader(renderShader);
+           auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
+           material->SetDiffuseMap(texture);
+           MaterialDesc& desc = material->GetMaterialDesc();
+           desc.ambient = Vec4(1.f);
+           desc.diffuse = Vec4(1.f);
+           desc.specular = Vec4(1.f);
+           RESOURCES->Add(L"Veigar", material);
+       }
+
+       for (int32 i = 0; i < 1; i++)
+       {
+           auto objRef = CUR_SCENE->Add("Veigar");
+           GameObject* obj = objRef.Resolve();
+           obj->GetTransform()->SetLocalPosition(Vec3(0, 1, 0));
+           obj->GetTransform()->SetLocalScale(Vec3(1.f));
+           obj->AddComponent(make_unique<MeshRenderer>());
+           {
+               obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
+           }
+           {
+               auto mesh = RESOURCES->Get<Mesh>(L"Cube");
+               obj->GetMeshRenderer()->SetMesh(mesh);
+               obj->GetMeshRenderer()->SetPass(0);
+           }
+           {
+               obj->AddComponent(make_unique<OBBBoxCollider>());
+           }
+       }
+    }
+
+
+    ComponentRef<TessTerrain> tessTerrainRef;
+    {
+        unique_ptr<TessTerrain> tessTerrain = make_unique<TessTerrain>();
         TessTerrain::InitInfo info;
         ZeroMemory(&info, sizeof(info));
         info.heightMapFilename = L"../Resources/Textures/Terrain/terrain.raw";
@@ -127,11 +124,10 @@ void BillboardDemo::Init()
         material->GetMaterialDesc().ambient = Vec4(1.f);
         tessTerrain->SetMaterial(material);
 
-        auto obj = make_shared<GameObject>(L"Terrain");
-        obj->GetTransform()->SetPosition(Vec3(0, 0, 0));
-        obj->AddComponent(tessTerrain);
-
-        CUR_SCENE->Add(obj);
+        auto objRef = CUR_SCENE->Add("Terrain");
+        objRef.Resolve()->GetTransform()->SetPosition(Vec3(0, 0, 0));
+        objRef.Resolve()->AddComponent(std::move(tessTerrain));
+        tessTerrainRef = ComponentRef<TessTerrain>(objRef.Resolve()->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain)->GetGuid());
     }
 
     // Billboard
@@ -172,10 +168,10 @@ void BillboardDemo::Init()
     {
         shared_ptr<Shader> grassRenderShader = make_shared<Shader>(L"GrassRender.fx");
         shared_ptr<Shader> grassComputeShader = make_shared<Shader>(L"GrassCompute.fx");
-        auto obj = make_shared<GameObject>(L"GrassRenderer");
+        auto objRef = CUR_SCENE->Add("GrassRenderer");
+        GameObject* obj = objRef.Resolve();
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
-        auto grassRenderer = make_shared<GrassRenderer>(grassComputeShader, tessTerrain, L"..\\Resources\\Textures\\Grass\\Grass_A_BaseColor_Split.txt");
-        obj->AddComponent(grassRenderer);
+        auto grassRenderer = make_unique<GrassRenderer>(grassComputeShader, tessTerrainRef, L"..\\Resources\\Textures\\Grass\\Grass_A_BaseColor_Split.txt");
         {
             // Material
             {
@@ -192,12 +188,12 @@ void BillboardDemo::Init()
                 grassRenderer->SetMaterial(material);
             }
         }
+        obj->AddComponent(std::move(grassRenderer));
 
-        auto foliageController = make_shared<FoliageController>();
+        auto foliageController = make_unique<FoliageController>();
         foliageController->SetBendFactor(0.1f);
         foliageController->SetStiffness(0.65f);
-        obj->AddComponent(foliageController);
-        CUR_SCENE->Add(obj);
+        obj->AddComponent(std::move(foliageController));
     }
 
     /*// Terrain
@@ -224,10 +220,11 @@ void BillboardDemo::Init()
     //Particle
     {
         auto particleShader = make_shared<Shader>(L"ParticleSystem.fx");
-        auto obj = make_shared<GameObject>(L"Fire");
+        auto objRef = CUR_SCENE->Add("Fire");
+        GameObject* obj = objRef.Resolve();
         obj->GetTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
-        obj->AddComponent(make_shared<ParticleSystem>());
-        shared_ptr<ParticleSystem> particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
+        obj->AddComponent(make_unique<ParticleSystem>());
+        ParticleSystem* particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
         particleSystem->SetEmitDirW(Vec3(0.f, 2.f, 0.f));
         shared_ptr<Material> material = make_shared<Material>();
         material->GetMaterialDesc().diffuse = Vec4(1.f);
@@ -237,16 +234,16 @@ void BillboardDemo::Init()
         material->SetDiffuseMap(texture);
         material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
         particleSystem->SetMaterial(material);
-        CUR_SCENE->Add(obj);
     }
 
     // SnowBillboard
     {	// Billboard
         {
             auto snowShader = make_shared<Shader>(L"24. SnowDemo.fx");
-            auto obj = make_shared<GameObject>(L"Snow");
+            auto objRef = CUR_SCENE->Add("Snow");
+            GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
-            obj->AddComponent(make_shared<SnowBillboard>(Vec3(100, 100, 100), 10000));
+            obj->AddComponent(make_unique<SnowBillboard>(Vec3(100, 100, 100), 10000));
             {
                 // Material
                 {
@@ -264,8 +261,6 @@ void BillboardDemo::Init()
                     obj->GetSnowBillboard()->SetMaterial(material);
                 }
             }
-
-            CUR_SCENE->Add(obj);
         }
     }
 
@@ -282,15 +277,15 @@ void BillboardDemo::Init()
 
         for (int32 i = 0; i < 10; i++)
         {
-            auto obj = make_shared<GameObject>(L"Kachujin" + std::to_wstring(i));
+            auto objRef = CUR_SCENE->Add("Kachujin" + std::to_string(i));
+            GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
-            obj->AddComponent(make_shared<ModelAnimator>(animShader));
+            obj->AddComponent(make_unique<ModelAnimator>(animShader));
             {
                 obj->GetModelAnimator()->SetModel(m1);
                 obj->GetModelAnimator()->SetPass(2);
             }
-            CUR_SCENE->Add(obj);
         }
     }
 
@@ -302,16 +297,15 @@ void BillboardDemo::Init()
 
         for (int32 i = 0; i < 5; i++)
         {
-            auto obj = make_shared<GameObject>(L"Tower" + std::to_wstring(i));
+            auto objRef = CUR_SCENE->Add("Tower" + std::to_string(i));
+            GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
 
-            auto modelRenderer = make_shared<ModelRenderer>(renderShader);
+            auto modelRenderer = make_unique<ModelRenderer>(renderShader);
             modelRenderer->SetModel(m2);
             modelRenderer->SetPass(1);
-            obj->AddComponent(modelRenderer);
-
-            CUR_SCENE->Add(obj);
+            obj->AddComponent(std::move(modelRenderer));
         }
     }
     {
@@ -322,22 +316,21 @@ void BillboardDemo::Init()
 
         for (int32 i = 0; i < 10; i++)
         {
-            auto obj = make_shared<GameObject>(L"Tree" + std::to_wstring(i));
+            auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));
+            GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(5.f));
 
-            obj->AddComponent(make_shared<ModelRenderer>(foliageShader));
+            obj->AddComponent(make_unique<ModelRenderer>(foliageShader));
             {
                 obj->GetModelRenderer()->SetModel(m2);
                 obj->GetModelRenderer()->SetPass(0);
             }
 
-            auto foliageController = make_shared<FoliageController>();
+            auto foliageController = make_unique<FoliageController>();
             foliageController->SetBendFactor(1.f);
             foliageController->SetStiffness(0.8f);
-            obj->AddComponent(foliageController);
-
-            CUR_SCENE->Add(obj);
+            obj->AddComponent(std::move(foliageController));
         }
 
         Vec3 windDir = Vec3(1.f, 0.f, 1.f);;
@@ -356,15 +349,15 @@ void BillboardDemo::Init()
 
     {
         // UICamera
-        auto camera = make_shared<GameObject>(L"UICamera");
+        auto cameraRef = CUR_SCENE->Add("UICamera");
+        GameObject* camera = cameraRef.Resolve();
         camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
-        camera->AddComponent(make_shared<Camera>());
+        camera->AddComponent(make_unique<Camera>());
         camera->GetCamera()->SetProjectionType(ProjectionType::Orthographic);
         camera->GetCamera()->SetNear(1.0f);
         camera->GetCamera()->SetFar(100.0f);
         camera->GetCamera()->SetCullingMaskAll();
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, false);
-        CUR_SCENE->Add(camera);
     }
 }
 
@@ -393,9 +386,10 @@ void BillboardDemo::AddDebugImage(int32 width, int32 height, shared_ptr<Texture>
     // UI
     {
         const int debugUISize = 10;
-        auto obj = make_shared<GameObject>();
+        auto objRef = CUR_SCENE->Add("DebugImage");
+        GameObject* obj = objRef.Resolve();
         obj->SetLayerIndex(Layer_UI);
-        obj->AddComponent(make_shared<Button>());
+        obj->AddComponent(make_unique<Button>());
         auto material = make_shared<Material>();
         //auto texture = make_shared<Texture>();
         //texture->SetSRV(GRAPHICS->GetShadowMapSRV());
@@ -404,18 +398,16 @@ void BillboardDemo::AddDebugImage(int32 width, int32 height, shared_ptr<Texture>
         material->GetShader()->SetTechNum(RenderTech::Draw, techNum);
         obj->GetButton()->Create(Vec2(width / 2 + _debugImagePosX + 20, height / 2 + 20), Vec2(width, height), material);
 
-        std::weak_ptr<GameObject> weakObj = obj;
+
         obj->GetButton()->AddOnClickedEvent(
-            [weakObj]()
+            [objRef]()
             {
-                if (shared_ptr<GameObject> obj = weakObj.lock())
+                if (objRef.Resolve() != nullptr)
                 {
-                    CUR_SCENE->Remove(obj);
+                    CUR_SCENE->Remove(objRef);
                 }
             }
         );
-
-        CUR_SCENE->Add(obj);
     }
 
     _debugImagePosX += width + 5;

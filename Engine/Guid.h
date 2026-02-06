@@ -31,6 +31,9 @@ public:
 
     static void SetCurrentInstanceId(uint64 id);
 
+    uint64 GetInstanceId() const { return instanceId; }
+    uint64 GetLocalId() const { return localId; }
+
 private:
     static uint64 s_currentInstanceId;
 

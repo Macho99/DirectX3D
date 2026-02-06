@@ -150,10 +150,10 @@ void Graphics::OnSize(bool isFirst)
     auto& cameras = CUR_SCENE->GetCameras();
     for (auto& camera : cameras)
     {
-        camera->GetCamera()->OnSize();
+        camera.Resolve()->GetCamera()->OnSize();
     }
 
-	shared_ptr<Camera> mainCam = CUR_SCENE->GetMainCamera()->GetCamera();
+	Camera* mainCam = CUR_SCENE->GetMainCamera()->GetCamera();
     float fov = mainCam->GetFOV();
     float farZ = mainCam->GetFar();
 	_ssao->OnSize(sceneWidth, sceneHeight, fov, farZ);

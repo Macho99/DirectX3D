@@ -121,29 +121,29 @@ public:
 void SceneSerializeDemo::Init()
 {
     {
-        // Camera
-        auto camera = make_shared<GameObject>();
-        camera->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
-        camera->AddComponent(make_shared<Camera>());
-        camera->AddComponent(make_shared<CameraMove>());
+        GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
+        GameObject* camera = cameraRef.Resolve();
+        camera->GetTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
+        camera->AddComponent(make_unique<Camera>());
+        camera->AddComponent(make_unique<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
-        CUR_SCENE->Add(camera);
+        camera->GetCamera()->SetFar(500.f);
     }
 
     {
         // Light
-        auto light = make_shared<GameObject>(L"Light");
-        light->AddComponent(make_shared<Light>());
+        GameObjectRef light = CUR_SCENE->Add("Light");
+        light.Resolve()->AddComponent(make_unique<Light>());
 
         LightDesc lightDesc;
         lightDesc.ambient = Vec4(0.4f);
         lightDesc.diffuse = Vec4(1.f);
         lightDesc.specular = Vec4(0.1f);
         lightDesc.direction = Vec3(1.f, -1.f, 1.f);
-        light->GetTransform()->SetRotation(lightDesc.direction);
-        static_pointer_cast<Light>(light->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
-        CUR_SCENE->Add(light);
+        light.Resolve()->GetTransform()->SetRotation(lightDesc.direction);
+        static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
+
 
     {
         std::ofstream os("data.scene");
@@ -177,19 +177,18 @@ void SceneSerializeDemo::Init()
 
 void SceneSerializeDemo::Update()
 {
-	if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
-	{
-		int32 mouseX = INPUT->GetMousePos().x;
-		int32 mouseY = INPUT->GetMousePos().y;
+    if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
+    {
+        int32 mouseX = INPUT->GetMousePos().x;
+        int32 mouseY = INPUT->GetMousePos().y;
 
-		// Picking
-		auto pickObj = CUR_SCENE->Pick(mouseX, mouseY);
-		if (pickObj)
-		{
-			CUR_SCENE->Remove(pickObj);
-		}
-	}
-	//this_thread::sleep_for(chrono::seconds(1));
+        // Picking
+        auto pickObj = CUR_SCENE->Pick(mouseX, mouseY);
+        if (pickObj)
+        {
+            DBG->Log("Picked!!");
+        }
+    }
 }
 
 void SceneSerializeDemo::Render()

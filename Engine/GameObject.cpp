@@ -16,8 +16,9 @@
 #include "Scene.h"
 #include "SlotManager.h"
 
-GameObject::GameObject(string name) : _name(name)
+GameObject::GameObject(string name) : _name(name), _components{}
 {
+
 }
 
 GameObject::~GameObject()
@@ -216,9 +217,11 @@ SnowBillboard* GameObject::GetSnowBillboard()
 
 void GameObject::AddComponent(unique_ptr<Component> component)
 {
-	component->SetGameObject(GameObjectRef(_guid));
+    Guid::SetCurrentInstanceId(CUR_SCENE->GetInstanceId());
+	GameObjectRef thisRef(_guid);
+	component->SetGameObject(thisRef);
 	uint8 index = static_cast<uint8>(component->GetType());
-    GuidRef guidRef = CUR_SCENE->GetComponentSlotManager()->RegisterExisting(std::move(component));
+	GuidRef guidRef = CUR_SCENE->AddComponent(thisRef, std::move(component));
 
 	if (index < FIXED_COMPONENT_COUNT)
 	{

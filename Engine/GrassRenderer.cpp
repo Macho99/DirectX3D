@@ -6,7 +6,7 @@
 #include "Camera.h"
 #include "Utils.h"
 
-GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, shared_ptr<TessTerrain> terrain, const wstring& uvFilePath)
+GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath)
     : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer), _terrain(terrain)
 {
     CreateResources();
@@ -28,11 +28,12 @@ void GrassRenderer::CreateResources()
 {
     // --- 1. 초기 풀 데이터 CPU에서 생성 ---
     vector<GrassData> grassData(MAX_GRASS_COUNT);
+    TessTerrain* terrain = _terrain.Resolve();
     for (UINT i = 0; i < MAX_GRASS_COUNT; ++i)
     {
         float x = MathUtils::Random(-500.f, 500.f);
         float z = MathUtils::Random(-500.f, 500.f);
-        float y = _terrain->GetHeight(x, z);
+        float y = terrain->GetHeight(x, z);
         grassData[i].position = Vec3(x, y, z);
     }
 
@@ -123,10 +124,16 @@ void GrassRenderer::CreateResources()
 
 void GrassRenderer::UpdateGrass()
 {
+    TessTerrain* terrain = _terrain.Resolve();
+    if (terrain == nullptr)
+    {
+        DBG->LogError("GrassRenderer::UpdateGrass() - Terrain is null.");
+        return;
+    }
     {
         _grassConstantData.totalGrassCount = MAX_GRASS_COUNT;
-        _grassConstantData.terrainWidth = _terrain->GetWidth();
-        _grassConstantData.terrainDepth = _terrain->GetDepth();
+        _grassConstantData.terrainWidth = terrain->GetWidth();
+        _grassConstantData.terrainDepth = terrain->GetDepth();
 
         Matrix viewProj = Camera::S_MatView * Camera::S_MatProjection;
         MathUtils::ExtractFrustumPlanes(_grassConstantData.worldFrustumPlanes, viewProj);
@@ -134,8 +141,8 @@ void GrassRenderer::UpdateGrass()
         _grassConstantBuffer->CopyData(_grassConstantData);
         _grassEffectBuffer->SetConstantBuffer(_grassConstantBuffer->GetComPtr().Get());
     }
-    _layerMapArrayEffectBuffer->SetResource(_terrain->GetLayerMapArraySRV());
-    _blendMapEffectBuffer->SetResource(_terrain->GetBlendMapSRV());
+    _layerMapArrayEffectBuffer->SetResource(terrain->GetLayerMapArraySRV());
+    _blendMapEffectBuffer->SetResource(terrain->GetBlendMapSRV());
 
     _randomEffectBuffer->SetResource(_randomTex->GetComPtr().Get());
     _grassComputeShader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);

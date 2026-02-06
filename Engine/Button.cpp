@@ -19,7 +19,7 @@ bool Button::Picked(POINT screenPos)
 
 void Button::Create(Vec2 screenPos, Vec2 size, shared_ptr<Material> material)
 {
-	shared_ptr<GameObject> go = _gameObject.lock();
+	GameObject* go = _gameObject.Resolve();
 
 	float height = GAME->GetGameDesc().sceneHeight;
 	float width = GAME->GetGameDesc().sceneWidth;
@@ -34,7 +34,7 @@ void Button::Create(Vec2 screenPos, Vec2 size, shared_ptr<Material> material)
 	go->SetLayerIndex(Layer_UI);
 
 	if (go->GetMeshRenderer() == nullptr)
-		go->AddComponent(make_shared<MeshRenderer>());
+		go->AddComponent(make_unique<MeshRenderer>());
 
 	go->GetMeshRenderer()->SetMaterial(material);
 

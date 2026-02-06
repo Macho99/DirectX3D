@@ -62,7 +62,7 @@ public:
 	void SetGuid(const Guid& guid) { _guid = guid; }
 
 private:
-	bool _isActive;
+	bool _isActive = true;
 	
 	array<ComponentRefBase, FIXED_COMPONENT_COUNT> _components;
 	vector<ComponentRef<MonoBehaviour>> _scripts;

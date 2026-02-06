@@ -17,13 +17,13 @@ void Terrain::Create(int32 sizeX, int32 sizeZ, shared_ptr<Material> material)
 	_sizeX = sizeX;
 	_sizeZ = sizeZ;
 
-	shared_ptr<GameObject> go = _gameObject.lock();
-	shared_ptr<MeshRenderer> meshRenderer = go->GetMeshRenderer();
+	GameObject* go = _gameObject.Resolve();
+	MeshRenderer* meshRenderer = go->GetMeshRenderer();
 
 	go->GetTransform();
 	if (meshRenderer == nullptr)
 	{
-		go->AddComponent(make_shared<MeshRenderer>());
+		go->AddComponent(make_unique<MeshRenderer>());
 		meshRenderer = go->GetMeshRenderer();
 	}
 

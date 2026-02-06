@@ -9,11 +9,13 @@
 #include "Transform.h"
 #include "SlotManager.h"
 #include "Component.h"
+#include "Utils.h"
 
 Scene::Scene()
 {
     _gameObjectSlotManager = make_unique<SlotManager<GameObject>>();
     _componentSlotManager = make_unique<SlotManager<Component>>();
+    _instanceId = Utils::GetRandomUInt64();
 }
 
 Scene::~Scene()
@@ -196,27 +198,31 @@ void Scene::RenderUICamera(Camera* cam)
 	cam->Render_Backward(RenderTech::Draw);
 }
 
-void Scene::Add(unique_ptr<GameObject> gameObjectUnique)
+GameObjectRef Scene::Add(unique_ptr<GameObject> gameObjectUnique)
 {
 	GuidRef guidRef = _gameObjectSlotManager->RegisterExisting(std::move(gameObjectUnique));
-    GameObjectRef gameObjectRef = GameObjectRef(guidRef);
-    GameObject* gameObject = gameObjectRef.Resolve();
+	return Add(guidRef);
+}
 
-	Transform* transform = gameObject->GetTransform();
-	if (transform->HasParent() == false)
-	{
-		_rootObjects.push_back(TransformRef(transform->GetGuid()));
-	}
+GameObjectRef Scene::Add(string name)
+{
+    auto gameObjectUnique = make_unique<GameObject>(name);
+    return Add(std::move(gameObjectUnique));
+}
 
-	_gameObjects.insert(gameObjectRef);
-	if (gameObject->GetFixedComponent(ComponentType::Camera) != nullptr)
+GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
+{
+	ComponentType type = component->GetType();
+	GuidRef guidRef = GetComponentSlotManager()->RegisterExisting(std::move(component));
+	if (type == ComponentType::Camera)
 	{
 		_cameras.insert(gameObjectRef);
 	}
-	if (gameObject->GetFixedComponent(ComponentType::Light) != nullptr)
+	else if (type == ComponentType::Light)
 	{
 		_lights.insert(gameObjectRef);
 	}
+	return guidRef;
 }
 
 void Scene::Remove(GameObjectRef gameObjectRef)
@@ -244,7 +250,7 @@ void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 
 	if (transform->HasParent() == false)
 	{
-		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
+		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), TransformRef(transform->GetGuid())), _rootObjects.end());
 	}
 
 	_gameObjects.erase(gameObjectRef);
@@ -396,4 +402,19 @@ void Scene::CheckCollision()
 
 		}
 	}
+}
+
+GameObjectRef Scene::Add(GuidRef guidRef)
+{
+    Guid::SetCurrentInstanceId(_instanceId);
+	GameObjectRef gameObjectRef = GameObjectRef(guidRef);
+	GameObject* gameObject = gameObjectRef.Resolve();
+
+	Transform* transform = gameObject->GetTransform();
+	if (transform->HasParent() == false)
+	{
+		_rootObjects.push_back(TransformRef(transform->GetGuid()));
+	}
+	_gameObjects.insert(gameObjectRef);
+	return gameObjectRef;
 }

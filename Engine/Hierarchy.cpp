@@ -52,35 +52,28 @@ void Hierarchy::ShowHierarchy()
     {
         if (ImGui::MenuItem("Create Empty Root"))
         {
-            shared_ptr<GameObject> newObject = make_shared<GameObject>(L"New Object");
-            curScene->Add(newObject);
+            unique_ptr<GameObject> newObject = make_unique<GameObject>("New Object");
+            curScene->Add(std::move(newObject));
         }
         ImGui::EndPopup();
     }
 
     ImGui::TextDisabled("Tip: Drag & drop. Top=before, Middle=child, Bottom=after. Drop on empty area => root.");
 
-    if (_selectedId != -1)
+    Transform* selectedTransform = _selectedId.Resolve();
+    if (selectedTransform != nullptr)
     {
-        shared_ptr<Transform> selectedTransform;
-        if (curScene->TryGetTransform(_selectedId, selectedTransform))
+        Transform* selectedParent;
+        string selectedName = selectedTransform->GetGameObject()->GetName();
+        if (selectedTransform->TryGetParent(OUT selectedParent))
         {
-            shared_ptr<Transform> selectedParent;
-            wstring selectedName = selectedTransform->GetGameObject()->GetName();
-            if (selectedTransform->TryGetParent(OUT selectedParent))
-            {
-                TransformID parentId = selectedParent->GetID();
-                ImGui::Text("Selected: %s (id=%d, parent=%d)", string(selectedName.begin(), selectedName.end()).c_str(), selectedTransform->GetID(), parentId);
-            }
-            else
-            {
-                ImGui::Text("Selected: %s (id=%d)", string(selectedName.begin(), selectedName.end()).c_str(), selectedTransform->GetID());
-            }
+            Guid selectedParentId = selectedParent->GetGuid();
+            ImGui::Text("Selected: %s (id=%d_%d, parent=%d_%d)", selectedName.c_str(), 
+                _selectedId.GetInstanceId(), _selectedId.GetLocalId(), selectedParentId.GetInstanceId(), selectedParentId.GetLocalId());
         }
         else
         {
-            ImGui::Text("Selected: (missing)");
-            _selectedId = -1;
+            ImGui::Text("Selected: %s (id=%d_%d)", selectedName.c_str(), _selectedId.GetInstanceId(), _selectedId.GetLocalId());
         }
     }
     else
@@ -92,7 +85,7 @@ void Hierarchy::ShowHierarchy()
     auto& roots = curScene->GetRootObjects();
     for (int i = 0; i < roots.size(); i++)
     {
-        DrawNode(roots[i]);
+        DrawNode(roots[i].Resolve());
     }
 
     // ----- Empty area drop target (VERY IMPORTANT) -----
@@ -106,31 +99,31 @@ void Hierarchy::ShowHierarchy()
         {
             if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("DND_ENTITY"))
             {
-                TransformID dropped = *(const TransformID*)p->Data;
+                TransformRef dropped = *(const TransformRef*)p->Data;
 
-                _pendingOps.push_back(make_unique<PendingReparent>(dropped, -1, DropAction::MakeChild));
+                _pendingOps.push_back(make_unique<PendingReparent>(dropped, TransformRef(), DropAction::MakeChild));
             }
             ImGui::EndDragDropTarget();
         }
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-            _selectedId = -1;
+            _selectedId = TransformRef();
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-            _selectedId = -1;
+            _selectedId = TransformRef();
     }
 }
 
-void Hierarchy::DrawNode(shared_ptr<Transform>& node)
+void Hierarchy::DrawNode(Transform* node)
 {
     if (node == nullptr)
         return;
 
-    TransformID nodeId = node->GetID();
-    shared_ptr<GameObject> gameObject = node->GetGameObject();
-    ImGui::PushID((int)nodeId);
+    TransformRef nodeId(node->GetGuid());
+    GameObject* gameObject = node->GetGameObject();
+    ImGui::PushID((int)nodeId.GetLocalId());
 
-    wstring name = gameObject->GetName();
+    string name = gameObject->GetName();
 
     // Active toggle
     bool active = gameObject->IsActive();
@@ -151,7 +144,7 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
     if (node->GetChildren().empty()) 
         flags |= ImGuiTreeNodeFlags_Leaf;
 
-    bool open = ImGui::TreeNodeEx((void*)(intptr_t)node->GetID(), flags, "%s", string(name.begin(), name.end()).c_str());
+    bool open = ImGui::TreeNodeEx((void*)(intptr_t)nodeId.GetLocalId(), flags, "%s", string(name.begin(), name.end()).c_str());
 
     if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
         _selectedId = nodeId;
@@ -176,7 +169,7 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
     // Drag source
     if (ImGui::BeginDragDropSource())
     {
-        ImGui::SetDragDropPayload("DND_ENTITY", &nodeId, sizeof(TransformID));
+        ImGui::SetDragDropPayload("DND_ENTITY", &nodeId, sizeof(TransformRef));
         ImGui::Text("Move: %s", string(name.begin(), name.end()).c_str());
         ImGui::EndDragDropSource();
     }
@@ -207,7 +200,7 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
         // Commit on drop
         if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("DND_ENTITY"))
         {
-            TransformID dropped = *(const TransformID*)p->Data;
+            TransformRef dropped = *(const TransformRef*)p->Data;
             _pendingOps.push_back(make_unique<PendingReparent>(dropped, nodeId, dropAction));
         }
 
@@ -216,9 +209,9 @@ void Hierarchy::DrawNode(shared_ptr<Transform>& node)
 
     if (open)
     {
-        vector<shared_ptr<Transform>>& children = node->GetChildren();
+        vector<TransformRef>& children = node->GetChildren();
         for (int i = 0; i < children.size(); i++)
-            DrawNode(children[i]);
+            DrawNode(children[i].Resolve());
         ImGui::TreePop();
     }
 
@@ -234,47 +227,47 @@ void Hierarchy::ApplyPending()
     _pendingOps.clear();
 }
 
-PendingReparent::PendingReparent(TransformID droppedId, TransformID targetId, DropAction action)
+PendingReparent::PendingReparent(TransformRef droppedId, TransformRef targetId, DropAction action)
     :droppedId(droppedId), targetId(targetId), action(action)
 {
 }
 
 void PendingReparent::Do()
 {
-    shared_ptr<Transform> droppedTransform = CUR_SCENE->GetTransform(droppedId);
-    shared_ptr<Transform> targetTransform = CUR_SCENE->GetTransform(targetId);
+    Transform* droppedTransform = droppedId.Resolve();
+    Transform* targetTransform = targetId.Resolve();
     if (droppedTransform == nullptr) 
         return;
 
     if (targetTransform == nullptr || action == DropAction::MakeChild)
     {
-        droppedTransform->SetParent(targetTransform);
+        droppedTransform->SetParent(targetId);
     }
     else
     {
-        shared_ptr<Transform> parent = targetTransform->GetParent();
-        droppedTransform->SetParent(parent);
+        Transform* parent = targetTransform->GetParent();
+        droppedTransform->SetParent(targetId);
 
         // siblings는 parent 기준/루트 기준으로 다시 계산
-        vector<shared_ptr<Transform>>& siblings = parent ? parent->GetChildren()
+        vector<TransformRef>& siblings = parent ? parent->GetChildren()
             : CUR_SCENE->GetRootObjects();
 
-        int idx = int(std::find(siblings.begin(), siblings.end(), targetTransform) - siblings.begin());
+        int idx = int(std::find(siblings.begin(), siblings.end(), targetId) - siblings.begin());
         if (action == DropAction::InsertAfter) idx++;
         droppedTransform->SetSiblingIndex(idx);
     }
 }
 
-PendingDelete::PendingDelete(TransformID targetId)
+PendingDelete::PendingDelete(TransformRef targetId)
     :targetId(targetId)
 {
 }
 
 void PendingDelete::Do()
 {
-    shared_ptr<Transform> targetTransform = CUR_SCENE->GetTransform(targetId);
+    Transform* targetTransform = targetId.Resolve();
     if (targetTransform == nullptr)
         return;
 
-    CUR_SCENE->Remove(targetTransform->GetGameObject());
+    CUR_SCENE->Remove(targetTransform->GetGameObject()->GetGuid());
 }

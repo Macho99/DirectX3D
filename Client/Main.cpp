@@ -19,7 +19,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.width = 2440;
 	desc.height = 1080;
 	desc.clearColor = Color(0.0f, 0.0f, 0.0f, 1.f);
-	desc.app = make_shared<SceneSerializeDemo>();
+	desc.app = make_shared<BillboardDemo>();
 
 	GAME->Run(desc);
 

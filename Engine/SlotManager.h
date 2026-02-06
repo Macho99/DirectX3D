@@ -6,8 +6,8 @@ template<class T>
 class SlotManager
 {
 public:
-    SlotManager();
-    ~SlotManager();
+    SlotManager() {}
+    ~SlotManager() {}
 
     struct Slot
     {
@@ -20,9 +20,9 @@ public:
     template<class... Args>
     GuidRef CreateAndRegister(Args&&... args)
     {
-        s.ptr = std::make_unique<T>(std::forward<Args>(args)...);
+        unique_ptr<T> ptr = std::make_unique<T>(std::forward<Args>(args)...);
 
-        return RegisterExisting(guid, std::move(s.ptr));
+        return RegisterExisting(std::move(ptr));
     }
 
     // 외부에서 이미 만들어진 unique_ptr 등록하고 싶을 때

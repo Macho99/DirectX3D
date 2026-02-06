@@ -1,23 +1,17 @@
 #pragma once
-#include "Component.h"
 #include "GuidRef.h"
 
 template<class T>
-class ComponentRef : public GuidRef
+struct ComponentRef : public GuidRef
 {
 public:
-    ComponentRef(Guid guid) : GuidRef(guid) {}
+    ComponentRef() : GuidRef() {}
+    ComponentRef(const Guid& guid) : GuidRef(guid) {}
+    ComponentRef(const GuidRef& guidRef) : GuidRef(guidRef) {}
+    using GuidRef::operator==;
     ~ComponentRef() {}
 
-    T* Resolve() const
-    {
-        SlotManager<Component>& manager = CUR_SCENE->GetComponentSlotManager();
-        if (!cached.IsValid())
-            cached = manager.FindHandle(guid);
-        Component* p = manager.Resolve(cached);
-        
-        return static_cast<T*>(p);
-    }
+    T* Resolve() const;
 };
 
 using TransformRef = ComponentRef<class Transform>;

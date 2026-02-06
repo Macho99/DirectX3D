@@ -23,10 +23,10 @@ struct PendingOperation
 
 struct PendingReparent : PendingOperation
 {
-    PendingReparent(TransformID droppedId, TransformID targetId, DropAction action);
+    PendingReparent(TransformRef droppedId, TransformRef targetId, DropAction action);
 
-    TransformID droppedId;
-    TransformID targetId;
+    TransformRef droppedId;
+    TransformRef targetId;
     DropAction action;
 
     void Do() override;
@@ -34,8 +34,8 @@ struct PendingReparent : PendingOperation
 
 struct PendingDelete : PendingOperation
 {
-    PendingDelete(TransformID targetId);
-    TransformID targetId;
+    PendingDelete(TransformRef targetId);
+    TransformRef targetId;
 
     void Do() override;
 };
@@ -55,11 +55,11 @@ private:
     void DrawInsertLine(const ImRect& r, bool top);
     void DrawChildHighlight(const ImRect& r);
     void ShowHierarchy();
-    void DrawNode(shared_ptr<Transform>& node);
+    void DrawNode(Transform* node);
     void ApplyPending();
 
 private:
-    TransformID _selectedId = -1;
+    TransformRef _selectedId;
     vector<unique_ptr<PendingOperation>> _pendingOps;
 };
 

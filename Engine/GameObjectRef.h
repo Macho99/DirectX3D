@@ -1,7 +1,7 @@
 #pragma once
 #include "GuidRef.h"
 
-class GameObjectRef : public GuidRef
+struct GameObjectRef : public GuidRef
 {
 public:
     GameObjectRef() : GuidRef() {}

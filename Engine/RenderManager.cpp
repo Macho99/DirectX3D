@@ -16,7 +16,7 @@ void RenderManager::OnDestroy()
     _buffers.clear();
 }
 
-void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech)
+void RenderManager::Render(vector<GameObject*>& gameObjects, RenderTech renderTech)
 {
 	ClearData();
 	_renderTech = renderTech;
@@ -24,25 +24,25 @@ void RenderManager::Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTe
 	RenderModelRenderer(gameObjects);
 	RenderAnimRenderer(gameObjects);
 
-	for (shared_ptr<GameObject>& gameObject : gameObjects)
+	for (GameObject* gameObject : gameObjects)
 	{
-		shared_ptr<ParticleSystem> particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
+		ParticleSystem* particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		if (particle != nullptr)
 			particle->Render(_renderTech);
 
-		shared_ptr<Billboard> billboard = gameObject->GetFixedComponent<Billboard>(ComponentType::Billboard);
+		Billboard* billboard = gameObject->GetFixedComponent<Billboard>(ComponentType::Billboard);
 		if (billboard != nullptr)
 			billboard->Render(_renderTech);
 
-		shared_ptr<SnowBillboard> snowBillboard = gameObject->GetFixedComponent<SnowBillboard>(ComponentType::SnowBillboard);
+		SnowBillboard* snowBillboard = gameObject->GetFixedComponent<SnowBillboard>(ComponentType::SnowBillboard);
 		if (snowBillboard != nullptr)
 			snowBillboard->Render(_renderTech);
 
-        shared_ptr<TessTerrain> tessTerrain = gameObject->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain);
+        TessTerrain* tessTerrain = gameObject->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain);
         if (tessTerrain != nullptr)
             tessTerrain->Render(_renderTech);
 
-        shared_ptr<GrassRenderer> grassRenderer = gameObject->GetFixedComponent<GrassRenderer>(ComponentType::GrassRenderer);
+        GrassRenderer* grassRenderer = gameObject->GetFixedComponent<GrassRenderer>(ComponentType::GrassRenderer);
         if (grassRenderer != nullptr)
             grassRenderer->Render(_renderTech);
 	}
@@ -56,12 +56,12 @@ void RenderManager::ClearData()
 	}
 }
 
-void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::RenderMeshRenderer(vector<GameObject*>& gameObjects)
 {
-	map<InstanceID, vector<shared_ptr<GameObject>>> cache;
+	map<InstanceID, vector<GameObject*>> cache;
 
 	// 분류 단계
-	for (shared_ptr<GameObject>& gameObject : gameObjects)
+	for (GameObject* gameObject : gameObjects)
 	{
 		if (gameObject->GetMeshRenderer() == nullptr)
 			continue;
@@ -72,7 +72,7 @@ void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjec
 
 	for (auto& pair : cache)
 	{
-		const vector<shared_ptr<GameObject>>& vec = pair.second;
+		const vector<GameObject*>& vec = pair.second;
 		
 		/*if (vec.size() == 1)
 		{
@@ -84,7 +84,7 @@ void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjec
 
 			for (int32 i = 0; i < vec.size(); i++)
 			{
-				const shared_ptr<GameObject>& gameObject = vec[i];
+				GameObject* gameObject = vec[i];
 				InstancingData data;
 				data.world = gameObject->GetTransform()->GetWorldMatrix();
 
@@ -97,12 +97,12 @@ void RenderManager::RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjec
 	}
 }
 
-void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::RenderModelRenderer(vector<GameObject*>& gameObjects)
 {
-	map<InstanceID, vector<shared_ptr<GameObject>>> cache;
+	map<InstanceID, vector<GameObject*>> cache;
 
 	// 분류 단계
-	for (shared_ptr<GameObject>& gameObject : gameObjects)
+	for (GameObject* gameObject : gameObjects)
 	{
 		if (gameObject->GetModelRenderer() == nullptr)
 			continue;
@@ -113,7 +113,7 @@ void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObje
 
 	for (auto& pair : cache)
 	{
-		const vector<shared_ptr<GameObject>>& vec = pair.second;
+		const vector<GameObject*>& vec = pair.second;
 
 		/*if (vec.size() == 1)
 		{
@@ -125,7 +125,7 @@ void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObje
 
 			for (int32 i = 0; i < vec.size(); i++)
 			{
-				const shared_ptr<GameObject>& gameObject = vec[i];
+				GameObject* gameObject = vec[i];
 				InstancingData data;
 				data.world = gameObject->GetTransform()->GetWorldMatrix();
 
@@ -138,12 +138,12 @@ void RenderManager::RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObje
 	}
 }
 
-void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjects)
+void RenderManager::RenderAnimRenderer(vector<GameObject*>& gameObjects)
 {
-	map<InstanceID, vector<shared_ptr<GameObject>>> cache;
+	map<InstanceID, vector<GameObject*>> cache;
 
 	// 분류 단계
-	for (shared_ptr<GameObject>& gameObject : gameObjects)
+	for (GameObject* gameObject : gameObjects)
 	{
 		if (gameObject->GetModelAnimator() == nullptr)
 			continue;
@@ -155,7 +155,7 @@ void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjec
 	for (auto& pair : cache)
 	{
 		shared_ptr<InstancedTweenDesc> tweenDesc = make_shared<InstancedTweenDesc>();
-		const vector<shared_ptr<GameObject>>& vec = pair.second;
+		const vector<GameObject*>& vec = pair.second;
 
 		/* TODO:
 		if (vec.size() == 1)
@@ -168,7 +168,7 @@ void RenderManager::RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjec
 
 			for (int32 i = 0; i < vec.size(); i++)
 			{
-				const shared_ptr<GameObject>& gameObject = vec[i];
+				GameObject* gameObject = vec[i];
 				InstancingData data;
 				data.world = gameObject->GetTransform()->GetWorldMatrix();
 

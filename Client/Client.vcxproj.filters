@@ -42,35 +42,11 @@
     <ClCompile Include="CameraMove.cpp">
       <Filter>Main\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="20. SceneDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
-    <ClCompile Include="21. RawBufferDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
-    <ClCompile Include="22. TextureBufferDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
-    <ClCompile Include="23. StructuredBufferDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
-    <ClCompile Include="24. ViewportDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
-    <ClCompile Include="25. CollisionDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
-    <ClCompile Include="26. OrthographicDemo.cpp">
-      <Filter>Game\Week3</Filter>
-    </ClCompile>
     <ClCompile Include="27. BillboardDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
     <ClCompile Include="MyBillboard.cpp">
       <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="28. ParticleDemo.cpp">
-      <Filter>Game\Week3</Filter>
     </ClCompile>
     <ClCompile Include="29. SceneSerializeDemo.cpp">
       <Filter>Game\Week3</Filter>
@@ -86,35 +62,11 @@
     <ClInclude Include="CameraMove.h">
       <Filter>Main\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="20. SceneDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
-    <ClInclude Include="21. RawBufferDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
-    <ClInclude Include="22. TextureBufferDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
-    <ClInclude Include="23. StructuredBufferDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
-    <ClInclude Include="24. ViewportDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
-    <ClInclude Include="25. CollisionDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
-    <ClInclude Include="26. OrthographicDemo.h">
-      <Filter>Game\Week3</Filter>
-    </ClInclude>
     <ClInclude Include="27. BillboardDemo.h">
       <Filter>Game\Week3</Filter>
     </ClInclude>
     <ClInclude Include="MyBillboard.h">
       <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="28. ParticleDemo.h">
-      <Filter>Game\Week3</Filter>
     </ClInclude>
     <ClInclude Include="29. SceneSerializeDemo.h">
       <Filter>Game\Week3</Filter>

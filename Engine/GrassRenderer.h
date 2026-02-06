@@ -53,7 +53,7 @@ class GrassRenderer : public Renderer
 {
     using Super = Renderer;
 public:
-    explicit GrassRenderer(shared_ptr<Shader> grassComputeShader, shared_ptr<TessTerrain> terrain, const wstring& uvFilePath);
+    explicit GrassRenderer(shared_ptr<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath);
     ~GrassRenderer();
 
 protected:
@@ -88,7 +88,7 @@ private:
     ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
     shared_ptr<Texture> _randomTex;
 
-    shared_ptr<TessTerrain> _terrain;
+    ComponentRef<TessTerrain> _terrain;
     ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;
     ComPtr<ID3DX11EffectShaderResourceVariable> _blendMapEffectBuffer;
 

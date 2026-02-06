@@ -11,13 +11,13 @@ class RenderManager
 public:
 	void OnDestroy();
 
-	void Render(vector<shared_ptr<GameObject>>& gameObjects, RenderTech renderTech);
+	void Render(vector<GameObject*>& gameObjects, RenderTech renderTech);
 
 private:
 	void ClearData();
-	void RenderMeshRenderer(vector<shared_ptr<GameObject>>& gameObjects);
-	void RenderModelRenderer(vector<shared_ptr<GameObject>>& gameObjects);
-	void RenderAnimRenderer(vector<shared_ptr<GameObject>>& gameObjects);
+	void RenderMeshRenderer(vector<GameObject*>& gameObjects);
+	void RenderModelRenderer(vector<GameObject*>& gameObjects);
+	void RenderAnimRenderer(vector<GameObject*>& gameObjects);
 
 private:
 	void AddData(InstanceID instanceId, InstancingData& data);

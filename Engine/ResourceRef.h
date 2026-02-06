@@ -1,7 +1,7 @@
 #pragma once
 #include "GuidRef.h"
 
-class ResourceRef : public GuidRef
+struct ResourceRef : public GuidRef
 {
 };
 
