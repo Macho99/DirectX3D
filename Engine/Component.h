@@ -48,11 +48,14 @@ public:
 	ComponentType GetType() { return _type; }
 
 	GameObject* GetGameObject();
+    GameObjectRef GetGameObjectRef() const { return _gameObject; }
 	Transform* GetTransform();
+    Guid GetGuid() const { return _guid; }
+	void SetGuid(const Guid& guid) { _guid = guid; }
 
 private:
 	friend class GameObject;
-	void SetGameObject(GameObjectRef gameObject) { _gameObject = gameObject; }
+	void SetGameObject(const GameObjectRef& gameObject) { _gameObject = gameObject; }
 
 protected:
 	ComponentType _type;

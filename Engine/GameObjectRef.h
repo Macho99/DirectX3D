@@ -4,6 +4,10 @@
 class GameObjectRef : public GuidRef
 {
 public:
+    GameObjectRef() : GuidRef() {}
+    GameObjectRef(Guid guid) : GuidRef(guid) {}
+    GameObjectRef(const GuidRef& other) : GuidRef(other) {}
+
     GameObject* Resolve() const;
 };
 

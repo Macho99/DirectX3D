@@ -24,18 +24,18 @@ bool OBBBoxCollider::Intersects(Ray& ray, OUT float& distance)
 	return _boundingBox.Intersects(ray.position, ray.direction, OUT distance);
 }
 
-bool OBBBoxCollider::Intersects(shared_ptr<BaseCollider>& other)
+bool OBBBoxCollider::Intersects(BaseCollider* other)
 {
     ColliderType otherType = other->GetColliderType();
 
     switch (otherType)
     {
     case ColliderType::Sphere:
-        return _boundingBox.Intersects(dynamic_pointer_cast<SphereCollider>(other)->GetBoundingSphere());
+        return _boundingBox.Intersects(static_cast<SphereCollider*>(other)->GetBoundingSphere());
     case ColliderType::AABB:
-        return _boundingBox.Intersects(dynamic_pointer_cast<AABBBoxCollider>(other)->GetBoundingBox());
+        return _boundingBox.Intersects(static_cast<AABBBoxCollider*>(other)->GetBoundingBox());
     case ColliderType::OBB:
-        return _boundingBox.Intersects(dynamic_pointer_cast<OBBBoxCollider>(other)->GetBoundingBox());
+        return _boundingBox.Intersects(static_cast<OBBBoxCollider*>(other)->GetBoundingBox());
     }
 
     return false;

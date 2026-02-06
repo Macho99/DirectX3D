@@ -18,37 +18,25 @@ public:
     // 생성 + 등록
     //  - guid가 이미 존재하면(중복 로드 등) 교체/에러 정책은 프로젝트에 맞게 결정하세요.
     template<class... Args>
-    Handle CreateAndRegister(const Guid& guid, Args&&... args)
+    GuidRef CreateAndRegister(Args&&... args)
     {
-        Handle h = AllocateSlot();
-        Slot& s = _slots[h.index];
-
         s.ptr = std::make_unique<T>(std::forward<Args>(args)...);
-        // T가 guid를 멤버로 가진다는 가정(예시 타입들은 그렇습니다)
-        if constexpr (requires(T t) { t.guid = guid; })
-        {
-            s.ptr->guid = guid;
-        }
 
-        _guidToHandle[guid] = h;
-        return h;
+        return RegisterExisting(guid, std::move(s.ptr));
     }
 
     // 외부에서 이미 만들어진 unique_ptr 등록하고 싶을 때
-    Handle RegisterExisting(const Guid& guid, std::unique_ptr<T> obj)
+    GuidRef RegisterExisting(std::unique_ptr<T> obj)
     {
-        Handle h = AllocateSlot();
-        Slot& s = _slots[h.index];
+        Guid guid = Guid::CreateNew();
+        Handle handle = AllocateSlot();
+        Slot& slot = _slots[handle.index];
 
-        s.ptr = std::move(obj);
-        if (s.ptr)
-        {
-            if constexpr (requires(T t) { t.guid = guid; })
-                s.ptr->guid = guid;
-        }
+        slot.ptr = std::move(obj);
+        slot.ptr->SetGuid(guid);
 
-        _guidToHandle[guid] = h;
-        return h;
+        _guidToHandle[guid] = handle;
+        return GuidRef(guid, handle);
     }
 
     // Guid로 핸들 얻기

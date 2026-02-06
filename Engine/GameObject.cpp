@@ -13,8 +13,10 @@
 #include "Billboard.h"
 #include "SnowBillboard.h"
 #include "Renderer.h"
+#include "Scene.h"
+#include "SlotManager.h"
 
-GameObject::GameObject(wstring name) : _name(name)
+GameObject::GameObject(string name) : _name(name)
 {
 }
 
@@ -25,140 +27,139 @@ GameObject::~GameObject()
 
 void GameObject::Awake()
 {
-	for (shared_ptr<Component>& component : _components)
+	for (ComponentRefBase& component : _components)
 	{
-		if (component)
-			component->Awake();
+		if (component.IsValid())
+			component.Resolve()->Awake();
 	}
 
-	for (shared_ptr<MonoBehaviour>& script : _scripts)
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script->Awake();
+		script.Resolve()->Awake();
 	}
 }
 
 void GameObject::Start()
 {
-	for (shared_ptr<Component>& component : _components)
+	for (ComponentRefBase& component : _components)
 	{
-		if (component)
-			component->Start();
+		if (component.IsValid())
+			component.Resolve()->Start();
 	}
 
-	for (shared_ptr<MonoBehaviour>& script : _scripts)
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script->Start();
+		script.Resolve()->Start();
 	}
 }
 
 void GameObject::Update()
 {
-	for (shared_ptr<Component>& component : _components)
+	for (ComponentRefBase& component : _components)
 	{
-		if (component)
-			component->Update();
+		if (component.IsValid())
+			component.Resolve()->Update();
 	}
 
-	for (shared_ptr<MonoBehaviour>& script : _scripts)
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script->Update();
+		script.Resolve()->Update();
 	}
 }
 
 void GameObject::LateUpdate()
 {
-	for (shared_ptr<Component>& component : _components)
+	for (ComponentRefBase& component : _components)
 	{
-		if (component)
-			component->LateUpdate();
+		if (component.IsValid())
+			component.Resolve()->LateUpdate();
 	}
 
-	for (shared_ptr<MonoBehaviour>& script : _scripts)
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script->LateUpdate();
+		script.Resolve()->LateUpdate();
 	}
 }
 
 void GameObject::FixedUpdate()
 {
-	for (shared_ptr<Component>& component : _components)
+	for (ComponentRefBase& component : _components)
 	{
-		if (component)
-			component->FixedUpdate();
+		if (component.IsValid())
+			component.Resolve()->FixedUpdate();
 	}
 
-	for (shared_ptr<MonoBehaviour>& script : _scripts)
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script->FixedUpdate();
+		script.Resolve()->FixedUpdate();
 	}
 }
 
 void GameObject::OnDestroy()
 {
-    for (shared_ptr<Component>& component : _components)
-    {
-        if (component)
-            component->OnDestroy();
-    }
-    _components.fill(nullptr);
-    for (shared_ptr<MonoBehaviour>& script : _scripts)
-    {
-        script->OnDestroy();
-    }
-	_scripts.clear();
+	for (ComponentRefBase& component : _components)
+	{
+		if (component.IsValid())
+			component.Resolve()->OnDestroy();
+	}
+
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
+	{
+		script.Resolve()->OnDestroy();
+	}
 }
 
-std::shared_ptr<Component> GameObject::GetFixedComponent(ComponentType type)
+Component* GameObject::GetFixedComponent(ComponentType type)
 {
 	uint8 index = static_cast<uint8>(type);
 	assert(index < FIXED_COMPONENT_COUNT);
-	return _components[index];
+	return _components[index].Resolve();
 }
 
-std::shared_ptr<Transform> GameObject::GetTransform()
+Transform* GameObject::GetTransform()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Transform);
+	Component* component = GetFixedComponent(ComponentType::Transform);
 	if (component == nullptr)
 	{
-		component = make_shared<Transform>();
-		AddComponent(component);
+		AddComponent(make_unique<Transform>());
+		component = GetFixedComponent(ComponentType::Transform);
 	}
-	return static_pointer_cast<Transform>(component);
+	return static_cast<Transform*>(component);
 }
 
-std::shared_ptr<Camera> GameObject::GetCamera()
+Camera* GameObject::GetCamera()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Camera);
-	return static_pointer_cast<Camera>(component);
+	Component* component = GetFixedComponent(ComponentType::Camera);
+	return static_cast<Camera*>(component);
 }
 
-shared_ptr<Light> GameObject::GetLight()
+Light* GameObject::GetLight()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Light);
-	return static_pointer_cast<Light>(component);
+	Component* component = GetFixedComponent(ComponentType::Light);
+	return static_cast<Light*>(component);
 }
 
-shared_ptr<MeshRenderer> GameObject::GetMeshRenderer()
+MeshRenderer* GameObject::GetMeshRenderer()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::MeshRenderer);
-	return static_pointer_cast<MeshRenderer>(component);
+	Component* component = GetFixedComponent(ComponentType::MeshRenderer);
+	return static_cast<MeshRenderer*>(component);
 }
 
-shared_ptr<ModelRenderer> GameObject::GetModelRenderer()
+ModelRenderer* GameObject::GetModelRenderer()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::ModelRenderer);
-	return static_pointer_cast<ModelRenderer>(component);
+	Component* component = GetFixedComponent(ComponentType::ModelRenderer);
+	return static_cast<ModelRenderer*>(component);
 }
 
-shared_ptr<ModelAnimator> GameObject::GetModelAnimator()
+ModelAnimator* GameObject::GetModelAnimator()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Animator);
-	return static_pointer_cast<ModelAnimator>(component);
+	Component* component = GetFixedComponent(ComponentType::Animator);
+	return static_cast<ModelAnimator*>(component);
 }
 
-shared_ptr<Renderer> GameObject::GetRenderer()
+Renderer* GameObject::GetRenderer()
 {
-	shared_ptr<Component> renderer = GetFixedComponent(ComponentType::MeshRenderer);
+	Component* renderer = GetFixedComponent(ComponentType::MeshRenderer);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::ModelRenderer);
 	if (renderer == nullptr)
@@ -174,37 +175,37 @@ shared_ptr<Renderer> GameObject::GetRenderer()
     if (renderer == nullptr)
         renderer = GetFixedComponent(ComponentType::GrassRenderer);
 
-	return static_pointer_cast<Renderer>(renderer);
+	return static_cast<Renderer*>(renderer);
 }
 
-shared_ptr<BaseCollider> GameObject::GetCollider()
+BaseCollider* GameObject::GetCollider()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Collider);
-	return static_pointer_cast<BaseCollider>(component);
+	Component* component = GetFixedComponent(ComponentType::Collider);
+	return static_cast<BaseCollider*>(component);
 }
 
-shared_ptr<Terrain> GameObject::GetTerrain()
+Terrain* GameObject::GetTerrain()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Terrain);
-	return static_pointer_cast<Terrain>(component);
+	Component* component = GetFixedComponent(ComponentType::Terrain);
+	return static_cast<Terrain*>(component);
 }
 
-shared_ptr<Button> GameObject::GetButton()
+Button* GameObject::GetButton()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Button);
-	return static_pointer_cast<Button>(component);
+	Component* component = GetFixedComponent(ComponentType::Button);
+	return static_cast<Button*>(component);
 }
 
-shared_ptr<Billboard> GameObject::GetBillboard()
+Billboard* GameObject::GetBillboard()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::Billboard);
-	return static_pointer_cast<Billboard>(component);
+	Component* component = GetFixedComponent(ComponentType::Billboard);
+	return static_cast<Billboard*>(component);
 }
 
-shared_ptr<SnowBillboard> GameObject::GetSnowBillboard()
+SnowBillboard* GameObject::GetSnowBillboard()
 {
-	shared_ptr<Component> component = GetFixedComponent(ComponentType::SnowBillboard);
-	return static_pointer_cast<SnowBillboard>(component);
+	Component* component = GetFixedComponent(ComponentType::SnowBillboard);
+	return static_cast<SnowBillboard*>(component);
 }
 
 //std::shared_ptr<Animator> GameObject::GetAnimator()
@@ -213,17 +214,20 @@ shared_ptr<SnowBillboard> GameObject::GetSnowBillboard()
 //	return static_pointer_cast<Animator>(component);
 //}
 
-void GameObject::AddComponent(shared_ptr<Component> component)
+void GameObject::AddComponent(unique_ptr<Component> component)
 {
-	component->SetGameObject(shared_from_this());
-
+	component->SetGameObject(GameObjectRef(_guid));
 	uint8 index = static_cast<uint8>(component->GetType());
+    GuidRef guidRef = CUR_SCENE->GetComponentSlotManager()->RegisterExisting(std::move(component));
+
 	if (index < FIXED_COMPONENT_COUNT)
 	{
-		_components[index] = component;
+		ComponentRefBase componentRefBase(guidRef);
+		_components[index] = componentRefBase;
 	}
 	else
 	{
-		_scripts.push_back(dynamic_pointer_cast<MonoBehaviour>(component));
+        ComponentRef<MonoBehaviour> scriptRef(guidRef);
+		_scripts.push_back((scriptRef));
 	}
 }

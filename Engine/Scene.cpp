@@ -70,7 +70,7 @@ void Scene::Render()
 {
 	for (auto& camera : _cameras)
 	{
-		Camera* cam = camera.Resolve()->GetCamera().get();
+		Camera* cam = camera.Resolve()->GetCamera();
 		if (cam->GetProjectionType() == ProjectionType::Perspective)
 		{
 			RenderGameCamera(cam);
@@ -79,7 +79,7 @@ void Scene::Render()
 
 	for (auto& camera : _cameras)
 	{
-		Camera* cam = camera.Resolve()->GetCamera().get();
+		Camera* cam = camera.Resolve()->GetCamera();
 		if (cam->GetProjectionType() != ProjectionType::Perspective)
 		{
 			RenderUICamera(cam);
@@ -93,7 +93,7 @@ void Scene::RenderGameCamera(Camera* cam)
 	//				DrawShadow
 	////////////////////////////////////////////
 
-	Light* light = GetLight()->GetLight().get();
+	Light* light = GetLight()->GetLight();
 
 	cam->SetStaticData();
 	cam->SortGameObject();
@@ -196,58 +196,60 @@ void Scene::RenderUICamera(Camera* cam)
 	cam->Render_Backward(RenderTech::Draw);
 }
 
-void Scene::Add(unique_ptr<GameObject> gameObject)
+void Scene::Add(unique_ptr<GameObject> gameObjectUnique)
 {
-	Guid id = 
-	_gameObjectSlotManager->RegisterExisting();
+	GuidRef guidRef = _gameObjectSlotManager->RegisterExisting(std::move(gameObjectUnique));
+    GameObjectRef gameObjectRef = GameObjectRef(guidRef);
+    GameObject* gameObject = gameObjectRef.Resolve();
 
-	shared_ptr<Transform> transform = gameObject->GetTransform();
+	Transform* transform = gameObject->GetTransform();
 	if (transform->HasParent() == false)
 	{
-		_rootObjects.push_back(transform);
+		_rootObjects.push_back(TransformRef(transform->GetGuid()));
 	}
 
-	_gameObjects.insert(make_pair(transform->GetID(), gameObject));
+	_gameObjects.insert(gameObjectRef);
 	if (gameObject->GetFixedComponent(ComponentType::Camera) != nullptr)
 	{
-		_cameras.insert(gameObject);
+		_cameras.insert(gameObjectRef);
 	}
 	if (gameObject->GetFixedComponent(ComponentType::Light) != nullptr)
 	{
-		_lights.insert(gameObject);
+		_lights.insert(gameObjectRef);
 	}
 }
 
-void Scene::Remove(unique_ptr<GameObject> gameObject)
+void Scene::Remove(GameObjectRef gameObjectRef)
 {
-	_removeLists.push_back(gameObject);
+	_removeLists.push_back(gameObjectRef);
 }
 
 void Scene::CleanUpRemoveLists()
 {
-	for (shared_ptr<GameObject>& gameObject : _removeLists)
+	for (const GameObjectRef& gameObject : _removeLists)
 	{
 		RemoveGameObjectRecur(gameObject);
 	}
 	_removeLists.clear();
 }
 
-void Scene::RemoveGameObjectRecur(const shared_ptr<GameObject>& gameObject)
+void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 {
-	shared_ptr<Transform> transform = gameObject->GetTransform();
+    GameObject* gameObject = gameObjectRef.Resolve();
+	Transform* transform = gameObject->GetTransform();
 
 	// 2) 자식 먼저 전부 삭제
 	for (auto& child : transform->GetChildren())
-		RemoveGameObjectRecur(child->GetGameObject());
+		RemoveGameObjectRecur(child.Resolve()->GetGameObjectRef());
 
 	if (transform->HasParent() == false)
 	{
 		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transform), _rootObjects.end());
 	}
 
-	_gameObjects.erase(transform->GetID());
-	_cameras.erase(gameObject);
-	_lights.erase(gameObject);
+	_gameObjects.erase(gameObjectRef);
+	_cameras.erase(gameObjectRef);
+	_lights.erase(gameObjectRef);
 }
 
 GameObject* Scene::GetMainCamera()
@@ -282,11 +284,11 @@ void Scene::PickUI()
 
 	POINT screenPt = INPUT->GetMousePos();
 
-	shared_ptr<Camera> camera = GetUICamera()->GetCamera();
+	Camera* camera = GetUICamera()->GetCamera();
 	
-	for (auto& pair : _gameObjects)
+	for (auto& gameObjectRef : _gameObjects)
 	{
-		shared_ptr<GameObject>& gameObject = pair.second;
+		GameObject* gameObject = gameObjectRef.Resolve();
 		if (gameObject->GetButton() == nullptr)
 			continue;
 
@@ -295,9 +297,9 @@ void Scene::PickUI()
 	}
 }
 
-shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
+GameObject* Scene::Pick(int32 screenX, int32 screenY)
 {
-	shared_ptr<Camera> camera = GetMainCamera()->GetCamera();
+	Camera* camera = GetMainCamera()->GetCamera();
 
     const GameDesc& gameDesc = GAME->GetGameDesc();
 	float width = gameDesc.sceneWidth;
@@ -313,7 +315,7 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 	Matrix viewMatrixInv = camera->GetViewMatrix().Invert();
 
 	float minDistance = FLT_MAX;
-	shared_ptr<GameObject> picked;
+	GameObject* picked = nullptr;
 
 	// ViewSpace에서 Ray 정의
 	Vec4 rayOrigin = Vec4(0.f, 0.f, 0.f, 1.f);
@@ -326,9 +328,9 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 	// WorldSpace에서 연산
 	Ray ray = Ray(worldRayOrigin, worldRayDir);
 
-	for (auto& pair : _gameObjects)
+	for (auto& gameObjectRef : _gameObjects)
 	{
-        shared_ptr<GameObject>& gameObject = pair.second;
+        GameObject* gameObject = gameObjectRef.Resolve();
 		if (camera->IsCulled(gameObject->GetLayerIndex()))
 			continue;
 
@@ -346,9 +348,9 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 		}
 	}
 
-	for (auto& pair : _gameObjects)
+	for (auto& gameObjectRef : _gameObjects)
 	{
-        shared_ptr<GameObject>& gameObject = pair.second;
+		GameObject* gameObject = gameObjectRef.Resolve();
 		if (gameObject->GetTerrain() == nullptr)
 			continue;
 
@@ -369,11 +371,11 @@ shared_ptr<GameObject> Scene::Pick(int32 screenX, int32 screenY)
 
 void Scene::CheckCollision()
 {
-	vector<shared_ptr<BaseCollider>> colliders;
+	vector<BaseCollider*> colliders;
 	
-	for (auto& pair : _gameObjects)
+	for (auto& gameObjectRef : _gameObjects)
 	{
-        shared_ptr<GameObject>& object = pair.second;
+        GameObject* object = gameObjectRef.Resolve();
 		if (object->GetCollider() == nullptr)
 			continue;
 
@@ -385,8 +387,8 @@ void Scene::CheckCollision()
 	{
 		for (int32 j = i + 1; j < colliders.size(); j++)
 		{
-			shared_ptr<BaseCollider>& col1 = colliders[i];
-			shared_ptr<BaseCollider>& col2 = colliders[j];
+			BaseCollider* col1 = colliders[i];
+			BaseCollider* col2 = colliders[j];
 			if (col1->Intersects(col2))
 			{
 

@@ -9,7 +9,7 @@ public:
 
 	virtual void Update() override;
 	virtual bool Intersects(Ray& ray, OUT float& distance) override;
-	virtual bool Intersects(shared_ptr<BaseCollider>& other) override;
+	virtual bool Intersects(BaseCollider* other) override;
 
 	BoundingOrientedBox& GetBoundingBox() { return _boundingBox; }
 

@@ -4,6 +4,9 @@
 
 GameObject* GameObjectRef::Resolve() const
 {
+    if (!IsValid())
+        return nullptr;
+
     SlotManager<GameObject>* manager = CUR_SCENE->GetGameObjectSlotManager();
     if (!cached.IsValid())
         cached = manager->FindHandle(guid);

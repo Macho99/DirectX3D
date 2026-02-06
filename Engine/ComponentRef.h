@@ -11,23 +11,14 @@ public:
 
     T* Resolve() const
     {
-        SlotManager<T>& manager = CUR_SCENE->GetComponentSlotManager();
+        SlotManager<Component>& manager = CUR_SCENE->GetComponentSlotManager();
         if (!cached.IsValid())
             cached = manager.FindHandle(guid);
         Component* p = manager.Resolve(cached);
         
-        return dynamic_cast<T*>(p);
-    }
-
-    template<class Component>
-    Component* Resolve() const
-    {
-        SlotManager<T>& manager = CUR_SCENE->GetComponentSlotManager();
-        if (!cached.IsValid())
-            cached = manager.FindHandle(guid);
-        Component* p = manager.Resolve(cached);
-        return p;
+        return static_cast<T*>(p);
     }
 };
 
 using TransformRef = ComponentRef<class Transform>;
+using ComponentRefBase = ComponentRef<class Component>;

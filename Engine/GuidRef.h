@@ -5,7 +5,10 @@
 class GuidRef
 {
 public:
-    GuidRef(Guid guid) : guid(guid), cached{} {}
+    GuidRef() : guid(), cached() {}
+    GuidRef(Guid guid) : guid(guid), cached() {}
+    GuidRef(const GuidRef& other) : guid(other.guid), cached(other.cached) {}
+    GuidRef(Guid guid, Handle handle) : guid(guid), cached(handle) {}
 
     template <class Archive>
     void serialize(Archive& ar)
@@ -21,6 +24,11 @@ public:
     bool operator!=(const GuidRef& rhs) const noexcept
     {
         return !(*this == rhs);
+    }
+
+    bool IsValid() const noexcept
+    {
+        return guid.IsValid();
     }
 
 public:

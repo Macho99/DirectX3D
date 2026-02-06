@@ -15,10 +15,10 @@ class Billboard;
 class SnowBillboard;
 class Renderer;
 
-class GameObject : public enable_shared_from_this<GameObject>
+class GameObject
 {
 public:
-	GameObject(wstring name = L"GameObject");
+	GameObject(string name = "GameObject");
 	~GameObject();
 
 	void Awake();
@@ -28,43 +28,46 @@ public:
 	void FixedUpdate();
     void OnDestroy();
 
-	shared_ptr<Component> GetFixedComponent(ComponentType type);
-	shared_ptr<Transform> GetTransform();
-	shared_ptr<Camera> GetCamera();
-	shared_ptr<Light> GetLight();
-	shared_ptr<MeshRenderer> GetMeshRenderer();
-	shared_ptr<ModelRenderer> GetModelRenderer();
-	shared_ptr<ModelAnimator> GetModelAnimator();
-	shared_ptr<Renderer> GetRenderer();
-	shared_ptr<BaseCollider> GetCollider();
-	shared_ptr<Terrain> GetTerrain();
-	shared_ptr<Button> GetButton();
-	shared_ptr<Billboard> GetBillboard();
-	shared_ptr<SnowBillboard> GetSnowBillboard();
+	Component* GetFixedComponent(ComponentType type);
+	Transform* GetTransform();
+	Camera* GetCamera();
+	Light* GetLight();
+	MeshRenderer* GetMeshRenderer();
+	ModelRenderer* GetModelRenderer();
+	ModelAnimator* GetModelAnimator();
+	Renderer* GetRenderer();
+	BaseCollider* GetCollider();
+	Terrain* GetTerrain();
+	Button* GetButton();
+	Billboard* GetBillboard();
+	SnowBillboard* GetSnowBillboard();
 
-	void AddComponent(shared_ptr<Component> component);
+	void AddComponent(unique_ptr<Component> component);
 
 	void SetLayerIndex(uint8 layer) { _layerIndex = layer; }
-	uint8 GetLayerIndex() { return _layerIndex; }
+	uint8 GetLayerIndex() const { return _layerIndex; }
 
 	template<typename T>
-	shared_ptr<T> GetFixedComponent(ComponentType type)
+	T* GetFixedComponent(ComponentType type)
 	{
-		return static_pointer_cast<T>(GetFixedComponent(type));
+		return static_cast<T*>(GetFixedComponent(type));
 	}
 
-	wstring GetName() { return _name; }
-	void SetName(wstring name) { _name = name; }
-	bool IsActive() { return _isActive; }
+	string GetName() const { return _name; }
+	void SetName(string name) { _name = name; }
+	bool IsActive() const { return _isActive; }
 	void SetActive(bool active) { _isActive = active; }
+
+    Guid GetGuid() const { return _guid; }
+	void SetGuid(const Guid& guid) { _guid = guid; }
 
 private:
 	bool _isActive;
 	
-	array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
-	vector<shared_ptr<MonoBehaviour>> _scripts;
+	array<ComponentRefBase, FIXED_COMPONENT_COUNT> _components;
+	vector<ComponentRef<MonoBehaviour>> _scripts;
 
 	uint8 _layerIndex = 0;
-	wstring _name;
+	string _name;
+    Guid _guid;
 };
-

@@ -4,6 +4,8 @@
 struct Guid
 {
 public:
+    Guid() : instanceId(0), localId(0) {}
+
     bool IsValid() const { return localId != 0; }
 
     bool operator==(const Guid& rhs) const noexcept

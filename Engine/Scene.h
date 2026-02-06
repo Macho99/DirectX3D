@@ -1,7 +1,6 @@
 #pragma once
-
-#include "ComponentRef.h"
 #include "GameObjectRef.h"
+#include "ComponentRef.h"
 
 class Sky;
 class Camera;
@@ -28,9 +27,9 @@ public:
 	void RenderUICamera(Camera* cam);
 
 	virtual void Add(unique_ptr<GameObject> gameObject);
-	virtual void Remove(unique_ptr<GameObject> gameObject);
+	virtual void Remove(GameObjectRef gameObjectRef);
 	void CleanUpRemoveLists();
-	void RemoveGameObjectRecur(const shared_ptr<GameObject>& gameObject);
+	void RemoveGameObjectRecur(const GameObjectRef& gameObjectRef);
 
 	GameObjectRefSet& GetObjects() { return _gameObjects; }
 	GameObjectRefSet& GetCameras() { return _cameras; }
@@ -39,13 +38,13 @@ public:
 	GameObject* GetLight() { return _lights.empty() ? nullptr : _lights.begin()->Resolve(); }
 
 	void PickUI();
-	shared_ptr<GameObject> Pick(int32 screenX, int32 screenY);
+	GameObject* Pick(int32 screenX, int32 screenY);
 
 	void SetSky(shared_ptr<Sky> sky) { _sky = sky; }
 
 	void CheckCollision();
 	bool IsInScene(const GameObjectRef& ref) { return _gameObjects.find(ref) != _gameObjects.end(); }
-	vector<ComponentRef<Transform>>& GetRootObjects() { return _rootObjects; }
+	vector<TransformRef>& GetRootObjects() { return _rootObjects; }
 
     SlotManager<GameObject>* GetGameObjectSlotManager() { return _gameObjectSlotManager.get(); }
     SlotManager<Component>* GetComponentSlotManager() { return _componentSlotManager.get(); }

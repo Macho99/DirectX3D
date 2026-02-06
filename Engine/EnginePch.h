@@ -84,6 +84,10 @@ using namespace Microsoft::WRL;
 #include "Shader.h"
 #include "IExecute.h"
 
+#include "ComponentRef.h"
+#include "GameObjectRef.h"
+#include "ResourceRef.h"
+
 #include "GameObject.h"
 #include "Transform.h"
 #include "Mesh.h"
