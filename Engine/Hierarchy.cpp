@@ -68,12 +68,12 @@ void Hierarchy::ShowHierarchy()
         if (selectedTransform->TryGetParent(OUT selectedParent))
         {
             Guid selectedParentId = selectedParent->GetGuid();
-            ImGui::Text("Selected: %s (id=%d_%d, parent=%d_%d)", selectedName.c_str(), 
+            ImGui::Text("Selected: %s (id=%llu_%llu, parent=%llu_%llu)", selectedName.c_str(), 
                 _selectedId.GetInstanceId(), _selectedId.GetLocalId(), selectedParentId.GetInstanceId(), selectedParentId.GetLocalId());
         }
         else
         {
-            ImGui::Text("Selected: %s (id=%d_%d)", selectedName.c_str(), _selectedId.GetInstanceId(), _selectedId.GetLocalId());
+            ImGui::Text("Selected: %s (id=%llu_%llu)", selectedName.c_str(), _selectedId.GetInstanceId(), _selectedId.GetLocalId());
         }
     }
     else
@@ -246,7 +246,12 @@ void PendingReparent::Do()
     else
     {
         Transform* parent = targetTransform->GetParent();
-        droppedTransform->SetParent(targetId);
+        TransformRef parentRef;
+        if (parent == nullptr)
+            parentRef = TransformRef();
+        else
+            parentRef = TransformRef(parent->GetGuid());
+        droppedTransform->SetParent(parentRef);
 
         // siblings는 parent 기준/루트 기준으로 다시 계산
         vector<TransformRef>& siblings = parent ? parent->GetChildren()
