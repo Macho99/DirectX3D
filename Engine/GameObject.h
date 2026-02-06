@@ -43,6 +43,8 @@ public:
 	SnowBillboard* GetSnowBillboard();
 
 	void AddComponent(unique_ptr<Component> component);
+    array<ComponentRefBase, FIXED_COMPONENT_COUNT>& GetAllFixedComponents() { return _components; }
+    vector<ComponentRef<MonoBehaviour>>& GetScripts() { return _scripts; }
 
 	void SetLayerIndex(uint8 layer) { _layerIndex = layer; }
 	uint8 GetLayerIndex() const { return _layerIndex; }

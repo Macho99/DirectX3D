@@ -256,6 +256,15 @@ void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 	_gameObjects.erase(gameObjectRef);
 	_cameras.erase(gameObjectRef);
 	_lights.erase(gameObjectRef);
+    for (auto& componentRef : gameObject->GetAllFixedComponents())
+    {
+        _componentSlotManager->Remove(componentRef.guid);
+    }
+    for (auto& scriptRef : gameObject->GetScripts())
+    {
+        _componentSlotManager->Remove(scriptRef.guid);
+    }
+	_gameObjectSlotManager->Remove(gameObjectRef.guid);
 }
 
 GameObject* Scene::GetMainCamera()

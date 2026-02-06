@@ -71,6 +71,20 @@ public:
         return Resolve(FindHandle(guid));
     }
 
+    void Remove(const Guid& guid)
+    {
+        auto it = _guidToHandle.find(guid);
+        if (it == _guidToHandle.end())
+            return;
+        Handle h = it->second;
+        Slot& slot = _slots[h.index];
+        // 슬롯 초기화
+        slot.ptr.reset();
+        slot.gen++;  // 세대 증가
+        _freeIndices.push_back(h.index);
+        _guidToHandle.erase(it);
+    }
+
 private:
 
     Handle AllocateSlot()
