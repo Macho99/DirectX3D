@@ -41,9 +41,7 @@ public:
 private:
 	ProjectionType _type = ProjectionType::Perspective;
 	Matrix _matView = Matrix::Identity;
-    Matrix _matRView = Matrix::Identity;
 	Matrix _matProjection = Matrix::Identity;
-    Matrix _matRProjection = Matrix::Identity;
 
 	float _near = 1.f;
 	float _far = 1000.f;

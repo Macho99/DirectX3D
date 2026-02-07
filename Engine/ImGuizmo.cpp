@@ -1287,7 +1287,7 @@ namespace IMGUIZMO_NAMESPACE
       }
       else
       {
-         viewDirNormalized = Normalized(gContext.mCameraDir);
+         viewDirNormalized = Normalized(-gContext.mCameraDir);
       }
 
       viewDirNormalized.TransformVector(gContext.mModelInverse);

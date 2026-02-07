@@ -22,22 +22,23 @@ void Transform::Update()
 
 Vec3 Transform::ToEulerAngles(Quaternion q)
 {
+	q.Normalize();
 	Vec3 angles;
 
 	// roll (x-axis rotation)
-	double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-	double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-	angles.x = std::atan2(sinr_cosp, cosr_cosp);
+	const double sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
+	const double cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+	angles.x = static_cast<float>(std::atan2(sinr_cosp, cosr_cosp));
 
 	// pitch (y-axis rotation)
-	double sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
-	double cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
-	angles.y = 2 * std::atan2(sinp, cosp) - 3.14159f / 2;
+	double sinp = 2.0 * (q.w * q.y - q.z * q.x);
+	sinp = std::clamp(sinp, -1.0, 1.0);
+	angles.y = (float)std::asin(sinp);
 
 	// yaw (z-axis rotation)
-	double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-	double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-	angles.z = std::atan2(siny_cosp, cosy_cosp);
+	const double siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
+	const double cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+	angles.z = static_cast<float>(std::atan2(siny_cosp, cosy_cosp));
 
 	return angles;
 }
@@ -123,8 +124,40 @@ void Transform::SetPosition(const Vec3& worldPosition)
 	}
 }
 
+void Transform::SetWorldMatrix(Matrix& newWorld)
+{
+	Matrix parentWorld = Matrix::Identity;
+	if (HasParent())
+		parentWorld = GetParent()->GetWorldMatrix();
+
+	// newLocal = inverse(parentWorld) * newWorld
+	Matrix localMatrix = HasParent()
+		? newWorld * parentWorld.Invert()
+		: newWorld;
+
+	Vec3 scale, pos;
+	Quaternion rot;
+	if (!localMatrix.Decompose(scale, rot, pos))
+		return;
+
+	rot.Normalize();
+	if (!std::isfinite(pos.x) || !std::isfinite(pos.y) || !std::isfinite(pos.z) ||
+		!std::isfinite(scale.x) || !std::isfinite(scale.y) || !std::isfinite(scale.z) ||
+		!std::isfinite(rot.x) || !std::isfinite(rot.y) || !std::isfinite(rot.z) || !std::isfinite(rot.w))
+	{
+		return;
+	}
+
+    _localPosition = pos;
+    _localRotation = Transform::ToEulerAngles(rot);
+    _localScale = scale;
+    UpdateTransform();
+}
+
 void Transform::SetParent(TransformRef& newParentRef)
 {
+	Matrix prevWorld = GetWorldMatrix();
+
 	const Guid myID = _guid;
 	Transform* oldParent;
 	TryGetParent(OUT oldParent);
@@ -183,6 +216,7 @@ void Transform::SetParent(TransformRef& newParentRef)
 	}
 	
 	_parent = newParentRef;
+    SetWorldMatrix(prevWorld);
 }
 
 void Transform::SetSiblingIndex(int index)

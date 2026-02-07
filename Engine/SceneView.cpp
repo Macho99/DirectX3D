@@ -61,6 +61,7 @@ void SceneView::OnGUI()
         Matrix view = camera->GetViewMatrix();
         Matrix proj = camera->GetProjectionMatrix();
         Matrix world = selectedTransform->GetWorldMatrix();
+
         ImGuizmo::Manipulate(
             (float*)&view,
             (float*)&proj,
@@ -73,22 +74,7 @@ void SceneView::OnGUI()
 
         if (ImGuizmo::IsUsing())
         {
-            Matrix parentWorld = Matrix::Identity;
-            if (selectedTransform->HasParent())
-                parentWorld = selectedTransform->GetParent()->GetWorldMatrix();
-
-            // newLocal = inverse(parentWorld) * newWorld
-            Matrix localMatrix = selectedTransform->HasParent()
-                ? parentWorld.Invert() * world
-                : world;
-
-            Vec3 scale, pos;
-            Quaternion rot;
-            localMatrix.Decompose(scale, rot, pos);
-
-            selectedTransform->SetLocalPosition(pos);
-            selectedTransform->SetLocalRotation(Transform::ToEulerAngles(rot));
-            selectedTransform->SetLocalScale(scale);
+            selectedTransform->SetWorldMatrix(world);
         }
     }
 }
