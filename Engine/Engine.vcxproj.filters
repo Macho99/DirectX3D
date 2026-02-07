@@ -34,9 +34,6 @@
     <Filter Include="00. Engine\Resource\Model">
       <UniqueIdentifier>{63ae7594-136a-4944-b729-a0fbe4bc3d80}</UniqueIdentifier>
     </Filter>
-    <Filter Include="98. Utils\ImGUI">
-      <UniqueIdentifier>{139c997c-611a-471d-bcc8-edf9ec4f0781}</UniqueIdentifier>
-    </Filter>
     <Filter Include="05. ComputeShader">
       <UniqueIdentifier>{899d6e83-b297-4235-a968-51567ee404b9}</UniqueIdentifier>
     </Filter>
@@ -72,6 +69,12 @@
     </Filter>
     <Filter Include="50. Editor\InspectorDrawer">
       <UniqueIdentifier>{cd9ba630-855a-40ae-8c84-61d143d111af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Utils\ImGui">
+      <UniqueIdentifier>{139c997c-611a-471d-bcc8-edf9ec4f0781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="98. Utils\ImGuizmo">
+      <UniqueIdentifier>{660d6381-4e58-49fd-996a-decbf684d516}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,28 +181,28 @@
       <Filter>00. Engine\Resource\Model</Filter>
     </ClInclude>
     <ClInclude Include="imgui_impl_dx11.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imgui_impl_win32.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imgui_internal.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imstb_rectpack.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imstb_textedit.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imstb_truetype.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imconfig.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="imgui.h">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="EditorManager.h">
       <Filter>02. Managers</Filter>
@@ -615,6 +618,27 @@
     <ClInclude Include="TransformDrawer.h">
       <Filter>50. Editor\InspectorDrawer</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuizmo.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImLightRig.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImSequencer.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImZoomSlider.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphEditor.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImCurveEdit.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGradient.h">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -711,25 +735,25 @@
       <Filter>00. Engine\Resource\Model</Filter>
     </ClCompile>
     <ClCompile Include="imgui_demo.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="imgui_draw.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_dx11.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_win32.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="imgui_tables.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="imgui_widgets.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="imgui.cpp">
-      <Filter>98. Utils\ImGUI</Filter>
+      <Filter>98. Utils\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="EditorManager.cpp">
       <Filter>02. Managers</Filter>
@@ -889,6 +913,21 @@
     </ClCompile>
     <ClCompile Include="TransformDrawer.cpp">
       <Filter>50. Editor\InspectorDrawer</Filter>
+    </ClCompile>
+    <ClCompile Include="ImSequencer.cpp">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphEditor.cpp">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImCurveEdit.cpp">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGradient.cpp">
+      <Filter>98. Utils\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo.cpp">
+      <Filter>98. Utils\ImGuizmo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

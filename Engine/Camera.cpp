@@ -36,7 +36,6 @@ void Camera::UpdateMatrix()
 	Vec3 upDirection = GetTransform()->GetUp();
 	_matView = ::XMMatrixLookAtLH(eyePosition, focusPosition, upDirection);
 
-
 	if (_type == ProjectionType::Perspective)
 	{
 		_matProjection = ::XMMatrixPerspectiveFovLH(_fov, _width / _height, _near, _far);

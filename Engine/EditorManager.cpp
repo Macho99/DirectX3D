@@ -67,8 +67,6 @@ void EditorManager::Update()
         io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
     }
 
-
-
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
