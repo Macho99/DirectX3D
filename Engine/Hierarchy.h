@@ -46,7 +46,6 @@ class Hierarchy : public EditorWindow
 public:
     Hierarchy();
     ~Hierarchy();
-    void Init() override;
 
 protected:
     void OnGUI() override;

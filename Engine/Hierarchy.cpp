@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Hierarchy.h"
+#include "EditorManager.h"
 
 Hierarchy::Hierarchy()
     :Super("Hierarchy")
@@ -10,16 +11,14 @@ Hierarchy::~Hierarchy()
 {
 }
 
-void Hierarchy::Init()
-{
-}
-
 void Hierarchy::OnGUI()
 {
     Super::OnGUI();
 
+    _selectedId = _editorManager->GetSelectedTransform();
     ShowHierarchy();
     ApplyPending();
+    _editorManager->SetSelectedTransform(_selectedId);
 }
 
 void Hierarchy::DrawInsertLine(const ImRect& r, bool top)

@@ -7,7 +7,6 @@ class Console :
 public:
     Console();
     ~Console();
-    void Init() override;
 
 protected:
     void OnGUI() override;

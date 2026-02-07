@@ -683,3 +683,21 @@ void MathUtils::ExtractFrustumPlanes(Vec4 planes[6], Matrix CM)
 		::XMStoreFloat4(&planes[i], v);
 	}
 }
+
+Vec3 MathUtils::RadToDeg(const Vec3& rad)
+{
+	return {
+		XMConvertToDegrees(rad.x),
+		XMConvertToDegrees(rad.y),
+		XMConvertToDegrees(rad.z),
+	};
+}
+
+Vec3 MathUtils::DegToRad(const Vec3& deg)
+{
+    return {
+        XMConvertToRadians(deg.x),
+        XMConvertToRadians(deg.y),
+        XMConvertToRadians(deg.z),
+    };
+}

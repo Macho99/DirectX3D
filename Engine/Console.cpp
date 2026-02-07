@@ -12,10 +12,6 @@ Console::~Console()
 {
 }
 
-void Console::Init()
-{
-}
-
 void Console::OnGUI()
 {
     Super::OnGUI();

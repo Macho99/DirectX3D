@@ -297,6 +297,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Inspector.h" />
+    <ClInclude Include="InspectorDrawer.h" />
     <ClInclude Include="InstancingBuffer.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderManager.h" />
@@ -342,6 +343,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ToneMapping.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="TransformDrawer.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexBuffer.h" />
@@ -413,6 +415,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Inspector.cpp" />
+    <ClCompile Include="InspectorDrawer.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderManager.cpp" />
@@ -466,6 +469,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     </ClCompile>
     <ClCompile Include="ToneMapping.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="TransformDrawer.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexData.cpp" />

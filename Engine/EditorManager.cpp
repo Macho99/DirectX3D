@@ -47,7 +47,7 @@ void EditorManager::Init()
 
     for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
     {
-        editorWindow->Init();
+        editorWindow->Init(this);
     }
 }
 

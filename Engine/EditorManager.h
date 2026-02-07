@@ -20,6 +20,11 @@ public:
 	void Render();
     void OnDestroy();
 
+public:
+    TransformRef GetSelectedTransform() const { return _selectedTransform; }
+    void SetSelectedTransform(TransformRef& transformRef) { _selectedTransform = transformRef; }
+
 private:
+	TransformRef _selectedTransform;
 	vector<unique_ptr<EditorWindow>> _editorWindows;
 };

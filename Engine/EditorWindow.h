@@ -1,11 +1,14 @@
 #pragma once
+
+class EditorManager;
+
 class EditorWindow
 {
 public:
     EditorWindow(string windowName, bool enableMenu = true);
     virtual ~EditorWindow() {}
 
-    virtual void Init() {}
+    virtual void Init(EditorManager* editorManager);
     void CheckAndOnGUI();
 
     string GetName() const { return _windowName; }
@@ -18,5 +21,7 @@ public:
 protected:
     string _windowName;
     bool _enableMenu;
+
+    EditorManager* _editorManager = nullptr;
 };
 

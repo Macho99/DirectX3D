@@ -65,11 +65,19 @@ struct MathUtils
 	static bool Raycast(const Triangle3D& triangle, const Ray3D& ray, float& distance);
 	static Vec3 ProjectVecOnVec(Vec3 from, Vec3 to);
 
+	//-------------------
+	// Random
+	//-------------------
 	static float Random(float r1, float r2);
 	static Vec2 RandomVec2(float r1, float r2);
 	static Vec3 RandomVec3(float r1, float r2);
 
+	//-------------------
+	// ETC
+	//-------------------
 	static uint16_t ConvertFloatToHalf(float value);
 	static void ExtractFrustumPlanes(Vec4 planes[6], Matrix CM);
+    static Vec3 RadToDeg(const Vec3& rad);
+    static Vec3 DegToRad(const Vec3& deg);
 };
 

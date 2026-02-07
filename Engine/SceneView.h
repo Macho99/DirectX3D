@@ -7,8 +7,7 @@ public:
     SceneView();
     ~SceneView();
 
-public:
-    void Init() override;
+protected:
     void OnGUI() override;
 };
 

@@ -10,10 +10,6 @@ SceneView::~SceneView()
 {
 }
 
-void SceneView::Init()
-{
-}
-
 void SceneView::OnGUI()
 {
     Super::OnGUI();

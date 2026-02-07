@@ -16,6 +16,11 @@ EditorWindow::EditorWindow(string windowName, bool enableMenu)
     DBG->Log(windowName + " created");
 }
 
+void EditorWindow::Init(EditorManager* editorManager)
+{
+    _editorManager = editorManager;
+}
+
 void EditorWindow::CheckAndOnGUI()
 {
     if (IsOpen == false)

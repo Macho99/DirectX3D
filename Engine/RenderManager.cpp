@@ -25,7 +25,10 @@ void RenderManager::Render(vector<GameObject*>& gameObjects, RenderTech renderTe
 	RenderAnimRenderer(gameObjects);
 
 	for (GameObject* gameObject : gameObjects)
-	{
+    {
+        if (gameObject->IsActive() == false)
+            continue;
+
 		ParticleSystem* particle = gameObject->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
 		if (particle != nullptr)
 			particle->Render(_renderTech);
@@ -65,6 +68,8 @@ void RenderManager::RenderMeshRenderer(vector<GameObject*>& gameObjects)
 	{
 		if (gameObject->GetMeshRenderer() == nullptr)
 			continue;
+        if (gameObject->IsActive() == false)
+            continue;
 
 		const InstanceID instanceId = gameObject->GetMeshRenderer()->GetInstanceID();
 		cache[instanceId].push_back(gameObject);
@@ -106,6 +111,8 @@ void RenderManager::RenderModelRenderer(vector<GameObject*>& gameObjects)
 	{
 		if (gameObject->GetModelRenderer() == nullptr)
 			continue;
+		if (gameObject->IsActive() == false)
+			continue;
 
 		const InstanceID instanceId = gameObject->GetModelRenderer()->GetInstanceID();
 		cache[instanceId].push_back(gameObject);
@@ -146,6 +153,8 @@ void RenderManager::RenderAnimRenderer(vector<GameObject*>& gameObjects)
 	for (GameObject* gameObject : gameObjects)
 	{
 		if (gameObject->GetModelAnimator() == nullptr)
+			continue;
+		if (gameObject->IsActive() == false)
 			continue;
 
 		const InstanceID instanceId = gameObject->GetModelAnimator()->GetInstanceID();

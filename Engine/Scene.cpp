@@ -51,7 +51,8 @@ void Scene::Update()
 	for (auto& pair : _gameObjects)
 	{
 		GameObject* obj = pair.Resolve();
-		obj->Update();
+        if (obj->IsActive())
+			obj->Update();
 	}
 
 	PickUI();
@@ -62,7 +63,8 @@ void Scene::LateUpdate()
 	for (auto& pair : _gameObjects)
 	{
 		GameObject* obj = pair.Resolve();
-		obj->LateUpdate();
+		if (obj->IsActive())
+			obj->LateUpdate();
 	}
 
 	CheckCollision();
