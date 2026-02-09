@@ -651,6 +651,12 @@
     <ClInclude Include="ThreadSafeQueue.h">
       <Filter>98. Utils</Filter>
     </ClInclude>
+    <ClInclude Include="MetaStore.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaFile.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -949,6 +955,12 @@
     </ClCompile>
     <ClCompile Include="ThreadSafeQueue.cpp">
       <Filter>98. Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaFile.cpp">
+      <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaStore.cpp">
+      <Filter>00. Engine\Asset</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -28,7 +28,7 @@ public:
     // 외부에서 이미 만들어진 unique_ptr 등록하고 싶을 때
     GuidRef RegisterExisting(std::unique_ptr<T> obj)
     {
-        Guid guid = Guid::CreateNew();
+        Guid guid = Guid::CreateNewObjectGuid();
         Handle handle = AllocateSlot();
         Slot& slot = _slots[handle.index];
 

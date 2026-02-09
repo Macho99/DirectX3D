@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "ContentBrowser.h"
 
+#include "MetaFile.h"
+#include "MetaStore.h"
+
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
 {
@@ -75,6 +78,8 @@ void ContentBrowser::Update()
             DBG->LogW(L"[FS] " + ToStr(e.action)
                 + L" : " + e.absPath.wstring());
         }
+
+        ProcessMetaFile(e);
     }
 }
 
@@ -97,4 +102,26 @@ bool ContentBrowser::IsInterestingFile(const fs::path& p)
     // if (ext == L".meta") return true;
 
     return false;
+}
+
+bool ContentBrowser::IsMetaFile(const fs::path& p)
+{
+    auto ext = p.extension().wstring();
+    for (auto& ch : ext) ch = (wchar_t)towlower(ch);
+    return ext == L".meta";
+}
+
+void ContentBrowser::ProcessMetaFile(FsEvent fsEvent)
+{
+    if (IsMetaFile(fsEvent.absPath))
+        return;
+
+    // 파일이 사라진 경우는 meta 생성하면 안 되니 제외
+    if (fsEvent.action == FsAction::Removed)
+        return;
+
+    MetaFile meta = MetaStore::LoadOrCreate(fsEvent.absPath);
+
+    DBG->LogW(L"[META] " + fsEvent.absPath.wstring()
+        + L" guid=(" + to_wstring(meta.guid.GetInstanceId()) + L"," + to_wstring(meta.guid.GetLocalId()) + L")");
 }

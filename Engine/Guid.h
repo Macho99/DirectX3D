@@ -5,6 +5,7 @@ struct Guid
 {
 public:
     Guid() : instanceId(0), localId(0) {}
+    Guid(uint64 instanceId, uint64 localId) : instanceId(instanceId), localId(localId) {}
 
     bool IsValid() const { return localId != 0; }
 
@@ -27,7 +28,8 @@ public:
         ar(CEREAL_NVP(localId));
     }
 
-    static Guid CreateNew();
+    static Guid CreateNewObjectGuid();
+    static Guid CreateNewAssetGuid();
 
     static void SetCurrentInstanceId(uint64 id);
 

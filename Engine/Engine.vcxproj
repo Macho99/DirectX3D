@@ -308,6 +308,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="InspectorDrawer.h" />
     <ClInclude Include="InstancingBuffer.h" />
+    <ClInclude Include="MetaFile.h" />
+    <ClInclude Include="MetaStore.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Light.h" />
@@ -469,6 +471,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="InspectorDrawer.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
+    <ClCompile Include="MetaFile.cpp" />
+    <ClCompile Include="MetaStore.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Light.cpp" />

@@ -20,6 +20,8 @@ protected:
 private:
     static wstring ToStr(FsAction fsAction);
     bool IsInterestingFile(const fs::path& p);
+    bool IsMetaFile(const fs::path& p);
+    void ProcessMetaFile(FsEvent fsEvent);
 
 private:
     DirectoryWatcherWin watcher;
