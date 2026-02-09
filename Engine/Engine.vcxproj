@@ -170,6 +170,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AABBBoxCollider.h" />
+    <ClInclude Include="AssetDatabase.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Billboard.h" />
     <ClInclude Include="Bloom.h" />
@@ -364,6 +365,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AABBBoxCollider.cpp" />
+    <ClCompile Include="AssetDatabase.cpp" />
     <ClCompile Include="BaseCollider.cpp" />
     <ClCompile Include="Billboard.cpp" />
     <ClCompile Include="Bloom.cpp" />

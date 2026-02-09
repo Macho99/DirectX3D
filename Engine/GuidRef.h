@@ -54,8 +54,6 @@ struct GuidRefEq
     }
 };
 
-// 2) 해시 : guid만 해시 (cached 제외)
-// 이미 GuidHash가 있다면 그걸 그대로 재사용
 struct GuidRefHash
 {
     std::size_t operator()(const GuidRef& r) const noexcept

@@ -657,6 +657,9 @@
     <ClInclude Include="MetaFile.h">
       <Filter>00. Engine\Asset</Filter>
     </ClInclude>
+    <ClInclude Include="AssetDatabase.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -960,6 +963,9 @@
       <Filter>00. Engine\Asset</Filter>
     </ClCompile>
     <ClCompile Include="MetaStore.cpp">
+      <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetDatabase.cpp">
       <Filter>00. Engine\Asset</Filter>
     </ClCompile>
   </ItemGroup>

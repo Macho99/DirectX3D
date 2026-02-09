@@ -53,7 +53,16 @@ void Utils::Replace(OUT wstring& str, wstring comp, wstring rep)
 
 std::wstring Utils::ToWString(string value)
 {
-	return wstring(value.begin(), value.end());
+	if (value.empty()) 
+		return {};
+
+	int size = ::MultiByteToWideChar(CP_UTF8, 0, value.c_str(), (int)value.size(), nullptr, 0);
+
+	std::wstring out(size, 0);
+
+	::MultiByteToWideChar(CP_UTF8, 0, value.c_str(), (int)value.size(), out.data(), size);
+
+	return out;
 }
 
 std::string Utils::ToString(wstring value)
