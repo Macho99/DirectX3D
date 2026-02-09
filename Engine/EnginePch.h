@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <filesystem>
+#include <functional>
 #include <mutex>
 #include <random>
 using namespace std;

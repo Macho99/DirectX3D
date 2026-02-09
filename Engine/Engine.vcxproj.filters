@@ -28,12 +28,6 @@
     <Filter Include="01. Graphics\Shader">
       <UniqueIdentifier>{088ad58c-882b-459f-abd9-9c4263633264}</UniqueIdentifier>
     </Filter>
-    <Filter Include="00. Engine\Resource">
-      <UniqueIdentifier>{48c22b49-db12-48c1-97de-e85985049d35}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="00. Engine\Resource\Model">
-      <UniqueIdentifier>{63ae7594-136a-4944-b729-a0fbe4bc3d80}</UniqueIdentifier>
-    </Filter>
     <Filter Include="05. ComputeShader">
       <UniqueIdentifier>{899d6e83-b297-4235-a968-51567ee404b9}</UniqueIdentifier>
     </Filter>
@@ -75,6 +69,15 @@
     </Filter>
     <Filter Include="98. Utils\ImGuizmo">
       <UniqueIdentifier>{660d6381-4e58-49fd-996a-decbf684d516}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00. Engine\Asset">
+      <UniqueIdentifier>{0dc78f5d-63e1-48b4-aab8-73b73e82f3c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00. Engine\Asset\Resource">
+      <UniqueIdentifier>{48c22b49-db12-48c1-97de-e85985049d35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00. Engine\Asset\Resource\Model">
+      <UniqueIdentifier>{63ae7594-136a-4944-b729-a0fbe4bc3d80}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -136,10 +139,10 @@
       <Filter>01. Graphics\Shader</Filter>
     </ClInclude>
     <ClInclude Include="ResourceBase.h">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
     <ClInclude Include="GeometryHelper.h">
       <Filter>01. Graphics\Buffer</Filter>
@@ -160,7 +163,7 @@
       <Filter>04. Component</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>00. Engine</Filter>
@@ -169,16 +172,16 @@
       <Filter>01. Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
     <ClInclude Include="FileUtils.h">
       <Filter>98. Utils</Filter>
     </ClInclude>
     <ClInclude Include="ModelMesh.h">
-      <Filter>00. Engine\Resource\Model</Filter>
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>00. Engine\Resource\Model</Filter>
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
     <ClInclude Include="imgui_impl_dx11.h">
       <Filter>98. Utils\ImGui</Filter>
@@ -208,7 +211,7 @@
       <Filter>02. Managers</Filter>
     </ClInclude>
     <ClInclude Include="ModelAnimation.h">
-      <Filter>00. Engine\Resource\Model</Filter>
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
     <ClInclude Include="RenderManager.h">
       <Filter>02. Managers</Filter>
@@ -639,6 +642,9 @@
     <ClInclude Include="ImGradient.h">
       <Filter>98. Utils\ImGuizmo</Filter>
     </ClInclude>
+    <ClInclude Include="DirectoryWatcherWin.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -690,10 +696,10 @@
       <Filter>01. Graphics\Shader</Filter>
     </ClCompile>
     <ClCompile Include="ResourceBase.cpp">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="GeometryHelper.cpp">
       <Filter>01. Graphics\Buffer</Filter>
@@ -714,7 +720,7 @@
       <Filter>04. Component</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>00. Engine</Filter>
@@ -723,16 +729,16 @@
       <Filter>01. Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>00. Engine\Resource</Filter>
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="FileUtils.cpp">
       <Filter>98. Utils</Filter>
     </ClCompile>
     <ClCompile Include="ModelMesh.cpp">
-      <Filter>00. Engine\Resource\Model</Filter>
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>00. Engine\Resource\Model</Filter>
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
     <ClCompile Include="imgui_demo.cpp">
       <Filter>98. Utils\ImGui</Filter>
@@ -759,7 +765,7 @@
       <Filter>02. Managers</Filter>
     </ClCompile>
     <ClCompile Include="ModelAnimation.cpp">
-      <Filter>00. Engine\Resource\Model</Filter>
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
     <ClCompile Include="RenderManager.cpp">
       <Filter>02. Managers</Filter>
@@ -928,6 +934,9 @@
     </ClCompile>
     <ClCompile Include="ImGuizmo.cpp">
       <Filter>98. Utils\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectoryWatcherWin.cpp">
+      <Filter>00. Engine\Asset</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

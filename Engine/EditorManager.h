@@ -1,5 +1,5 @@
 #pragma once
-
+#include "DirectoryWatcherWin.h"
 class EditorWindow;
 
 class EditorManager
@@ -27,4 +27,5 @@ public:
 private:
 	TransformRef _selectedTransform;
 	vector<unique_ptr<EditorWindow>> _editorWindows;
+	DirectoryWatcherWin watcher;
 };

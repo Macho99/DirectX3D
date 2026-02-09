@@ -38,7 +38,7 @@ public:										\
 #define CUR_SCENE	SCENE->GetCurrentScene()
 #define DBG			GET_SINGLE(DebugManager) // DEBUG라는 디파인은 있는 경우가 많으므로 DBG로 줄임
 
-//#define GET_TECH(isShadow) isShadow == true ? 1 : 0
+#define U8(str) reinterpret_cast<const char*>(u8##str)
 
 enum Layer_Mask
 {

@@ -5,7 +5,7 @@
 class Sky;
 class Camera;
 class Transform;
-class Guid;
+struct Guid;
 
 template<class T>
 class SlotManager;

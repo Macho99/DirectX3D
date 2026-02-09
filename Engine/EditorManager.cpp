@@ -16,6 +16,18 @@ EditorManager::~EditorManager()
 
 }
 
+static wstring ToStr(FsAction a)
+{
+    switch (a)
+    {
+    case FsAction::Added: return L"Added";
+    case FsAction::Removed: return L"Removed";
+    case FsAction::Modified: return L"Modified";
+    case FsAction::Renamed: return L"Renamed";
+    default: return L"?";
+    }
+}
+
 void EditorManager::Init()
 {
 	IMGUI_CHECKVERSION();
@@ -23,8 +35,16 @@ void EditorManager::Init()
 	ImGuiIO& io = ImGui::GetIO();// (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
 
+    ImFont* font = io.Fonts->AddFontFromFileTTF(
+        "..\\Assets\\Pretendard-Medium.ttf",
+        18.0f,
+        NULL,
+        io.Fonts->GetGlyphRangesKorean()
+    );
+
+    IM_ASSERT(font != NULL);
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
@@ -49,6 +69,31 @@ void EditorManager::Init()
     {
         editorWindow->Init(this);
     }
+
+    fs::path assetsRoot = L"D:\\Projects\\source\\repos\\GameCoding\\Resources";
+
+    if (!watcher.Start(assetsRoot, true, [](const FsEvent& e)
+        {
+            wstring log;
+            if (e.action == FsAction::Renamed)
+            {
+                log = wstring(L"[FS] " + ToStr(e.action)
+                    + L" : " + e.oldAbsPath.wstring()
+                    + L" -> " + e.absPath.wstring());
+            }
+            else
+            {
+                log = wstring(L"[FS] " + ToStr(e.action)
+                    + L" : " + e.absPath.wstring());
+            }
+            DBG->LogW(log);
+        }))
+    {
+        DBG->LogW(L"Watcher start failed");
+        return;
+    }
+
+    DBG->LogW(L"Watching...");
 }
 
 void EditorManager::Update()
@@ -149,7 +194,9 @@ void EditorManager::Render()
 }
 
 void EditorManager::OnDestroy()
-{    // Cleanup
+{    
+    watcher.Stop();
+    // Cleanup
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();

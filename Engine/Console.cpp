@@ -140,6 +140,7 @@ void Console::OnGUI()
     ImGui::PushStyleColor(ImGuiCol_Text, color);
     ImGui::Text("Level: %s", lv);
     ImGui::PopStyleColor();
+    ImGui::TextWrapped(selected->message.c_str());
 
     // 상세 메시지
     ImGui::SeparatorText("StackTrace");
@@ -151,7 +152,7 @@ void Console::OnGUI()
     else
     {
         for (const auto& line : selected->stack)
-            ImGui::Text(line.c_str());
+            ImGui::TextWrapped(line.c_str());
     }
 
     ImGui::EndChild();

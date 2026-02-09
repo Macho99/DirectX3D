@@ -40,7 +40,7 @@ private:
     uint64 instanceId; // 런타임 인스턴스(씬/프리팹 인스턴스) 단위
     uint64 localId;    // 에디터/빌드에서 고정되는 로컬 ID (저장 대상)
 
-    friend class GuidHash;
+    friend struct GuidHash;
 };
 
 struct GuidHash
