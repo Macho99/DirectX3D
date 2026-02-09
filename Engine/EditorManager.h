@@ -27,5 +27,4 @@ public:
 private:
 	TransformRef _selectedTransform;
 	vector<unique_ptr<EditorWindow>> _editorWindows;
-	DirectoryWatcherWin watcher;
 };

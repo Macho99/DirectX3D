@@ -5,7 +5,7 @@
 #include "Console.h"
 #include "Inspector.h"
 #include "DebugTexWindow.h"
-#include "ContentBrower.h"
+#include "ContentBrowser.h"
 
 EditorManager::EditorManager()
 {
@@ -14,18 +14,6 @@ EditorManager::EditorManager()
 EditorManager::~EditorManager()
 {
 
-}
-
-static wstring ToStr(FsAction a)
-{
-    switch (a)
-    {
-    case FsAction::Added: return L"Added";
-    case FsAction::Removed: return L"Removed";
-    case FsAction::Modified: return L"Modified";
-    case FsAction::Renamed: return L"Renamed";
-    default: return L"?";
-    }
 }
 
 void EditorManager::Init()
@@ -57,7 +45,7 @@ void EditorManager::Init()
     _editorWindows.push_back(make_unique<Hierarchy>());
     _editorWindows.push_back(make_unique<Console>());
     _editorWindows.push_back(make_unique<Inspector>());
-    _editorWindows.push_back(make_unique<ContentBrower>());
+    _editorWindows.push_back(make_unique<ContentBrowser>());
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).get(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).get(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).get(); }));
@@ -69,31 +57,6 @@ void EditorManager::Init()
     {
         editorWindow->Init(this);
     }
-
-    fs::path assetsRoot = L"D:\\Projects\\source\\repos\\GameCoding\\Resources";
-
-    if (!watcher.Start(assetsRoot, true, [](const FsEvent& e)
-        {
-            wstring log;
-            if (e.action == FsAction::Renamed)
-            {
-                log = wstring(L"[FS] " + ToStr(e.action)
-                    + L" : " + e.oldAbsPath.wstring()
-                    + L" -> " + e.absPath.wstring());
-            }
-            else
-            {
-                log = wstring(L"[FS] " + ToStr(e.action)
-                    + L" : " + e.absPath.wstring());
-            }
-            DBG->LogW(log);
-        }))
-    {
-        DBG->LogW(L"Watcher start failed");
-        return;
-    }
-
-    DBG->LogW(L"Watching...");
 }
 
 void EditorManager::Update()
@@ -139,6 +102,7 @@ void EditorManager::Update()
 
     for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
     {
+        editorWindow->Update();
         editorWindow->CheckAndOnGUI();
     }
 }
@@ -194,8 +158,7 @@ void EditorManager::Render()
 }
 
 void EditorManager::OnDestroy()
-{    
-    watcher.Stop();
+{
     // Cleanup
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();

@@ -265,7 +265,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="ComponentRef.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="ContentBrower.h" />
+    <ClInclude Include="ContentBrowser.h" />
     <ClInclude Include="DebugManager.h" />
     <ClInclude Include="DebugTexWindow.h" />
     <ClInclude Include="Define.h" />
@@ -274,6 +274,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="EnginePch.h" />
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="FoliageController.h" />
+    <ClInclude Include="FsEventDebouncer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectRef.h" />
@@ -347,6 +348,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="TessTerrain.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureBuffer.h" />
+    <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ToneMapping.h" />
@@ -370,13 +372,14 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="ComponentRef.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
-    <ClCompile Include="ContentBrower.cpp" />
+    <ClCompile Include="ContentBrowser.cpp" />
     <ClCompile Include="DebugManager.cpp" />
     <ClCompile Include="DebugTexWindow.cpp" />
     <ClCompile Include="DirectoryWatcherWin.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="FoliageController.cpp" />
+    <ClCompile Include="FsEventDebouncer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectRef.cpp" />
@@ -511,6 +514,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="TessTerrain.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureBuffer.cpp" />
+    <ClCompile Include="ThreadSafeQueue.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="tinyxml2.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

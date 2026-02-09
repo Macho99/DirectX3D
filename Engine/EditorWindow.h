@@ -9,6 +9,7 @@ public:
     virtual ~EditorWindow() {}
 
     virtual void Init(EditorManager* editorManager);
+    virtual void Update() {}
     void CheckAndOnGUI();
 
     string GetName() const { return _windowName; }

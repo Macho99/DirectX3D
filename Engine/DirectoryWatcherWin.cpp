@@ -17,11 +17,6 @@ bool DirectoryWatcherWin::Start(const fs::path& folderAbs, bool recursive, Callb
     _cb = std::move(cb);
     _renameOldAbs.clear();
 
-    if (fs::exists(_folderAbs))
-    {
-        DBG->LogW(L"valid Folder");
-    }
-     
     _dir = ::CreateFileW(
         _folderAbs.c_str(),
         FILE_LIST_DIRECTORY,
@@ -65,8 +60,6 @@ void DirectoryWatcherWin::ThreadMain()
 
     while (_running)
     {
-        bytesReturned = 0;
-
         BOOL ok = ::ReadDirectoryChangesW(
             _dir,
             buffer.data(),
@@ -80,19 +73,9 @@ void DirectoryWatcherWin::ThreadMain()
             nullptr,
             nullptr);
 
-        if (!ok)
+        if (!ok || bytesReturned == 0)
         {
-            DWORD err = ::GetLastError();
-            wchar_t msg[256];
-            swprintf_s(msg, L"[Watcher] ReadDirectoryChangesW failed. err=%lu\n", err);
-            ::OutputDebugStringW(msg);   // VS Output Ã¢¿¡ ÂïÈü´Ï´Ù.
-            ::Sleep(100);
-            continue;
-        }
-
-        if (bytesReturned == 0)
-        {
-            ::OutputDebugStringW(L"[Watcher] bytesReturned == 0\n");
+            if (!_running) break;
             ::Sleep(10);
             continue;
         }

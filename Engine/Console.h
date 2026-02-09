@@ -1,7 +1,6 @@
 #pragma once
 #include "EditorWindow.h"
-class Console :
-    public EditorWindow
+class Console : public EditorWindow
 {
     using Super = EditorWindow;
 public:
