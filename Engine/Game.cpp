@@ -26,8 +26,8 @@ WPARAM Game::Run(GameDesc& desc)
 	GRAPHICS->Init(_desc.hWnd);
 	TIME->Init();
 	INPUT->Init(_desc.hWnd);
-	EDITOR->Init();
 	RESOURCES->Init();
+	EDITOR->Init();
 
 	
 	_desc.app->Init();
@@ -86,11 +86,11 @@ WPARAM Game::Run(GameDesc& desc)
 	OutputDebugStringW(L"==============SHADER============\n");
 	ShaderManager::OnDestroy();
 	OutputDebugStringW(L"==============SCENE============\n");
-	SCENE->OnDestroy();
-	OutputDebugStringW(L"==============RESOURCES============\n");
-    RESOURCES->OnDestroy();
+	SCENE->OnDestroy();	
 	OutputDebugStringW(L"==============GUI============\n");
 	EDITOR->OnDestroy();
+	OutputDebugStringW(L"==============RESOURCES============\n");
+    RESOURCES->OnDestroy();
 	OutputDebugStringW(L"==============GRAPHICS============\n");
     GRAPHICS->OnDestroy();
 	OutputDebugStringW(L"==============DBG============\n");
@@ -182,6 +182,7 @@ void Game::Update()
 
 	GRAPHICS->RenderBegin();
 
+	RESOURCES->Update();
 	SCENE->Update();
 	GRAPHICS->SetBackBufferRenderTarget();
     if (_desc.isEditor)

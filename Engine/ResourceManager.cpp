@@ -8,11 +8,13 @@
 #include "SlotManager.h"
 
 ResourceManager::ResourceManager()
+	:assetDatabase()
 {
 }
 
 ResourceManager::~ResourceManager()
 {
+	watcher.Stop();
 }
 
 void ResourceManager::Init()
@@ -21,6 +23,50 @@ void ResourceManager::Init()
 
 	CreateDefaultMesh();
 	CreateRandomTexture();
+
+	_root = L"..\\Assets";
+	if (!watcher.Start(_root, true, [&](const FsEvent& e)
+		{
+			// 워처 스레드: 절대 여기서 무거운 일 하지 말고 Push만!
+			eventThreadQueue.Push(e);
+		}))
+	{
+		DBG->LogW(L"Watcher start failed");
+	}
+	else
+	{
+		DBG->LogW(L"Watching: " + _root.wstring());
+	}
+	assetDatabase.ReconcileAndBuildFromMeta(_root);
+}
+
+void ResourceManager::Update()
+{
+	pendingEvents.clear();
+	eventThreadQueue.PopAll(pendingEvents);
+
+	// 1) 필터 + 디바운서 입력
+	for (auto& e : pendingEvents)
+	{
+		if (!IsInterestingFile(e.absPath))
+			continue;
+
+		debouncer.Push(e);
+	}
+
+	// 2) 디바운스 완료분 배출 (예: 300ms)
+	readyEvents.clear();
+	debouncer.PopReady(300, readyEvents);
+
+	// 3) 최종 처리(여기서부터 메인 스레드)
+	for (auto& e : readyEvents)
+	{
+		assetDatabase.OnFileEvent(e);
+        if (onFileEventCallback)
+        {
+            onFileEventCallback(e);
+        }
+	}
 }
 
 void ResourceManager::OnDestroy()
@@ -119,4 +165,50 @@ void ResourceManager::CreateRandomTexture()
 	DX_CREATE_SRV(randomTex.Get(), &viewDesc, randomTexSRV);
 	texture->SetSRV(randomTexSRV);
 	Add(L"RandomTex", texture);
+}
+
+bool ResourceManager::TryGetGuidByPath(const fs::path& absPath, OUT Guid& guid)
+{
+    return assetDatabase.TryGetGuidByPath(absPath, guid);
+}
+
+bool ResourceManager::TryGetPathByGuid(const Guid& guid, OUT fs::path& path)
+{
+    return assetDatabase.TryGetPathByGuid(guid, path);
+}
+
+wstring ResourceManager::ToStr(FsAction fsAction)
+{
+	switch (fsAction)
+	{
+		case FsAction::Added: return L"Added";
+		case FsAction::Removed: return L"Removed";
+		case FsAction::Modified: return L"Modified";
+		case FsAction::Renamed: return L"Renamed";
+		default: return L"?";
+	}
+}
+
+bool ResourceManager::IsInterestingFile(const fs::path& path)
+{
+	if (fs::is_directory(path))
+	{
+		return true;
+	}
+	else if (MetaStore::IsMetaFile(path))
+	{
+		return false;
+	}
+
+	auto ext = path.extension().wstring();
+	for (auto& ch : ext) ch = (wchar_t)towlower(ch);
+
+	// 일단 임포트 관련 핵심만
+	if (ext == L".fbx") return true;
+	if (ext == L".png" || ext == L".tga" || ext == L".jpg" || ext == L".jpeg") return true;
+
+	// meta는 다음 단계에서 다시 포함시킬 겁니다.
+	// if (ext == L".meta") return true;
+
+	return false;
 }

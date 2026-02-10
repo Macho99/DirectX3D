@@ -176,31 +176,35 @@ void Hierarchy::DrawNode(Transform* node)
     // Drop target with 3-zone preview + action
     if (ImGui::BeginDragDropTarget())
     {
-        ImRect r(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
-        float h = r.GetHeight();
-        float t0 = r.Min.y + h * 0.25f;
-        float t1 = r.Min.y + h * 0.75f;
-
-        float y = ImGui::GetIO().MousePos.y;
-
-        DropAction dropAction;
-        if (y < t0) dropAction = DropAction::InsertBefore;
-        else if (y > t1) dropAction = DropAction::InsertAfter;
-        else dropAction = DropAction::MakeChild;
-
-        // Preview drawing
-        if (dropAction == DropAction::InsertBefore)
-            DrawInsertLine(r, true);
-        else if (dropAction == DropAction::InsertAfter)
-            DrawInsertLine(r, false);
-        else
-            DrawChildHighlight(r);
-
-        // Commit on drop
-        if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("DND_ENTITY"))
+        const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+        if (payload && payload->IsDataType("DND_ENTITY"))
         {
-            TransformRef dropped = *(const TransformRef*)p->Data;
-            _pendingOps.push_back(make_unique<PendingReparent>(dropped, nodeId, dropAction));
+            ImRect r(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+            float h = r.GetHeight();
+            float t0 = r.Min.y + h * 0.25f;
+            float t1 = r.Min.y + h * 0.75f;
+
+            float y = ImGui::GetIO().MousePos.y;
+
+            DropAction dropAction;
+            if (y < t0) dropAction = DropAction::InsertBefore;
+            else if (y > t1) dropAction = DropAction::InsertAfter;
+            else dropAction = DropAction::MakeChild;
+
+            // Preview drawing
+            if (dropAction == DropAction::InsertBefore)
+                DrawInsertLine(r, true);
+            else if (dropAction == DropAction::InsertAfter)
+                DrawInsertLine(r, false);
+            else
+                DrawChildHighlight(r);
+
+            // Commit on drop
+            if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("DND_ENTITY"))
+            {
+                TransformRef dropped = *(const TransformRef*)p->Data;
+                _pendingOps.push_back(make_unique<PendingReparent>(dropped, nodeId, dropAction));
+            }
         }
 
         ImGui::EndDragDropTarget();

@@ -6,78 +6,75 @@
 #include "MetaStore.h"
 
 ContentBrowser::ContentBrowser()
-    : Super("ContentBrower"),
-    assetDatabase()
+    : Super("ContentBrower")
 {
-    assetDatabase.AddListener([this](const AssetEvent& e) { OnAssetEvent(e); });
+    
 }
 
 ContentBrowser::~ContentBrowser()
 {
-    watcher.Stop();
+    RESOURCES->SetOnFileEventCallback(nullptr);
 }
 
-wstring ContentBrowser::ToStr(FsAction fsAction)
-{
-    switch (fsAction)
-    {
-        case FsAction::Added: return L"Added";
-        case FsAction::Removed: return L"Removed";
-        case FsAction::Modified: return L"Modified";
-        case FsAction::Renamed: return L"Renamed";
-        default: return L"?";
-    }
-}
 
 void ContentBrowser::Init(EditorManager* editorManager)
 {
     Super::Init(editorManager);
 
-    _root = L"..\\Resources";
-    _currentFolder = _root;
-
-    if (!watcher.Start(_root, true, [&](const FsEvent& e)
+    _root = RESOURCES->GetRootPath();
+    RESOURCES->SetOnFileEventCallback([this](const FsEvent& e)
         {
-            // 워처 스레드: 절대 여기서 무거운 일 하지 말고 Push만!
-            eventThreadQueue.Push(e);
-        }))
-    {
-        DBG->LogW(L"Watcher start failed");
-    }
-    else
-    {
-        DBG->LogW(L"Watching: " + _root.wstring());
-    }
+            if (e.absPath.parent_path() == _currentFolder || e.oldAbsPath.parent_path() == _currentFolder)
+                needRefresh = true;
+        });
+    SetCurrentFolder(_root);
 }
 
 void ContentBrowser::Update()
 {
-    pendingEvents.clear();
-    eventThreadQueue.PopAll(pendingEvents);
+}
 
-    // 1) 필터 + 디바운서 입력
-    for (auto& e : pendingEvents)
+void ContentBrowser::RefreshBrowserItems()
+{
+    _curBrowserItems.clear();
+
+    for (auto& de : fs::directory_iterator(_currentFolder))
     {
-        if (!IsInterestingFile(e.absPath))
+        fs::path path = de.path();
+        if (MetaStore::IsMetaFile((path)))
             continue;
 
-        debouncer.Push(e);
+        Guid guid;
+        if (RESOURCES->TryGetGuidByPath(path, guid) == false)
+        {
+            DBG->LogW(L"[ContentBrowser] Refresh: Skip non-asset file: " + path.wstring());
+            continue;
+        }
+
+        BrowserItem browserItem;
+        browserItem.absPath = path;
+        browserItem.guid = guid;
+        browserItem.isFolder = fs::is_directory(path);
+        _curBrowserItems.push_back((browserItem));
     }
 
-    // 2) 디바운스 완료분 배출 (예: 300ms)
-    readyEvents.clear();
-    debouncer.PopReady(300, readyEvents);
-
-    // 3) 최종 처리(여기서부터 메인 스레드)
-    for (auto& e : readyEvents)
-    {
-        assetDatabase.OnFileEvent(e);
-    }
+    // 3) 정렬: 폴더 먼저, 그 다음 이름순
+    std::sort(_curBrowserItems.begin(), _curBrowserItems.end(), [](const BrowserItem& a, const BrowserItem& b)
+        {
+            if (a.isFolder != b.isFolder) return a.isFolder > b.isFolder;
+            return a.absPath.filename().wstring() < b.absPath.filename().wstring();
+        });
 }
 
 void ContentBrowser::OnGUI()
 {
     Super::OnGUI();
+
+    if (needRefresh)
+    {
+        RefreshBrowserItems();
+        needRefresh = false;
+    }
 
     ImGui::Columns(2, nullptr, true);
     ImGui::SetColumnWidth(0, _leftPaneWidth);
@@ -90,95 +87,6 @@ void ContentBrowser::OnGUI()
     ImGui::Columns(1);
 }
 
-bool ContentBrowser::IsInterestingFile(const fs::path& p)
-{
-    if (!p.has_extension()) return false;
-
-    auto ext = p.extension().wstring();
-    for (auto& ch : ext) ch = (wchar_t)towlower(ch);
-
-    // 일단 임포트 관련 핵심만
-    if (ext == L".fbx") return true;
-    if (ext == L".png" || ext == L".tga" || ext == L".jpg" || ext == L".jpeg") return true;
-
-    // meta는 다음 단계에서 다시 포함시킬 겁니다.
-    // if (ext == L".meta") return true;
-
-    return false;
-}
-
-void ContentBrowser::OnAssetEvent(const AssetEvent& e)
-{
-    fs::path parent = ParentFolderOfEvent(e);
-    if (parent.empty()) return;
-
-    _dirtyFolders.insert(parent.wstring());
-
-    DBG->LogW(L"[Browser] Dirty folder: " + parent.wstring());
-}
-
-vector<BrowserItem> ContentBrowser::GetItemsForFolder(const fs::path& folderAbs)
-{
-    std::vector<BrowserItem> items;
-
-    // 1) 폴더(디스크 스캔)
-    //   - 숨김/권한 예외는 다음 단계에서 다듬어도 됩니다.
-    try
-    {
-        for (auto& de : fs::directory_iterator(folderAbs))
-        {
-            if (!de.is_directory()) continue;
-
-            BrowserItem it;
-            it.absPath = de.path();
-            it.guid = Guid();     // 폴더는 guid 없음
-            it.isFolder = true;
-            items.push_back(std::move(it));
-        }
-    }
-    catch (...) {}
-
-    // 2) 파일(AssetDB 인덱스에서)
-    auto files = assetDatabase.ListChildrenFiles(folderAbs);
-    for (auto& p : files)
-    {
-        Guid g;
-        assetDatabase.TryGetGuidByPath(p, g);
-
-        BrowserItem it;
-        it.absPath = p;
-        it.guid = g;
-        it.isFolder = false;
-        items.push_back(std::move(it));
-    }
-
-    // 3) 정렬: 폴더 먼저, 그 다음 이름순
-    std::sort(items.begin(), items.end(), [](const BrowserItem& a, const BrowserItem& b)
-        {
-            if (a.isFolder != b.isFolder) return a.isFolder > b.isFolder;
-            return a.absPath.filename().wstring() < b.absPath.filename().wstring();
-        });
-
-    RefreshFolder(folderAbs);
-    return items;
-}
-
-bool ContentBrowser::IsFolderDirty(const fs::path& folderAbs) const
-{
-    return _dirtyFolders.find(folderAbs.wstring()) != _dirtyFolders.end();
-}
-
-void ContentBrowser::RefreshFolder(const fs::path& folderAbs)
-{
-    _dirtyFolders.erase(folderAbs.wstring());
-    DBG->LogW(L"[Browser] Refresh folder: " + folderAbs.wstring());
-}
-
-fs::path ContentBrowser::ParentFolderOfEvent(const AssetEvent& e)
-{
-    return e.fs.absPath.parent_path();
-}
-
 void ContentBrowser::DrawLeftFolderTree()
 {
     ImGui::BeginChild("CB_Left", ImVec2(0, 0), true);
@@ -187,7 +95,7 @@ void ContentBrowser::DrawLeftFolderTree()
     ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_DefaultOpen;
     bool open = ImGui::TreeNodeEx(_root.wstring().c_str(), rootFlags, "%ls", DisplayName(_root).c_str());
     if (ImGui::IsItemClicked())
-        _currentFolder = _root;
+        SetCurrentFolder(_root);
 
     if (open)
     {
@@ -230,7 +138,7 @@ void ContentBrowser::DrawFolderNode(const fs::path& folderAbs)
         bool open = ImGui::TreeNodeEx(dir.wstring().c_str(), flags, "%ls", DisplayName(dir).c_str());
 
         if (ImGui::IsItemClicked())
-            _currentFolder = dir;
+            SetCurrentFolder(dir);
 
         if (open)
         {
@@ -247,13 +155,10 @@ void ContentBrowser::DrawRightUnityStyle()
     DrawToolbarRow();
     ImGui::Separator();
 
-    // 목록 가져오기 (model이 정렬/refresh)
-    auto items = GetItemsForFolder(_currentFolder);
-
     // 검색 필터 적용
     std::vector<BrowserItem> filtered;
-    filtered.reserve(items.size());
-    for (auto& it : items)
+    filtered.reserve(_curBrowserItems.size());
+    for (auto& it : _curBrowserItems)
     {
         if (PassSearchFilter(it))
             filtered.push_back(it);
@@ -313,7 +218,7 @@ void ContentBrowser::DrawBreadcrumb()
 
         if (ImGui::SmallButton(label.c_str()))
         {
-            _currentFolder = p;
+            SetCurrentFolder(p);
             _selectedPath.clear();
         }
 
@@ -401,7 +306,7 @@ void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
         // 더블클릭 폴더 들어가기
         if (it.isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
-            _currentFolder = it.absPath;
+            SetCurrentFolder(it.absPath);
             _selectedPath.clear();
         }
 
@@ -446,7 +351,7 @@ void ContentBrowser::DrawItemsList(const std::vector<BrowserItem>& items)
 
         if (it.isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
-            _currentFolder = it.absPath;
+            SetCurrentFolder(it.absPath);
             _selectedPath.clear();
         }
 
@@ -478,4 +383,13 @@ wstring ContentBrowser::DisplayName(const fs::path& p)
     auto name = p.filename().wstring();
     if (name.empty()) return p.wstring();
     return name;
+}
+
+void ContentBrowser::SetCurrentFolder(const fs::path& folderAbs)
+{
+    if (fs::exists(folderAbs) && fs::is_directory(folderAbs))
+    {
+        _currentFolder = folderAbs;
+        needRefresh = true;
+    }
 }

@@ -1,16 +1,6 @@
 #pragma once
 #include "EditorWindow.h"
-#include "DirectoryWatcherWin.h"
-#include "ThreadSafeQueue.h"
-#include "FsEventDebouncer.h"
-#include "AssetDatabase.h"
 
-struct BrowserItem
-{
-    fs::path absPath;
-    Guid guid;       // 파일이면 guid, 폴더면 invalid
-    bool isFolder = false;
-};
 enum class ViewMode
 {
     Grid,
@@ -27,34 +17,17 @@ public:
     void Init(EditorManager* editorManager) override;
     void Update() override;
 
-    // UI가 “현재 보고 있는 폴더”의 아이템 목록을 요청할 때 사용
-    vector<BrowserItem> GetItemsForFolder(const fs::path& folderAbs);
+    void RefreshBrowserItems();
 
 protected:
     void OnGUI() override;
-
-private:
-    static wstring ToStr(FsAction fsAction);
-    bool IsInterestingFile(const fs::path& p);
-
-    // AssetDB 이벤트 수신(내부에서 dirty 마킹)
-    void OnAssetEvent(const AssetEvent& e);
-
-
-    // 디버그/검증용: 어떤 폴더가 더티인지 확인
-    bool IsFolderDirty(const fs::path& folderAbs) const;
-
-    // 폴더를 refresh(캐시 업데이트)하고 dirty를 해제
-    void RefreshFolder(const fs::path& folderAbs);
-
-    static fs::path ParentFolderOfEvent(const AssetEvent& e);
 
 private:
     void DrawLeftFolderTree();
     void DrawFolderNode(const fs::path& folderAbs);
 
     void DrawRightUnityStyle();
-    void DrawToolbarRow();      // breadcrumb + search + view toggle
+    void DrawToolbarRow();
     void DrawBreadcrumb();
     void DrawSearchBox();
     void DrawViewToggle();
@@ -68,15 +41,10 @@ private:
 
 
 private:
-    DirectoryWatcherWin watcher;
-    FsEventDebouncer debouncer;
-    AssetDatabase assetDatabase;
+    void SetCurrentFolder(const fs::path& folderAbs);
 
-    ThreadSafeQueue<FsEvent> eventThreadQueue;
-    vector<FsEvent> pendingEvents;
-    vector<FsEvent> readyEvents;
+    bool needRefresh = true;
 
-    unordered_set<wstring> _dirtyFolders;
     fs::path _root;
     fs::path _currentFolder;
 
@@ -92,5 +60,7 @@ private:
 
     // 검색
     std::string _search;          // ImGui InputText는 char*가 편함
+
+    vector<BrowserItem> _curBrowserItems;
 };
 

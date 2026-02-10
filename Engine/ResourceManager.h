@@ -1,6 +1,10 @@
 #pragma once
 
 #include "ResourceBase.h"
+#include "DirectoryWatcherWin.h"
+#include "ThreadSafeQueue.h"
+#include "FsEventDebouncer.h"
+#include "AssetDatabase.h"
 
 class Shader;
 class Texture;
@@ -9,12 +13,20 @@ class Material;
 template<class T>
 class SlotManager;
 
+struct BrowserItem
+{
+	fs::path absPath;
+	Guid guid;       // 파일이면 guid, 폴더면 invalid
+	bool isFolder = false;
+};
+
 class ResourceManager
 {
 	DECLARE_SINGLE_WITH_CONSTRUCTOR(ResourceManager);
     ~ResourceManager();
 public:
 	void Init();
+	void Update();
 	void OnDestroy();
 
 	template<typename T>
@@ -36,12 +48,32 @@ private:
 	void CreateRandomTexture();
 
 private:
-	wstring _resourcePath;
-
-private:
 	using KeyObjMap = map<wstring/*key*/, shared_ptr<ResourceBase>>;
 	array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
     unique_ptr<SlotManager<ResourceBase>> _slotManager;
+
+public:
+    fs::path GetRootPath() const { return _root; }
+	bool TryGetGuidByPath(const fs::path& absPath, OUT Guid& guid);
+    bool TryGetPathByGuid(const Guid& guid, OUT fs::path& path);
+    void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
+
+private:
+	static wstring ToStr(FsAction fsAction);
+	bool IsInterestingFile(const fs::path& path);
+
+private:
+	fs::path _root;
+
+	DirectoryWatcherWin watcher;
+	FsEventDebouncer debouncer;
+	AssetDatabase assetDatabase;
+
+	ThreadSafeQueue<FsEvent> eventThreadQueue;
+	vector<FsEvent> pendingEvents;
+	vector<FsEvent> readyEvents;
+
+	function<void(const FsEvent&)> onFileEventCallback;
 };
 
 template<typename T>

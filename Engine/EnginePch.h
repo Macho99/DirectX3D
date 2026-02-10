@@ -20,6 +20,7 @@
 #include <functional>
 #include <mutex>
 #include <random>
+#include <deque>
 using namespace std;
 namespace fs = std::filesystem;
 

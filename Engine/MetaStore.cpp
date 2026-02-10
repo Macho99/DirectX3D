@@ -8,6 +8,15 @@ fs::path MetaStore::MetaPathForSource(const fs::path& sourceAbs)
     return fs::path(sourceAbs.wstring() + L".meta");
 }
 
+fs::path MetaStore::SourcePathForMeta(const fs::path& metaAbs)
+{
+    // "<file>.ext.meta" 에서 ".meta"만 제거 => "<file>.ext"
+    fs::path src = metaAbs;
+    if (src.extension() == L".meta")
+        src.replace_extension(); // .meta 제거
+    return src;
+}
+
 static bool ParseLineU64(const std::string& line, const char* key, uint64_t& out)
 {
     // key=VALUE 형태
@@ -87,4 +96,9 @@ MetaFile MetaStore::LoadOrCreate(const fs::path& sourceAbs)
     m.guid = Guid::CreateNewAssetGuid();
     SaveAtomic(metaAbs, m);
     return m;
+}
+
+bool MetaStore::IsMetaFile(const fs::path& path)
+{
+    return path.extension() == L".meta";
 }
