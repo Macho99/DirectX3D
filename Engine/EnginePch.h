@@ -94,6 +94,7 @@ using namespace Microsoft::WRL;
 #include "GameObject.h"
 #include "Transform.h"
 #include "Mesh.h"
+#include "Utils.h"
 
 #if defined(_DEBUG)
 

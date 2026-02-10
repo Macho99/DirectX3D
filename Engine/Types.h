@@ -38,3 +38,17 @@ using Ray = DirectX::SimpleMath::Ray;
 // MeshID / MaterialID
 using InstanceID = std::pair<uint64, uint64>;
 //using TransformID = int64;
+
+enum class ResourceType : uint8
+{
+	None = -1,
+	Mesh,
+	Shader,
+	Texture,
+	Material,
+	Animation,
+	SubAssetContainer,
+	Model,
+
+	End
+};

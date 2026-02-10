@@ -171,6 +171,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   <ItemGroup>
     <ClInclude Include="AABBBoxCollider.h" />
     <ClInclude Include="AssetDatabase.h" />
+    <ClInclude Include="AssetId.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Billboard.h" />
     <ClInclude Include="Bloom.h" />
@@ -311,6 +312,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="InstancingBuffer.h" />
     <ClInclude Include="MetaFile.h" />
     <ClInclude Include="MetaStore.h" />
+    <ClInclude Include="ModelMeta.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Light.h" />
@@ -346,11 +348,13 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Ssao.h" />
     <ClInclude Include="StructuredBuffer.h" />
+    <ClInclude Include="SubAssetMetaFile.h" />
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TessTerrain.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureBuffer.h" />
+    <ClInclude Include="TextureMeta.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="tinyxml2.h" />
@@ -366,6 +370,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   <ItemGroup>
     <ClCompile Include="AABBBoxCollider.cpp" />
     <ClCompile Include="AssetDatabase.cpp" />
+    <ClCompile Include="AssetId.cpp" />
     <ClCompile Include="BaseCollider.cpp" />
     <ClCompile Include="Billboard.cpp" />
     <ClCompile Include="Bloom.cpp" />
@@ -475,6 +480,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="InstancingBuffer.cpp" />
     <ClCompile Include="MetaFile.cpp" />
     <ClCompile Include="MetaStore.cpp" />
+    <ClCompile Include="ModelMeta.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -515,11 +521,13 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Ssao.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
+    <ClCompile Include="SubAssetMetaFile.cpp" />
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TessTerrain.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureBuffer.cpp" />
+    <ClCompile Include="TextureMeta.cpp" />
     <ClCompile Include="ThreadSafeQueue.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="tinyxml2.cpp">

@@ -28,8 +28,7 @@ public:
         ar(CEREAL_NVP(localId));
     }
 
-    static Guid CreateNewObjectGuid();
-    static Guid CreateNewAssetGuid();
+    static Guid CreateGuid();
 
     static void SetCurrentInstanceId(uint64 id);
 

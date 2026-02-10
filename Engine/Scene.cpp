@@ -200,16 +200,10 @@ void Scene::RenderUICamera(Camera* cam)
 	cam->Render_Backward(RenderTech::Draw);
 }
 
-GameObjectRef Scene::Add(unique_ptr<GameObject> gameObjectUnique)
-{
-	GuidRef guidRef = _gameObjectSlotManager->RegisterExisting(std::move(gameObjectUnique));
-	return Add(guidRef);
-}
-
 GameObjectRef Scene::Add(string name)
 {
-    auto gameObjectUnique = make_unique<GameObject>(name);
-    return Add(std::move(gameObjectUnique));
+	GuidRef guidRef = _gameObjectSlotManager->CreateAndRegister<GameObject>(name);
+	return Add(guidRef);
 }
 
 GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)

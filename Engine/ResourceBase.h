@@ -1,17 +1,5 @@
 #pragma once
 
-enum class ResourceType : uint8
-{
-	None = -1,
-	Mesh,
-	Shader,
-	Texture,
-	Material,
-	Animation,
-
-	End
-};
-
 enum
 {
 	RESOURCE_TYPE_COUNT = static_cast<uint8>(ResourceType::End)

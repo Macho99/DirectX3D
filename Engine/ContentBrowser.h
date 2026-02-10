@@ -51,6 +51,7 @@ private:
     // 선택 상태(파일)
     fs::path _selectedPath;
 
+    int treeId = 0;
     ViewMode _viewMode = ViewMode::Grid;
 
     // 유니티 느낌: 아이콘 크기 조절

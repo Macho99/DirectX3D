@@ -1,7 +1,8 @@
 #include "pch.h"
+#include "MetaStore.h"
 #include "AssetDatabase.h"
 
-bool AssetDatabase::TryGetGuidByPath(const fs::path& absPath, Guid& out) const
+bool AssetDatabase::TryGetGuidByPath(const fs::path& absPath, AssetId& out) const
 {
     std::lock_guard lk(_mtx);
     auto it = _pathToGuid.find(absPath.wstring());
@@ -10,7 +11,7 @@ bool AssetDatabase::TryGetGuidByPath(const fs::path& absPath, Guid& out) const
     return true;
 }
 
-bool AssetDatabase::TryGetPathByGuid(const Guid& guid, fs::path& out) const
+bool AssetDatabase::TryGetPathByGuid(const AssetId& guid, fs::path& out) const
 {
     std::lock_guard lk(_mtx);
     auto it = _guidToPath.find(guid);
@@ -60,7 +61,7 @@ void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
         if (!fs::exists(metaAbs))
         {
             // meta 생성 (GUID 부여)
-            MetaFile m = MetaStore::LoadOrCreate(src);
+            unique_ptr<MetaFile> m = MetaStore::LoadOrCreate(src);
             DBG->LogW(L"[Meta] Created: " + metaAbs.wstring());
         }
     }
@@ -95,18 +96,17 @@ void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
         fs::path metaAbs = MetaStore::MetaPathForSource(src);
 
         auto loaded = MetaStore::TryLoad(metaAbs);
-        if (!loaded.has_value() || !loaded->guid.IsValid())
+        if (loaded == nullptr || !loaded->GetAssetId().IsValid())
         {
             // 깨진 meta면 재생성
-            MetaFile m = MetaStore::LoadOrCreate(src);
-            loaded = m;
+            loaded = MetaStore::LoadOrCreate(src);
             DBG->LogW(L"[Meta] Recreated invalid: " + metaAbs.wstring());
         }
 
         {
             std::lock_guard lk(_mtx);
-            _pathToGuid[src.wstring()] = loaded->guid;
-            _guidToPath[loaded->guid] = src;
+            _pathToGuid[src.wstring()] = loaded->GetAssetId();
+            _guidToPath[loaded->GetAssetId()] = src;
         }
     }
 
@@ -150,14 +150,14 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
     }
 
     // 2) guid 결정은 락 밖에서 (필요하면 meta에서 읽기/생성)
-    Guid renamedGuid;
+    AssetId renamedAssetId;
     bool oldFound = false;
     {
         std::lock_guard lk(_mtx);
         auto it = _pathToGuid.find(oldAbsPath.wstring());
         if (it != _pathToGuid.end())
         {
-            renamedGuid = it->second;
+            renamedAssetId = it->second;
             _pathToGuid.erase(it);
             oldFound = true;
         }
@@ -166,8 +166,8 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
     if (!oldFound)
     {
         // old가 DB에 없었다면 new의 meta에서 읽어오거나 생성
-        MetaFile meta = MetaStore::LoadOrCreate(newAbsPath);
-        renamedGuid = meta.guid;
+        unique_ptr<MetaFile> meta = MetaStore::LoadOrCreate(newAbsPath);
+        renamedAssetId = meta->GetAssetId();
         DBG->LogErrorW(L"[AssetDB] Rename: old path not found, treating as Insert: " + newAbsPath.wstring());
     }
 
@@ -177,15 +177,15 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
 
         // newAbsPath가 이미 다른 guid에 매핑돼 있었다면 정리(충돌 방지)
         auto itNew = _pathToGuid.find(newAbsPath.wstring());
-        if (itNew != _pathToGuid.end() && itNew->second != renamedGuid)
+        if (itNew != _pathToGuid.end() && itNew->second != renamedAssetId)
         {
-            Guid prev = itNew->second;
+            AssetId prev = itNew->second;
             _guidToPath.erase(prev);
             DBG->LogErrorW(L"[AssetDB] Rename conflict: new path already mapped. Replacing: " + newAbsPath.wstring());
         }
 
-        _pathToGuid[newAbsPath.wstring()] = renamedGuid;
-        _guidToPath[renamedGuid] = newAbsPath;
+        _pathToGuid[newAbsPath.wstring()] = renamedAssetId;
+        _guidToPath[renamedAssetId] = newAbsPath;
     }
 
     DBG->LogW(L"[AssetDB] Rename: " + oldAbsPath.wstring() + L" -> " + newAbsPath.wstring());
@@ -194,12 +194,13 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
 void AssetDatabase::Insert(const fs::path& absPath)
 {
     // 3단계 MetaStore에 맞춰: meta 생성/로드
-    MetaFile meta = MetaStore::LoadOrCreate(absPath);
+    unique_ptr<MetaFile> meta = MetaStore::LoadOrCreate(absPath);
 
     {
+        AssetId assetId = meta->GetAssetId();
         std::lock_guard lk(_mtx);
-        _pathToGuid[absPath.wstring()] = meta.guid;
-        _guidToPath[meta.guid] = absPath;
+        _pathToGuid[absPath.wstring()] = assetId;
+        _guidToPath[assetId] = absPath;
     }
 
     DBG->LogW(L"[AssetDB] Insert: " + absPath.wstring());
@@ -207,18 +208,23 @@ void AssetDatabase::Insert(const fs::path& absPath)
 
 void AssetDatabase::Remove(const fs::path& absPath)
 {
-    Guid removedGuid; // 없을 수도 있음
-    bool had = false;
-
+    {
+        // 1) meta 파일도 같이 삭제(있으면)
+        const fs::path metaAbs = MetaStore::MetaPathForSource(absPath);
+        std::error_code ec;
+        fs::remove(metaAbs, ec);
+        if (!ec)
+            DBG->LogW(L"[Meta] Deleted on Remove: " + metaAbs.wstring());
+    }
+    // 2) 맵에서 제거
     {
         std::lock_guard lk(_mtx);
         auto it = _pathToGuid.find(absPath.wstring());
         if (it != _pathToGuid.end())
         {
-            removedGuid = it->second;
+            AssetId removedAssetId = it->second;
             _pathToGuid.erase(it);
-            _guidToPath.erase(removedGuid);
-            had = true;
+            _guidToPath.erase(removedAssetId);
         }
     }
 

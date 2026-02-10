@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "MetaStore.h"
 #include "fstream"
+#include "cereal/types/polymorphic.hpp"
+#include "cereal/archives/json.hpp"
+#include "ModelMeta.h"
+#include "TextureMeta.h"
 
 fs::path MetaStore::MetaPathForSource(const fs::path& sourceAbs)
 {
@@ -33,72 +37,89 @@ static bool ParseLineU64(const std::string& line, const char* key, uint64_t& out
     }
 }
 
-std::optional<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
+unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
 {
-    std::ifstream in(metaAbs);
-    if (!in.is_open()) return std::nullopt;
+    std::ifstream is(metaAbs);
+    if (!is.is_open())
+        return nullptr;
 
-    MetaFile m{};
-    std::string line;
-    bool gotHi = false, gotLo = false;
-    uint64 instanceId = 0;
-    uint64 localId = 0;
-
-    while (std::getline(in, line))
-    {
-        uint64_t v = 0;
-        if (!gotHi && ParseLineU64(line, "guid_hi", v))
-        {
-            instanceId = v;
-            gotHi = true;
-            continue;
-        }
-        if (!gotLo && ParseLineU64(line, "guid_lo", v))
-        {
-            localId = v;
-            gotLo = true;
-            continue;
-        }
-    }
-    m.guid = Guid(instanceId, localId);
-    if (!gotHi || !gotLo) return std::nullopt;
-    if (!m.guid.IsValid()) return std::nullopt;
-    return m;
+    cereal::JSONInputArchive archive(is);
+    unique_ptr<MetaFile> meta;
+    archive(meta);
+    return meta;
 }
 
-bool MetaStore::SaveAtomic(const fs::path& metaAbs, const MetaFile& meta)
+void MetaStore::Save(const fs::path& metaAbs, const MetaFile& meta)
 {
-    fs::path tmp = fs::path(metaAbs.wstring() + L".tmp");
-
-    {
-        std::ofstream out(tmp);
-        if (!out.is_open()) return false;
-
-        out << "guid_hi=" << meta.guid.GetInstanceId() << "\n";
-        out << "guid_lo=" << meta.guid.GetLocalId() << "\n";
-        out.flush();
-        if (!out) return false;
-    }
-
-    // tmp -> meta replace
-    BOOL ok = ::MoveFileExW(tmp.c_str(), metaAbs.c_str(), MOVEFILE_REPLACE_EXISTING);
-    return ok == TRUE;
+    std::ofstream os(metaAbs);
+    cereal::JSONOutputArchive archive(os);
+    archive(meta);
 }
 
-MetaFile MetaStore::LoadOrCreate(const fs::path& sourceAbs)
+unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
+{
+    string ext = sourceAbs.extension().string();
+    const auto& creators = InitAndGetCreators();
+    auto it = creators.find(ext);
+    if (it != creators.end())
+    {
+        unique_ptr<MetaFile> meta = (*it).second();
+        Save(MetaPathForSource(sourceAbs), *meta);
+        return meta;
+    }
+    else
+    {
+        DBG->LogErrorW(L"[MetaStore] Create: No creator for source: " + sourceAbs.wstring());
+        return nullptr;
+    }
+}
+
+unique_ptr<MetaFile> MetaStore::LoadOrCreate(const fs::path& sourceAbs)
 {
     fs::path metaAbs = MetaPathForSource(sourceAbs);
+    unique_ptr<MetaFile> meta = TryLoad(metaAbs);
+    if (meta != nullptr && meta->GetAssetId().IsValid())
+        return meta;
 
-    if (auto loaded = TryLoad(metaAbs))
-        return *loaded;
-
-    MetaFile m{};
-    m.guid = Guid::CreateNewAssetGuid();
-    SaveAtomic(metaAbs, m);
-    return m;
+    meta = Create(sourceAbs);
+    return meta;
 }
 
 bool MetaStore::IsMetaFile(const fs::path& path)
 {
     return path.extension() == L".meta";
+}
+
+wstring MetaStore::GetResourceExtension(ResourceType resourceType)
+{
+    switch (resourceType)
+    {
+        case ResourceType::Mesh:        return L".mesh";
+        case ResourceType::Material:    return L".mat";
+        case ResourceType::Shader:      return L".fx";
+        case ResourceType::Animation:   return L".clip";
+    }
+
+    assert(resourceType == ResourceType::Texture, "Get Texture Extension Not Support");
+    assert(false, "GetResourceExtension: Unknown resource type");
+    return L"";
+}
+
+const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
+{
+    if (_creators.size() == 0)
+    {
+        _creators[".fbx"] = []() { return make_unique<ModelMeta>(); };
+
+        {
+            function<unique_ptr<MetaFile>()> texCreator = []() { return make_unique<TextureMeta>(); };
+            _creators[".png"] = texCreator;
+            _creators[".tga"] = texCreator;
+            _creators[".jpg"] = texCreator;
+            _creators[".jpeg"] = texCreator;
+            _creators[".bmp"] = texCreator;
+        }
+    }
+
+    return _creators;
 }

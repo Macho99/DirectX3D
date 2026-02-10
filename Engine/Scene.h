@@ -26,7 +26,6 @@ public:
 	void RenderGameCamera(Camera* cam);
 	void RenderUICamera(Camera* cam);
 
-	GameObjectRef Add(unique_ptr<GameObject> gameObject);    
 	GameObjectRef Add(string name);
 	GuidRef AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
 	virtual void Remove(GameObjectRef gameObjectRef);

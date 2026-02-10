@@ -44,8 +44,8 @@ void ContentBrowser::RefreshBrowserItems()
         if (MetaStore::IsMetaFile((path)))
             continue;
 
-        Guid guid;
-        if (RESOURCES->TryGetGuidByPath(path, guid) == false)
+        AssetId assetId;
+        if (RESOURCES->TryGetGuidByPath(path, assetId) == false)
         {
             DBG->LogW(L"[ContentBrowser] Refresh: Skip non-asset file: " + path.wstring());
             continue;
@@ -53,7 +53,7 @@ void ContentBrowser::RefreshBrowserItems()
 
         BrowserItem browserItem;
         browserItem.absPath = path;
-        browserItem.guid = guid;
+        browserItem.assetId = assetId;
         browserItem.isFolder = fs::is_directory(path);
         _curBrowserItems.push_back((browserItem));
     }
@@ -90,10 +90,11 @@ void ContentBrowser::OnGUI()
 void ContentBrowser::DrawLeftFolderTree()
 {
     ImGui::BeginChild("CB_Left", ImVec2(0, 0), true);
-
+    treeId = 0;
     // 루트는 항상 펼친 상태로 시작
     ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_DefaultOpen;
-    bool open = ImGui::TreeNodeEx(_root.wstring().c_str(), rootFlags, "%ls", DisplayName(_root).c_str());
+    bool open = ImGui::TreeNodeEx((void*)&treeId, rootFlags, "%ls", DisplayName(_root).c_str());
+    treeId++;
     if (ImGui::IsItemClicked())
         SetCurrentFolder(_root);
 
@@ -110,15 +111,11 @@ void ContentBrowser::DrawFolderNode(const fs::path& folderAbs)
 {
     // 현재 폴더의 하위 폴더만 나열
     std::vector<fs::path> dirs;
-    try
+    for (auto& de : fs::directory_iterator(folderAbs))
     {
-        for (auto& de : fs::directory_iterator(folderAbs))
-        {
-            if (de.is_directory())
-                dirs.push_back(de.path());
-        }
+        if (de.is_directory())
+            dirs.push_back(de.path());
     }
-    catch (...) {}
 
     std::sort(dirs.begin(), dirs.end(), [](const fs::path& a, const fs::path& b)
         {
@@ -135,8 +132,8 @@ void ContentBrowser::DrawFolderNode(const fs::path& folderAbs)
 
         // leaf 여부를 정확히 판단하려면 한번 더 디렉토리 확인이 필요하지만,
         // 지금 단계에선 간단하게 그냥 트리노드로 둡니다.
-        bool open = ImGui::TreeNodeEx(dir.wstring().c_str(), flags, "%ls", DisplayName(dir).c_str());
-
+        bool open = ImGui::TreeNodeEx((void*)&treeId, flags, "%ls", DisplayName(dir).c_str());
+        treeId++;
         if (ImGui::IsItemClicked())
             SetCurrentFolder(dir);
 

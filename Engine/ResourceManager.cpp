@@ -6,6 +6,7 @@
 #include <filesystem>
 #include "MathUtils.h"
 #include "SlotManager.h"
+#include "MetaStore.h"
 
 ResourceManager::ResourceManager()
 	:assetDatabase()
@@ -167,12 +168,12 @@ void ResourceManager::CreateRandomTexture()
 	Add(L"RandomTex", texture);
 }
 
-bool ResourceManager::TryGetGuidByPath(const fs::path& absPath, OUT Guid& guid)
+bool ResourceManager::TryGetGuidByPath(const fs::path& absPath, OUT AssetId& guid)
 {
     return assetDatabase.TryGetGuidByPath(absPath, guid);
 }
 
-bool ResourceManager::TryGetPathByGuid(const Guid& guid, OUT fs::path& path)
+bool ResourceManager::TryGetPathByGuid(const AssetId& guid, OUT fs::path& path)
 {
     return assetDatabase.TryGetPathByGuid(guid, path);
 }
@@ -200,15 +201,8 @@ bool ResourceManager::IsInterestingFile(const fs::path& path)
 		return false;
 	}
 
-	auto ext = path.extension().wstring();
-	for (auto& ch : ext) ch = (wchar_t)towlower(ch);
+	auto ext = path.extension().string();
 
-	// 일단 임포트 관련 핵심만
-	if (ext == L".fbx") return true;
-	if (ext == L".png" || ext == L".tga" || ext == L".jpg" || ext == L".jpeg") return true;
-
-	// meta는 다음 단계에서 다시 포함시킬 겁니다.
-	// if (ext == L".meta") return true;
-
-	return false;
+	const auto& creators = MetaStore::InitAndGetCreators();
+	return creators.find(ext) != creators.end();
 }

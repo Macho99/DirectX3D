@@ -79,6 +79,9 @@
     <Filter Include="00. Engine\Asset\Resource\Model">
       <UniqueIdentifier>{63ae7594-136a-4944-b729-a0fbe4bc3d80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="00. Engine\Asset\MetaFile">
+      <UniqueIdentifier>{31f92b0a-3164-4b97-bec7-14b4c7018bba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -651,13 +654,25 @@
     <ClInclude Include="ThreadSafeQueue.h">
       <Filter>98. Utils</Filter>
     </ClInclude>
-    <ClInclude Include="MetaStore.h">
+    <ClInclude Include="AssetDatabase.h">
       <Filter>00. Engine\Asset</Filter>
     </ClInclude>
     <ClInclude Include="MetaFile.h">
-      <Filter>00. Engine\Asset</Filter>
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
-    <ClInclude Include="AssetDatabase.h">
+    <ClInclude Include="MetaStore.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="SubAssetMetaFile.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetId.h">
       <Filter>00. Engine\Asset</Filter>
     </ClInclude>
   </ItemGroup>
@@ -959,13 +974,25 @@
     <ClCompile Include="ThreadSafeQueue.cpp">
       <Filter>98. Utils</Filter>
     </ClCompile>
-    <ClCompile Include="MetaFile.cpp">
+    <ClCompile Include="AssetDatabase.cpp">
       <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaFile.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
     <ClCompile Include="MetaStore.cpp">
-      <Filter>00. Engine\Asset</Filter>
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
-    <ClCompile Include="AssetDatabase.cpp">
+    <ClCompile Include="SubAssetMetaFile.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetId.cpp">
       <Filter>00. Engine\Asset</Filter>
     </ClCompile>
   </ItemGroup>

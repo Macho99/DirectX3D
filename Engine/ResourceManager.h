@@ -5,6 +5,7 @@
 #include "ThreadSafeQueue.h"
 #include "FsEventDebouncer.h"
 #include "AssetDatabase.h"
+#include "AssetId.h"
 
 class Shader;
 class Texture;
@@ -16,7 +17,7 @@ class SlotManager;
 struct BrowserItem
 {
 	fs::path absPath;
-	Guid guid;       // 파일이면 guid, 폴더면 invalid
+	AssetId assetId;       // 파일이면 guid, 폴더면 invalid
 	bool isFolder = false;
 };
 
@@ -54,8 +55,8 @@ private:
 
 public:
     fs::path GetRootPath() const { return _root; }
-	bool TryGetGuidByPath(const fs::path& absPath, OUT Guid& guid);
-    bool TryGetPathByGuid(const Guid& guid, OUT fs::path& path);
+	bool TryGetGuidByPath(const fs::path& absPath, OUT AssetId& guid);
+    bool TryGetPathByGuid(const AssetId& guid, OUT fs::path& path);
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
 private:

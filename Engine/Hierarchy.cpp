@@ -51,8 +51,7 @@ void Hierarchy::ShowHierarchy()
     {
         if (ImGui::MenuItem("Create Empty Root"))
         {
-            unique_ptr<GameObject> newObject = make_unique<GameObject>("New Object");
-            curScene->Add(std::move(newObject));
+            curScene->Add("New Object");
         }
         ImGui::EndPopup();
     }
@@ -143,7 +142,7 @@ void Hierarchy::DrawNode(Transform* node)
     if (node->GetChildren().empty()) 
         flags |= ImGuiTreeNodeFlags_Leaf;
 
-    bool open = ImGui::TreeNodeEx((void*)(intptr_t)nodeId.GetLocalId(), flags, "%s", string(name.begin(), name.end()).c_str());
+    bool open = ImGui::TreeNodeEx((void*)(intptr_t)nodeId.GetLocalId(), flags, "%s", name.c_str());
 
     if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
         _selectedId = nodeId;
