@@ -4,17 +4,27 @@
 #include "TextureMeta.h"
 #include "ModelMeta.h"
 
+MetaFile::MetaFile()
+    :_resourceType(ResourceType::None)
+{
+}
+
 MetaFile::MetaFile(ResourceType resourceType)
     :_resourceType(resourceType)
 {
 }
 
+wstring MetaFile::GetResourcePath()
+{
+    return GetArtifactPath() + L"\\asset";
+}
+
 wstring MetaFile::GetArtifactPath()
 {
-    if (!assetId.IsValid())
+    if (!_assetId.IsValid())
         assert(false && "MetaFile::GetArtifactPath: invalid guid");
 
-    return L"..\\Library\\" + assetId.ToWString();
+    return L"..\\Library\\" + _assetId.ToWString();
 }
 
 CEREAL_REGISTER_TYPE(MetaFile);

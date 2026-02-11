@@ -49,7 +49,7 @@ void ResourceManager::Update()
 	// 1) 필터 + 디바운서 입력
 	for (auto& e : pendingEvents)
 	{
-		if (!IsInterestingFile(e.absPath))
+		if (MetaStore::IsMetaFile(e.absPath))
 			continue;
 
 		debouncer.Push(e);
@@ -170,12 +170,12 @@ void ResourceManager::CreateRandomTexture()
 
 bool ResourceManager::TryGetGuidByPath(const fs::path& absPath, OUT AssetId& guid)
 {
-    return assetDatabase.TryGetGuidByPath(absPath, guid);
+    return assetDatabase.TryGetAssetIdByPath(absPath, guid);
 }
 
 bool ResourceManager::TryGetPathByGuid(const AssetId& guid, OUT fs::path& path)
 {
-    return assetDatabase.TryGetPathByGuid(guid, path);
+    return assetDatabase.TryGetPathByAssetId(guid, path);
 }
 
 wstring ResourceManager::ToStr(FsAction fsAction)
@@ -188,21 +188,4 @@ wstring ResourceManager::ToStr(FsAction fsAction)
 		case FsAction::Renamed: return L"Renamed";
 		default: return L"?";
 	}
-}
-
-bool ResourceManager::IsInterestingFile(const fs::path& path)
-{
-	if (fs::is_directory(path))
-	{
-		return true;
-	}
-	else if (MetaStore::IsMetaFile(path))
-	{
-		return false;
-	}
-
-	auto ext = path.extension().string();
-
-	const auto& creators = MetaStore::InitAndGetCreators();
-	return creators.find(ext) != creators.end();
 }

@@ -61,7 +61,6 @@ public:
 
 private:
 	static wstring ToStr(FsAction fsAction);
-	bool IsInterestingFile(const fs::path& path);
 
 private:
 	fs::path _root;

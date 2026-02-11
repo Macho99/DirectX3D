@@ -1,5 +1,18 @@
 #pragma once
 #include "MetaFile.h"
+
+struct SubAssetInfo
+{
+    AssetId assetId;
+    ResourceType resourceType;
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(CEREAL_NVP(assetId));
+        ar(CEREAL_NVP(resourceType));
+    }
+};
+
 class SubAssetMetaFile : public MetaFile
 {
     using Super = MetaFile;
@@ -25,6 +38,13 @@ public:
         return GetArtifactPath() + L"\\subAsset_" + to_wstring(index);
     }
 
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_subAssets));
+    }
+
 protected:
-    vector<ResourceType> _subAssets;
+    vector<SubAssetInfo> _subAssets;
 };

@@ -6,6 +6,8 @@
 #include "ModelMeta.h"
 #include "TextureMeta.h"
 
+unordered_map<string, MetaStore::Creator> MetaStore::_creators;
+
 fs::path MetaStore::MetaPathForSource(const fs::path& sourceAbs)
 {
     // Unity Ω∫≈∏¿œ: "<file>.ext.meta"
@@ -61,29 +63,35 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
     string ext = sourceAbs.extension().string();
     const auto& creators = InitAndGetCreators();
     auto it = creators.find(ext);
+    unique_ptr<MetaFile> meta;
     if (it != creators.end())
     {
-        unique_ptr<MetaFile> meta = (*it).second();
-        Save(MetaPathForSource(sourceAbs), *meta);
-        return meta;
+        meta = (*it).second();
     }
     else
     {
-        DBG->LogErrorW(L"[MetaStore] Create: No creator for source: " + sourceAbs.wstring());
-        return nullptr;
+        meta = make_unique<MetaFile>();
     }
-}
 
-unique_ptr<MetaFile> MetaStore::LoadOrCreate(const fs::path& sourceAbs)
-{
-    fs::path metaAbs = MetaPathForSource(sourceAbs);
-    unique_ptr<MetaFile> meta = TryLoad(metaAbs);
-    if (meta != nullptr && meta->GetAssetId().IsValid())
-        return meta;
+    meta->_assetId = AssetId::CreateAssetId();
+    meta->_absPath = sourceAbs;
 
-    meta = Create(sourceAbs);
+    std::ofstream os(MetaPathForSource(sourceAbs));
+    cereal::JSONOutputArchive archive(os);
+    archive(meta);
     return meta;
 }
+
+//unique_ptr<MetaFile> MetaStore::LoadOrCreate(const fs::path& sourceAbs)
+//{
+//    fs::path metaAbs = MetaPathForSource(sourceAbs);
+//    unique_ptr<MetaFile> meta = TryLoad(metaAbs);
+//    if (meta != nullptr && meta->GetAssetId().IsValid())
+//        return meta;
+//
+//    meta = Create(sourceAbs);
+//    return meta;
+//}
 
 bool MetaStore::IsMetaFile(const fs::path& path)
 {

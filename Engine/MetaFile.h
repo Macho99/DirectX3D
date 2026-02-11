@@ -9,11 +9,14 @@
 class MetaFile
 {
 public:
+    MetaFile();
     MetaFile(ResourceType resourceType);
     virtual ~MetaFile() = default;
 
-    AssetId GetAssetId() const { return assetId; }
-    virtual wstring GetResourcePath() = 0;
+    AssetId GetAssetId() const { return _assetId; }
+    virtual wstring GetResourcePath();
+
+    fs::path GetAbsPath() const { return _absPath; }
 
 protected:
     wstring GetArtifactPath();
@@ -22,12 +25,14 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
-        ar(CEREAL_NVP(assetId));
+        ar(CEREAL_NVP(_assetId));
         ar(CEREAL_NVP(_resourceType));
     }
 
 private:
-    AssetId assetId;
+    AssetId _assetId;
     ResourceType _resourceType;
-};
+    fs::path _absPath;
 
+    friend class MetaStore;
+};
