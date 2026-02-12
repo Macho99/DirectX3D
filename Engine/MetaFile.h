@@ -15,6 +15,7 @@ public:
 
     AssetId GetAssetId() const { return _assetId; }
     virtual wstring GetResourcePath();
+    virtual void Import() {}
 
     fs::path GetAbsPath() const { return _absPath; }
 

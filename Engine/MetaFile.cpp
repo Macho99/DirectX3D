@@ -24,7 +24,7 @@ wstring MetaFile::GetArtifactPath()
     if (!_assetId.IsValid())
         assert(false && "MetaFile::GetArtifactPath: invalid guid");
 
-    return L"..\\Library\\" + _assetId.ToWString();
+    return L"..\\Artifact\\" + _assetId.ToWString();
 }
 
 CEREAL_REGISTER_TYPE(MetaFile);

@@ -76,6 +76,8 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
     meta->_assetId = AssetId::CreateAssetId();
     meta->_absPath = sourceAbs;
 
+    meta->Import();
+
     std::ofstream os(MetaPathForSource(sourceAbs));
     cereal::JSONOutputArchive archive(os);
     archive(meta);

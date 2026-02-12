@@ -5,5 +5,8 @@ class ModelMeta : public SubAssetMetaFile
     using Super = SubAssetMetaFile;
 public:
     ModelMeta();
+    ~ModelMeta();
+
+    void Import() override;
 };
 

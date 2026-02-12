@@ -35,7 +35,7 @@ public:
             DBG->LogErrorW(L"[SubAssetMetaFile] GetResourcePath: index out of range: " + std::to_wstring(index));
             return L"";
         }
-        return GetArtifactPath() + L"\\subAsset_" + to_wstring(index);
+        return GetArtifactPath() + L"\\" + _subAssets[index].assetId.ToWString();
     }
 
     template<class Archive>

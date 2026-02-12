@@ -172,6 +172,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="AABBBoxCollider.h" />
     <ClInclude Include="AssetDatabase.h" />
     <ClInclude Include="AssetId.h" />
+    <ClInclude Include="AsTypes.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Billboard.h" />
     <ClInclude Include="Bloom.h" />
@@ -268,6 +269,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="Console.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ContentBrowser.h" />
+    <ClInclude Include="Converter.h" />
     <ClInclude Include="DebugManager.h" />
     <ClInclude Include="DebugTexWindow.h" />
     <ClInclude Include="Define.h" />
@@ -371,6 +373,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="AABBBoxCollider.cpp" />
     <ClCompile Include="AssetDatabase.cpp" />
     <ClCompile Include="AssetId.cpp" />
+    <ClCompile Include="AsTypes.cpp" />
     <ClCompile Include="BaseCollider.cpp" />
     <ClCompile Include="Billboard.cpp" />
     <ClCompile Include="Bloom.cpp" />
@@ -382,6 +385,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="ContentBrowser.cpp" />
+    <ClCompile Include="Converter.cpp" />
     <ClCompile Include="DebugManager.cpp" />
     <ClCompile Include="DebugTexWindow.cpp" />
     <ClCompile Include="DirectoryWatcherWin.cpp" />
