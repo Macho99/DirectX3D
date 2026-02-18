@@ -87,35 +87,49 @@ void Converter::ExportAnimationData(wstring savePath, uint32 index)
 	shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
 	WriteAnimationData(animation, finalPath);
 }
-void Converter::TryExportAll(function<wstring()> getPath, OUT vector<ResourceType>& exported)
+void Converter::TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exported)
 {
 	{
 		ReadMaterialData();
 		if (_materials.size() > 0)
 		{
-			wstring finalPath = getPath() + L".mat";
-			exported.push_back(ResourceType::Material);
+			SubAssetInfo info = SubAssetInfo();
+			wstring assetName = Utils::ToWString(_materials[0]->name) + L".mat";
+            info.fileName = assetName;
+            info.resourceType = ResourceType::Material;
+			wstring finalPath = artifactPath + L"\\" + assetName;
 			WriteMaterialData(finalPath);
+			exported.push_back(info);
 		}
 	}
 
 	{
 		ReadModelData(_scene->mRootNode, -1, -1);
 		ReadSkinData();
-		if (_meshes.size() > 0 || _bones.size() > 0)
+		if (_meshes.size() > 0)
 		{
-			wstring finalPath = getPath() + L".mesh";
-			exported.push_back(ResourceType::Mesh);
+			SubAssetInfo info = SubAssetInfo();
+			wstring assetName = Utils::ToWString(_meshes[0]->name) + L".mesh";
+			info.fileName = assetName;
+			info.resourceType = ResourceType::Mesh;
+			wstring finalPath = artifactPath + L"\\" + assetName;
 			WriteModelFile(finalPath);
+			exported.push_back(info);
 		}
 	}
 
 	{
 		for (uint32 index = 0; index < _scene->mNumAnimations; ++index)
 		{
-			wstring finalPath = getPath() + L"_" + to_wstring(index) + L".clip";
 			shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
-            exported.push_back(ResourceType::Animation);
+
+			SubAssetInfo info = SubAssetInfo();
+			wstring assetName = Utils::ToWString(animation->name) + L".clip";
+			info.fileName = assetName;
+			info.resourceType = ResourceType::Animation;
+			wstring finalPath = artifactPath + L"\\" + assetName;
+
+            exported.push_back(info);
 			WriteAnimationData(animation, finalPath);
 		}
 	}

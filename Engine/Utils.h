@@ -23,4 +23,3 @@ public:
 private:
 	static thread_local std::mt19937_64 s_rng;
 };
-

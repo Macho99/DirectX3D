@@ -23,22 +23,6 @@ fs::path MetaStore::SourcePathForMeta(const fs::path& metaAbs)
     return src;
 }
 
-static bool ParseLineU64(const std::string& line, const char* key, uint64_t& out)
-{
-    // key=VALUE วüลย
-    const std::string prefix = std::string(key) + "=";
-    if (line.rfind(prefix, 0) != 0) return false;
-    try
-    {
-        out = std::stoull(line.substr(prefix.size()));
-        return true;
-    }
-    catch (...)
-    {
-        return false;
-    }
-}
-
 unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
 {
     std::ifstream is(metaAbs);

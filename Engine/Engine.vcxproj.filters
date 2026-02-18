@@ -684,6 +684,9 @@
     <ClInclude Include="AsTypes.h">
       <Filter>98. Utils\Assimp</Filter>
     </ClInclude>
+    <ClInclude Include="ImportManifest.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1009,6 +1012,9 @@
     </ClCompile>
     <ClCompile Include="AsTypes.cpp">
       <Filter>98. Utils\Assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportManifest.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

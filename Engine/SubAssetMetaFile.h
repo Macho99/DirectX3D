@@ -3,12 +3,27 @@
 
 struct SubAssetInfo
 {
+    SubAssetInfo()
+        :assetId(), fileName(L""), resourceType(ResourceType::None)
+    {
+
+    }
+
     AssetId assetId;
+    wstring fileName;
     ResourceType resourceType;
     template<class Archive>
     void serialize(Archive& ar)
     {
         ar(CEREAL_NVP(assetId));
+        string utf8;
+        if constexpr (Archive::is_saving::value)
+            utf8 = Utils::ToString(fileName);
+
+        ar(cereal::make_nvp("fileName", utf8));
+
+        if constexpr (Archive::is_loading::value)
+            fileName = Utils::ToWString(utf8);
         ar(CEREAL_NVP(resourceType));
     }
 };

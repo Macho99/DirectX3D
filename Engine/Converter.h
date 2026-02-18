@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AsTypes.h"
+#include "SubAssetMetaFile.h"
 
 class Converter
 {
@@ -13,7 +14,7 @@ public:
 	void ExportModelData(wstring savePath);
 	void ExportMaterialData(wstring savePath);
 	void ExportAnimationData(wstring savePath, uint32 index = 0);
-	void TryExportAll(function<wstring()> getPath, OUT vector<ResourceType>& exported);
+	void TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exported);
 
 private:
 	void ReadModelData(aiNode* node, int32 index, int32 parent);

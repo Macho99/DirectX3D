@@ -19,6 +19,16 @@ wstring MetaFile::GetResourcePath()
     return GetArtifactPath() + L"\\asset";
 }
 
+bool MetaFile::TryImport()
+{
+    return false;
+}
+
+void MetaFile::ReImport()
+{
+
+}
+
 wstring MetaFile::GetArtifactPath()
 {
     if (!_assetId.IsValid())
