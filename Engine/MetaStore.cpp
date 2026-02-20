@@ -5,6 +5,8 @@
 #include "cereal/archives/json.hpp"
 #include "ModelMeta.h"
 #include "TextureMeta.h"
+#include "FolderMeta.h"
+#include "NotSupportMeta.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -58,7 +60,10 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
     }
     else
     {
-        meta = make_unique<MetaFile>();
+        if (fs::is_directory(sourceAbs))
+            meta = make_unique<FolderMeta>();
+        else
+            meta = make_unique<NotSupportMeta>();
     }
 
     meta->_assetId = AssetId::CreateAssetId();

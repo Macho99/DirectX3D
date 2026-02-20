@@ -49,6 +49,7 @@ enum class ResourceType : uint8
 	Animation,
 	SubAssetContainer,
 	Model,
+	Folder,
 
 	End
 };

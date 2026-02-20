@@ -3,6 +3,8 @@
 #include "SubAssetMetaFile.h"
 #include "TextureMeta.h"
 #include "ModelMeta.h"
+#include "FolderMeta.h"
+#include "NotSupportMeta.h"
 #include "fstream"
 
 MetaFile::MetaFile()
@@ -19,6 +21,10 @@ MetaFile::MetaFile(ResourceType resourceType)
 {
 }
 
+MetaFile::~MetaFile()
+{
+}
+
 wstring MetaFile::GetResourcePath()
 {
     return GetArtifactPath() + L"\\asset";
@@ -26,7 +32,7 @@ wstring MetaFile::GetResourcePath()
 
 void MetaFile::ImportIfDirty()
 {
-    wstring manifestPath = GetManifestPath();
+    const wstring manifestPath = GetManifestPath();
     if (fs::exists(manifestPath))
     {
         std::ifstream is(manifestPath);
@@ -44,7 +50,7 @@ void MetaFile::ImportIfDirty()
 
     if (isRefreshed)
     {
-        std::ofstream manifestOs(GetManifestPath());
+        std::ofstream manifestOs(manifestPath);
         cereal::JSONOutputArchive manifestArchive(manifestOs);
         manifestArchive(_importManifest);
     }
@@ -72,7 +78,7 @@ wstring MetaFile::GetArtifactPath()
     return L"..\\Artifact\\" + _assetId.ToWString();
 }
 
-CEREAL_REGISTER_TYPE(MetaFile);
+//CEREAL_REGISTER_TYPE(MetaFile);
 
 //CEREAL_REGISTER_TYPE(SubAssetMetaFile);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, SubAssetMetaFile);
@@ -82,3 +88,9 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(SubAssetMetaFile, ModelMeta);
 
 CEREAL_REGISTER_TYPE(TextureMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, TextureMeta);
+
+CEREAL_REGISTER_TYPE(FolderMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, FolderMeta);
+
+CEREAL_REGISTER_TYPE(NotSupportMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, NotSupportMeta);

@@ -12,7 +12,7 @@ class MetaFile
 public:
     MetaFile();
     MetaFile(ResourceType resourceType);
-    virtual ~MetaFile() = default;
+    virtual ~MetaFile();
 
     AssetId GetAssetId() const { return _assetId; }
     virtual wstring GetResourcePath();

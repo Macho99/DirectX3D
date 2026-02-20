@@ -690,6 +690,12 @@
     <ClInclude Include="xxhash.h">
       <Filter>98. Utils</Filter>
     </ClInclude>
+    <ClInclude Include="NotSupportMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="FolderMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1021,6 +1027,12 @@
     </ClCompile>
     <ClCompile Include="xxhash.c">
       <Filter>98. Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="FolderMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="NotSupportMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -277,6 +277,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="EnginePch.h" />
     <ClInclude Include="FileUtils.h" />
+    <ClInclude Include="FolderMeta.h" />
     <ClInclude Include="FoliageController.h" />
     <ClInclude Include="FsEventDebouncer.h" />
     <ClInclude Include="Game.h" />
@@ -316,6 +317,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="MetaFile.h" />
     <ClInclude Include="MetaStore.h" />
     <ClInclude Include="ModelMeta.h" />
+    <ClInclude Include="NotSupportMeta.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Light.h" />
@@ -393,6 +395,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="DirectoryWatcherWin.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="FileUtils.cpp" />
+    <ClCompile Include="FolderMeta.cpp" />
     <ClCompile Include="FoliageController.cpp" />
     <ClCompile Include="FsEventDebouncer.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -488,6 +491,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="MetaFile.cpp" />
     <ClCompile Include="MetaStore.cpp" />
     <ClCompile Include="ModelMeta.cpp" />
+    <ClCompile Include="NotSupportMeta.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Light.cpp" />
