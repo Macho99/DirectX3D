@@ -17,11 +17,20 @@ bool ImportManifest::Refresh(fs::path filePath, OUT bool& isDirty)
         size = curFileSize;
         timestamp = curFileTime;
 
-        string newHash = Utils::CalcFileHash(filePath);
-        if (newHash != hash)
+        if (fs::is_directory(filePath))
         {
-            hash = newHash;
+            hash = ""; // 디렉토리는 해시 계산 안함
             isDirty = true;
+        }
+        else
+        {
+            string newHash = Utils::CalcFileHash(filePath);
+
+            if (newHash != hash)
+            {
+                hash = newHash;
+                isDirty = true;
+            }
         }
         return true;
     }

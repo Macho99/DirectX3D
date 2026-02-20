@@ -14,7 +14,7 @@ public:
     //static unique_ptr<MetaFile> LoadOrCreate(const fs::path& sourceAbs);
     static bool IsMetaFile(const fs::path& path);
 
-    static wstring GetResourceExtension(ResourceType resourceType);
+    //static wstring GetResourceExtension(ResourceType resourceType);
 
 private:
     static const unordered_map<string, Creator>& InitAndGetCreators();

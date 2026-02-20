@@ -12,30 +12,34 @@ unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
 fs::path MetaStore::MetaPathForSource(const fs::path& sourceAbs)
 {
-    // Unity 스타일: "<file>.ext.meta"
     return fs::path(sourceAbs.wstring() + L".meta");
 }
 
 fs::path MetaStore::SourcePathForMeta(const fs::path& metaAbs)
 {
-    // "<file>.ext.meta" 에서 ".meta"만 제거 => "<file>.ext"
     fs::path src = metaAbs;
     if (src.extension() == L".meta")
-        src.replace_extension(); // .meta 제거
+        src.replace_extension();
     return src;
 }
 
 unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
 {
-    std::ifstream is(metaAbs);
-    if (!is.is_open())
-        return nullptr;
-
-    cereal::JSONInputArchive archive(is);
     unique_ptr<MetaFile> meta;
-    archive(meta);
+    const wstring sourceAbs = SourcePathForMeta(metaAbs);
+    try
+    {
+        std::ifstream is(metaAbs);
+        cereal::JSONInputArchive archive(is);
+        archive(meta);
+    }
+    catch (const std::exception& e)
+    {
+        DBG->LogW(L"[MetaStore] TryLoad failed And Recreated: " + metaAbs.wstring() + L", error: " + Utils::ToWString(e.what()));
+        meta = Create(sourceAbs);
+    }
 
-    meta->_absPath = SourcePathForMeta(metaAbs);
+    meta->_absPath = sourceAbs;
     meta->ImportIfDirty();
 
     return meta;
@@ -93,20 +97,20 @@ bool MetaStore::IsMetaFile(const fs::path& path)
     return path.extension() == L".meta";
 }
 
-wstring MetaStore::GetResourceExtension(ResourceType resourceType)
-{
-    switch (resourceType)
-    {
-        case ResourceType::Mesh:        return L".mesh";
-        case ResourceType::Material:    return L".mat";
-        case ResourceType::Shader:      return L".fx";
-        case ResourceType::Animation:   return L".clip";
-    }
-
-    assert(resourceType == ResourceType::Texture, "Get Texture Extension Not Support");
-    assert(false, "GetResourceExtension: Unknown resource type");
-    return L"";
-}
+//wstring MetaStore::GetResourceExtension(ResourceType resourceType)
+//{
+//    switch (resourceType)
+//    {
+//        case ResourceType::Mesh:        return L".mesh";
+//        case ResourceType::Material:    return L".mat";
+//        case ResourceType::Shader:      return L".fx";
+//        case ResourceType::Animation:   return L".clip";
+//    }
+//
+//    assert(resourceType == ResourceType::Texture, "Get Texture Extension Not Support");
+//    assert(false, "GetResourceExtension: Unknown resource type");
+//    return L"";
+//}
 
 const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
 {
