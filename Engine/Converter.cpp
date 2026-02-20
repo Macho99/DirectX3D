@@ -72,12 +72,12 @@ void Converter::ExportModelData(wstring savePath)
 	WriteModelFile(finalPath);
 }
 
-void Converter::ExportMaterialData(wstring savePath)
-{
-	wstring finalPath = savePath + L".mat";
-	ReadMaterialData();
-	WriteMaterialData(finalPath);
-}
+//void Converter::ExportMaterialData(wstring savePath)
+//{
+//	wstring finalPath = savePath + L".mat";
+//	ReadMaterialData();
+//	WriteMaterialData(finalPath);
+//}
 
 void Converter::ExportAnimationData(wstring savePath, uint32 index)
 {
@@ -98,7 +98,7 @@ void Converter::TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exp
             info.fileName = assetName;
             info.resourceType = ResourceType::Material;
 			wstring finalPath = artifactPath + L"\\" + assetName;
-			WriteMaterialData(finalPath);
+			WriteMaterialData(finalPath, exported);
 			exported.push_back(info);
 		}
 	}
@@ -333,7 +333,7 @@ void Converter::ReadMaterialData()
 	}
 }
 
-void Converter::WriteMaterialData(wstring finalPath)
+void Converter::WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& exported)
 {
 	auto path = filesystem::path(finalPath);
 
@@ -349,6 +349,9 @@ void Converter::WriteMaterialData(wstring finalPath)
 	tinyxml2::XMLElement* root = document->NewElement("Materials");
 	document->LinkEndChild(root);
 
+	SubAssetInfo subAssetInfo = SubAssetInfo();
+	subAssetInfo.resourceType = ResourceType::Texture;
+
 	for (shared_ptr<asMaterial> material : _materials)
 	{
 		tinyxml2::XMLElement* node = document->NewElement("Material");
@@ -361,15 +364,34 @@ void Converter::WriteMaterialData(wstring finalPath)
 		node->LinkEndChild(element);
 
 		element = document->NewElement("DiffuseFile");
-		element->SetText(WriteTexture(folder, material->diffuseFile).c_str());
+		string diffuseFileName = WriteTexture(folder, material->diffuseFile);
+		if (diffuseFileName.empty() == false)
+		{
+            subAssetInfo.fileName = Utils::ToWString(diffuseFileName);
+            exported.push_back(subAssetInfo);
+		}
+		element->SetText(diffuseFileName.c_str());
 		node->LinkEndChild(element);
 
 		element = document->NewElement("SpecularFile");
-		element->SetText(WriteTexture(folder, material->specularFile).c_str());
+		string specularFileName = WriteTexture(folder, material->specularFile);
+		element->SetText(specularFileName.c_str());
+        if (specularFileName.empty() == false)
+        {
+            subAssetInfo.fileName = Utils::ToWString(specularFileName);
+            exported.push_back(subAssetInfo);
+        }
+
 		node->LinkEndChild(element);
 
 		element = document->NewElement("NormalFile");
-		element->SetText(WriteTexture(folder, material->normalFile).c_str());
+        string normalFileName = WriteTexture(folder, material->normalFile);
+        if (normalFileName.empty() == false)
+        {
+            subAssetInfo.fileName = Utils::ToWString(normalFileName);
+            exported.push_back(subAssetInfo);
+        }
+		element->SetText(normalFileName.c_str());
 		node->LinkEndChild(element);
 
 		element = document->NewElement("Ambient");

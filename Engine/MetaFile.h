@@ -16,8 +16,6 @@ public:
 
     AssetId GetAssetId() const { return _assetId; }
     virtual wstring GetResourcePath();
-    void ImportIfDirty();
-    void ForceReImport();
 
     fs::path GetAbsPath() const { return _absPath; }
 
@@ -26,6 +24,8 @@ protected:
     wstring GetArtifactPath();
 
 private:
+    void ForceReImport();
+    bool ImportIfDirty();
     wstring GetManifestPath() { return GetArtifactPath() + L"\\asset.manifest"; }
 
 public:

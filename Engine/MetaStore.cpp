@@ -40,7 +40,7 @@ unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
     }
 
     meta->_absPath = sourceAbs;
-    meta->ImportIfDirty();
+    ImportIfDirty(meta);
 
     return meta;
 }
@@ -73,11 +73,7 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
     meta->_assetId = AssetId::CreateAssetId();
     meta->_absPath = sourceAbs;
 
-    meta->ImportIfDirty();
-
-    std::ofstream os(MetaPathForSource(sourceAbs));
-    cereal::JSONOutputArchive archive(os);
-    archive(meta);
+    ImportIfDirty(meta);
     return meta;
 }
 
@@ -95,6 +91,17 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
 bool MetaStore::IsMetaFile(const fs::path& path)
 {
     return path.extension() == L".meta";
+}
+
+void MetaStore::ImportIfDirty(unique_ptr<MetaFile>& metaFile)
+{
+    bool imported = metaFile->ImportIfDirty();
+    if (imported == false)
+        return;
+
+    std::ofstream os(MetaPathForSource(metaFile->_absPath));
+    cereal::JSONOutputArchive archive(os);
+    archive(metaFile);
 }
 
 //wstring MetaStore::GetResourceExtension(ResourceType resourceType)

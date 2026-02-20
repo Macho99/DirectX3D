@@ -6,6 +6,7 @@
 #include "FolderMeta.h"
 #include "NotSupportMeta.h"
 #include "fstream"
+#include "MetaStore.h"
 
 MetaFile::MetaFile()
     :_resourceType(ResourceType::None)
@@ -30,35 +31,51 @@ wstring MetaFile::GetResourcePath()
     return GetArtifactPath() + L"\\asset";
 }
 
-void MetaFile::ImportIfDirty()
+bool MetaFile::ImportIfDirty()
 {
+    bool imported = false;
     const wstring manifestPath = GetManifestPath();
     if (fs::exists(manifestPath))
     {
-        std::ifstream is(manifestPath);
-        cereal::JSONInputArchive manifestArchive(is);
-        manifestArchive(_importManifest);
+        try
+        {
+            std::ifstream is(manifestPath);
+            cereal::JSONInputArchive manifestArchive(is);
+            manifestArchive(_importManifest);
+        }
+        catch (const std::exception& e)
+        {
+            DBG->LogW(L"[MetaFile] ImportIfDirty: Failed to read manifest and will reimport: " + manifestPath + L", error: " + Utils::ToWString(e.what()));
+            _importManifest = ImportManifest();
+        }
     }
 
     bool isDirty = false;
-    bool isRefreshed = _importManifest.Refresh(_absPath, isDirty);
+    bool isManifestRefreshed = _importManifest.Refresh(_absPath, isDirty);
 
     if (isDirty)
     {
         Import();
+        imported = true;
     }
 
-    if (isRefreshed)
+    if (isManifestRefreshed)
     {
         std::ofstream manifestOs(manifestPath);
         cereal::JSONOutputArchive manifestArchive(manifestOs);
         manifestArchive(_importManifest);
     }
+    return imported;
 }
 
 void MetaFile::ForceReImport()
 {
+    _importManifest = ImportManifest();
+    wstring manifestPath = GetManifestPath();
+    if (fs::exists(manifestPath))
+        fs::remove(manifestPath);
 
+    ImportIfDirty();
 }
 
 void MetaFile::Import()

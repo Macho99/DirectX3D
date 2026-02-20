@@ -21,6 +21,8 @@ public:
     static uint64 GetRandomUInt64();
     static string CalcFileHash(const fs::path& filePath);
 
+    static string ReadFile(const fs::path& filePath);
+	static void WriteToFile(const fs::path& filePath, const string& content);
 private:
 	static thread_local std::mt19937_64 s_rng;
 };

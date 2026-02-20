@@ -259,11 +259,12 @@ void AssetDatabase::Modify(const fs::path& absPath)
 {
     std::lock_guard lk(_mtx);
     AssetId assetId = _pathToAssetId[absPath.wstring()];
-    MetaFile* metaFile = _assetIdToMeta[assetId].get();
+    unique_ptr<MetaFile>& metaFilePtr = _assetIdToMeta[assetId];
+    MetaFile* metaFile = metaFilePtr.get();
 
     if (metaFile)
     {
-        metaFile->ImportIfDirty();
+        MetaStore::ImportIfDirty(metaFilePtr);
         DBG->LogW(L"[AssetDB] Modify: " + absPath.wstring());
     }
 }

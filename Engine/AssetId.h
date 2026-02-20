@@ -30,6 +30,10 @@ public:
     {
         return std::to_wstring(leftId) + L"_" + std::to_wstring(rightId);
     }
+    string ToString() const
+    {
+        return std::to_string(leftId) + "_" + std::to_string(rightId);
+    }
 
 private:
     uint64 leftId;

@@ -12,7 +12,7 @@ public:
 public:
 	void ReadAssetFile(wstring file);
 	void ExportModelData(wstring savePath);
-	void ExportMaterialData(wstring savePath);
+	//void ExportMaterialData(wstring savePath);
 	void ExportAnimationData(wstring savePath, uint32 index = 0);
 	void TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exported);
 
@@ -24,7 +24,7 @@ private:
 
 private:
 	void ReadMaterialData();
-	void WriteMaterialData(wstring finalPath);
+	void WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& exported);
 	string WriteTexture(string saveFolder, string file);
 
 private:

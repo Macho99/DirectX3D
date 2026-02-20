@@ -14,6 +14,7 @@ public:
     //static unique_ptr<MetaFile> LoadOrCreate(const fs::path& sourceAbs);
     static bool IsMetaFile(const fs::path& path);
 
+    static void ImportIfDirty(unique_ptr<MetaFile>& metaFile);
     //static wstring GetResourceExtension(ResourceType resourceType);
 
 private:

@@ -267,3 +267,24 @@ string Utils::CalcFileHash(const fs::path& filePath)
 	sprintf_s(out, "%016llx", hash);
 	return out;
 }
+
+string Utils::ReadFile(const fs::path& filePath)
+{
+	std::ifstream file(filePath, std::ios::binary);
+	if (!file)
+		throw std::runtime_error("file open failed");
+
+	return std::string(
+		(std::istreambuf_iterator<char>(file)),
+		std::istreambuf_iterator<char>()
+	);
+}
+
+void Utils::WriteToFile(const fs::path& filePath, const string& content)
+{
+	std::ofstream file(filePath, std::ios::binary);
+	if (!file)
+		throw std::runtime_error("file open failed");
+
+	file.write(content.data(), content.size());
+}
