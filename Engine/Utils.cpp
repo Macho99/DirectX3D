@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include <fstream>
 #include <sstream>
+#include "xxhash.h"
 
 thread_local std::mt19937_64 Utils::s_rng(std::random_device{}());
 
@@ -237,4 +238,32 @@ vector<Vec4> Utils::ParseUVText(const wstring& filePath)
 uint64 Utils::GetRandomUInt64()
 {
     return s_rng();
+}
+
+string Utils::CalcFileHash(const fs::path& filePath)
+{
+	std::ifstream file(filePath, std::ios::binary);
+	if (!file)
+		return "";
+
+	XXH64_state_t* state = XXH64_createState();
+	XXH64_reset(state, 0);
+
+	constexpr size_t BufferSize = 1 << 16; // 64KB
+	std::vector<char> buffer(BufferSize);
+
+	while (file)
+	{
+		file.read(buffer.data(), BufferSize);
+		std::streamsize readSize = file.gcount();
+		if (readSize > 0)
+			XXH64_update(state, buffer.data(), readSize);
+	}
+
+	uint64_t hash = XXH64_digest(state);
+	XXH64_freeState(state);
+
+	char out[17];
+	sprintf_s(out, "%016llx", hash);
+	return out;
 }

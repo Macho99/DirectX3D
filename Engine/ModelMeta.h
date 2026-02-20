@@ -7,6 +7,7 @@ public:
     ModelMeta();
     ~ModelMeta();
 
+protected:
     void Import() override;
 };
 

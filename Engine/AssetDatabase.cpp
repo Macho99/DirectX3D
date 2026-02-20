@@ -115,17 +115,30 @@ void AssetDatabase::OnFileEvent(const FsEvent& e)
     if (MetaStore::IsMetaFile(e.absPath))
         return;
 
-    if (e.action == FsAction::Removed)
-        Remove(e.absPath);
-    else if (e.action == FsAction::Renamed)
+    switch (e.action)
+    {
+    case FsAction::Added:
+        Insert(e.absPath);
+        break;
+    case FsAction::Renamed:
     {
         if (e.oldAbsPath.extension() != e.absPath.extension())
             ExtensionRename(e.oldAbsPath, e.absPath);
         else
             Rename(e.oldAbsPath, e.absPath);
     }
-    else
-        Insert(e.absPath);
+        break;
+    case FsAction::Modified:
+        Modify(e.absPath);
+        break;
+    case FsAction::Removed:
+        Remove(e.absPath);
+        break;
+
+    default:
+        assert(false, "AssetDatabase::OnFileEvent: unknown action");
+    }
+
 }
 
 void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPath)
@@ -240,4 +253,17 @@ void AssetDatabase::Remove(const fs::path& absPath)
     }
 
     DBG->LogW(L"[AssetDB] Remove: " + absPath.wstring());
+}
+
+void AssetDatabase::Modify(const fs::path& absPath)
+{
+    std::lock_guard lk(_mtx);
+    AssetId assetId = _pathToAssetId[absPath.wstring()];
+    MetaFile* metaFile = _assetIdToMeta[assetId].get();
+
+    if (metaFile)
+    {
+        metaFile->ImportIfDirty();
+        DBG->LogW(L"[AssetDB] Modify: " + absPath.wstring());
+    }
 }

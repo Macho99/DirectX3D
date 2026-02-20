@@ -30,6 +30,7 @@ private:
     void ExtensionRename(const fs::path& oldAbsPath, const fs::path& newAbsPath);
     void Insert(const fs::path& absPath);
     void Remove(const fs::path& absPath);
+    void Modify(const fs::path& absPath);
 
 private:
     mutable mutex _mtx;

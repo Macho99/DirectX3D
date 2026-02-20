@@ -12,6 +12,8 @@ ModelMeta::~ModelMeta()
 
 void ModelMeta::Import()
 {
+    Super::Import();
+
     wstring artifactFoloder = GetArtifactPath();
     Converter converter;
     wstring absPath = GetAbsPath();

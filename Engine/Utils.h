@@ -19,6 +19,7 @@ public:
 	static vector<Vec4> ParseUVText(const wstring& path);
 
     static uint64 GetRandomUInt64();
+    static string CalcFileHash(const fs::path& filePath);
 
 private:
 	static thread_local std::mt19937_64 s_rng;

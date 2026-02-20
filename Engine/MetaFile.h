@@ -1,5 +1,6 @@
 #pragma once
 #include "AssetId.h"
+#include "ImportManifest.h"
 #include "cereal/types/vector.hpp"
 #include "cereal/types/memory.hpp"
 #include "cereal/types/string.hpp"
@@ -15,14 +16,17 @@ public:
 
     AssetId GetAssetId() const { return _assetId; }
     virtual wstring GetResourcePath();
-    bool TryImport();
-    void ReImport();
-    virtual void Import() {}
+    void ImportIfDirty();
+    void ForceReImport();
 
     fs::path GetAbsPath() const { return _absPath; }
 
 protected:
+    virtual void Import();
     wstring GetArtifactPath();
+
+private:
+    wstring GetManifestPath() { return GetArtifactPath() + L"\\asset.manifest"; }
 
 public:
     template<class Archive>
@@ -35,7 +39,9 @@ public:
 private:
     AssetId _assetId;
     ResourceType _resourceType;
-    fs::path _absPath;
 
+    fs::path _absPath;
+    ImportManifest _importManifest;
+    
     friend class MetaStore;
 };

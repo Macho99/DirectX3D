@@ -32,6 +32,10 @@ unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
     cereal::JSONInputArchive archive(is);
     unique_ptr<MetaFile> meta;
     archive(meta);
+
+    meta->_absPath = SourcePathForMeta(metaAbs);
+    meta->ImportIfDirty();
+
     return meta;
 }
 
@@ -60,7 +64,7 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
     meta->_assetId = AssetId::CreateAssetId();
     meta->_absPath = sourceAbs;
 
-    meta->Import();
+    meta->ImportIfDirty();
 
     std::ofstream os(MetaPathForSource(sourceAbs));
     cereal::JSONOutputArchive archive(os);
