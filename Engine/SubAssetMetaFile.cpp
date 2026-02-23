@@ -43,8 +43,7 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
         }
 
         // 4. 아이콘 그리기
-        fs::path subAssetAbsPath(GetSubResourcePath(i));
-        ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, subAssetAbsPath)->GetComPtr().Get();
+        ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, GetSubResourcePath(i))->GetComPtr().Get();
         ImGui::GetWindowDrawList()->AddImage(iconTex, tilePos, ImVec2(tilePos.x + thumbSize, tilePos.y + thumbSize));
 
         // 5. 텍스트 그리기 (2줄 제한 핵심 로직)

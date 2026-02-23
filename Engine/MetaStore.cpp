@@ -7,6 +7,9 @@
 #include "TextureMeta.h"
 #include "FolderMeta.h"
 #include "NotSupportMeta.h"
+#include "AnimationMeta.h"
+#include "MeshMeta.h"
+#include "MaterialMeta.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -124,6 +127,9 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
     if (_creators.size() == 0)
     {
         _creators[".fbx"] = []() { return make_unique<ModelMeta>(); };
+        _creators[".clip"] = []() { return make_unique<AnimationMeta>(); };
+        _creators[".mesh"] = []() { return make_unique<MeshMeta>(); };
+        _creators[".mat"] = []() { return make_unique<MaterialMeta>(); };
 
         {
             function<unique_ptr<MetaFile>()> texCreator = []() { return make_unique<TextureMeta>(); };

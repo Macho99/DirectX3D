@@ -83,3 +83,4 @@ crashlytics-build.properties
 /Client/Binaries
 /Client/Intermediate/Debug
 /Artifact/*
+/Assets/*

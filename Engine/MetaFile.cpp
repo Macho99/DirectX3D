@@ -5,6 +5,10 @@
 #include "ModelMeta.h"
 #include "FolderMeta.h"
 #include "NotSupportMeta.h"
+#include "AnimationMeta.h"
+#include "MaterialMeta.h"
+#include "MeshMeta.h"
+
 #include "fstream"
 #include "MetaStore.h"
 
@@ -121,11 +125,20 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
     string iconKey;
     switch (resourceType)
     {
+    case ResourceType::Animation:
+        iconKey = "AnimationIcon";
+        break;
     case ResourceType::Model:
         iconKey = "ModelIcon";
         break;
     case ResourceType::Folder:
         iconKey = "FolderIcon";
+        break;
+    case ResourceType::Material:
+        iconKey = "MaterialIcon";
+        break;
+    case ResourceType::Mesh:
+        iconKey = "MeshIcon";
         break;
     default:
         iconKey = "DefaultFileIcon";
@@ -241,3 +254,12 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, FolderMeta);
 
 CEREAL_REGISTER_TYPE(NotSupportMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, NotSupportMeta);
+
+CEREAL_REGISTER_TYPE(AnimationMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, AnimationMeta);
+
+CEREAL_REGISTER_TYPE(MaterialMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, MaterialMeta);
+
+CEREAL_REGISTER_TYPE(MeshMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, MeshMeta);

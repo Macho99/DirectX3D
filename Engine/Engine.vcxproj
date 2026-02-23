@@ -170,6 +170,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AABBBoxCollider.h" />
+    <ClInclude Include="AnimationMeta.h" />
     <ClInclude Include="AssetDatabase.h" />
     <ClInclude Include="AssetId.h" />
     <ClInclude Include="AsTypes.h" />
@@ -315,6 +316,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="InspectorDrawer.h" />
     <ClInclude Include="InstancingBuffer.h" />
+    <ClInclude Include="MaterialMeta.h" />
+    <ClInclude Include="MeshMeta.h" />
     <ClInclude Include="MetaFile.h" />
     <ClInclude Include="MetaStore.h" />
     <ClInclude Include="ModelMeta.h" />
@@ -376,6 +379,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AABBBoxCollider.cpp" />
+    <ClCompile Include="AnimationMeta.cpp" />
     <ClCompile Include="AssetDatabase.cpp" />
     <ClCompile Include="AssetId.cpp" />
     <ClCompile Include="AsTypes.cpp" />
@@ -490,6 +494,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="InspectorDrawer.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
+    <ClCompile Include="MaterialMeta.cpp" />
+    <ClCompile Include="MeshMeta.cpp" />
     <ClCompile Include="MetaFile.cpp" />
     <ClCompile Include="MetaStore.cpp" />
     <ClCompile Include="ModelMeta.cpp" />
