@@ -14,12 +14,12 @@ class Material;
 template<class T>
 class SlotManager;
 
-struct BrowserItem
-{
-	fs::path absPath;
-	AssetId assetId;       // 파일이면 guid, 폴더면 invalid
-	bool isFolder = false;
-};
+//struct BrowserItem
+//{
+//	fs::path absPath;
+//	AssetId assetId;       // 파일이면 guid, 폴더면 invalid
+//	bool isFolder = false;
+//};
 
 class ResourceManager
 {
@@ -55,8 +55,11 @@ private:
 
 public:
     fs::path GetRootPath() const { return _root; }
-	bool TryGetGuidByPath(const fs::path& absPath, OUT AssetId& guid);
-    bool TryGetPathByGuid(const AssetId& guid, OUT fs::path& path);
+	bool TryGetAssetIdByPath(const fs::path& absPath, OUT AssetId& assetId) { return assetDatabase.TryGetAssetIdByPath(absPath, assetId); }
+    bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	{ return assetDatabase.TryGetPathByAssetId(assetId, path); }
+    bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	{ return assetDatabase.TryGetMetaByAssetId(assetId, out); }
+    bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		{ return assetDatabase.TryGetMetaByPath(absPath, out); }
+
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
 private:

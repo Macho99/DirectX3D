@@ -696,6 +696,9 @@
     <ClInclude Include="FolderMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
+    <ClInclude Include="FolderTreeCache.h">
+      <Filter>50. Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1033,6 +1036,9 @@
     </ClCompile>
     <ClCompile Include="NotSupportMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="FolderTreeCache.cpp">
+      <Filter>50. Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

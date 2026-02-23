@@ -1,5 +1,6 @@
 #pragma once
 #include "EditorWindow.h"
+#include "FolderTreeCache.h"
 
 enum class ViewMode
 {
@@ -17,14 +18,14 @@ public:
     void Init(EditorManager* editorManager) override;
     void Update() override;
 
-    void RefreshBrowserItems();
+    void GetCurMetaFiles();
 
 protected:
     void OnGUI() override;
 
 private:
     void DrawLeftFolderTree();
-    void DrawFolderNode(const fs::path& folderAbs);
+    void DrawFolderNodeRecursive(FolderTreeCache::Node* node);
 
     void DrawRightUnityStyle();
     void DrawToolbarRow();
@@ -32,18 +33,17 @@ private:
     void DrawSearchBox();
     void DrawViewToggle();
 
-    void DrawItemsGrid(const std::vector<BrowserItem>& items);
-    void DrawItemsList(const std::vector<BrowserItem>& items);
-
-    bool PassSearchFilter(const BrowserItem& it) const;
+    void DrawItemsGrid();
+    void DrawItemsList();
 
     static wstring DisplayName(const fs::path& p);
 
 
 private:
     void SetCurrentFolder(const fs::path& folderAbs);
+    bool SafeEquivalent(const fs::path& a, const fs::path& b);
 
-    bool needRefresh = true;
+    //bool needRefresh = true;
 
     fs::path _root;
     fs::path _currentFolder;
@@ -51,7 +51,6 @@ private:
     // 선택 상태(파일)
     fs::path _selectedPath;
 
-    int treeId = 0;
     ViewMode _viewMode = ViewMode::Grid;
 
     // 유니티 느낌: 아이콘 크기 조절
@@ -61,7 +60,7 @@ private:
 
     // 검색
     std::string _search;          // ImGui InputText는 char*가 편함
-
-    vector<BrowserItem> _curBrowserItems;
+    vector<MetaFile*> _curMetaFiles;
+    FolderTreeCache _tree;
 };
 

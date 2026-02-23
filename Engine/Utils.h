@@ -12,8 +12,8 @@ public:
 	static wstring ToWString(string value);
 	static string ToString(wstring value);
 
-	static string ToString(Vec3& value);	
-	
+	static string ToString(Vec3& value);
+
 	static ComPtr<ID3D11ShaderResourceView> CreateTexture2DArraySRV(vector<wstring>& filenames);
 
 	static vector<Vec4> ParseUVText(const wstring& path);
@@ -23,6 +23,7 @@ public:
 
     static string ReadFile(const fs::path& filePath);
 	static void WriteToFile(const fs::path& filePath, const string& content);
-private:
+
+	private:
 	static thread_local std::mt19937_64 s_rng;
 };

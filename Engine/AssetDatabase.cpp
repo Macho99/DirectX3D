@@ -29,6 +29,28 @@ bool AssetDatabase::TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& ou
     return true;
 }
 
+bool AssetDatabase::TryGetMetaByAssetId(const AssetId& guid, OUT MetaFile*& out) const
+{
+    std::lock_guard lk(_mtx);
+    auto it = _assetIdToMeta.find(guid);
+    if (it == _assetIdToMeta.end())
+        return false;
+    out = it->second.get();
+    return true;
+}
+
+bool AssetDatabase::TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out) const
+{
+    AssetId assetId;
+    if (!TryGetAssetIdByPath(absPath, OUT assetId))
+        return false;
+
+    if (!TryGetMetaByAssetId(assetId, OUT out))
+        return false;
+
+    return true;
+}
+
 void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
 {
     // 존재 확인
@@ -187,6 +209,18 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
             _assetIdToMeta[renamedAssetId] = std::move(meta);
         }
         DBG->LogErrorW(L"[AssetDB] Rename: old path not found, treating as Insert: " + newAbsPath.wstring());
+    }
+
+    {
+        MetaFile* metaFile = nullptr;
+        if (TryGetMetaByAssetId(renamedAssetId, OUT metaFile))
+        {
+            metaFile->SetAbsPath(newAbsPath);
+        }
+        else
+        {
+            assert(false, "AssetDatabase::Rename: meta not found for assetId: " + renamedAssetId.ToString());
+        }
     }
 
     // 3) 이제 맵 갱신(락 안)

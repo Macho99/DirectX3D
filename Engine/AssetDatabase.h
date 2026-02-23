@@ -24,6 +24,8 @@ public:
 
     bool TryGetAssetIdByPath(const fs::path& absPath, OUT AssetId& out) const;
     bool TryGetPathByAssetId(const AssetId& guid, OUT fs::path& out) const;
+    bool TryGetMetaByAssetId(const AssetId& guid, OUT MetaFile*& out) const;
+    bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out) const;
 
 private:
     void Rename(const fs::path& oldAbsPath, const fs::path& newAbsPath);

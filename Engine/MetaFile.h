@@ -18,6 +18,8 @@ public:
     virtual wstring GetResourcePath();
 
     fs::path GetAbsPath() const { return _absPath; }
+    void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
+    ResourceType GetResourceType() const { return _resourceType; }
 
 protected:
     virtual void Import();

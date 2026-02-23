@@ -8,7 +8,6 @@
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
 {
-    
 }
 
 ContentBrowser::~ContentBrowser()
@@ -24,45 +23,47 @@ void ContentBrowser::Init(EditorManager* editorManager)
     _root = RESOURCES->GetRootPath();
     RESOURCES->SetOnFileEventCallback([this](const FsEvent& e)
         {
-            if (e.absPath.parent_path() == _currentFolder || e.oldAbsPath.parent_path() == _currentFolder)
-                needRefresh = true;
+            if (fs::is_directory(e.absPath))
+            {
+                _tree.Invalidate(e.absPath);
+                _tree.Invalidate(e.absPath.parent_path());
+            }
         });
     SetCurrentFolder(_root);
+    _tree.SetRoot(_root);
 }
 
 void ContentBrowser::Update()
 {
 }
 
-void ContentBrowser::RefreshBrowserItems()
+void ContentBrowser::GetCurMetaFiles()
 {
-    _curBrowserItems.clear();
-
+    _curMetaFiles.clear();
     for (auto& de : fs::directory_iterator(_currentFolder))
     {
         fs::path path = de.path();
         if (MetaStore::IsMetaFile((path)))
             continue;
 
-        AssetId assetId;
-        if (RESOURCES->TryGetGuidByPath(path, assetId) == false)
+        MetaFile* meta = nullptr;
+        if (RESOURCES->TryGetMetaByPath(path, meta) == false)
         {
             DBG->LogW(L"[ContentBrowser] Refresh: Skip non-asset file: " + path.wstring());
             continue;
         }
-
-        BrowserItem browserItem;
-        browserItem.absPath = path;
-        browserItem.assetId = assetId;
-        browserItem.isFolder = fs::is_directory(path);
-        _curBrowserItems.push_back((browserItem));
+        _curMetaFiles.push_back(meta);
     }
 
     // 3) 정렬: 폴더 먼저, 그 다음 이름순
-    std::sort(_curBrowserItems.begin(), _curBrowserItems.end(), [](const BrowserItem& a, const BrowserItem& b)
+    std::sort(_curMetaFiles.begin(), _curMetaFiles.end(), [](const MetaFile* lhs, const MetaFile* rhs)
         {
-            if (a.isFolder != b.isFolder) return a.isFolder > b.isFolder;
-            return a.absPath.filename().wstring() < b.absPath.filename().wstring();
+            if (lhs->GetResourceType() == ResourceType::Folder && rhs->GetResourceType() != ResourceType::Folder)
+                return true;
+            if (lhs->GetResourceType() != ResourceType::Folder && rhs->GetResourceType() == ResourceType::Folder)
+                return false;
+
+            return lhs->GetAbsPath().filename().wstring() < rhs->GetAbsPath().filename().wstring();
         });
 }
 
@@ -70,11 +71,11 @@ void ContentBrowser::OnGUI()
 {
     Super::OnGUI();
 
-    if (needRefresh)
+    if (!fs::exists(_currentFolder))
     {
-        RefreshBrowserItems();
-        needRefresh = false;
+        _currentFolder = _root;
     }
+    GetCurMetaFiles();
 
     ImGui::Columns(2, nullptr, true);
     ImGui::SetColumnWidth(0, _leftPaneWidth);
@@ -85,62 +86,85 @@ void ContentBrowser::OnGUI()
     DrawRightUnityStyle();
 
     ImGui::Columns(1);
+
+    _curMetaFiles.clear();
 }
 
 void ContentBrowser::DrawLeftFolderTree()
 {
     ImGui::BeginChild("CB_Left", ImVec2(0, 0), true);
-    treeId = 0;
-    // 루트는 항상 펼친 상태로 시작
-    ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_DefaultOpen;
-    bool open = ImGui::TreeNodeEx((void*)&treeId, rootFlags, "%ls", DisplayName(_root).c_str());
-    treeId++;
+
+    auto* rootNode = _tree.GetRoot();
+    if (!rootNode)
+    {
+        ImGui::EndChild();
+        return;
+    }
+
+    // 루트는 항상 펼침
+    ImGuiTreeNodeFlags rootFlags =
+        ImGuiTreeNodeFlags_DefaultOpen |
+        ImGuiTreeNodeFlags_OpenOnArrow |
+        ImGuiTreeNodeFlags_SpanFullWidth;
+
+    const bool rootSelected = SafeEquivalent(rootNode->abs, _currentFolder);
+    if (rootSelected) rootFlags |= ImGuiTreeNodeFlags_Selected;
+
+    // ID는 포인터로 안정적으로
+    bool open = ImGui::TreeNodeEx((void*)rootNode, rootFlags, "%s", rootNode->displayName.c_str());
     if (ImGui::IsItemClicked())
-        SetCurrentFolder(_root);
+        SetCurrentFolder(rootNode->abs);
 
     if (open)
     {
-        DrawFolderNode(_root);
+        _tree.EnsureScanned(rootNode);
+        DrawFolderNodeRecursive(rootNode);
         ImGui::TreePop();
     }
 
     ImGui::EndChild();
 }
 
-void ContentBrowser::DrawFolderNode(const fs::path& folderAbs)
+void ContentBrowser::DrawFolderNodeRecursive(FolderTreeCache::Node* node)
 {
-    // 현재 폴더의 하위 폴더만 나열
-    std::vector<fs::path> dirs;
-    for (auto& de : fs::directory_iterator(folderAbs))
+    // 같은 레벨 자식이 엄청 많을 때만 의미가 있으니, 클리퍼 적용
+    ImGuiListClipper clipper;
+    clipper.Begin((int)node->children.size());
+
+    while (clipper.Step())
     {
-        if (de.is_directory())
-            dirs.push_back(de.path());
-    }
-
-    std::sort(dirs.begin(), dirs.end(), [](const fs::path& a, const fs::path& b)
+        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
         {
-            return a.filename().wstring() < b.filename().wstring();
-        });
+            auto* child = node->children[i];
 
-    for (auto& dir : dirs)
-    {
-        const bool isSelected = (fs::equivalent(dir, _currentFolder));
-        ImGuiTreeNodeFlags flags =
-            ImGuiTreeNodeFlags_OpenOnArrow |
-            ImGuiTreeNodeFlags_SpanFullWidth |
-            (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
+            const bool isSelected = SafeEquivalent(child->abs, _currentFolder);
 
-        // leaf 여부를 정확히 판단하려면 한번 더 디렉토리 확인이 필요하지만,
-        // 지금 단계에선 간단하게 그냥 트리노드로 둡니다.
-        bool open = ImGui::TreeNodeEx((void*)&treeId, flags, "%ls", DisplayName(dir).c_str());
-        treeId++;
-        if (ImGui::IsItemClicked())
-            SetCurrentFolder(dir);
+            // 자식 존재 여부를 빠르게 leaf 플래그로 반영하려면
+            // "열릴 때" 스캔하기 전까지는 leaf로 두지 않는 편이 안전합니다.
+            ImGuiTreeNodeFlags flags =
+                ImGuiTreeNodeFlags_OpenOnArrow |
+                ImGuiTreeNodeFlags_SpanFullWidth |
+                (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
 
-        if (open)
-        {
-            DrawFolderNode(dir);
-            ImGui::TreePop();
+            _tree.EnsureScanned(child);
+            // 이미 스캔된 노드인데 자식이 없으면 leaf로 최적화(화살표 제거)
+            if (child->scanned && !child->hasChildren)
+                flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+            bool open = ImGui::TreeNodeEx((void*)child, flags, "%s", child->displayName.c_str());
+
+            if (ImGui::IsItemClicked())
+                SetCurrentFolder(child->abs);
+
+            if (open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+            {
+                DrawFolderNodeRecursive(child);
+                ImGui::TreePop();
+            }
+            else if (open && (flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
+            {
+                // leaf라서 TreePop 불필요
+            }
         }
     }
 }
@@ -152,20 +176,11 @@ void ContentBrowser::DrawRightUnityStyle()
     DrawToolbarRow();
     ImGui::Separator();
 
-    // 검색 필터 적용
-    std::vector<BrowserItem> filtered;
-    filtered.reserve(_curBrowserItems.size());
-    for (auto& it : _curBrowserItems)
-    {
-        if (PassSearchFilter(it))
-            filtered.push_back(it);
-    }
-
     // 보기 모드
     if (_viewMode == ViewMode::Grid)
-        DrawItemsGrid(filtered);
+        DrawItemsGrid();
     else
-        DrawItemsList(filtered);
+        DrawItemsList();
 
     ImGui::EndChild();
 }
@@ -254,7 +269,7 @@ void ContentBrowser::DrawViewToggle()
     ImGui::PopStyleVar();
 }
 
-void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
+void ContentBrowser::DrawItemsGrid()
 {
     // 유니티 Project 창처럼: 그리드 타일(아이콘 + 파일명)
     ImGuiStyle& style = ImGui::GetStyle();
@@ -265,9 +280,11 @@ void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
     if (columns < 1) columns = 1;
 
     int col = 0;
-    for (const auto& it : items)
+    for (const auto meta : _curMetaFiles)
     {
-        ImGui::PushID(it.absPath.wstring().c_str());
+        fs::path absPath = meta->GetAbsPath();
+        bool isFolder = (meta->GetResourceType() == ResourceType::Folder);
+        ImGui::PushID(absPath.wstring().c_str());
 
         if (col > 0) ImGui::SameLine();
 
@@ -278,9 +295,9 @@ void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
 
         // 폴더/파일 아이콘을 다르게 보여주고 싶으면 여기서 DrawList/색상/텍스처 썸네일로 교체
         // 지금은 간단히 폴더는 "📁", 파일은 "■"
-        const char* icon = it.isFolder ? "DIR" : "FILE";
+        const char* icon = isFolder ? "DIR" : "FILE";
 
-        bool selected = (_selectedPath == it.absPath);
+        bool selected = (_selectedPath == absPath);
 
         // 선택된 것처럼 보이게: 배경
         if (selected)
@@ -292,7 +309,7 @@ void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
 
         if (ImGui::Button(icon, ImVec2(iconSize.x, iconSize.y)))
         {
-            _selectedPath = it.absPath;
+            _selectedPath = absPath;
         }
 
         if (selected)
@@ -301,14 +318,14 @@ void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
         }
 
         // 더블클릭 폴더 들어가기
-        if (it.isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
-            SetCurrentFolder(it.absPath);
+            SetCurrentFolder(absPath);
             _selectedPath.clear();
         }
 
         // 이름(두 줄까지 표시 느낌)
-        std::wstring nameW = DisplayName(it.absPath);
+        std::wstring nameW = DisplayName(absPath);
         std::string name = Utils::ToString(nameW);
         ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + _thumbSize);
         ImGui::TextUnformatted(name.c_str());
@@ -325,30 +342,32 @@ void ContentBrowser::DrawItemsGrid(const std::vector<BrowserItem>& items)
     }
 }
 
-void ContentBrowser::DrawItemsList(const std::vector<BrowserItem>& items)
+void ContentBrowser::DrawItemsList()
 {
     // 유니티 Project의 List 모드 느낌: 한 줄씩, 왼쪽 작은 아이콘 + 이름
-    for (const auto& it : items)
+    for (const auto meta : _curMetaFiles)
     {
-        ImGui::PushID(it.absPath.wstring().c_str());
+        fs::path absPath = meta->GetAbsPath();
+        ImGui::PushID(absPath.c_str());
 
-        bool selected = (_selectedPath == it.absPath);
+        bool selected = (_selectedPath == absPath);
 
+        bool isFolder = meta->GetResourceType() == ResourceType::Folder;
         // 작은 아이콘(텍스트로 대체)
-        ImGui::TextUnformatted(it.isFolder ? "[D]" : "[F]");
+        ImGui::TextUnformatted(isFolder ? "[D]" : "[F]");
         ImGui::SameLine();
 
-        std::wstring nameW = DisplayName(it.absPath);
+        std::wstring nameW = DisplayName(absPath);
         std::string name = Utils::ToString(nameW);
 
         if (ImGui::Selectable(name.c_str(), selected, ImGuiSelectableFlags_SpanAllColumns))
         {
-            _selectedPath = it.absPath;
+            _selectedPath = absPath;
         }
 
-        if (it.isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
-            SetCurrentFolder(it.absPath);
+            SetCurrentFolder(absPath);
             _selectedPath.clear();
         }
 
@@ -356,30 +375,9 @@ void ContentBrowser::DrawItemsList(const std::vector<BrowserItem>& items)
     }
 }
 
-bool ContentBrowser::PassSearchFilter(const BrowserItem& it) const
-{
-    if (_search.empty()) return true;
-
-    std::wstring nameW = DisplayName(it.absPath);
-    std::wstring needleW = Utils::ToWString(_search);
-
-    // 대소문자 무시(간단)
-    auto lower = [](std::wstring s)
-        {
-            for (auto& ch : s) ch = (wchar_t)towlower(ch);
-            return s;
-        };
-
-    std::wstring nameL = lower(nameW);
-    std::wstring needleL = lower(needleW);
-    return nameL.find(needleL) != std::wstring::npos;
-}
-
 wstring ContentBrowser::DisplayName(const fs::path& p)
 {
-    auto name = p.filename().wstring();
-    if (name.empty()) return p.wstring();
-    return name;
+    return p.filename().wstring();
 }
 
 void ContentBrowser::SetCurrentFolder(const fs::path& folderAbs)
@@ -387,6 +385,18 @@ void ContentBrowser::SetCurrentFolder(const fs::path& folderAbs)
     if (fs::exists(folderAbs) && fs::is_directory(folderAbs))
     {
         _currentFolder = folderAbs;
-        needRefresh = true;
     }
+}
+
+bool ContentBrowser::SafeEquivalent(const fs::path& a, const fs::path& b)
+{
+    // fs::equivalent는 존재하지 않는 경로에 대해 예외를 던지므로, 안전하게 비교하는 헬퍼
+    std::error_code ec;
+    bool eq = fs::equivalent(a, b, ec);
+    if (ec)
+    {
+        // 예외 대신 false 반환(존재하지 않거나 접근 불가한 경우)
+        return false;
+    }
+    return eq;
 }

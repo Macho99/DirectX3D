@@ -168,16 +168,6 @@ void ResourceManager::CreateRandomTexture()
 	Add(L"RandomTex", texture);
 }
 
-bool ResourceManager::TryGetGuidByPath(const fs::path& absPath, OUT AssetId& guid)
-{
-    return assetDatabase.TryGetAssetIdByPath(absPath, guid);
-}
-
-bool ResourceManager::TryGetPathByGuid(const AssetId& guid, OUT fs::path& path)
-{
-    return assetDatabase.TryGetPathByAssetId(guid, path);
-}
-
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)
