@@ -9,7 +9,6 @@ public:
 
 protected:
     void Import() override;
-    virtual string GetIconKey() const override { return "ModelIcon"; }
 
 private:
     string RemapTextureNamesToAssetId(string materialPath);

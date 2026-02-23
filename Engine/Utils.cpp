@@ -288,3 +288,9 @@ void Utils::WriteToFile(const fs::path& filePath, const string& content)
 
 	file.write(content.data(), content.size());
 }
+
+string Utils::ToUtf8(const fs::path& p)
+{
+	auto u8 = p.filename().u8string();
+	return std::string(reinterpret_cast<const char*>(u8.data()), u8.size());
+}

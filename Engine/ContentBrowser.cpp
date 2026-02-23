@@ -278,73 +278,7 @@ void ContentBrowser::DrawItemsGrid()
     int col = 0;
     for (const auto meta : _curMetaFiles)
     {
-        fs::path absPath = meta->GetAbsPath();
-        bool isFolder = (meta->GetResourceType() == ResourceType::Folder);
-        std::string name = Utils::ToString(DisplayName(absPath));
-
-        ImGui::PushID(absPath.string().c_str());
-        if (col > 0) ImGui::SameLine();
-
-        // 1. 타일 레이아웃 설정
-        const float tileW = _thumbSize;
-        const float lineH = ImGui::GetTextLineHeight();
-        const float gapY = 4.0f;
-        const float textH = lineH * 2.0f; // 딱 2줄 높이
-        const float tileH = _thumbSize + gapY + textH;
-
-        ImGui::BeginGroup();
-        ImVec2 tilePos = ImGui::GetCursorScreenPos();
-
-        // 2. 상호작용 영역 (클릭/호버 감지용 투명 버튼)
-        ImGui::InvisibleButton("##tile", ImVec2(tileW, tileH));
-        bool hovered = ImGui::IsItemHovered();
-        bool selected = (_selectedPath == absPath);
-
-        if (ImGui::IsItemClicked()) _selectedPath = absPath;
-        if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-        {
-            SetCurrentFolder(absPath);
-            _selectedPath.clear();
-        }
-
-        // 3. 배경 그리기 (선택/호버)
-        ImU32 bgCol = 0;
-        if (selected) bgCol = ImGui::GetColorU32(ImGuiCol_HeaderActive);
-        else if (hovered) bgCol = ImGui::GetColorU32(ImGuiCol_HeaderHovered);
-
-        if (bgCol != 0)
-        {
-            ImGui::GetWindowDrawList()->AddRectFilled(tilePos, ImVec2(tilePos.x + tileW, tilePos.y + tileH), bgCol, 4.0f);
-        }
-
-        // 4. 아이콘 그리기
-        ImTextureID iconTex = (ImTextureID)meta->GetIconTexture()->GetComPtr().Get();
-        ImGui::GetWindowDrawList()->AddImage(iconTex, tilePos, ImVec2(tilePos.x + _thumbSize, tilePos.y + _thumbSize));
-
-        // 5. 텍스트 그리기 (2줄 제한 핵심 로직)
-        ImVec2 textPos = ImVec2(tilePos.x, tilePos.y + _thumbSize + gapY);
-        ImVec2 textMax = ImVec2(textPos.x + tileW, textPos.y + textH);
-
-        // 텍스트 출력 위치 강제 설정
-        ImGui::SetCursorScreenPos(textPos);
-
-        // 가로 폭 제한 (자동 줄바꿈 활성화)
-        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + tileW);
-
-        // 세로 높이 제한 (3줄 이상은 그리지 않음)
-        ImGui::GetWindowDrawList()->PushClipRect(textPos, textMax, true);
-
-        // 텍스트 출력
-        ImGui::TextWrapped("%s", name.c_str());
-
-        ImGui::GetWindowDrawList()->PopClipRect();
-        ImGui::PopTextWrapPos();
-
-        ImGui::EndGroup();
-        ImGui::PopID();
-
-        if (++col >= columns) col = 0;
-        if (hovered) ImGui::SetTooltip("%s", name.c_str());
+        meta->DrawContentBrowserItem(_selectedPath, _currentFolder, _thumbSize, col, columns);
     }
 }
 

@@ -15,20 +15,20 @@ public:
     virtual ~MetaFile();
 
     AssetId GetAssetId() const { return _assetId; }
-    virtual wstring GetResourcePath();
+    virtual wstring GetResourcePath() const;
 
     fs::path GetAbsPath() const { return _absPath; }
     void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
     ResourceType GetResourceType() const { return _resourceType; }
 
     Texture* GetIconTexture() const;
+    virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
 
 protected:
     virtual void Import();
-    wstring GetArtifactPath();
+    wstring GetArtifactPath() const;
 
-    virtual string GetIconKey() const;
-    virtual unique_ptr<Texture> LoadIconTexture() const;
+    Texture* GetIconTexture(ResourceType resourceType, const AssetId& assetId, const fs::path& absPath) const;
 
 private:
     void ForceReImport();

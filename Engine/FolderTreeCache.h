@@ -44,7 +44,6 @@ public:
 
 private:
     Node* CreateNode(const fs::path& abs);
-    string ToUtf8(const fs::path& p) const;
 
 private:
     fs::path _rootAbs;

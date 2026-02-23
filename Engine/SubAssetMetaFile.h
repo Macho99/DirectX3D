@@ -37,21 +37,23 @@ public:
     {
     }
 
-    wstring GetResourcePath() override
+    wstring GetResourcePath() const override
     {
         assert(false && "SubAssetMetaFile has no single resource path");
         return L"";
     }
 
-    wstring GetSubResourcePath(int index)
+    wstring GetSubResourcePath(int index) const
     {
         if (index < 0 || index >= (int)_subAssets.size())
         {
             DBG->LogErrorW(L"[SubAssetMetaFile] GetResourcePath: index out of range: " + std::to_wstring(index));
             return L"";
         }
-        return GetArtifactPath() + L"\\" + _subAssets[index].assetId.ToWString();
+        return GetArtifactPath() + L"\\" + _subAssets[index].fileName;
     }
+
+    virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
 
     template<class Archive>
     void serialize(Archive& ar)

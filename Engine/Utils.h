@@ -24,6 +24,8 @@ public:
     static string ReadFile(const fs::path& filePath);
 	static void WriteToFile(const fs::path& filePath, const string& content);
 
+	static string ToUtf8(const fs::path& p);
+
 	private:
 	static thread_local std::mt19937_64 s_rng;
 };

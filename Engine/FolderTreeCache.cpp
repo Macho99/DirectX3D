@@ -91,16 +91,10 @@ FolderTreeCache::Node* FolderTreeCache::CreateNode(const fs::path& abs)
 {
     auto up = std::make_unique<Node>();
     up->abs = abs;
-    up->displayName = ToUtf8(abs);
+    up->displayName = Utils::ToUtf8(abs);
 
     Node* raw = up.get();
     _pool.emplace_back(std::move(up));
     _lookup.emplace(raw->abs, raw);
     return raw;
-}
-
-string FolderTreeCache::ToUtf8(const fs::path& p) const
-{
-    auto u8 = p.filename().u8string();
-    return std::string(reinterpret_cast<const char*>(u8.data()), u8.size());
 }

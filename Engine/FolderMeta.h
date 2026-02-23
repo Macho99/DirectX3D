@@ -7,8 +7,5 @@ class FolderMeta : public MetaFile
 public:
     FolderMeta();
     ~FolderMeta();
-
-protected:
-    virtual string GetIconKey() const override { return "FolderIcon"; }
 };
 
