@@ -62,10 +62,15 @@ public:
 
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
+public:
+    unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }
+
 private:
 	static wstring ToStr(FsAction fsAction);
 
 private:
+    unordered_map<string, unique_ptr<ResourceBase>> _editorResources; // 에디터 전용 리소스(예: 아이콘)
+
 	fs::path _root;
 
 	DirectoryWatcherWin watcher;

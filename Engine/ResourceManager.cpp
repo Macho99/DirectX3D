@@ -76,6 +76,8 @@ void ResourceManager::OnDestroy()
     {
         keyObjMap.clear();
     }
+
+	_editorResources.clear();
 }
 
 shared_ptr<Texture> ResourceManager::GetOrAddTexture(const wstring& key, const wstring& path)

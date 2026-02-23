@@ -21,9 +21,14 @@ public:
     void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
     ResourceType GetResourceType() const { return _resourceType; }
 
+    Texture* GetIconTexture() const;
+
 protected:
     virtual void Import();
     wstring GetArtifactPath();
+
+    virtual string GetIconKey() const;
+    virtual unique_ptr<Texture> LoadIconTexture() const;
 
 private:
     void ForceReImport();
@@ -37,12 +42,13 @@ public:
         ar(CEREAL_NVP(_assetId));
         ar(CEREAL_NVP(_resourceType));
     }
-
-private:
+    
+protected:
     AssetId _assetId;
     ResourceType _resourceType;
 
     fs::path _absPath;
+private:
     ImportManifest _importManifest;
     
     friend class MetaStore;

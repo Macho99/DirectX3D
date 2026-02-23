@@ -95,6 +95,36 @@ wstring MetaFile::GetArtifactPath()
     return L"..\\Artifact\\" + _assetId.ToWString();
 }
 
+string MetaFile::GetIconKey() const
+{
+    return "DefaultFileIcon";
+}
+
+unique_ptr<Texture> MetaFile::LoadIconTexture() const
+{
+    unique_ptr<Texture> texture = make_unique<Texture>();
+    texture->Load(L"..\\EditorResource\\" + Utils::ToWString(GetIconKey()) + L".png");
+    return texture;
+}
+
+Texture* MetaFile::GetIconTexture() const
+{
+    auto& editorResources = RESOURCES->GetEditorResources();
+    string iconKey = GetIconKey();
+    auto it = editorResources.find(iconKey);
+    if (it == editorResources.end())
+    {
+        unique_ptr<Texture> texture = LoadIconTexture();
+        Texture* texturePtr = texture.get();
+        editorResources[iconKey] = std::move(texture);
+        return texturePtr;
+    }
+    else
+    {
+        return static_cast<Texture*>(it->second.get());
+    }
+}
+
 //CEREAL_REGISTER_TYPE(MetaFile);
 
 //CEREAL_REGISTER_TYPE(SubAssetMetaFile);
