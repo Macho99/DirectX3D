@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SubAssetMetaFile.h"
+#include "DndPayload.h"
 
 void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
@@ -32,6 +33,23 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
         ImGui::InvisibleButton("##tile", ImVec2(tileW, tileH));
         bool hovered = ImGui::IsItemHovered();
 
+        ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, GetSubResourcePath(i))->GetComPtr().Get();
+        {
+            // source
+            DndPayload::AssetSource(sub.assetId, [&]
+                {
+                    ImGui::Image(iconTex, ImVec2(thumbSize * 0.9f, thumbSize * 0.9f));
+                    ImGui::Text("Move: %s", Utils::ToString(sub.fileName).c_str());
+                });
+
+            // target
+            AssetId dropped;
+            if (DndPayload::AssetTarget(dropped))
+            {
+                DBG->LogW(L"Dropped asset " + dropped.ToWString() + L"=>" + sub.assetId.ToWString());
+            }
+        }
+
         // 3. 배경 그리기 (선택/호버)
         ImU32 bgCol = 0;
         if (hovered) bgCol = ImGui::GetColorU32(ImGuiCol_HeaderHovered);
@@ -43,7 +61,6 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
         }
 
         // 4. 아이콘 그리기
-        ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, GetSubResourcePath(i))->GetComPtr().Get();
         ImGui::GetWindowDrawList()->AddImage(iconTex, tilePos, ImVec2(tilePos.x + thumbSize, tilePos.y + thumbSize));
 
         // 5. 텍스트 그리기 (2줄 제한 핵심 로직)
@@ -70,5 +87,10 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
 
         if (++curCol >= columns)
             curCol = 0;
+
+        if (hovered)
+        {
+            ImGui::SetTooltip("%s\n%s", Utils::ToString(sub.fileName).c_str(), sub.assetId.ToString().c_str());
+        }
     }
 }

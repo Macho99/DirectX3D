@@ -708,6 +708,7 @@
     <ClInclude Include="MaterialMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
+    <ClInclude Include="DndPayload.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1058,6 +1059,7 @@
     <ClCompile Include="MeshMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
+    <ClCompile Include="DndPayload.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

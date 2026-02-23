@@ -11,6 +11,7 @@
 
 #include "fstream"
 #include "MetaStore.h"
+#include "DndPayload.h"
 
 MetaFile::MetaFile()
     :_resourceType(ResourceType::None)
@@ -190,7 +191,27 @@ void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentF
     bool hovered = ImGui::IsItemHovered();
     bool selected = (selectedPath == absPath);
 
-    if (ImGui::IsItemClicked()) selectedPath = absPath;
+    // source
+    ImTextureID iconTex = (ImTextureID)GetIconTexture()->GetComPtr().Get();
+    DndPayload::AssetSource(_assetId, [&]
+        {
+            ImGui::Image(iconTex, ImVec2(thumbSize * 0.9f, thumbSize * 0.9f));
+            ImGui::Text("Move: %s", name.c_str());
+        });
+
+    // target
+    AssetId dropped;
+    if (DndPayload::AssetTarget(dropped))
+    {
+        DBG->LogW(L"Dropped asset " + dropped.ToWString() + L"=>" + _assetId.ToWString());
+    }
+
+    if (ImGui::IsItemHovered() &&
+        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+        !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+    {
+        selectedPath = absPath;
+    }
     if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         currentFolder = absPath;
@@ -208,7 +229,6 @@ void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentF
     }
 
     // 4. 아이콘 그리기
-    ImTextureID iconTex = (ImTextureID)GetIconTexture()->GetComPtr().Get();
     ImGui::GetWindowDrawList()->AddImage(iconTex, tilePos, ImVec2(tilePos.x + thumbSize, tilePos.y + thumbSize));
 
     // 5. 텍스트 그리기 (2줄 제한 핵심 로직)
@@ -235,7 +255,10 @@ void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentF
 
     if (++curCol >= columns) 
         curCol = 0;
-    if (hovered) ImGui::SetTooltip("%s", name.c_str());
+    if (hovered)
+    {
+        ImGui::SetTooltip("%s\n%s", name.c_str(), _assetId.ToString().c_str());
+    }
 }
 
 //CEREAL_REGISTER_TYPE(MetaFile);
