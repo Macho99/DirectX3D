@@ -134,7 +134,7 @@ void Graphics::OnSize(bool isFirst)
 		_renderTargetView.Reset();
 		_backBufferTexture.Reset();
 		// 백버퍼로 만든 SRV/기타도 Reset
-
+		
         HRESULT hr = _swapChain->ResizeBuffers(0,
 			width,
 			height,

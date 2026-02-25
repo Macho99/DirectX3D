@@ -173,6 +173,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="AnimationMeta.h" />
     <ClInclude Include="AssetDatabase.h" />
     <ClInclude Include="AssetId.h" />
+    <ClInclude Include="AssetSlot.h" />
     <ClInclude Include="AsTypes.h" />
     <ClInclude Include="BaseCollider.h" />
     <ClInclude Include="Billboard.h" />
@@ -346,7 +347,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ResourceBase.h" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="ResourceRef.h" />
+    <ClInclude Include="AssetRef.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneView.h" />
@@ -383,6 +384,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="AnimationMeta.cpp" />
     <ClCompile Include="AssetDatabase.cpp" />
     <ClCompile Include="AssetId.cpp" />
+    <ClCompile Include="AssetSlot.cpp" />
     <ClCompile Include="AsTypes.cpp" />
     <ClCompile Include="BaseCollider.cpp" />
     <ClCompile Include="Billboard.cpp" />
@@ -530,7 +532,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ResourceBase.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="ResourceRef.cpp" />
+    <ClCompile Include="AssetRef.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneView.cpp" />

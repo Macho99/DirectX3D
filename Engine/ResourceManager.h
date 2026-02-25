@@ -6,6 +6,7 @@
 #include "FsEventDebouncer.h"
 #include "AssetDatabase.h"
 #include "AssetId.h"
+#include "AssetSlot.h"
 
 class Shader;
 class Texture;
@@ -51,7 +52,6 @@ private:
 private:
 	using KeyObjMap = map<wstring/*key*/, shared_ptr<ResourceBase>>;
 	array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
-    unique_ptr<SlotManager<ResourceBase>> _slotManager;
 
 public:
     fs::path GetRootPath() const { return _root; }
@@ -63,9 +63,9 @@ public:
 		{ return assetDatabase.SearchAssetIdByPath(searchFolder, fileName, OUT assetId); }
 
     AssetDatabase& GetAssetDatabase() { return assetDatabase; }
+    AssetSlot& GetAssetSlot() { return _assetSlot; }
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
-public:
     unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }
 
 private:
@@ -85,6 +85,8 @@ private:
 	vector<FsEvent> readyEvents;
 
 	function<void(const FsEvent&)> onFileEventCallback;
+
+	AssetSlot _assetSlot;
 };
 
 template<typename T>

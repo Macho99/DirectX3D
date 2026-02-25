@@ -21,6 +21,8 @@ public:
     void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
     ResourceType GetResourceType() const { return _resourceType; }
 
+    virtual unique_ptr<ResourceBase> LoadResource() const;
+
     Texture* GetIconTexture() const;
     virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
 

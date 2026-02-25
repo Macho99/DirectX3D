@@ -612,9 +612,6 @@
     <ClInclude Include="GuidRef.h">
       <Filter>00. Engine\Guid</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceRef.h">
-      <Filter>00. Engine\Guid</Filter>
-    </ClInclude>
     <ClInclude Include="SlotManager.h">
       <Filter>00. Engine\Guid</Filter>
     </ClInclude>
@@ -708,7 +705,15 @@
     <ClInclude Include="MaterialMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
-    <ClInclude Include="DndPayload.h" />
+    <ClInclude Include="DndPayload.h">
+      <Filter>98. Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetSlot.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetRef.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -969,9 +974,6 @@
     <ClCompile Include="GuidRef.cpp">
       <Filter>00. Engine\Guid</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceRef.cpp">
-      <Filter>00. Engine\Guid</Filter>
-    </ClCompile>
     <ClCompile Include="SlotManager.cpp">
       <Filter>00. Engine\Guid</Filter>
     </ClCompile>
@@ -1059,7 +1061,15 @@
     <ClCompile Include="MeshMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
-    <ClCompile Include="DndPayload.cpp" />
+    <ClCompile Include="DndPayload.cpp">
+      <Filter>98. Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetSlot.cpp">
+      <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetRef.cpp">
+      <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

@@ -65,11 +65,11 @@ public:
         return const_cast<SlotManager*>(this)->Resolve(h);
     }
 
-    // Guid -> 포인터 (내부에서 Handle 찾고 Resolve)
-    T* Resolve(const Guid& guid)
-    {
-        return Resolve(FindHandle(guid));
-    }
+    //// Guid -> 포인터 (내부에서 Handle 찾고 Resolve)
+    //T* Resolve(const Guid& guid)
+    //{
+    //    return Resolve(FindHandle(guid));
+    //}
 
     void Remove(const Guid& guid)
     {

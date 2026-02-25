@@ -161,6 +161,12 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
     }
 }
 
+unique_ptr<ResourceBase> MetaFile::LoadResource() const
+{
+    DBG->LogErrorW(L"MetaFile::LoadResource: Not supported for resource type: " + to_wstring((int)_resourceType));
+    return nullptr;
+}
+
 Texture* MetaFile::GetIconTexture() const
 {
     return GetIconTexture(GetResourceType(), GetAssetId(), GetAbsPath());

@@ -20,8 +20,6 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::Init()
 {
-    _slotManager = make_unique<SlotManager<ResourceBase>>();
-
 	CreateDefaultMesh();
 	CreateRandomTexture();
 
