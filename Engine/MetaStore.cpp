@@ -10,6 +10,7 @@
 #include "AnimationMeta.h"
 #include "MeshMeta.h"
 #include "MaterialMeta.h"
+#include "ShaderMeta.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -140,6 +141,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         _creators[".clip"] = []() { return make_unique<AnimationMeta>(); };
         _creators[".mesh"] = []() { return make_unique<MeshMeta>(); };
         _creators[".mat"] = []() { return make_unique<MaterialMeta>(); };
+        _creators[".fx"] = []() { return make_unique<ShaderMeta>(); };
 
         {
             function<unique_ptr<MetaFile>()> texCreator = []() { return make_unique<TextureMeta>(); };

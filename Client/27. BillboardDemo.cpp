@@ -32,6 +32,7 @@
 #include "TessTerrain.h"
 #include "FoliageController.h"
 #include "GrassRenderer.h"
+#include "ResourceRef.h"
 
 void BillboardDemo::Init()
 {

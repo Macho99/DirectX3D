@@ -2,6 +2,7 @@
 #include "Pass.h"
 #include "Technique.h"
 #include "BindShaderDesc.h"
+#include "ResourceBase.h"
 
 struct ShaderDesc
 {
@@ -19,6 +20,7 @@ enum class RenderTech
 
 class Shader
 {
+    //using Super = ResourceBase;
 public:
 	friend struct Pass;
 

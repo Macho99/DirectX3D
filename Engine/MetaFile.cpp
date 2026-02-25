@@ -8,6 +8,7 @@
 #include "AnimationMeta.h"
 #include "MaterialMeta.h"
 #include "MeshMeta.h"
+#include "ShaderMeta.h"
 
 #include "fstream"
 #include "MetaStore.h"
@@ -292,3 +293,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, MaterialMeta);
 
 CEREAL_REGISTER_TYPE(MeshMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, MeshMeta);
+
+CEREAL_REGISTER_TYPE(ShaderMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, ShaderMeta);

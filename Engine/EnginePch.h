@@ -89,7 +89,7 @@ using namespace Microsoft::WRL;
 
 #include "ComponentRef.h"
 #include "GameObjectRef.h"
-#include "AssetRef.h"
+#include "ResourceRef.h"
 
 #include "GameObject.h"
 #include "Transform.h"

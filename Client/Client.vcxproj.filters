@@ -51,6 +51,9 @@
     <ClCompile Include="29. SceneSerializeDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
+    <ClCompile Include="30. AssetSerializeDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -69,6 +72,9 @@
       <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="29. SceneSerializeDemo.h">
+      <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="30. AssetSerializeDemo.h">
       <Filter>Game\Week3</Filter>
     </ClInclude>
   </ItemGroup>

@@ -348,10 +348,12 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="ResourceBase.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="AssetRef.h" />
+    <ClInclude Include="ResourceRef.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneView.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderMeta.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="SlotManager.h" />
@@ -533,10 +535,12 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="ResourceBase.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="AssetRef.cpp" />
+    <ClCompile Include="ResourceRef.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderMeta.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SlotManager.cpp" />

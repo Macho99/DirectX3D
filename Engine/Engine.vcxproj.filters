@@ -714,6 +714,12 @@
     <ClInclude Include="AssetRef.h">
       <Filter>00. Engine\Asset</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceRef.h">
+      <Filter>00. Engine\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1069,6 +1075,12 @@
     </ClCompile>
     <ClCompile Include="AssetRef.cpp">
       <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceRef.cpp">
+      <Filter>00. Engine\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

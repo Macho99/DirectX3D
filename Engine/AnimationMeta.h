@@ -5,6 +5,6 @@ class AnimationMeta : public MetaFile
 {
     using Super = MetaFile;
 public:
-    AnimationMeta() {}
+    AnimationMeta(): Super(ResourceType::Animation) {}
     ~AnimationMeta() {}
 };

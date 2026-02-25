@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="27. BillboardDemo.h" />
     <ClInclude Include="29. SceneSerializeDemo.h" />
+    <ClInclude Include="30. AssetSerializeDemo.h" />
     <ClInclude Include="MyBillboard.h" />
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <ClCompile Include="27. BillboardDemo.cpp" />
     <ClCompile Include="29. SceneSerializeDemo.cpp" />
+    <ClCompile Include="30. AssetSerializeDemo.cpp" />
     <ClCompile Include="MyBillboard.cpp" />
     <ClCompile Include="CameraMove.cpp" />
     <ClCompile Include="Main.cpp" />
