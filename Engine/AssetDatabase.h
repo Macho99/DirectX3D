@@ -13,6 +13,13 @@ struct AssetEvent
 
 class AssetDatabase
 {
+    struct ReservedAssetId
+    {
+        fs::path folderPath;
+        wstring fileName;
+        AssetId assetId;
+    };
+
 public:
     AssetDatabase();
     ~AssetDatabase();
@@ -26,6 +33,10 @@ public:
     bool TryGetPathByAssetId(const AssetId& guid, OUT fs::path& out) const;
     bool TryGetMetaByAssetId(const AssetId& guid, OUT MetaFile*& out) const;
     bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out) const;
+    bool SearchAssetIdByPath(const fs::path& searchFolder, const wstring& fileName, OUT AssetId& assetId) const;
+
+    void ReserveAssetId(const fs::path& folderAbs, const wstring& fileName, AssetId assetId);
+    bool TryGetReservedAssetId(const fs::path& absPath, OUT AssetId& assetId);
 
 private:
     void Rename(const fs::path& oldAbsPath, const fs::path& newAbsPath);
@@ -39,4 +50,6 @@ private:
 
     unordered_map<wstring, AssetId> _pathToAssetId;
     unordered_map<AssetId, unique_ptr<MetaFile>, AssetIdHash> _assetIdToMeta;
+
+    vector<ReservedAssetId> _reservedAssetIds;
 };

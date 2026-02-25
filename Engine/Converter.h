@@ -3,6 +3,12 @@
 #include "AsTypes.h"
 #include "SubAssetMetaFile.h"
 
+namespace tinyxml2
+{
+	class XMLDocument;
+	class XMLElement;
+}
+
 class Converter
 {
 public:
@@ -14,7 +20,7 @@ public:
 	void ExportModelData(wstring savePath);
 	//void ExportMaterialData(wstring savePath);
 	void ExportAnimationData(wstring savePath, uint32 index = 0);
-	void TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exported);
+	void TryExportAll(wstring assetPath, wstring artifactPath, OUT vector<SubAssetInfo>& exported);
 
 private:
 	void ReadModelData(aiNode* node, int32 index, int32 parent);
@@ -24,8 +30,10 @@ private:
 
 private:
 	void ReadMaterialData();
-	void WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& exported);
-	string WriteTexture(string saveFolder, string file);
+	void WriteMaterialData(const fs::path& assetPath, wstring finalPath, OUT vector<SubAssetInfo>& exported);
+	bool TryWriteTexture(const fs::path& assetPath, string saveFolder, string file, OUT string& writedName);
+
+	void HandleTextureFile(shared_ptr<tinyxml2::XMLDocument> document, tinyxml2::XMLElement* element, tinyxml2::XMLElement* node, string elemName, string fileName, string folder, shared_ptr<asMaterial> material, OUT vector<SubAssetInfo>& exported, const fs::path& assetPath);
 
 private:
 	shared_ptr<asAnimation> ReadAnimationData(aiAnimation* srcAnimation);

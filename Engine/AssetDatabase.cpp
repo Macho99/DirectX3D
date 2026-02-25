@@ -51,6 +51,34 @@ bool AssetDatabase::TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out
     return true;
 }
 
+bool AssetDatabase::SearchAssetIdByPath(const fs::path& searchFolder, const wstring& fileName, OUT AssetId& assetId) const
+{
+    if (!fs::exists(searchFolder) || !fs::is_directory(searchFolder))
+        return false;
+
+    for (const auto& entry : fs::recursive_directory_iterator(searchFolder))
+    {
+        if (!entry.is_regular_file())
+            continue;
+
+        if (entry.path().filename().wstring() == fileName)
+        {
+            return TryGetAssetIdByPath(entry.path(), OUT assetId);
+        }
+    }
+
+    for (const auto& reserved : _reservedAssetIds)
+    {
+        if (reserved.folderPath == searchFolder && reserved.fileName == fileName)
+        {
+            assetId = reserved.assetId;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
 {
     // 존재 확인
@@ -300,5 +328,36 @@ void AssetDatabase::Modify(const fs::path& absPath)
     {
         MetaStore::ImportIfDirty(metaFilePtr);
         DBG->LogW(L"[AssetDB] Modify: " + absPath.wstring());
+    }
+}
+
+void AssetDatabase::ReserveAssetId(const fs::path& folderAbs, const wstring& fileName, AssetId assetId)
+{
+    assert(fs::is_directory(folderAbs));
+
+    DBG->LogW(L"[AssetDB] ReserveAssetId: folder=" + folderAbs.wstring() + L", fileName=" + fileName + L", assetId=" + assetId.ToWString());
+    _reservedAssetIds.push_back({ folderAbs, fileName, assetId });
+}
+
+bool AssetDatabase::TryGetReservedAssetId(const fs::path& absPath, OUT AssetId& assetId)
+{
+    int findIdx = -1;
+    for (int i = 0; i < _reservedAssetIds.size(); i++)
+    {
+        const ReservedAssetId& reserved = _reservedAssetIds[i];
+        if (Utils::IsAncestorOrSame(reserved.folderPath, absPath) && reserved.fileName == absPath.filename().wstring())
+        {
+            assetId = reserved.assetId;
+            findIdx = i;
+            break;
+        }
+    }
+
+    if (findIdx == -1)
+        return false;
+    else
+    {
+        _reservedAssetIds.erase(_reservedAssetIds.begin() + findIdx);
+        return true;
     }
 }

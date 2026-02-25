@@ -87,7 +87,7 @@ void Converter::ExportAnimationData(wstring savePath, uint32 index)
 	shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
 	WriteAnimationData(animation, finalPath);
 }
-void Converter::TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exported)
+void Converter::TryExportAll(wstring assetPath, wstring artifactPath, OUT vector<SubAssetInfo>& exported)
 {
 	{
 		ReadMaterialData();
@@ -98,7 +98,7 @@ void Converter::TryExportAll(wstring artifactPath, OUT vector<SubAssetInfo>& exp
             info.fileName = assetName;
             info.resourceType = ResourceType::Material;
 			wstring finalPath = artifactPath + L"\\" + assetName;
-			WriteMaterialData(finalPath, exported);
+			WriteMaterialData(assetPath, finalPath, exported);
 			exported.push_back(info);
 		}
 	}
@@ -333,7 +333,7 @@ void Converter::ReadMaterialData()
 	}
 }
 
-void Converter::WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& exported)
+void Converter::WriteMaterialData(const fs::path& assetPath, wstring finalPath, OUT vector<SubAssetInfo>& exported)
 {
 	auto path = filesystem::path(finalPath);
 
@@ -349,9 +349,6 @@ void Converter::WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& e
 	tinyxml2::XMLElement* root = document->NewElement("Materials");
 	document->LinkEndChild(root);
 
-	SubAssetInfo subAssetInfo = SubAssetInfo();
-	subAssetInfo.resourceType = ResourceType::Texture;
-
 	for (shared_ptr<asMaterial> material : _materials)
 	{
 		tinyxml2::XMLElement* node = document->NewElement("Material");
@@ -363,36 +360,9 @@ void Converter::WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& e
 		element->SetText(material->name.c_str());
 		node->LinkEndChild(element);
 
-		element = document->NewElement("DiffuseFile");
-		string diffuseFileName = WriteTexture(folder, material->diffuseFile);
-		if (diffuseFileName.empty() == false)
-		{
-            subAssetInfo.fileName = Utils::ToWString(diffuseFileName);
-            exported.push_back(subAssetInfo);
-		}
-		element->SetText(diffuseFileName.c_str());
-		node->LinkEndChild(element);
-
-		element = document->NewElement("SpecularFile");
-		string specularFileName = WriteTexture(folder, material->specularFile);
-		element->SetText(specularFileName.c_str());
-        if (specularFileName.empty() == false)
-        {
-            subAssetInfo.fileName = Utils::ToWString(specularFileName);
-            exported.push_back(subAssetInfo);
-        }
-
-		node->LinkEndChild(element);
-
-		element = document->NewElement("NormalFile");
-        string normalFileName = WriteTexture(folder, material->normalFile);
-        if (normalFileName.empty() == false)
-        {
-            subAssetInfo.fileName = Utils::ToWString(normalFileName);
-            exported.push_back(subAssetInfo);
-        }
-		element->SetText(normalFileName.c_str());
-		node->LinkEndChild(element);
+		HandleTextureFile(document, element, node, "DiffuseFile", material->diffuseFile, folder, material, exported, assetPath);
+		HandleTextureFile(document, element, node, "SpecularFile", material->specularFile, folder, material, exported, assetPath);
+		HandleTextureFile(document, element, node, "NormalFile", material->normalFile, folder, material, exported, assetPath);
 
 		element = document->NewElement("Ambient");
 		element->SetAttribute("R", material->ambient.x);
@@ -426,11 +396,10 @@ void Converter::WriteMaterialData(wstring finalPath, OUT vector<SubAssetInfo>& e
 	document->SaveFile(Utils::ToString(finalPath).c_str());
 }
 
-string Converter::WriteTexture(string saveFolder, string file)
+bool Converter::TryWriteTexture(const fs::path& assetPath, string saveFolder, string file, OUT string& writedName)
 {
 	string fileName = filesystem::path(file).filename().string();
 	string folderName = filesystem::path(saveFolder).filename().string();
-
 
 	const aiTexture* srcTexture = _scene->GetEmbeddedTexture(file.c_str());
 	// fbx 파일에 텍스쳐가 포함되어 있을 경우 예외 처리 
@@ -471,10 +440,28 @@ string Converter::WriteTexture(string saveFolder, string file)
 			hr = DirectX::SaveToDDSFile(*img.GetImages(), DirectX::DDS_FLAGS_NONE, Utils::ToWString(fileName).c_str());
 			CHECK(hr);
 		}
+
+        writedName = fileName;
+		return true;
 	}
 	else
 	{
-        DBG->LogErrorW(L"Texture not found : %S" + Utils::ToWString(file));
+		AssetId assetId;
+        fs::path parentPath = assetPath.parent_path();
+		if (RESOURCES->SearchAssetIdByPath(parentPath, Utils::ToWString(fileName), OUT assetId))
+		{
+			// 에셋아이디 발견
+		}
+		else
+		{
+			assetId = AssetId::CreateAssetId();
+            RESOURCES->GetAssetDatabase().ReserveAssetId(parentPath, Utils::ToWString(fileName), assetId);
+            // 에셋아이디 등록
+		}
+		writedName = assetId.ToString();
+		return false;
+
+		//DBG->LogErrorW(L"Texture not found : %S" + Utils::ToWString(file));
 		//string originStr;// = (filesystem::path(_assetPath) / folderName / file).string();
 		//Utils::Replace(originStr, "\\", "/");
 		//
@@ -483,8 +470,27 @@ string Converter::WriteTexture(string saveFolder, string file)
 		//
 		//::CopyFileA(originStr.c_str(), pathStr.c_str(), false);
 	}
+}
 
-	return fileName;
+void Converter::HandleTextureFile(shared_ptr<tinyxml2::XMLDocument> document, tinyxml2::XMLElement* element, tinyxml2::XMLElement* node,
+	string elemName, string fileName, string folder, shared_ptr<asMaterial> material, OUT vector<SubAssetInfo>& exported, const fs::path& assetPath)
+{
+	element = document->NewElement(elemName.c_str());
+	string writedFileName;
+	if (TryWriteTexture(assetPath, folder, fileName, OUT writedFileName))
+	{
+		SubAssetInfo subAssetInfo = SubAssetInfo();
+		subAssetInfo.resourceType = ResourceType::Texture;
+		subAssetInfo.fileName = Utils::ToWString(writedFileName);
+
+		exported.push_back(subAssetInfo);
+	}
+	else
+	{
+        // 외부 텍스쳐 파일인 경우, 에셋 아이디로 기록
+	}
+	element->SetText(writedFileName.c_str());
+	node->LinkEndChild(element);
 }
 
 shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)

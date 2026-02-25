@@ -22,7 +22,7 @@ void ModelMeta::Import()
 
     fs::create_directories(artifactFoloder);
     vector<SubAssetInfo> exported;
-    converter.TryExportAll(GetArtifactPath(), OUT exported);
+    converter.TryExportAll(absPath, GetArtifactPath(), OUT exported);
 
     for (int newIdx = 0; newIdx < exported.size(); newIdx++)
     {

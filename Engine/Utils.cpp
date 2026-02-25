@@ -294,3 +294,18 @@ string Utils::ToUtf8(const fs::path& p)
 	auto u8 = p.filename().u8string();
 	return std::string(reinterpret_cast<const char*>(u8.data()), u8.size());
 }
+
+bool Utils::IsAncestorOrSame(const fs::path& ancestor, const fs::path& child)
+{
+	auto a = ancestor.begin();
+	auto c = child.begin();
+
+	for (; a != ancestor.end(); ++a, ++c)
+	{
+		if (c == child.end())
+			return false;
+		if (*a != *c)
+			return false;
+	}
+	return true; // ancestor의 모든 요소가 child prefix면 OK
+}

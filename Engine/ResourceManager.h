@@ -55,11 +55,14 @@ private:
 
 public:
     fs::path GetRootPath() const { return _root; }
-	bool TryGetAssetIdByPath(const fs::path& absPath, OUT AssetId& assetId) { return assetDatabase.TryGetAssetIdByPath(absPath, assetId); }
-    bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	{ return assetDatabase.TryGetPathByAssetId(assetId, path); }
-    bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	{ return assetDatabase.TryGetMetaByAssetId(assetId, out); }
-    bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		{ return assetDatabase.TryGetMetaByPath(absPath, out); }
+	bool TryGetAssetIdByPath(const fs::path& absPath, OUT AssetId& assetId) const { return assetDatabase.TryGetAssetIdByPath(absPath, assetId); }
+    bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	const { return assetDatabase.TryGetPathByAssetId(assetId, path); }
+    bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	const { return assetDatabase.TryGetMetaByAssetId(assetId, out); }
+    bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		const { return assetDatabase.TryGetMetaByPath(absPath, out); }
+	bool SearchAssetIdByPath(const fs::path& searchFolder, const wstring& fileName, OUT AssetId& assetId) const
+		{ return assetDatabase.SearchAssetIdByPath(searchFolder, fileName, OUT assetId); }
 
+    AssetDatabase& GetAssetDatabase() { return assetDatabase; }
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
 public:

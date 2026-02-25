@@ -179,7 +179,7 @@ void Graphics::RenderBegin()
 
 void Graphics::RenderEnd()
 {
-	HRESULT hr = _swapChain->Present(0, 0);
+	HRESULT hr = _swapChain->Present(2, 0);
 	CHECK(hr);
 }
 

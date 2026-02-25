@@ -26,6 +26,8 @@ public:
 
 	static string ToUtf8(const fs::path& p);
 
+    static bool IsAncestorOrSame(const fs::path& ancestor, const fs::path& child);
+
 	private:
 	static thread_local std::mt19937_64 s_rng;
 };

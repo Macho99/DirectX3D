@@ -73,7 +73,17 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
             meta = make_unique<NotSupportMeta>();
     }
 
-    meta->_assetId = AssetId::CreateAssetId();
+    AssetId assetId;
+    if (RESOURCES->GetAssetDatabase().TryGetReservedAssetId(sourceAbs, assetId))
+    {
+        DBG->LogW(L"[MetaStore] Create with reserved AssetId: " + sourceAbs.wstring() + L", AssetId: " + assetId.ToWString());
+    }
+    else
+    {
+        assetId = AssetId::CreateAssetId();
+    }
+
+    meta->_assetId = assetId;
     meta->_absPath = sourceAbs;
 
     ImportIfDirty(meta);
