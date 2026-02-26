@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "Camera.h"
 
-Shader::Shader(wstring file) : _file(L"..\\Shaders\\" + file)
+Shader::Shader(wstring file) : _file(file)
 {
 	_initialStateBlock = make_shared<StateBlock>();
 	{

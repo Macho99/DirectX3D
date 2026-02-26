@@ -11,12 +11,12 @@ public:
     void SetEnabled(bool enabled) { _isEnabled = enabled; }
     bool IsEnabled() const { return _isEnabled; }
     virtual void OnSize(UINT width, UINT height) {}
-    virtual void SetDebugTextureSRV(shared_ptr<Texture> texture) {}
+    virtual void SetDebugTextureSRV(ResourceRef<Texture> texture) {}
 
 protected:
     void DrawQuad(Material* material);
 
 private:
     bool _isEnabled = true;
-    shared_ptr<Mesh> _mesh = nullptr;
+    ResourceRef<Mesh> _mesh;
 };

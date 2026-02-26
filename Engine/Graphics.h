@@ -1,5 +1,5 @@
 #pragma once
-
+#include "ResourceRef.h"
 #include "Viewport.h"
 class Ssao;
 class PostProcess;
@@ -32,8 +32,8 @@ public:
 
 	void SetNormalDepthRenderTarget();
 	void DrawSsaoMap(bool clearOnly);
-	shared_ptr<Texture> GetNormalDepthMap();
-	shared_ptr<Texture> GetSsaoMap();
+	ResourceRef<Texture> GetNormalDepthMap();
+	ResourceRef<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
     void SetBackBufferRenderTarget();
 
@@ -50,8 +50,8 @@ public:
 	Viewport& GetShadowViewport() { return _shadowVP; }
     ComPtr<ID3D11ShaderResourceView> GetSceneViewSRV() { return _sceneSRV; }
     ComPtr<ID3D11ShaderResourceView> GetShadowArraySRV() { return _shadowArraySRV; }
-	shared_ptr<Texture> GetShadowMap(int index) { return _shadowMap[index]; }
-    shared_ptr<Texture> GetPostProcessDebugTexture(int index) { return _ppDebugTextures[index]; }
+	ResourceRef<Texture> GetShadowMap(int index) { return _shadowMap[index]; }
+	ResourceRef<Texture> GetPostProcessDebugTexture(int index) { return _ppDebugTextures[index]; }
 
 public:
     float GetCascadeEnd(int index) const { return _cascadeEnds[index]; }
@@ -98,7 +98,7 @@ private:
 	ComPtr<ID3D11Texture2D> _shadowDSTexture;
 	ComPtr<ID3D11DepthStencilView> _shadowDSV[NUM_SHADOW_CASCADES];
 	ComPtr<ID3D11ShaderResourceView> _shadowArraySRV;
-	shared_ptr<Texture> _shadowMap[NUM_SHADOW_CASCADES];
+	ResourceRef<Texture> _shadowMap[NUM_SHADOW_CASCADES];
 
 	// Misc
 	//D3D11_VIEWPORT _viewport = { 0 };
@@ -106,10 +106,10 @@ private:
 	Viewport _shadowVP;
 
 	shared_ptr<Ssao> _ssao;
-	shared_ptr<Texture> _normalDepthMap;
+	ResourceRef<Texture> _normalDepthMap;
 
     vector<shared_ptr<PostProcess>> _postProcesses;
-    vector<shared_ptr<Texture>> _ppDebugTextures;
+    vector<ResourceRef<Texture>> _ppDebugTextures;
 	vector<ComPtr<ID3D11Texture2D>> _ppTextures;
     vector<ComPtr<ID3D11ShaderResourceView>> _ppSRVs;
     vector<ComPtr<ID3D11RenderTargetView>> _ppRTVs;

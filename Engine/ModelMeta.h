@@ -9,8 +9,5 @@ public:
 
 protected:
     void Import() override;
-
-private:
-    string RemapTextureNamesToAssetId(string materialPath);
 };
 

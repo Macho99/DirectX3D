@@ -10,6 +10,13 @@ AssetSlot::~AssetSlot()
 {
 }
 
+void AssetSlot::OnDestroy()
+{
+    _slots.clear();
+    _freeIndices.clear();
+    _assetIdToHandle.clear();
+}
+
 Handle AssetSlot::FindHandle(const AssetId& assetId)
 {
     auto it = _assetIdToHandle.find(assetId);
@@ -69,10 +76,26 @@ Handle AssetSlot::Register(AssetId assetId)
     if (RESOURCES->TryGetMetaByAssetId(assetId, OUT meta))
     {
         obj = meta->LoadResource();
+
+        if (obj != nullptr)
+            obj->SetId(assetId);
     }
 
     slot.ptr = std::move(obj);
 
     _assetIdToHandle[assetId] = handle;
     return handle;
+}
+
+AssetRef AssetSlot::Register(unique_ptr<ResourceBase> resource)
+{
+    Handle handle = AllocateSlot();
+    Slot& slot = _slots[handle.index];
+    AssetId assetId = AssetId::CreateAssetId();
+    resource->SetId(assetId);
+
+    slot.ptr = std::move(resource);
+
+    _assetIdToHandle[assetId] = handle;
+    return AssetRef(assetId, handle);
 }

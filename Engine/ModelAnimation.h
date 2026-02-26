@@ -1,4 +1,5 @@
 #pragma once
+#include "ResourceBase.h"
 
 struct ModelKeyframeData
 {
@@ -14,14 +15,23 @@ struct ModelKeyframe
 	vector<ModelKeyframeData> transforms;
 };
 
-struct ModelAnimation
+class ModelAnimation : public ResourceBase
 {
-	wstring name;
+    using Super = ResourceBase;
+public:
+    ModelAnimation();
+    ~ModelAnimation();
+
+	void ReadAnimation(wstring filename);
+
+	shared_ptr<ModelKeyframe> GetKeyframe(const wstring& name);
+	wstring GetName() { return name; }
+
+private:
+	wstring name = L"empty";
 	float duration = 0.f;
 	float frameRate = 0.f;
 	uint32 frameCount = 0;
 	unordered_map<wstring, shared_ptr<ModelKeyframe>> keyframes;
-
-	shared_ptr<ModelKeyframe> GetKeyframe(const wstring& name);
 };
 

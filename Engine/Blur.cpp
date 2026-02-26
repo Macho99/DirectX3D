@@ -4,8 +4,8 @@
 
 Blur::Blur()
 {
-	_texture0 = make_shared<Texture>();
-	_texture1 = make_shared<Texture>();
+	_texture0 = RESOURCES->AllocateTempResource(make_unique<Texture>());
+	_texture1 = RESOURCES->AllocateTempResource(make_unique<Texture>());
 
 	vector<VertexTextureNormalData> v(4);
 
@@ -60,20 +60,20 @@ void Blur::OnSize(int32 width, int32 height)
 	DX_CREATE_TEXTURE2D(&texDesc, 0, _ambientTexture0);
 	DX_CREATE_SRV(_ambientTexture0.Get(), 0, _ambientSRV0);
 	DX_CREATE_RTV(_ambientTexture0.Get(), 0, _ambientRTV0);
-	_texture0->SetSRV(_ambientSRV0);
-    _texture0->SetSize(Vec2((float)width, (float)height));
+	_texture0.Resolve()->SetSRV(_ambientSRV0);
+    _texture0.Resolve()->SetSize(Vec2((float)width, (float)height));
 
 	DX_CREATE_TEXTURE2D(&texDesc, 0, _ambientTexture1);
 	DX_CREATE_SRV(_ambientTexture1.Get(), 0, _ambientSRV1);
 	DX_CREATE_RTV(_ambientTexture1.Get(), 0, _ambientRTV1);
-	_texture1->SetSRV(_ambientSRV1);
+	_texture1.Resolve()->SetSRV(_ambientSRV1);
 
-	if (_blurMat == nullptr)
+	if (_blurMat.IsValid() == false)
 	{
-		shared_ptr<Shader> shader = make_shared<Shader>(L"Blur.fx");
-		shared_ptr<Material> material = make_shared<Material>();
-		material->SetShader(shader);
-		material->SetNormalMap(GRAPHICS->GetNormalDepthMap());
+		ResourceRef<Shader> shader = RESOURCES->GetAssetIdByPath(L"Shaders\\Blur.fx");
+		ResourceRef<Material> material = RESOURCES->AllocateTempResource(make_unique<Material>());
+		material.Resolve()->SetShader(shader);
+		material.Resolve()->SetNormalMap(GRAPHICS->GetNormalDepthMap());
 		_blurMat = material;
 	}
 }
@@ -89,7 +89,7 @@ void Blur::ProcessBlur(int32 blurCount)
 	}
 }
 
-void Blur::ProcessBlur(shared_ptr<Texture> inputTexture, ComPtr<ID3D11RenderTargetView> outputRTV, bool horzBlur)
+void Blur::ProcessBlur(ResourceRef<Texture> inputTexture, ComPtr<ID3D11RenderTargetView> outputRTV, bool horzBlur)
 {
 	GRAPHICS->ClearShaderResources();
 
@@ -97,12 +97,12 @@ void Blur::ProcessBlur(shared_ptr<Texture> inputTexture, ComPtr<ID3D11RenderTarg
 	DC->OMSetRenderTargets(1, renderTargets, 0);
 	DC->ClearRenderTargetView(outputRTV.Get(), reinterpret_cast<const float*>(&Colors::Black));
 
-	Shader* shader = _blurMat->GetShader();
+	Shader* shader = _blurMat.Resolve()->GetShader();
 	shader->PushBlurData(_blurDesc);
 	//Effects::SsaoBlurFX->SetNormalDepthMap(_normalDepthSRV.Get());
 	//Effects::SsaoBlurFX->SetInputImage(inputSRV.Get());
-	_blurMat->SetDiffuseMap(inputTexture);
-	_blurMat->Update();
+	_blurMat.Resolve()->SetDiffuseMap(inputTexture);
+	_blurMat.Resolve()->Update();
 
 	_screenQuadVB->PushData();
 	_screenQuadIB->PushData();

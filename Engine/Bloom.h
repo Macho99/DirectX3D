@@ -12,7 +12,7 @@ public:
     void SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv) override;
     void Render(ComPtr<ID3D11RenderTargetView> rtv) override;
     void OnSize(UINT width, UINT height) override;
-    void SetDebugTextureSRV(shared_ptr<Texture> texture) override;
+    void SetDebugTextureSRV(ResourceRef<Texture> texture) override;
 
 private:
     void DownSample(int index, ComPtr<ID3D11ShaderResourceView> srv);
@@ -22,10 +22,10 @@ private:
 private:
     ComPtr<ID3D11ShaderResourceView> _hdrSRV;
 
-    shared_ptr<Material> _brightFilterMat;
-    shared_ptr<Material> _gaussianBlurMat;
-    shared_ptr<Material> _downSampleMat;
-    shared_ptr<Material> _combineMat;
+    ResourceRef<Material> _brightFilterMat;
+    ResourceRef<Material> _gaussianBlurMat;
+    ResourceRef<Material> _downSampleMat;
+    ResourceRef<Material> _combineMat;
 
     array<int, 3> _sampleSize = {4, 6, 6};
 

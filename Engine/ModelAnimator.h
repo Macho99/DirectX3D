@@ -14,14 +14,14 @@ class ModelAnimator : public Renderer
 	using Super = Renderer;
 
 public:
-	ModelAnimator(shared_ptr<Shader> shader);
+	ModelAnimator(ResourceRef<Shader> shader);
 	~ModelAnimator();
 
 	virtual void Update() override;
 
 	void UpdateTweenData();
 
-	void SetModel(shared_ptr<Model> model);
+	void SetModel(ResourceRef<Model> model);
 	void SetPass(uint8 pass) { _pass = pass; }
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
@@ -43,7 +43,7 @@ private:
 
 private:
 	uint8 _pass = 0;
-	shared_ptr<Shader> _shader;
-	shared_ptr<Model> _model;
+	ResourceRef<Shader> _shader;
+	ResourceRef<Model> _model;
 };
 

@@ -70,55 +70,53 @@ void ResourceManager::Update()
 
 void ResourceManager::OnDestroy()
 {
-    for (auto& keyObjMap : _resources)
-    {
-        keyObjMap.clear();
-    }
+    //for (auto& keyObjMap : _resources)
+    //{
+    //    keyObjMap.clear();
+    //}
 
+	_assetSlot.OnDestroy();
 	_editorResources.clear();
 }
 
-shared_ptr<Texture> ResourceManager::GetOrAddTexture(const wstring& key, const wstring& path)
-{
-	shared_ptr<Texture> texture = Get<Texture>(key);
-
-	if (filesystem::exists(filesystem::path(path)) == false)
-		return nullptr;
-
-	texture = Load<Texture>(key, path);
-
-	if (texture == nullptr)
-	{
-		texture = make_shared<Texture>();
-		texture->Load(path);
-		Add(key, texture);
-	}
-
-	return texture;
-}
+//shared_ptr<Texture> ResourceManager::GetOrAddTexture(const wstring& key, const wstring& path)
+//{
+//	shared_ptr<Texture> texture = Get<Texture>(key);
+//
+//	if (filesystem::exists(filesystem::path(path)) == false)
+//		return nullptr;
+//
+//	texture = Load<Texture>(key, path);
+//
+//	if (texture == nullptr)
+//	{
+//		texture = make_shared<Texture>();
+//		texture->Load(path);
+//		Add(key, texture);
+//	}
+//
+//	return texture;
+//}
 
 void ResourceManager::CreateDefaultMesh()
 {
 	{
-		shared_ptr<Mesh> mesh = make_shared<Mesh>();
-		mesh->CreateQuad();
-		Add(L"Quad", mesh);
+		_quad = AllocateTempResource(make_unique<Mesh>());
+		_quad.Resolve()->CreateQuad();
 	}
 	{
-		shared_ptr<Mesh> mesh = make_shared<Mesh>();
-		mesh->CreateCube();
-		Add(L"Cube", mesh);
+		_cube = AllocateTempResource(make_unique<Mesh>());
+		_cube.Resolve()->CreateCube();
 	}
 	{
-		shared_ptr<Mesh> mesh = make_shared<Mesh>();
-		mesh->CreateSphere();
-		Add(L"Sphere", mesh);
+		_sphere = AllocateTempResource(make_unique<Mesh>());
+		_sphere.Resolve()->CreateSphere();
 	}
 }
 
 void ResourceManager::CreateRandomTexture()
 {
-	shared_ptr<Texture> texture = make_shared<Texture>();
+	unique_ptr<Texture> texture = make_unique<Texture>();
 	// 
 	// Create the random data.
 	//
@@ -165,7 +163,17 @@ void ResourceManager::CreateRandomTexture()
 	ComPtr<ID3D11ShaderResourceView> randomTexSRV;
 	DX_CREATE_SRV(randomTex.Get(), &viewDesc, randomTexSRV);
 	texture->SetSRV(randomTexSRV);
-	Add(L"RandomTex", texture);
+    _randomTexture = AllocateTempResource(std::move(texture));
+}
+
+AssetId ResourceManager::GetAssetIdByPath(const fs::path& assetsPath) const
+{
+	AssetId assetId;
+	if (assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, OUT assetId) == false)
+	{
+		assert(false, "absPath is not valid");
+	}
+	return assetId;
 }
 
 wstring ResourceManager::ToStr(FsAction fsAction)

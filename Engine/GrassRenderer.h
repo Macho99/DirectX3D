@@ -53,7 +53,7 @@ class GrassRenderer : public Renderer
 {
     using Super = Renderer;
 public:
-    explicit GrassRenderer(shared_ptr<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath);
+    explicit GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath);
     ~GrassRenderer();
 
 protected:
@@ -64,7 +64,7 @@ private:
     void UpdateGrass();
 
 private:
-    shared_ptr<Shader> _grassComputeShader; // 미리 로드된 셰이더
+    ResourceRef<Shader> _grassComputeShader; // 미리 로드된 셰이더
     ComPtr<ID3D11Buffer> _initGrassBuffer; // (SRV) CPU -> GPU, 모든 풀 위치
     ComPtr<ID3D11ShaderResourceView> _initGrassSRV;
     ComPtr<ID3DX11EffectShaderResourceVariable> _initGrassEffectBuffer;
@@ -86,7 +86,7 @@ private:
     shared_ptr<ConstantBuffer<GrassConstant>> _grassConstantBuffer;     // 상수 버퍼
     ComPtr<ID3DX11EffectConstantBuffer> _grassEffectBuffer;
     ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
-    shared_ptr<Texture> _randomTex;
+    ResourceRef<Texture> _randomTex;
 
     ComponentRef<TessTerrain> _terrain;
     ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;

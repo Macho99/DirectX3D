@@ -5,7 +5,7 @@
 #include "ThreadSafeQueue.h"
 #include "FsEventDebouncer.h"
 #include "AssetDatabase.h"
-#include "AssetId.h"
+#include "ResourceRef.h"
 #include "AssetSlot.h"
 
 class Shader;
@@ -31,31 +31,32 @@ public:
 	void Update();
 	void OnDestroy();
 
-	template<typename T>
-	shared_ptr<T> Load(const wstring& key, const wstring& path);
-
-	template<typename T>
-	bool Add(const wstring& key, shared_ptr<T> object);
-
-	template<typename T>
-	shared_ptr<T> Get(const wstring& key);
-
-	shared_ptr<Texture> GetOrAddTexture(const wstring& key, const wstring& path);
-
-	template<typename T>
-	ResourceType GetResourceType();
+	//template<typename T>
+	//shared_ptr<T> Load(const wstring& key, const wstring& path);
+	//
+	//template<typename T>
+	//bool Add(const wstring& key, shared_ptr<T> object);
+	//
+	//template<typename T>
+	//shared_ptr<T> Get(const wstring& key);
+	//
+	//shared_ptr<Texture> GetOrAddTexture(const wstring& key, const wstring& path);
+	//
+	//template<typename T>
+	//ResourceType GetResourceType();
 
 private:
 	void CreateDefaultMesh();
 	void CreateRandomTexture();
 
 private:
-	using KeyObjMap = map<wstring/*key*/, shared_ptr<ResourceBase>>;
-	array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
+	//using KeyObjMap = map<wstring/*key*/, shared_ptr<ResourceBase>>;
+	//array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
 
 public:
     fs::path GetRootPath() const { return _root; }
-	bool TryGetAssetIdByPath(const fs::path& absPath, OUT AssetId& assetId) const { return assetDatabase.TryGetAssetIdByPath(absPath, assetId); }
+	bool TryGetAssetIdByPath(const fs::path& assetsPath, OUT AssetId& assetId) const { return assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, assetId); }
+	AssetId GetAssetIdByPath(const fs::path& assetsPath) const;
     bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	const { return assetDatabase.TryGetPathByAssetId(assetId, path); }
     bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	const { return assetDatabase.TryGetMetaByAssetId(assetId, out); }
     bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		const { return assetDatabase.TryGetMetaByPath(absPath, out); }
@@ -64,9 +65,22 @@ public:
 
     AssetDatabase& GetAssetDatabase() { return assetDatabase; }
     AssetSlot& GetAssetSlot() { return _assetSlot; }
+
+    template<typename T>
+	ResourceRef<T> AllocateTempResource(unique_ptr<T> resource)
+	{
+		AssetRef assetRef = _assetSlot.Register(std::move(resource));
+        return ResourceRef<T>(assetRef);
+	}
+
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
     unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }
+
+    ResourceRef<Mesh> GetQuadMesh() const { return _quad; }
+    ResourceRef<Mesh> GetCubeMesh() const { return _cube; }
+    ResourceRef<Mesh> GetSphereMesh() const { return _sphere; }
+    ResourceRef<Texture> GetRandomTexture() const { return _randomTexture; }
 
 private:
 	static wstring ToStr(FsAction fsAction);
@@ -87,8 +101,14 @@ private:
 	function<void(const FsEvent&)> onFileEventCallback;
 
 	AssetSlot _assetSlot;
+
+	ResourceRef<Mesh> _quad;
+    ResourceRef<Mesh> _cube;
+    ResourceRef<Mesh> _sphere;
+    ResourceRef<Texture> _randomTexture;
 };
 
+/*
 template<typename T>
 shared_ptr<T>
 ResourceManager::Load(const wstring& key, const wstring& path)
@@ -147,4 +167,5 @@ ResourceType ResourceManager::GetResourceType()
 	assert(false);
 	return ResourceType::None;
 }
+*/
 

@@ -50,6 +50,7 @@ enum class ResourceType : uint8
 	SubAssetContainer,
 	Model,
 	Folder,
+	ModelMesh,
 
 	End
 };

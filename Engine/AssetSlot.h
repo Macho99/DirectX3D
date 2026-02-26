@@ -1,5 +1,5 @@
 #pragma once
-#include "AssetId.h"
+#include "AssetRef.h"
 #include "Handle.h"
 
 class ResourceBase;
@@ -15,6 +15,8 @@ class AssetSlot
 public:
     AssetSlot();
     ~AssetSlot();
+
+    void OnDestroy();
 
     // Guid로 핸들 얻기
     Handle FindHandle(const AssetId& assetId);
@@ -33,7 +35,9 @@ public:
     //    return Resolve(FindHandle(assetId));
     //}
 
+    void Remove(const AssetRef& assetRef) { Remove(assetRef.assetId); }
     void Remove(const AssetId& assetId);
+    AssetRef Register(unique_ptr<ResourceBase> resource);
 
 private:
     Handle AllocateSlot();

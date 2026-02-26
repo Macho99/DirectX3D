@@ -25,4 +25,3 @@ private:
 	Vec2 _size = {1.f, 1.f};
 	DirectX::ScratchImage _img = {};
 };
-

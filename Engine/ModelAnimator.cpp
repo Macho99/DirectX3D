@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "Light.h"
 
-ModelAnimator::ModelAnimator(shared_ptr<Shader> shader)
+ModelAnimator::ModelAnimator(ResourceRef<Shader> shader)
 	: Super(ComponentType::Animator), _shader(shader)
 {
 	// TEST
@@ -25,14 +25,14 @@ void ModelAnimator::Update()
 	UpdateTweenData();
 }
 
-void ModelAnimator::SetModel(shared_ptr<Model> model)
+void ModelAnimator::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
 
-	const auto& materials = _model->GetMaterials();
+	auto& materials = _model.Resolve()->GetMaterials();
 	for (auto& material : materials)
 	{
-		material->SetShader(_shader);
+		material.Resolve()->SetShader(_shader);
 		_material = material;
 		break;
 	}
@@ -40,8 +40,13 @@ void ModelAnimator::SetModel(shared_ptr<Model> model)
 
 void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
 {
-	if (_model == nullptr)
+    Model* model = _model.Resolve();
+	if (model == nullptr)
 		return;
+
+    Shader* shader = _shader.Resolve();
+    if (shader == nullptr)
+        return;
 
 	if (Super::Render(renderTech) == false)
 		return;
@@ -58,31 +63,31 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 		CreateTexture();
 
 	// SRV를 통해 정보 전달
-	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
+	_shader.Resolve()->GetSRV("TransformMap")->SetResource(_srv.Get());
 
 	// Bone
 	BoneDesc boneDesc;
 
-	const uint32 boneCount = _model->GetBoneCount();
+	const uint32 boneCount = model->GetBoneCount();
 	for (uint32 i = 0; i < boneCount; i++)
 	{
-		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
+		shared_ptr<ModelBone> bone = model->GetBoneByIndex(i);
 		boneDesc.transforms[i] = bone->transform;
 	}
-	_shader->PushBoneData(boneDesc);
+	shader->PushBoneData(boneDesc);
 
-	const auto& meshes = _model->GetMeshes();
+	const auto& meshes = model->GetMeshes();
 	for (auto& mesh : meshes)
 	{
 		if (mesh->material)
 			mesh->material->Update();
 
-		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
+		shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
 
 		mesh->vertexBuffer->PushData();
 		mesh->indexBuffer->PushData();
 		buffer->PushData();
-		_shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
+		shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
 
 	}
 }

@@ -720,6 +720,9 @@
     <ClInclude Include="ShaderMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
+    <ClInclude Include="ModelMeshResource.h">
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1081,6 +1084,9 @@
     </ClCompile>
     <ClCompile Include="ShaderMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMeshResource.cpp">
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

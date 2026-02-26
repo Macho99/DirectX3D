@@ -10,15 +10,15 @@ public:
 	~Renderer();
 
 	void SetPass(uint8 pass) { _pass = pass; }
-	virtual void SetMaterial(shared_ptr<Material> material) { _material = material; }
-	shared_ptr<Material> GetMaterial() { return _material; }
+	virtual void SetMaterial(ResourceRef<Material> material) { _material = material; }
+	ResourceRef<Material> GetMaterial() { return _material; }
 
 	virtual bool Render(RenderTech renderTech);
     void SetBeforeRender(function<void(Material*)> func) { _beforeRender = func; }
 
 protected:
 	virtual void InnerRender(RenderTech renderTech);
-	shared_ptr<Material> _material;
+	ResourceRef<Material> _material;
 	uint8 _pass = 0;
     function<void(Material*)> _beforeRender = nullptr;
 };

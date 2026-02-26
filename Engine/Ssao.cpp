@@ -28,14 +28,14 @@ void Ssao::OnSize(int32 width, int32 height, float fovy, float farZ)
 	BuildTextureViews();
 	
 
-	if (_ssaoMaterial == nullptr)
+	if (_ssaoMaterial.IsValid() == false)
 	{
 		{
-			shared_ptr<Shader> shader = make_shared<Shader>(L"Ssao.fx");
-			shared_ptr<Material> material = make_shared<Material>();
-			material->SetShader(shader);
-			material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
-			material->SetNormalMap(GRAPHICS->GetNormalDepthMap());
+			ResourceRef<Shader> shader = RESOURCES->GetAssetIdByPath(L"Shaders\\Ssao.fx");
+			ResourceRef<Material> material = RESOURCES->AllocateTempResource(make_unique<Material>());
+			material.Resolve()->SetShader(shader);
+			material.Resolve()->SetRandomTex(RESOURCES->GetRandomTexture());
+			material.Resolve()->SetNormalMap(GRAPHICS->GetNormalDepthMap());
 			_ssaoMaterial = material;
 		}
 	}
@@ -55,9 +55,9 @@ void Ssao::Draw()
 	//DC->ClearRenderTargetView(_ambientRTV0.Get(), reinterpret_cast<const float*>(&Colors::Black));
 	_ambientMapViewport.RSSetViewport();
 
-	Shader* shader = _ssaoMaterial->GetShader();
+	Shader* shader = _ssaoMaterial.Resolve()->GetShader();
 	shader->PushSsaoData(_ssaoDesc);
-	_ssaoMaterial->Update();
+	_ssaoMaterial.Resolve()->Update();
 
 	static const Matrix T(
 		0.5f, 0.0f, 0.0f, 0.0f,

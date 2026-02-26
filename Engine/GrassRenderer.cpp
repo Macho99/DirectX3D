@@ -6,7 +6,7 @@
 #include "Camera.h"
 #include "Utils.h"
 
-GrassRenderer::GrassRenderer(shared_ptr<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath)
+GrassRenderer::GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath)
     : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer), _terrain(terrain)
 {
     CreateResources();
@@ -110,16 +110,18 @@ void GrassRenderer::CreateResources()
 
     _grassConstantBuffer = make_shared<ConstantBuffer<GrassConstant>>();
     _grassConstantBuffer->Create();
-    _grassEffectBuffer = _grassComputeShader->GetConstantBuffer("GrassConstant");
-    _randomEffectBuffer = _grassComputeShader->GetSRV("RandomMap");
-    _randomTex = RESOURCES->Get<Texture>(L"RandomTex");
 
-    _layerMapArrayEffectBuffer = _grassComputeShader->GetSRV("LayerMapArray");
-    _blendMapEffectBuffer = _grassComputeShader->GetSRV("BlendMap");
+    Shader* grassComputeShader = _grassComputeShader.Resolve();
+    _grassEffectBuffer = grassComputeShader->GetConstantBuffer("GrassConstant");
+    _randomEffectBuffer = grassComputeShader->GetSRV("RandomMap");
+    _randomTex = RESOURCES->GetRandomTexture();
 
-    _initGrassEffectBuffer = _grassComputeShader->GetSRV("Input");
-    _nearbyGrassEffectBuffer = _grassComputeShader->GetUAV("NearbyOutput");
-    _distantGrassEffectBuffer = _grassComputeShader->GetUAV("DistantOutput");
+    _layerMapArrayEffectBuffer = grassComputeShader->GetSRV("LayerMapArray");
+    _blendMapEffectBuffer = grassComputeShader->GetSRV("BlendMap");
+
+    _initGrassEffectBuffer = grassComputeShader->GetSRV("Input");
+    _nearbyGrassEffectBuffer = grassComputeShader->GetUAV("NearbyOutput");
+    _distantGrassEffectBuffer = grassComputeShader->GetUAV("DistantOutput");
 }
 
 void GrassRenderer::UpdateGrass()
@@ -144,8 +146,8 @@ void GrassRenderer::UpdateGrass()
     _layerMapArrayEffectBuffer->SetResource(terrain->GetLayerMapArraySRV());
     _blendMapEffectBuffer->SetResource(terrain->GetBlendMapSRV());
 
-    _randomEffectBuffer->SetResource(_randomTex->GetComPtr().Get());
-    _grassComputeShader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
+    _randomEffectBuffer->SetResource(_randomTex.Resolve()->GetComPtr().Get());
+    _grassComputeShader.Resolve()->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());
 
     {
@@ -162,7 +164,7 @@ void GrassRenderer::UpdateGrass()
     _distantGrassEffectBuffer->SetUnorderedAccessView(_distantGrassUAV.Get());
 
     UINT numThreadGroups = (MAX_GRASS_COUNT + THREAD_GROUP_SIZE - 1) / THREAD_GROUP_SIZE;
-    _grassComputeShader->Dispatch(0, 0, numThreadGroups, 1, 1);
+    _grassComputeShader.Resolve()->Dispatch(0, 0, numThreadGroups, 1, 1);
 
     {
         UINT initCounts[2] = { 0, 0 };
@@ -187,7 +189,7 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
         UpdateGrass();
         prevFrameCount = TIME->GetTotalFrameCount();
     }
-    auto shader = _material->GetShader();
+    auto shader = _material.Resolve()->GetShader();
 
     UINT techNum = shader->GetTechNum(renderTech);
     {

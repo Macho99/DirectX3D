@@ -12,7 +12,7 @@ public:
 	void Draw();
 
 	ComPtr<ID3D11ShaderResourceView> GetNormalDepthSRV() { return _normalDepthSRV; }
-	shared_ptr<Texture> GetSsaoMap() { return _blur.GetDebugTexture(); }
+	ResourceRef<Texture> GetSsaoMap() { return _blur.GetDebugTexture(); }
 	void SetNormalDepthRenderTarget(ID3D11DepthStencilView* dsv);
 
 private:
@@ -40,7 +40,7 @@ private:
 	//Vec4 _offsets[14];
 
 	Viewport _ambientMapViewport;
-	shared_ptr<Material> _ssaoMaterial;
+	ResourceRef<Material> _ssaoMaterial;
 	SsaoDesc _ssaoDesc;
 };
 

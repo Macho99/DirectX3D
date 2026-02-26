@@ -7,29 +7,38 @@
 Bloom::Bloom()
 {
     {
-        _brightFilterMat = make_shared<Material>();
-        shared_ptr<Texture> texture = make_shared<Texture>();
-        _brightFilterMat->SetDiffuseMap(texture);
-        _brightFilterMat->SetShader(make_shared<Shader>(L"Bloom.fx"));
-        _brightFilterMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+        unique_ptr<Material> brightFilterMat = make_unique<Material>();
+        unique_ptr<Texture> texture = make_unique<Texture>();
+        ResourceRef<Texture> textureRef = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
+        brightFilterMat->SetDiffuseMap(textureRef);
+        brightFilterMat->SetShader(RESOURCES->GetAssetIdByPath(L"\\Shaders\\Bloom.fx"));
+        brightFilterMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+        _brightFilterMat = RESOURCES->AllocateTempResource<Material>(std::move(brightFilterMat));
     }
 
     {
-        _downSampleMat = make_shared<Material>();
-        shared_ptr<Texture> texture = make_shared<Texture>();
-        _downSampleMat->SetDiffuseMap(texture);
-        _downSampleMat->SetShader(make_shared<Shader>(L"DownSample.fx"));
-        _downSampleMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+        unique_ptr<Material> downSampleMat = make_unique<Material>();
+        unique_ptr<Texture> texture = make_unique<Texture>();
+        ResourceRef<Texture> textureRef = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
+        downSampleMat->SetDiffuseMap(textureRef);
+        downSampleMat->SetShader(RESOURCES->GetAssetIdByPath(L"\\Shaders\\DownSample.fx"));
+        downSampleMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+        _downSampleMat = RESOURCES->AllocateTempResource<Material>(std::move(downSampleMat));
     }
 
     {
-        _combineMat = make_shared<Material>();
-        shared_ptr<Texture> texture = make_shared<Texture>();
-        _combineMat->SetDiffuseMap(texture);
-        shared_ptr<Texture> texture2 = make_shared<Texture>();
-        _combineMat->SetSpecularMap(texture2);
-        _combineMat->SetShader(make_shared<Shader>(L"BlurCombine.fx"));
-        _combineMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+        unique_ptr<Material> combineMat = make_unique<Material>();
+        unique_ptr<Texture> texture = make_unique<Texture>();
+        ResourceRef<Texture> textureRef = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
+        combineMat->SetDiffuseMap(textureRef);
+
+        unique_ptr<Texture> texture2 = make_unique<Texture>();
+        ResourceRef<Texture> textureRef2 = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
+        combineMat->SetSpecularMap(textureRef2);
+
+        combineMat->SetShader(RESOURCES->GetAssetIdByPath(L"\\Shaders\\BlurCombine.fx"));
+        combineMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+        _combineMat = RESOURCES->AllocateTempResource<Material>(std::move(combineMat));
     }
 
     OnSize(GAME->GetGameDesc().sceneWidth, GAME->GetGameDesc().sceneHeight);
@@ -42,14 +51,14 @@ Bloom::~Bloom()
 void Bloom::SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv)
 {
     _hdrSRV = srv;
-    _brightFilterMat->GetDiffuseMap()->SetSRV(srv);
+    _brightFilterMat.Resolve()->GetDiffuseMap().Resolve()->SetSRV(srv);
 }
 
 void Bloom::Render(ComPtr<ID3D11RenderTargetView> rtv)
 {
     DC->ClearRenderTargetView(_brightFilterRTV.Get(), reinterpret_cast<const float*>(&Colors::Black));
     DC->OMSetRenderTargets(1, _brightFilterRTV.GetAddressOf(), 0);
-    DrawQuad(_brightFilterMat.get());
+    DrawQuad(_brightFilterMat.Resolve());
 
     DownSample(0, _brightFilterSRV);
     
@@ -78,9 +87,9 @@ void Bloom::Render(ComPtr<ID3D11RenderTargetView> rtv)
 
     GRAPHICS->GetViewport().RSSetViewport();
     Super::Render(rtv);
-    _combineMat->GetDiffuseMap()->SetSRV(_upSampleSRVs.back());
-    _combineMat->GetSpecularMap()->SetSRV(_hdrSRV);
-    DrawQuad(_combineMat.get());
+    _combineMat.Resolve()->GetDiffuseMap().Resolve()->SetSRV(_upSampleSRVs.back());
+    _combineMat.Resolve()->GetSpecularMap().Resolve()->SetSRV(_hdrSRV);
+    DrawQuad(_combineMat.Resolve());
 }
 
 void Bloom::OnSize(UINT width, UINT height)
@@ -155,9 +164,9 @@ void Bloom::OnSize(UINT width, UINT height)
     }
 }
 
-void Bloom::SetDebugTextureSRV(shared_ptr<Texture> texture)
+void Bloom::SetDebugTextureSRV(ResourceRef<Texture> texture)
 {
-    texture->SetSRV(_upSampleSRVs[2].Get());
+    texture.Resolve()->SetSRV(_upSampleSRVs[2].Get());
 }
 
 void Bloom::DownSample(int index, ComPtr<ID3D11ShaderResourceView> srv)
@@ -170,9 +179,9 @@ void Bloom::DownSample(int index, ComPtr<ID3D11ShaderResourceView> srv)
     DC->OMSetRenderTargets(1, _downSampleRTVs[index].GetAddressOf(), 0);
     _vp.RSSetViewport();
 
-    _downSampleMat->GetShader()->PushBlurData({ 1.0f / targetWidth , 1.0f / targetHeight});
-    _downSampleMat->GetDiffuseMap()->SetSRV(srv);
-    DrawQuad(_downSampleMat.get());
+    _downSampleMat.Resolve()->GetShader()->PushBlurData({ 1.0f / targetWidth , 1.0f / targetHeight});
+    _downSampleMat.Resolve()->GetDiffuseMap().Resolve()->SetSRV(srv);
+    DrawQuad(_downSampleMat.Resolve());
 }
 
 void Bloom::UpSample(int index, ComPtr<ID3D11ShaderResourceView> accumulateSrv)
@@ -182,9 +191,9 @@ void Bloom::UpSample(int index, ComPtr<ID3D11ShaderResourceView> accumulateSrv)
     DC->OMSetRenderTargets(1, _upSampleRTVs[index].GetAddressOf(), 0);
     _vp.RSSetViewport();
 
-    _combineMat->GetDiffuseMap()->SetSRV(_upSampleSRVs[index - 1].Get());
-    _combineMat->GetSpecularMap()->SetSRV(accumulateSrv);
-    DrawQuad(_combineMat.get());
+    _combineMat.Resolve()->GetDiffuseMap().Resolve()->SetSRV(_upSampleSRVs[index - 1].Get());
+    _combineMat.Resolve()->GetSpecularMap().Resolve()->SetSRV(accumulateSrv);
+    DrawQuad(_combineMat.Resolve());
 }
 
 void Bloom::ProcessBlur(int index)

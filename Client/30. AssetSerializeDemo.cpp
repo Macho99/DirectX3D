@@ -64,42 +64,46 @@ void AssetSerializeDemo::Init()
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
 
-    //shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
-    ResourceRef<Texture> textureRef = ResourceRef<Texture>::CreateByPath(L"..\\Assets\\Images\\grass.png");
-    Texture* texture = textureRef.Resolve();
+    shared_ptr<Model> m1 = make_shared<Model>();
+    m1->ReadModel(L"Kachujin/Kachujin");
+    m1->ReadMaterial(L"Kachujin/Kachujin");
+    m1->ReadAnimation(L"Kachujin/Idle");
 
-    //ResourceRef<Component> foliageShaderRef2;
-    //{
-    //    // Model
-    //    shared_ptr<Model> m2 = make_shared<Model>();
-    //    m2->ReadModel(L"Tree1/Tree");
-    //    m2->ReadMaterial(L"Tree1/Tree");
-    //
-    //    for (int32 i = 0; i < 10; i++)
-    //    {
-    //        auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));
-    //        GameObject* obj = objRef.Resolve();
-    //        obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
-    //        obj->GetTransform()->SetScale(Vec3(5.f));
-    //
-    //        obj->AddComponent(make_unique<ModelRenderer>(foliageShader));
-    //        {
-    //            obj->GetModelRenderer()->SetModel(m2);
-    //            obj->GetModelRenderer()->SetPass(0);
-    //        }
-    //
-    //        auto foliageController = make_unique<FoliageController>();
-    //        foliageController->SetBendFactor(1.f);
-    //        foliageController->SetStiffness(0.8f);
-    //        obj->AddComponent(std::move(foliageController));
-    //    }
-    //
-    //    Vec3 windDir = Vec3(1.f, 0.f, 1.f);
-    //    windDir.Normalize();
-    //    FoliageController::S_WindDesc.windDirection = windDir;
-    //    FoliageController::S_WindDesc.waveFrequency = 0.1f;
-    //    FoliageController::S_WindDesc.windStrength = 2.f;
-    //}
+    //shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
+    //ResourceRef<Texture> textureRef = ResourceRef<Texture>::CreateByPath(L"..\\Assets\\Images\\grass.png");
+    //Texture* texture = textureRef.Resolve();
+    ResourceRef<Shader> foliageShader(RESOURCES->GetAssetIdByPath(L"Foliage.fx"));
+    {
+        // Model
+        shared_ptr<Model> m2 = make_shared<Model>();
+        m2->ReadModel(L"Tree1/Tree");
+        m2->ReadMaterial(L"Tree1/Tree");
+    
+        for (int32 i = 0; i < 10; i++)
+        {
+            auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));
+            GameObject* obj = objRef.Resolve();
+            obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
+            obj->GetTransform()->SetScale(Vec3(5.f));
+    
+            obj->AddComponent(make_unique<ModelRenderer>(foliageShader));
+            {
+                obj->GetModelRenderer()->SetModel(m2);
+                obj->GetModelRenderer()->SetPass(0);
+            }
+    
+            auto foliageController = make_unique<FoliageController>();
+            foliageController->SetBendFactor(1.f);
+            foliageController->SetStiffness(0.8f);
+            obj->AddComponent(std::move(foliageController));
+        }
+    
+        Vec3 windDir = Vec3(1.f, 0.f, 1.f);
+        windDir.Normalize();
+        FoliageController::S_WindDesc.windDirection = windDir;
+        FoliageController::S_WindDesc.waveFrequency = 0.1f;
+        FoliageController::S_WindDesc.windStrength = 2.f;
+    }
 }
 
 void AssetSerializeDemo::Update()

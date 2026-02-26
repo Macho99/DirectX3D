@@ -26,7 +26,9 @@ public:
         return !(*this == rhs);
     }
 
-    ResourceBase* Resolve() const;
+    bool IsValid() const { return assetId.IsValid(); }
+
+    ResourceBase* Resolve();
 
     const AssetId& GetAssetId() const { return assetId; }
 

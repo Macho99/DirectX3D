@@ -17,7 +17,7 @@ bool Button::Picked(POINT screenPos)
 	return ::PtInRect(&_rect, screenPos);
 }
 
-void Button::Create(Vec2 screenPos, Vec2 size, shared_ptr<Material> material)
+void Button::Create(Vec2 screenPos, Vec2 size, ResourceRef<Material> material)
 {
 	GameObject* go = _gameObject.Resolve();
 

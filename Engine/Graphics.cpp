@@ -27,7 +27,7 @@ void Graphics::Init(HWND hwnd)
 	CreateDSVAndShadowMap(true);
 	
 	_ssao = make_shared<Ssao>();
-	_normalDepthMap = make_shared<Texture>();
+	_normalDepthMap = RESOURCES->AllocateTempResource(make_unique<Texture>());
 }
 
 void Graphics::OnDestroy()
@@ -39,12 +39,12 @@ void Graphics::OnDestroy()
 	_ppDebugTextures.clear();
 
 	_ssao.reset();
-	_normalDepthMap.reset();
+	//_normalDepthMap.reset();
 
-	for (int i = 0; i < NUM_SHADOW_CASCADES; ++i)
-	{
-		_shadowMap[i].reset();
-	}
+	//for (int i = 0; i < NUM_SHADOW_CASCADES; ++i)
+	//{
+	//	_shadowMap[i].reset();
+	//}
 
 	// =========================
 	// Shadow resources
@@ -157,8 +157,8 @@ void Graphics::OnSize(bool isFirst)
     float fov = mainCam->GetFOV();
     float farZ = mainCam->GetFar();
 	_ssao->OnSize(sceneWidth, sceneHeight, fov, farZ);
-	_normalDepthMap->SetSRV(_ssao->GetNormalDepthSRV());
-    _normalDepthMap->SetSize(Vec2((float)sceneWidth, (float)sceneHeight));
+	_normalDepthMap.Resolve()->SetSRV(_ssao->GetNormalDepthSRV());
+    _normalDepthMap.Resolve()->SetSize(Vec2((float)sceneWidth, (float)sceneHeight));
 	SetViewport(sceneWidth, sceneHeight);
     for (auto& postProcess : _postProcesses)
     {
@@ -223,12 +223,12 @@ void Graphics::DrawSsaoMap(bool clearOnly)
 		_ssao->Draw();
 }
 
-shared_ptr<Texture> Graphics::GetNormalDepthMap()
+ResourceRef<Texture> Graphics::GetNormalDepthMap()
 {
 	return _normalDepthMap;
 }
 
-shared_ptr<Texture> Graphics::GetSsaoMap()
+ResourceRef<Texture> Graphics::GetSsaoMap()
 {
 	return _ssao->GetSsaoMap();
 }
@@ -409,10 +409,10 @@ void Graphics::CreateRenderTargetView()
             _ppSRVs.push_back(ppSRV);
             _ppRTVs.push_back(ppRTV);
 
-            shared_ptr<Texture> debugTexture = make_shared<Texture>();
+            unique_ptr<Texture> debugTexture = make_unique<Texture>();
 			debugTexture->SetSRV(_ppSRVs[i]);
 			debugTexture->SetSize({ sceneWidth, sceneHeight });
-            _ppDebugTextures.push_back(debugTexture);
+            _ppDebugTextures.push_back(RESOURCES->AllocateTempResource(std::move(debugTexture)));
 		}
 	}
 }
@@ -484,9 +484,10 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 			srvDesc.Texture2DArray.ArraySize = 1;
 			DX_CREATE_SRV(_shadowDSTexture.Get(), &srvDesc, srv);
 
-			_shadowMap[i] = make_shared<Texture>();
-			_shadowMap[i]->SetSRV(srv);
-            _shadowMap[i]->SetSize({ SHADOWMAP_SIZE, SHADOWMAP_SIZE });
+			RESOURCES->GetAssetSlot().Remove(_shadowMap[i]);
+			_shadowMap[i] = RESOURCES->AllocateTempResource(make_unique<Texture>());
+			_shadowMap[i].Resolve()->SetSRV(srv);
+            _shadowMap[i].Resolve()->SetSize({ SHADOWMAP_SIZE, SHADOWMAP_SIZE });
 		}
 
 		srvDesc.Texture2DArray.FirstArraySlice = 0;

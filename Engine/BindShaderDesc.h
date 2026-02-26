@@ -35,6 +35,15 @@ struct MaterialDesc
 	Color diffuse = Color(1.f, 1.f, 1.f, 1.f);
 	Color specular = Color(0.f, 0.f, 0.f, 1.f);
 	Color emissive = Color(0.f, 0.f, 0.f, 1.f);
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+		archive(CEREAL_NVP(ambient));
+        archive(CEREAL_NVP(diffuse));
+        archive(CEREAL_NVP(specular));
+        archive(CEREAL_NVP(emissive));
+    }
 };
 
 // Bone

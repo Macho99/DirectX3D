@@ -16,20 +16,20 @@ public:
 	Material();
 	virtual ~Material();
 
-	Shader* GetShader() { return _shader.get(); }
+	Shader* GetShader() { return _shader.Resolve(); }
 
 	MaterialDesc& GetMaterialDesc() { return _desc; }
-	shared_ptr<Texture> GetDiffuseMap() { return _diffuseMap; }
-	shared_ptr<Texture> GetNormalMap() { return _normalMap; }
-	shared_ptr<Texture> GetSpecularMap() { return _specularMap; }
-	shared_ptr<Texture> GetRandomTex() { return _randomTex; }
+	ResourceRef<Texture> GetDiffuseMap() { return _diffuseMap; }
+	ResourceRef<Texture> GetNormalMap() { return _normalMap; }
+	ResourceRef<Texture> GetSpecularMap() { return _specularMap; }
+	ResourceRef<Texture> GetRandomTex() { return _randomTex; }
 
-	void SetShader(shared_ptr<Shader> shader);
-	void SetDiffuseMap(shared_ptr<Texture> diffuseMap) { _diffuseMap = diffuseMap; }
-	void SetNormalMap(shared_ptr<Texture> normalMap) { _normalMap = normalMap; }
-	void SetSpecularMap(shared_ptr<Texture> specularMap) { _specularMap = specularMap; }
-	void SetRandomTex(shared_ptr<Texture> randomTex) { _randomTex = randomTex; }
-	void SetCubeMap(shared_ptr<Texture> cubeMap) { _cubeMap = cubeMap; }
+	void SetShader(ResourceRef<Shader> shader);
+	void SetDiffuseMap(ResourceRef<Texture> diffuseMap);
+	void SetNormalMap(ResourceRef<Texture> normalMap);
+	void SetSpecularMap(ResourceRef<Texture> specularMap);
+	void SetRandomTex(ResourceRef<Texture> randomTex);
+	void SetCubeMap(ResourceRef<Texture> cubeMap);
     void SetLayerMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerMapArraySRV = srv; }
 
 	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
@@ -40,7 +40,21 @@ public:
 
 	void Update();
 
-	shared_ptr<Material> Clone();
+	//shared_ptr<Material> Clone();
+		
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+		ar(CEREAL_NVP(_desc));
+        ar(CEREAL_NVP(_renderQueue));
+        ar(CEREAL_NVP(_castShadow));
+        ar(CEREAL_NVP(_shader));
+        ar(CEREAL_NVP(_diffuseMap));
+        ar(CEREAL_NVP(_normalMap));
+        ar(CEREAL_NVP(_specularMap));
+        ar(CEREAL_NVP(_randomTex));
+        ar(CEREAL_NVP(_cubeMap));
+    }
 
 private:
 	friend class MeshRenderer;
@@ -49,12 +63,12 @@ private:
 	RenderQueue _renderQueue = RenderQueue::Opaque;
 	bool _castShadow = true;
 
-	shared_ptr<Shader> _shader;
-	shared_ptr<Texture> _diffuseMap;
-	shared_ptr<Texture> _normalMap;
-	shared_ptr<Texture> _specularMap;
-	shared_ptr<Texture> _randomTex;
-	shared_ptr<Texture> _cubeMap;
+	ResourceRef<Shader> _shader;
+	ResourceRef<Texture> _diffuseMap;
+	ResourceRef<Texture> _normalMap;
+	ResourceRef<Texture> _specularMap;
+	ResourceRef<Texture> _randomTex;
+	ResourceRef<Texture> _cubeMap;
     ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 
 	// Cache
@@ -68,3 +82,4 @@ private:
     ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;
 };
 
+using MaterialRef = ResourceRef<Material>;
