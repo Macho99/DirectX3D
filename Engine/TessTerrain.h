@@ -32,7 +32,7 @@ public:
 	void Init(const InitInfo& initInfo);
 	void InnerRender(RenderTech renderTech) override;
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
-    ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture->GetComPtr().Get(); }
+    ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
 
 private:
 	void LoadHeightmap();
@@ -56,8 +56,8 @@ private:
 	ComPtr<ID3D11Buffer> _quadPatchIB;
 
 	ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
-	shared_ptr<Texture> _blendMapTexture;
-    shared_ptr<Texture> _heightMapTexture;
+	ResourceRef<Texture> _blendMapTexture;
+    ResourceRef<Texture> _heightMapTexture;
 	ComPtr<ID3D11ShaderResourceView> _heightMapSRV;
 
     TerrainDesc _terrainDesc;
@@ -69,7 +69,7 @@ private:
 	uint32 _numPatchVertRows = 0;
 	uint32 _numPatchVertCols = 0;
 
-	shared_ptr<Material> _mat;
+	ResourceRef<Material> _mat;
 
 	std::vector<XMFLOAT2> _patchBoundsY;
 	std::vector<float> _heightmap;

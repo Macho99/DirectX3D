@@ -188,7 +188,9 @@ void RenderManager::RenderAnimRenderer(vector<GameObject*>& gameObjects)
 				tweenDesc->tweens[i] = desc;
 			}
 
-			vec[0]->GetModelAnimator()->GetMaterial()->GetShader()->PushTweenData(*tweenDesc.get());
+            Material* material = vec[0]->GetModelAnimator()->GetMaterial().Resolve();
+            Shader* shader = material->GetShader();
+			shader->PushTweenData(*tweenDesc.get());
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
 			vec[0]->GetModelAnimator()->RenderInstancing(buffer, _renderTech);
 		}

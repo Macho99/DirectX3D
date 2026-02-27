@@ -18,9 +18,9 @@ enum class RenderTech
 	Max
 };
 
-class Shader
+class Shader : public ResourceBase
 {
-    //using Super = ResourceBase;
+    using Super = ResourceBase;
 public:
 	friend struct Pass;
 

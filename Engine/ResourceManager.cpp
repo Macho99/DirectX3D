@@ -166,16 +166,6 @@ void ResourceManager::CreateRandomTexture()
     _randomTexture = AllocateTempResource(std::move(texture));
 }
 
-AssetId ResourceManager::GetAssetIdByPath(const fs::path& assetsPath) const
-{
-	AssetId assetId;
-	if (assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, OUT assetId) == false)
-	{
-		assert(false, "absPath is not valid");
-	}
-	return assetId;
-}
-
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)

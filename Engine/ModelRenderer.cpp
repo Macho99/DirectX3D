@@ -5,7 +5,7 @@
 #include "Model.h"
 #include "Camera.h"
 
-ModelRenderer::ModelRenderer(shared_ptr<Shader> shader)
+ModelRenderer::ModelRenderer(ResourceRef<Shader> shader)
 	: Super(ComponentType::ModelRenderer), _shader(shader)
 {
 
@@ -16,22 +16,32 @@ ModelRenderer::~ModelRenderer()
 
 }
 
-void ModelRenderer::SetModel(shared_ptr<Model> model)
+void ModelRenderer::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
+    Model* modelPtr = _model.Resolve();
 
-	const auto& materials = _model->GetMaterials();
+	auto& materials = modelPtr->GetMaterials();
 	for (auto& material : materials)
 	{
-		material->SetShader(_shader);
+        if (material.Resolve() == nullptr)
+            continue;
+		material.Resolve()->SetShader(_shader);
 		_material = material;
 	}
 }
 
 void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
 {
-	if (_model == nullptr)
+    Model* model = _model.Resolve();
+	if (model == nullptr)
 		return;
+    ModelMeshResource* mesh = model->GetMesh();
+    if (mesh == nullptr)
+        return;
+    Shader* shader = _shader.Resolve();
+    if (shader == nullptr)
+        return;
 
 	if (Super::Render(renderTech) == false)
 		return;
@@ -47,22 +57,23 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	// Bones
 	BoneDesc boneDesc;
 
-	const uint32 boneCount = _model->GetBoneCount();
+	const uint32 boneCount = mesh->GetBoneCount();
 	for (uint32 i = 0; i < boneCount; i++)
 	{
-		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
+		shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
 		boneDesc.transforms[i] = bone->transform;
 	}
-	_shader->PushBoneData(boneDesc);
+	shader->PushBoneData(boneDesc);
 
-	const auto& meshes = _model->GetMeshes();
+	const auto& meshes = mesh->GetMeshes();
 	for (auto& mesh : meshes)
 	{
-		if (mesh->material)
-			mesh->material->Update();
+        Material* material = mesh->material.Resolve();
+		if (material)
+			material->Update();
 
 		// BoneIndex
-		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
+		shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
 
 		// IA
 		mesh->vertexBuffer->PushData();
@@ -70,16 +81,16 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 
 		buffer->PushData();
 
-		_shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
+		shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
 	}
 }
 
 InstanceID ModelRenderer::GetInstanceID()
 {
-	return make_pair((uint64)_model.get(), (uint64)_shader.get());
+	return make_pair((uint64)_model.GetAssetId().GetLeftId(), (uint64)_shader.GetAssetId().GetLeftId());
 }
 
-void ModelRenderer::SetMaterial(shared_ptr<Material> material)
+void ModelRenderer::SetMaterial(ResourceRef<Material> material)
 {
 	assert(false, "ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
 }

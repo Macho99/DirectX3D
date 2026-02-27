@@ -11,7 +11,7 @@ Bloom::Bloom()
         unique_ptr<Texture> texture = make_unique<Texture>();
         ResourceRef<Texture> textureRef = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
         brightFilterMat->SetDiffuseMap(textureRef);
-        brightFilterMat->SetShader(RESOURCES->GetAssetIdByPath(L"\\Shaders\\Bloom.fx"));
+        brightFilterMat->SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"\\Shaders\\Bloom.fx"));
         brightFilterMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
         _brightFilterMat = RESOURCES->AllocateTempResource<Material>(std::move(brightFilterMat));
     }
@@ -21,7 +21,7 @@ Bloom::Bloom()
         unique_ptr<Texture> texture = make_unique<Texture>();
         ResourceRef<Texture> textureRef = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
         downSampleMat->SetDiffuseMap(textureRef);
-        downSampleMat->SetShader(RESOURCES->GetAssetIdByPath(L"\\Shaders\\DownSample.fx"));
+        downSampleMat->SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"\\Shaders\\DownSample.fx"));
         downSampleMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
         _downSampleMat = RESOURCES->AllocateTempResource<Material>(std::move(downSampleMat));
     }
@@ -36,7 +36,7 @@ Bloom::Bloom()
         ResourceRef<Texture> textureRef2 = RESOURCES->AllocateTempResource<Texture>(std::move(texture));
         combineMat->SetSpecularMap(textureRef2);
 
-        combineMat->SetShader(RESOURCES->GetAssetIdByPath(L"\\Shaders\\BlurCombine.fx"));
+        combineMat->SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"\\Shaders\\BlurCombine.fx"));
         combineMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
         _combineMat = RESOURCES->AllocateTempResource<Material>(std::move(combineMat));
     }

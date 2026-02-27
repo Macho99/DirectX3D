@@ -14,14 +14,16 @@ void PostProcess::Render(ComPtr<ID3D11RenderTargetView> rtv)
 
 void PostProcess::DrawQuad(Material* material)
 {
-    if (_mesh == nullptr)
+    Mesh* mesh = _mesh.Resolve();
+    if (mesh == nullptr)
     {
-        _mesh = RESOURCES->Get<Mesh>(L"Quad");
+        _mesh = RESOURCES->GetQuadMesh();
+        mesh = _mesh.Resolve();
     }
 
     DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     material->Update();
-    _mesh->GetVertexBuffer()->PushData();
-    _mesh->GetIndexBuffer()->PushData();
-    material->GetShader()->DrawIndexed(RenderTech::Draw, 0, _mesh->GetIndexBuffer()->GetCount());
+    mesh->GetVertexBuffer()->PushData();
+    mesh->GetIndexBuffer()->PushData();
+    material->GetShader()->DrawIndexed(RenderTech::Draw, 0, mesh->GetIndexBuffer()->GetCount());
 }

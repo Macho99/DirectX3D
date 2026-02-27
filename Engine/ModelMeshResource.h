@@ -22,8 +22,7 @@ public:
 	shared_ptr<ModelBone> GetBoneByIndex(uint32 index) { return (index < 0 || index >= _bones.size() ? nullptr : _bones[index]); }
 	shared_ptr<ModelBone> GetBoneByName(const wstring& name);
 
-private:
-	void BindCacheInfo();
+	void BindCacheInfo(vector<ResourceRef<Material>> materials);
 
 private:
 	shared_ptr<ModelBone> _root;

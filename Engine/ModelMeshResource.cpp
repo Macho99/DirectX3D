@@ -2,6 +2,7 @@
 #include "ModelMeshResource.h"
 #include "FileUtils.h"
 #include "ModelMesh.h"
+#include "Material.h"
 
 ModelMeshResource::ModelMeshResource()
     : Super(ResourceType::ModelMesh)
@@ -75,8 +76,6 @@ void ModelMeshResource::ReadModel(wstring fullPath)
 			_meshes.push_back(mesh);
 		}
 	}
-
-	BindCacheInfo();
 }
 
 std::shared_ptr<ModelMesh> ModelMeshResource::GetMeshByName(const wstring& name)
@@ -101,16 +100,26 @@ std::shared_ptr<ModelBone> ModelMeshResource::GetBoneByName(const wstring& name)
 	return nullptr;
 }
 
-void ModelMeshResource::BindCacheInfo()
+void ModelMeshResource::BindCacheInfo(vector<ResourceRef<Material>> materials)
 {
 	// Mesh에 Material 캐싱
 	for (const auto& mesh : _meshes)
 	{
 		// 이미 찾았으면 스킵
-		if (mesh->material != nullptr)
+		if (mesh->material.IsValid())
 			continue;
 
-		mesh->material = GetMaterialByName(mesh->materialName);
+        for (auto& materialRef : materials)
+        {
+            Material* material = materialRef.Resolve();
+            if (material->GetName() == mesh->materialName)
+            {
+                mesh->material = materialRef;
+                break;
+            }
+        }
+
+		assert(false, "메테리얼 못찾음");
 	}
 
 	// Mesh에 Bone 캐싱

@@ -6,13 +6,13 @@
 Sky::Sky(const std::wstring& cubemapFilename, const wstring& shaderFileName)
 {
 	//_cubeMapSRV = Utils::LoadTexture(device, cubemapFilename);
-	_texture = make_shared<Texture>();
-	_texture->Load(cubemapFilename);
+	_texture = RESOURCES->AllocateTempResource(make_unique<Texture>());
+	_texture.Resolve()->Load(cubemapFilename);
 
 	//GeometryGenerator::MeshData sphere;
 	//GeometryGenerator geoGen;
 	//geoGen.CreateSphere(skySphereRadius, 30, 30, sphere);
-	shared_ptr<Mesh> sphereMesh = RESOURCES->Get<Mesh>(L"Sphere");
+	Mesh* sphereMesh = RESOURCES->GetSphereMesh().Resolve();
 	auto sphereGeometry = sphereMesh->GetGeometry();
 	
 	const vector<VertexTextureNormalTangentData>& geoVerteices = sphereGeometry->GetVertices();
@@ -59,9 +59,10 @@ Sky::Sky(const std::wstring& cubemapFilename, const wstring& shaderFileName)
 	_ib = make_shared<IndexBuffer>();
 	_ib->Create(geoindices);
 
-	_material = make_shared<Material>();
-	_material->SetShader(make_shared<Shader>(shaderFileName));
-	_material->SetCubeMap(_texture);
+	_material = RESOURCES->AllocateTempResource(make_unique<Material>());
+    ResourceRef<Shader> shader = RESOURCES->GetResourceRefByPath<Shader>(shaderFileName);
+	_material.Resolve()->SetShader(shader);
+	_material.Resolve()->SetCubeMap(_texture);
 }
 
 Sky::~Sky()
@@ -70,7 +71,10 @@ Sky::~Sky()
 
 ComPtr<ID3D11ShaderResourceView> Sky::CubeMapSRV()
 {
-	return _texture->GetComPtr();
+    Texture* texture = _texture.Resolve();
+    if (texture == nullptr)
+        return nullptr;
+	return texture->GetComPtr();
 }
 
 void Sky::Render(Camera* camera)
@@ -90,10 +94,11 @@ void Sky::Render(Camera* camera)
 	Matrix p = camera->GetProjectionMatrix();
 	Matrix wvp = world * v * p;
 
-	Shader* shader = _material->GetShader();
+    Material* material = _material.Resolve();
+	Shader* shader = material->GetShader();
 	shader->PushTransformData(TransformDesc(wvp));
 	shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
-	_material->Update();
+	material->Update();
 
 	//uint32 stride = sizeof(Vec3);
 	//uint32 offset = 0;

@@ -12,12 +12,12 @@ public:
 	MeshRenderer();
 	virtual ~MeshRenderer();
 
-	void SetMesh(shared_ptr<Mesh> mesh) { _mesh = mesh; }
+	void SetMesh(ResourceRef<Mesh> mesh) { _mesh = mesh; }
 	bool Render(RenderTech renderTech) override;
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
 	InstanceID GetInstanceID();
 
 private:
-	shared_ptr<Mesh> _mesh;
+	ResourceRef<Mesh> _mesh;
 };
 

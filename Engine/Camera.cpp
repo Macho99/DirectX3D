@@ -64,7 +64,10 @@ void Camera::SortGameObject()
 		if (renderer == nullptr)
 			continue;
 
-		shared_ptr<Material> material = renderer->GetMaterial();
+		Material* material = renderer->GetMaterial().Resolve();
+        if (material == nullptr)
+            continue;
+
 		RenderQueue renderQueue = material->GetRenderQueue();
 
 		// TODO: ÄÆ¾Æ¿ô¿ë Á¤·ÄÇÏ±â

@@ -348,7 +348,7 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
         desc.specular = asMaterial->specular;
         desc.emissive = asMaterial->emissive;
 
-        wstring assetName = Utils::ToWString(asMaterial->name) + L"_" + to_wstring(i) + L".mat";
+        wstring assetName = Utils::ToWString(asMaterial->name) + L".mat";
         AddExported(prev, exported, assetName, ResourceType::Material);
     }
 }

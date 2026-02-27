@@ -7,6 +7,7 @@
 #include "AssetDatabase.h"
 #include "ResourceRef.h"
 #include "AssetSlot.h"
+#include "MetaFile.h"
 
 class Shader;
 class Texture;
@@ -56,7 +57,6 @@ private:
 public:
     fs::path GetRootPath() const { return _root; }
 	bool TryGetAssetIdByPath(const fs::path& assetsPath, OUT AssetId& assetId) const { return assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, assetId); }
-	AssetId GetAssetIdByPath(const fs::path& assetsPath) const;
     bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	const { return assetDatabase.TryGetPathByAssetId(assetId, path); }
     bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	const { return assetDatabase.TryGetMetaByAssetId(assetId, out); }
     bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		const { return assetDatabase.TryGetMetaByPath(absPath, out); }
@@ -65,6 +65,32 @@ public:
 
     AssetDatabase& GetAssetDatabase() { return assetDatabase; }
     AssetSlot& GetAssetSlot() { return _assetSlot; }
+
+    template<typename T>
+	ResourceRef<T> GetResourceRefByPath(const fs::path& assetsPath) const
+	{
+		AssetId assetId;
+		if (assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, OUT assetId) == false)
+		{
+			assert(false, "absPath is not valid");
+			return ResourceRef<T>();
+		}
+		MetaFile* metaFile;
+        if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
+        {
+            assert(false, "assetId is not valid");
+			return ResourceRef<T>();
+        }
+
+		if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
+		{
+			assert(false, "ResourceRef type mismatch");
+			return ResourceRef<T>();
+		}
+
+		ResourceRef<T> resourceRef(assetId);
+        return resourceRef;
+	}
 
     template<typename T>
 	ResourceRef<T> AllocateTempResource(unique_ptr<T> resource)

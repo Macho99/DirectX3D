@@ -47,7 +47,7 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 
 	Super::InnerRender(renderTech);
 
-	Shader* shader = _material->GetShader();
+	Shader* shader = _material.Resolve()->GetShader();
 	//
 	// Set constants.
 	//
@@ -129,12 +129,14 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	shader->EndDraw(1, 0);
 }
 
-void ParticleSystem::SetMaterial(shared_ptr<Material> material)
+void ParticleSystem::SetMaterial(ResourceRef<Material> material)
 {
 	Super::SetMaterial(material);
-	material->SetRandomTex(RESOURCES->Get<Texture>(L"RandomTex"));
-	material->SetCastShadow(false);
-    material->GetShader()->SetTechNum(RenderTech::Draw, 1);
+    Material* materialPtr = _material.Resolve();
+
+	materialPtr->SetRandomTex(RESOURCES->GetRandomTexture());
+	materialPtr->SetCastShadow(false);
+    materialPtr->GetShader()->SetTechNum(RenderTech::Draw, 1);
 }
 
 void ParticleSystem::BuildVB()

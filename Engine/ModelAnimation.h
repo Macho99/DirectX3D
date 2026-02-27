@@ -26,6 +26,9 @@ public:
 
 	shared_ptr<ModelKeyframe> GetKeyframe(const wstring& name);
 	wstring GetName() { return name; }
+    float GetDuration() { return duration; }
+    float GetFrameRate() { return frameRate; }
+    uint32 GetFrameCount() { return frameCount; }
 
 private:
 	wstring name = L"empty";

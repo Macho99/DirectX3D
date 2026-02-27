@@ -25,7 +25,7 @@ struct ModelMesh
 
 	// Material
 	wstring materialName = L"";
-	shared_ptr<Material> material; // Cache
+	ResourceRef<Material> material; // Cache
 
 	// Bones
 	int32 boneIndex;

@@ -35,7 +35,7 @@ public:
     //    return Resolve(FindHandle(assetId));
     //}
 
-    void Remove(const AssetRef& assetRef) { Remove(assetRef.assetId); }
+    void Remove(const AssetRef& assetRef) { Remove(assetRef.GetAssetId()); }
     void Remove(const AssetId& assetId);
     AssetRef Register(unique_ptr<ResourceBase> resource);
 

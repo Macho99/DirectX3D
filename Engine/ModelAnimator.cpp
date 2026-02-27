@@ -48,6 +48,10 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
     if (shader == nullptr)
         return;
 
+    ModelMeshResource* mesh = model->GetMesh();
+    if (mesh == nullptr)
+        return;
+
 	if (Super::Render(renderTech) == false)
 		return;
 
@@ -68,19 +72,20 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	// Bone
 	BoneDesc boneDesc;
 
-	const uint32 boneCount = model->GetBoneCount();
+	const uint32 boneCount = mesh->GetBoneCount();
 	for (uint32 i = 0; i < boneCount; i++)
 	{
-		shared_ptr<ModelBone> bone = model->GetBoneByIndex(i);
+		shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
 		boneDesc.transforms[i] = bone->transform;
 	}
 	shader->PushBoneData(boneDesc);
 
-	const auto& meshes = model->GetMeshes();
+	const auto& meshes = mesh->GetMeshes();
 	for (auto& mesh : meshes)
 	{
-		if (mesh->material)
-			mesh->material->Update();
+        Material* material = mesh->material.Resolve();
+		if (material)
+			material->Update();
 
 		shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
 
@@ -88,23 +93,26 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 		mesh->indexBuffer->PushData();
 		buffer->PushData();
 		shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
-
 	}
 }
 
 InstanceID ModelAnimator::GetInstanceID()
 {
-	return make_pair((uint64)_model.get(), (uint64)_shader.get());
+	return make_pair((uint64)_model.GetAssetId().GetLeftId(), (uint64)_shader.GetAssetId().GetLeftId());
 }
 
 void ModelAnimator::CreateTexture()
 {
-	if (_model->GetAnimationCount() == 0)
+    Model* model = _model.Resolve();
+	if (model == nullptr)
 		return;
 
-	_animTransforms.resize(_model->GetAnimationCount());
+	if (model->GetAnimationCount() == 0)
+		return;
 
-	for (uint32 i = 0; i < _model->GetAnimationCount(); i++)
+	_animTransforms.resize(model->GetAnimationCount());
+
+	for (uint32 i = 0; i < model->GetAnimationCount(); i++)
 	{
 		CreateAnimationTransform(i);
 	}
@@ -115,7 +123,7 @@ void ModelAnimator::CreateTexture()
 		ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
 		desc.Width = MAX_MODEL_TRANSFORMS * 4;
 		desc.Height = MAX_MODEL_KEYFRAMES;
-		desc.ArraySize = _model->GetAnimationCount();
+		desc.ArraySize = model->GetAnimationCount();
 		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 16바이트
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -124,10 +132,10 @@ void ModelAnimator::CreateTexture()
 
 		const uint32 dataSize = MAX_MODEL_TRANSFORMS * sizeof(Matrix);
 		const uint32 pageSize = dataSize * MAX_MODEL_KEYFRAMES;
-		void* mallocPtr = ::malloc(pageSize * _model->GetAnimationCount());
+		void* mallocPtr = ::malloc(pageSize * model->GetAnimationCount());
 
 		// 파편화된 데이터를 조립한다.
-		for (uint32 c = 0; c < _model->GetAnimationCount(); c++)
+		for (uint32 c = 0; c < model->GetAnimationCount(); c++)
 		{
 			uint32 startOffset = c * pageSize;
 
@@ -141,9 +149,9 @@ void ModelAnimator::CreateTexture()
 		}
 
 		// 리소스 만들기
-		vector<D3D11_SUBRESOURCE_DATA> subResources(_model->GetAnimationCount());
+		vector<D3D11_SUBRESOURCE_DATA> subResources(model->GetAnimationCount());
 
-		for (uint32 c = 0; c < _model->GetAnimationCount(); c++)
+		for (uint32 c = 0; c < model->GetAnimationCount(); c++)
 		{
 			void* ptr = (BYTE*)mallocPtr + c * pageSize;
 			subResources[c].pSysMem = ptr;
@@ -163,7 +171,7 @@ void ModelAnimator::CreateTexture()
 		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
 		desc.Texture2DArray.MipLevels = 1;
-		desc.Texture2DArray.ArraySize = _model->GetAnimationCount();
+		desc.Texture2DArray.ArraySize = model->GetAnimationCount();
 
 		DX_CREATE_SRV(_texture.Get(), &desc, _srv);
 	}
@@ -171,14 +179,17 @@ void ModelAnimator::CreateTexture()
 
 void ModelAnimator::CreateAnimationTransform(uint32 index)
 {
-	vector<Matrix> tempAnimBoneTransforms(MAX_MODEL_TRANSFORMS, Matrix::Identity);
-	shared_ptr<ModelAnimation> animation = _model->GetAnimationByIndex(index);
+    Model* model = _model.Resolve();
+    ModelMeshResource* mesh = model->GetMesh();
 
-	for (uint32 f = 0; f < animation->frameCount; f++)
+	vector<Matrix> tempAnimBoneTransforms(MAX_MODEL_TRANSFORMS, Matrix::Identity);
+	ModelAnimation* animation = model->GetAnimationByIndex(index);
+
+	for (uint32 f = 0; f < animation->GetFrameCount(); f++)
 	{
-		for (uint32 b = 0; b < _model->GetBoneCount(); b++)
+		for (uint32 b = 0; b < mesh->GetBoneCount(); b++)
 		{
-			shared_ptr<ModelBone> bone = _model->GetBoneByIndex(b);
+			shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(b);
 
 			Matrix matAnim;
 
@@ -217,20 +228,24 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 
 void ModelAnimator::UpdateTweenData()
 {
+    Model* model = _model.Resolve();
+    if (model == nullptr)
+        return;
+
 	TweenDesc& desc = _tweenDesc;
 
 	desc.cur.sumTime += DT;
 	// 현재 애니메이션
 	{
-		shared_ptr<ModelAnimation> currentAnim = _model->GetAnimationByIndex(desc.cur.animIndex);
+		ModelAnimation* currentAnim = model->GetAnimationByIndex(desc.cur.animIndex);
 		if (currentAnim)
 		{
-			float timePerFrame = 1 / (currentAnim->frameRate * desc.cur.speed);
+			float timePerFrame = 1 / (currentAnim->GetFrameRate() * desc.cur.speed);
 			if (desc.cur.sumTime >= timePerFrame)
 			{
 				desc.cur.sumTime = 0;
-				desc.cur.curFrame = (desc.cur.curFrame + 1) % currentAnim->frameCount;
-				desc.cur.nextFrame = (desc.cur.curFrame + 1) % currentAnim->frameCount;
+				desc.cur.curFrame = (desc.cur.curFrame + 1) % currentAnim->GetFrameCount();
+				desc.cur.nextFrame = (desc.cur.curFrame + 1) % currentAnim->GetFrameCount();
 			}
 
 			desc.cur.ratio = (desc.cur.sumTime / timePerFrame);
@@ -251,17 +266,17 @@ void ModelAnimator::UpdateTweenData()
 		else
 		{
 			// 교체중
-			shared_ptr<ModelAnimation> nextAnim = _model->GetAnimationByIndex(desc.next.animIndex);
+			ModelAnimation* nextAnim = model->GetAnimationByIndex(desc.next.animIndex);
 			desc.next.sumTime += DT;
 
-			float timePerFrame = 1.f / (nextAnim->frameRate * desc.next.speed);
+			float timePerFrame = 1.f / (nextAnim->GetFrameCount() * desc.next.speed);
 
 			if (desc.next.ratio >= 1.f)
 			{
 				desc.next.sumTime = 0;
 
-				desc.next.curFrame = (desc.next.curFrame + 1) % nextAnim->frameCount;
-				desc.next.nextFrame = (desc.next.curFrame + 1) % nextAnim->frameCount;
+				desc.next.curFrame = (desc.next.curFrame + 1) % nextAnim->GetFrameCount();
+				desc.next.nextFrame = (desc.next.curFrame + 1) % nextAnim->GetFrameCount();
 			}
 
 			desc.next.ratio = desc.next.sumTime / timePerFrame;

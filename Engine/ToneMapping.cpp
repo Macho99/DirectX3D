@@ -5,20 +5,21 @@
 
 ToneMapping::ToneMapping()
 {
-    _toneMappingMat = make_shared<Material>();
+    unique_ptr<Material> material = make_unique<Material>();
     shared_ptr<Texture> texture = make_shared<Texture>();
-    _toneMappingMat->SetDiffuseMap(texture);
-    _toneMappingMat->SetShader(make_shared<Shader>(L"ToneMapping.fx"));
-    _toneMappingMat->GetShader()->SetTechNum(RenderTech::Draw, 0);
+    material->SetDiffuseMap(RESOURCES->AllocateTempResource(make_unique<Texture>()));
+    material->SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\ToneMapping.fx"));
+    material->GetShader()->SetTechNum(RenderTech::Draw, 0);
+    _toneMappingMat = RESOURCES->AllocateTempResource(std::move(material));
 }
 
 void ToneMapping::SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv)
 {
-    _toneMappingMat->GetDiffuseMap()->SetSRV(srv);
+    _toneMappingMat.Resolve()->GetDiffuseMap().Resolve()->SetSRV(srv);
 }
 
 void ToneMapping::Render(ComPtr<ID3D11RenderTargetView> rtv)
 {
     Super::Render(rtv);
-    DrawQuad(_toneMappingMat.get());
+    DrawQuad(_toneMappingMat.Resolve());
 }

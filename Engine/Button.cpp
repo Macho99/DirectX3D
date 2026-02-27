@@ -38,7 +38,7 @@ void Button::Create(Vec2 screenPos, Vec2 size, ResourceRef<Material> material)
 
 	go->GetMeshRenderer()->SetMaterial(material);
 
-	auto mesh = RESOURCES->Get<Mesh>(L"Quad");
+	auto mesh = RESOURCES->GetQuadMesh();
 	go->GetMeshRenderer()->SetMesh(mesh);
 	go->GetMeshRenderer()->SetPass(0);
 

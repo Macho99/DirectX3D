@@ -16,7 +16,7 @@ private:
 	//ComPtr<ID3D11Buffer> _vb;
 	//ComPtr<ID3D11Buffer> _ib;
 
-	shared_ptr<class Texture> _texture;
-	shared_ptr<class Material> _material;
+	ResourceRef<class Texture> _texture;
+	ResourceRef<class Material> _material;
 	uint32 _indexCount;
 };

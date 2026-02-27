@@ -10,20 +10,20 @@ class ModelRenderer : public Renderer
 	using Super = Renderer;
 
 public:
-	ModelRenderer(shared_ptr<Shader> shader);
+	ModelRenderer(ResourceRef<Shader> shader);
 	virtual ~ModelRenderer();
 
-	void SetModel(shared_ptr<Model> model);
+	void SetModel(ResourceRef<Model> model);
 	void SetPass(uint8 pass) { _pass = pass; }
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
 	InstanceID GetInstanceID();
 
-	void SetMaterial(shared_ptr<Material> material) override;
+	void SetMaterial(ResourceRef<Material> material) override;
 
 private:
-	shared_ptr<Shader>	_shader;
+	ResourceRef<Shader>	_shader;
 	uint8				_pass = 0;
-	shared_ptr<Model>	_model;
+	ResourceRef<Model>	_model;
 };
 

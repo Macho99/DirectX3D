@@ -10,21 +10,23 @@ public:
 	Model();
 	~Model();
 
-public:
-	void ReadMaterial(wstring filename);
+	void BindCache();
 
+public:
 	uint32 GetMaterialCount() { return static_cast<uint32>(_materials.size()); }
-	vector<MaterialRef>& GetMaterials() { return _materials; }
-	MaterialRef GetMaterialByIndex(uint32 index) { return _materials[index]; }
-	MaterialRef GetMaterialByName(const wstring& name);
+	vector<ResourceRef<Material>>& GetMaterials() { return _materials; }
+	ResourceRef<Material> GetMaterialByIndex(uint32 index) { return _materials[index]; }
+	ResourceRef<Material> GetMaterialByName(const wstring& name);
 
 	uint32 GetAnimationCount() { return _animations.size(); }
 	vector<ResourceRef<ModelAnimation>>& GetAnimations() { return _animations; }
-	ResourceRef<ModelAnimation> GetAnimationByIndex(UINT index) { return (index < 0 || index >= _animations.size()) ? ResourceRef<ModelAnimation>() : _animations[index]; }
-	ResourceRef<ModelAnimation> GetAnimationByName(wstring name);
+	ModelAnimation* GetAnimationByIndex(UINT index) { return (index < 0 || index >= _animations.size()) ? nullptr : _animations[index].Resolve(); }
+	ModelAnimation* GetAnimationByName(wstring name);
+
+    ModelMeshResource* GetMesh() { return _mesh.Resolve(); }
 
 private:
-	vector<MaterialRef> _materials;
+	vector<ResourceRef<Material>> _materials;
     ResourceRef<ModelMeshResource> _mesh;
 	vector<ResourceRef<ModelAnimation>> _animations;
 };

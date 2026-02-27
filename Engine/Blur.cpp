@@ -70,7 +70,7 @@ void Blur::OnSize(int32 width, int32 height)
 
 	if (_blurMat.IsValid() == false)
 	{
-		ResourceRef<Shader> shader = RESOURCES->GetAssetIdByPath(L"Shaders\\Blur.fx");
+		ResourceRef<Shader> shader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Blur.fx");
 		ResourceRef<Material> material = RESOURCES->AllocateTempResource(make_unique<Material>());
 		material.Resolve()->SetShader(shader);
 		material.Resolve()->SetNormalMap(GRAPHICS->GetNormalDepthMap());

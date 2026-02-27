@@ -7,14 +7,14 @@ public:
 	Terrain();
 	~Terrain();
 
-	void Create(int32 sizeX, int32 sizeZ, shared_ptr<Material> material);
+	void Create(int32 sizeX, int32 sizeZ, ResourceRef<Material> material);
 	int32 GetSizeX() { return _sizeX; }
 	int32 GetSizeY() { return _sizeZ; }
 
 	bool Pick(int32 screenX, int32 screenY, OUT Vec3& pickPos, OUT float& distance);
 
 private:
-	shared_ptr<Mesh> _mesh;
+	ResourceRef<Mesh> _mesh;
 	int32 _sizeX = 0;
 	int32 _sizeZ = 0;
 };

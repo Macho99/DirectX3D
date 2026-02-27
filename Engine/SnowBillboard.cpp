@@ -88,7 +88,7 @@ void SnowBillboard::InnerRender(RenderTech renderTech)
 	// GlobalData
 	//shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
 
-	auto shader = _material->GetShader();
+	auto shader = _material.Resolve()->GetShader();
 	// SnowData
 	shader->PushSnowData(_desc);
 
@@ -102,8 +102,8 @@ void SnowBillboard::InnerRender(RenderTech renderTech)
 	shader->DrawIndexed(renderTech, _pass, _drawCount * 6);
 }
 
-void SnowBillboard::SetMaterial(shared_ptr<Material> material)
+void SnowBillboard::SetMaterial(ResourceRef<Material> material)
 {
 	Super::SetMaterial(material);
-	_material->SetCastShadow(false);
+	material.Resolve()->SetCastShadow(false);
 }

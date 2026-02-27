@@ -24,7 +24,7 @@ public:
 	void Update() override;
 	void InnerRender(RenderTech renderTech) override;
 
-	void SetMaterial(shared_ptr<Material> material) override;
+	void SetMaterial(ResourceRef<Material> material) override;
 
 	void SetEmitPosW(Vec3 emitPosW) { _emitPosW = emitPosW; }
 	void SetEmitDirW(Vec3 emitDirW) { _emitDirW = emitDirW; }

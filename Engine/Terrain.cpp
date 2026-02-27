@@ -12,7 +12,7 @@ Terrain::~Terrain()
 {
 }
 
-void Terrain::Create(int32 sizeX, int32 sizeZ, shared_ptr<Material> material)
+void Terrain::Create(int32 sizeX, int32 sizeZ, ResourceRef<Material> material)
 {
 	_sizeX = sizeX;
 	_sizeZ = sizeZ;
@@ -27,8 +27,8 @@ void Terrain::Create(int32 sizeX, int32 sizeZ, shared_ptr<Material> material)
 		meshRenderer = go->GetMeshRenderer();
 	}
 
-	_mesh = make_shared<Mesh>();
-	_mesh->CreateGrid(sizeX, sizeZ);
+	_mesh = RESOURCES->AllocateTempResource(make_unique<Mesh>());
+	_mesh.Resolve()->CreateGrid(sizeX, sizeZ);
 
 	meshRenderer->SetMesh(_mesh);
 	meshRenderer->SetMaterial(material);
@@ -52,7 +52,7 @@ bool Terrain::Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& distance)
 
 	Ray ray = Ray(start, direction);
 
-	const auto& vertices = _mesh->GetGeometry()->GetVertices();
+	const auto& vertices = _mesh.Resolve()->GetGeometry()->GetVertices();
 
 	for (int32 z = 0; z < _sizeZ; z++)
 	{

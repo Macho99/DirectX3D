@@ -30,9 +30,9 @@ public:
 
     ResourceBase* Resolve();
 
-    const AssetId& GetAssetId() const { return assetId; }
+    AssetId GetAssetId() const { return assetId; }
 
-public:
+protected:
     AssetId assetId;
     mutable Handle cached;
 };

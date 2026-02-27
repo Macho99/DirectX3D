@@ -25,7 +25,7 @@ public:
 	//void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	void SetPass(uint8 pass) { _pass = pass; }
 
-	void SetMaterial(shared_ptr<Material> material) override;
+	void SetMaterial(ResourceRef<Material> material) override;
 
 private:
 	vector<VertexSnow> _vertices;

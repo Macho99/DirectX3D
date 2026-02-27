@@ -11,6 +11,6 @@ public:
     void Render(ComPtr<ID3D11RenderTargetView> rtv) override;
 
 private:
-    shared_ptr<Material> _toneMappingMat;
+    ResourceRef<Material> _toneMappingMat;
 };
 

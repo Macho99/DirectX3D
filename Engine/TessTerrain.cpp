@@ -15,7 +15,7 @@ TessTerrain::TessTerrain() : Super(ComponentType::TessTerrain)
     //_mat.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 64.0f);
     //_mat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
-    _heightMapTexture = make_shared<Texture>();
+    _heightMapTexture = RESOURCES->AllocateTempResource(make_unique<Texture>());
 }
 
 TessTerrain::~TessTerrain()
@@ -101,13 +101,17 @@ void TessTerrain::Init(const InitInfo& initInfo)
 
 	_layerMapArraySRV = Utils::CreateTexture2DArraySRV(layerFilenames);
 
-    _blendMapTexture = make_shared<Texture>();
-    _blendMapTexture->Load(_info.blendMapFilename);
+    _blendMapTexture = RESOURCES->AllocateTempResource(make_unique<Texture>());
+    _blendMapTexture.Resolve()->Load(_info.blendMapFilename);
 }
 
 
 void TessTerrain::InnerRender(RenderTech renderTech)
 {
+	Material* material = GetMaterial().Resolve();
+    if (material == nullptr)
+        return;
+
     Super::InnerRender(renderTech);
 
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
@@ -132,15 +136,15 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 		MathUtils::ExtractFrustumPlanes(_terrainDesc.gWorldFrustumPlanes, viewProj);
 	}
 	
-	Shader* shader = _material->GetShader();
+	Shader* shader = material->GetShader();
     _terrainDesc.gTexelCellSpaceU = 1.0f / _info.heightmapWidth;
     _terrainDesc.gTexelCellSpaceV = 1.0f / _info.heightmapHeight;
     _terrainDesc.gWorldCellSpace = _info.cellSpacing;
 	shader->PushTerrainData(_terrainDesc);
 
-    _material->SetLayerMapArraySRV(_layerMapArraySRV);
-    _material->SetDiffuseMap(_heightMapTexture);
-    _material->SetSpecularMap(_blendMapTexture);
+    material->SetLayerMapArraySRV(_layerMapArraySRV);
+    material->SetDiffuseMap(_heightMapTexture);
+    material->SetSpecularMap(_blendMapTexture);
 
     shader->DrawIndexed(renderTech, 0, _numPatchQuadFaces * 4);
 
@@ -408,5 +412,5 @@ void TessTerrain::BuildHeightmapSRV()
 	srvDesc.Texture2D.MipLevels = -1;
 	DX_CREATE_SRV(hmapTex.Get(), &srvDesc, _heightMapSRV);
 
-	_heightMapTexture->SetSRV(_heightMapSRV);
+	_heightMapTexture.Resolve()->SetSRV(_heightMapSRV);
 }

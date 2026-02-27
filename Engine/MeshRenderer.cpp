@@ -23,15 +23,19 @@ bool MeshRenderer::Render(RenderTech renderTech)
 		return false;
 	}
 
-	if (_mesh == nullptr)
+	Mesh* mesh = _mesh.Resolve();
+	if (mesh == nullptr)
 		return false;
+    Material* material = _material.Resolve();
+    if (material == nullptr)
+        return false;
 
 	// Light
 	//_material->Update();
 
-	_mesh->GetVertexBuffer()->PushData();
-	_mesh->GetIndexBuffer()->PushData();
-    _material->GetShader()->DrawIndexed(renderTech, _pass, _mesh->GetIndexBuffer()->GetCount());
+	mesh->GetVertexBuffer()->PushData();
+	mesh->GetIndexBuffer()->PushData();
+	material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
 	return true;
 }
 
@@ -41,23 +45,26 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 	{
 		return;
 	}
-
-	if (_mesh == nullptr)
+	Mesh* mesh = _mesh.Resolve();
+	if (mesh == nullptr)
+		return;
+	Material* material = _material.Resolve();
+	if (material == nullptr)
 		return;
 
 	// Light
 	//_material->Update();
 
-	_mesh->GetVertexBuffer()->PushData();
-	_mesh->GetIndexBuffer()->PushData();
+	mesh->GetVertexBuffer()->PushData();
+	mesh->GetIndexBuffer()->PushData();
 
 	buffer->PushData();
 
-	_material->GetShader()->DrawIndexedInstanced(renderTech, _pass, _mesh->GetIndexBuffer()->GetCount(),
+	material->GetShader()->DrawIndexedInstanced(renderTech, _pass, mesh->GetIndexBuffer()->GetCount(),
 		buffer->GetCount());
 }
 
 InstanceID MeshRenderer::GetInstanceID()
 {
-	return make_pair((uint64)_mesh.get(), (uint64)_material.get());
+	return make_pair((uint64)_mesh.GetAssetId().GetLeftId(), (uint64)_material.GetAssetId().GetLeftId());
 }
