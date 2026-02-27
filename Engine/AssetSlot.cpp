@@ -12,7 +12,10 @@ AssetSlot::~AssetSlot()
 
 void AssetSlot::OnDestroy()
 {
-    _slots.clear();
+    for (int i = _slots.size() - 1; i >= 0; i--)
+    {
+        _slots[i].ptr.reset();
+    }
     _freeIndices.clear();
     _assetIdToHandle.clear();
 }
@@ -75,7 +78,7 @@ Handle AssetSlot::Register(AssetId assetId)
     unique_ptr<ResourceBase> obj = nullptr;
     if (RESOURCES->TryGetMetaByAssetId(assetId, OUT meta))
     {
-        obj = meta->LoadResource();
+        obj = meta->LoadResource(assetId);
 
         if (obj != nullptr)
             obj->SetId(assetId);

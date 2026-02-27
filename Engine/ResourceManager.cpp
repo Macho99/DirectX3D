@@ -20,9 +20,6 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::Init()
 {
-	CreateDefaultMesh();
-	CreateRandomTexture();
-
 	_root = L"..\\Assets";
 	if (!watcher.Start(_root, true, [&](const FsEvent& e)
 		{
@@ -37,6 +34,12 @@ void ResourceManager::Init()
 		DBG->LogW(L"Watching: " + _root.wstring());
 	}
 	assetDatabase.ReconcileAndBuildFromMeta(_root);
+}
+
+void ResourceManager::Start()
+{
+	CreateDefaultMesh();
+	CreateRandomTexture();
 }
 
 void ResourceManager::Update()

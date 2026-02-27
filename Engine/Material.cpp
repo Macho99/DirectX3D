@@ -13,15 +13,28 @@ void Material::SetShader(ResourceRef<Shader> shader)
 {
 	_shader = shader;
 
-    Shader* shaderPtr = _shader.Resolve();
-	_diffuseEffectBuffer =			shaderPtr->GetSRV("DiffuseMap");
-	_normalEffectBuffer =			shaderPtr->GetSRV("NormalMap");
-	_specularEffectBuffer =			shaderPtr->GetSRV("SpecularMap");
-	_randomEffectBuffer =			shaderPtr->GetSRV("RandomMap");
-	_cubeMapEffectBuffer =			shaderPtr->GetSRV("CubeMap");
-	_shadowMapEffectBuffer =		shaderPtr->GetSRV("ShadowMap");
-	_ssaoMapEffectBuffer =			shaderPtr->GetSRV("SsaoMap");
-	_layerMapArrayEffectBuffer =	shaderPtr->GetSRV("LayerMapArray");
+    Shader* shaderPtr = _shader.Resolve();    
+	if (shaderPtr == nullptr)
+	{
+		_diffuseEffectBuffer = nullptr;
+		_normalEffectBuffer = nullptr;
+		_specularEffectBuffer = nullptr;
+		_randomEffectBuffer = nullptr;
+		_cubeMapEffectBuffer = nullptr;
+		_shadowMapEffectBuffer = nullptr;
+		_ssaoMapEffectBuffer = nullptr;
+		_layerMapArrayEffectBuffer = nullptr;
+		return;
+	}
+
+	_diffuseEffectBuffer =			shaderPtr->GetSRV("DiffuseMap").Get();
+	_normalEffectBuffer =			shaderPtr->GetSRV("NormalMap").Get();
+	_specularEffectBuffer =			shaderPtr->GetSRV("SpecularMap").Get();
+	_randomEffectBuffer =			shaderPtr->GetSRV("RandomMap").Get();
+	_cubeMapEffectBuffer =			shaderPtr->GetSRV("CubeMap").Get();
+	_shadowMapEffectBuffer =		shaderPtr->GetSRV("ShadowMap").Get();
+	_ssaoMapEffectBuffer =			shaderPtr->GetSRV("SsaoMap").Get();
+	_layerMapArrayEffectBuffer =	shaderPtr->GetSRV("LayerMapArray").Get();
 }
 
 void Material::SetDiffuseMap(ResourceRef<Texture> diffuseMap)

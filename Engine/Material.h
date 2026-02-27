@@ -14,7 +14,7 @@ class Material : public ResourceBase
 	using Super = ResourceBase;
 public:
 	Material();
-	virtual ~Material();
+	~Material();
 
 	Shader* GetShader() { return _shader.Resolve(); }
 
@@ -72,14 +72,14 @@ private:
     ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 
 	// Cache
-	ComPtr<ID3DX11EffectShaderResourceVariable> _diffuseEffectBuffer;
-	ComPtr<ID3DX11EffectShaderResourceVariable> _normalEffectBuffer;
-	ComPtr<ID3DX11EffectShaderResourceVariable> _specularEffectBuffer;
-	ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
-	ComPtr<ID3DX11EffectShaderResourceVariable> _cubeMapEffectBuffer;
-	ComPtr<ID3DX11EffectShaderResourceVariable> _shadowMapEffectBuffer;
-	ComPtr<ID3DX11EffectShaderResourceVariable> _ssaoMapEffectBuffer;
-    ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;
+	ID3DX11EffectShaderResourceVariable* _diffuseEffectBuffer = nullptr;
+	ID3DX11EffectShaderResourceVariable* _normalEffectBuffer = nullptr;
+	ID3DX11EffectShaderResourceVariable* _specularEffectBuffer = nullptr;
+	ID3DX11EffectShaderResourceVariable* _randomEffectBuffer = nullptr;
+	ID3DX11EffectShaderResourceVariable* _cubeMapEffectBuffer = nullptr;
+	ID3DX11EffectShaderResourceVariable* _shadowMapEffectBuffer = nullptr;
+	ID3DX11EffectShaderResourceVariable* _ssaoMapEffectBuffer = nullptr;
+    ID3DX11EffectShaderResourceVariable* _layerMapArrayEffectBuffer = nullptr;
 };
 
 using MaterialRef = ResourceRef<Material>;

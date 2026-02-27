@@ -14,6 +14,12 @@ Model::Model()
 
 }
 
+Model::Model(vector<ResourceRef<Material>> materials, ResourceRef<ModelMeshResource> mesh, vector<ResourceRef<ModelAnimation>> animations)
+    :Super(ResourceType::Model), _materials(materials), _mesh(mesh), _animations(animations)
+{
+	BindCache();
+}
+
 Model::~Model()
 {
 

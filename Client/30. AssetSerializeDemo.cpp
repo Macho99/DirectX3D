@@ -68,7 +68,7 @@ void AssetSerializeDemo::Init()
     m1->ReadModel(L"Kachujin/Kachujin");
     m1->ReadMaterial(L"Kachujin/Kachujin");
     m1->ReadAnimation(L"Kachujin/Idle");
-
+    
     //shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
     //ResourceRef<Texture> textureRef = ResourceRef<Texture>::CreateByPath(L"..\\Assets\\Images\\grass.png");
     //Texture* texture = textureRef.Resolve();

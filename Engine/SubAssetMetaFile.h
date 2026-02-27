@@ -31,6 +31,7 @@ struct SubAssetInfo
 class SubAssetMetaFile : public MetaFile
 {
     using Super = MetaFile;
+    using Super::LoadResource;
 public:
     SubAssetMetaFile(ResourceType resourceType)
         :Super(resourceType)
@@ -54,6 +55,7 @@ public:
     }
 
     virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
+    virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
 
     template<class Archive>
     void serialize(Archive& ar)

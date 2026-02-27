@@ -105,11 +105,9 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
         {
             SubAssetInfo info = SubAssetInfo();
             wstring assetName = Utils::ToWString(_meshes[0]->name) + L".mesh";
-            info.fileName = assetName;
-            info.resourceType = ResourceType::Mesh;
             wstring finalPath = artifactPath + L"\\" + assetName;
             WriteModelFile(finalPath);
-            exported.push_back(info);
+            AddExported(prev, exported, assetName, ResourceType::ModelMesh);
         }
     }
 
@@ -120,12 +118,9 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
 
             SubAssetInfo info = SubAssetInfo();
             wstring assetName = Utils::ToWString(animation->name) + L".clip";
-            info.fileName = assetName;
-            info.resourceType = ResourceType::Animation;
             wstring finalPath = artifactPath + L"\\" + assetName;
-
-            exported.push_back(info);
             WriteAnimationData(animation, finalPath);
+            AddExported(prev, exported, assetName, ResourceType::Animation);
         }
     }
 }

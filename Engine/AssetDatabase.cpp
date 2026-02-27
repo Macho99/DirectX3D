@@ -14,7 +14,8 @@ bool AssetDatabase::TryGetAssetIdByPath(const fs::path& absPath, OUT AssetId& ou
 {
     std::lock_guard lk(_mtx);
     auto it = _pathToAssetId.find(absPath.wstring());
-    if (it == _pathToAssetId.end()) return false;
+    if (it == _pathToAssetId.end()) 
+        return false;
     out = it->second;
     return true;
 }

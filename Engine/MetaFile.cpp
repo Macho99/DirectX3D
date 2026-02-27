@@ -9,6 +9,9 @@
 #include "MaterialMeta.h"
 #include "MeshMeta.h"
 #include "ShaderMeta.h"
+#include "Material.h"
+#include "ModelMeshResource.h"
+#include "ModelAnimation.h"
 
 #include "fstream"
 #include "MetaStore.h"
@@ -162,10 +165,56 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
     }
 }
 
-unique_ptr<ResourceBase> MetaFile::LoadResource() const
+unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const fs::path& filePath) const
 {
-    DBG->LogErrorW(L"MetaFile::LoadResource: Not supported for resource type: " + to_wstring((int)_resourceType));
-    return nullptr;
+    unique_ptr<ResourceBase> resource = nullptr;
+
+    switch (resourceType)
+    {
+    case ResourceType::Texture:
+    {
+        unique_ptr<Texture> texture = make_unique<Texture>();
+        texture->Load(filePath);
+        resource = std::move(texture);
+        break;
+    }
+    case ResourceType::Shader:
+        resource = make_unique<Shader>(filePath);
+        break;
+    case ResourceType::Material:
+    {
+        unique_ptr<Material> material;
+        {
+            std::ifstream is(filePath);
+            cereal::JSONInputArchive archive(is);
+            archive(material);
+        }
+        resource = std::move(material);
+    }
+    case ResourceType::ModelMesh:
+    {
+        unique_ptr<ModelMeshResource> modelMeshResource = make_unique<ModelMeshResource>();
+        modelMeshResource->ReadModel(filePath);
+        resource = std::move(modelMeshResource);
+    }
+    case ResourceType::Animation:
+    {
+        unique_ptr<ModelAnimation> animation = make_unique<ModelAnimation>();
+        animation->ReadAnimation(filePath);
+        resource = std::move(animation);
+    }
+        break;
+    }
+
+    if(resource == nullptr)
+        assert(false, "MetaFile::LoadResource: Unsupported resource type: " + to_string((int)resourceType));
+
+    return resource;
+}
+
+unique_ptr<ResourceBase> MetaFile::LoadResource(AssetId assetId) const
+{
+    return LoadResource(_resourceType, _absPath);
 }
 
 Texture* MetaFile::GetIconTexture() const
@@ -260,7 +309,7 @@ void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentF
     ImGui::EndGroup();
     ImGui::PopID();
 
-    if (++curCol >= columns) 
+    if (++curCol >= columns)
         curCol = 0;
     if (hovered)
     {

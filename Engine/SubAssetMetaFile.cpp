@@ -94,3 +94,17 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
         }
     }
 }
+
+unique_ptr<ResourceBase> SubAssetMetaFile::LoadResource(AssetId assetId) const
+{
+    //Super::LoadResource(assetId);
+    for (const SubAssetInfo & sub : _subAssets)
+    {
+        if (sub.assetId == assetId)
+        {
+            return LoadResource(sub.resourceType, fs::path(GetArtifactPath()) / sub.fileName);
+        }
+    }
+    assert(false, "SubAssetMetaFile::LoadResource: assetId not found: " + assetId.ToString());
+    return nullptr;
+}

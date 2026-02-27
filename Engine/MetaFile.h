@@ -21,7 +21,7 @@ public:
     void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
     ResourceType GetResourceType() const { return _resourceType; }
 
-    virtual unique_ptr<ResourceBase> LoadResource() const;
+    virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const;
 
     Texture* GetIconTexture() const;
     virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
@@ -31,6 +31,7 @@ protected:
     wstring GetArtifactPath() const;
 
     Texture* GetIconTexture(ResourceType resourceType, const AssetId& assetId, const fs::path& absPath) const;
+    unique_ptr<ResourceBase> LoadResource(ResourceType resourceType, const fs::path& filePath) const;
 
 private:
     void ForceReImport();

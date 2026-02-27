@@ -13,6 +13,7 @@ class Graphics
 
 public:
 	void Init(HWND hwnd);
+	void Start();
     void OnDestroy();
 
 	void OnSize(bool isFirst);

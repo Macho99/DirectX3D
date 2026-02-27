@@ -14,6 +14,8 @@ class Mesh;
 class Material;
 class ModelAnimation;
 class ModelMesh;
+class Model;
+class ModelMeshResource;
 
 template<>
 struct ResourceTypeTrait<Texture>
@@ -46,9 +48,15 @@ struct ResourceTypeTrait<ModelAnimation>
 };
 
 template<>
-struct ResourceTypeTrait<ModelMesh>
+struct ResourceTypeTrait<ModelMeshResource>
 {
     static constexpr ResourceType value = ResourceType::ModelMesh;
+};
+
+template<>
+struct ResourceTypeTrait<Model>
+{
+    static constexpr ResourceType value = ResourceType::Model;
 };
 
 template<class T>
@@ -71,4 +79,5 @@ public:
 
     friend class ResourceManager;
     friend class Converter;
+    friend class ModelMeta;
 };

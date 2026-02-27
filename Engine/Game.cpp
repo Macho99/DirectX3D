@@ -23,13 +23,14 @@ WPARAM Game::Run(GameDesc& desc)
 		return FALSE;
 		
 	DBG->Init();
+	RESOURCES->Init();
 	GRAPHICS->Init(_desc.hWnd);
+	RESOURCES->Start();
+	GRAPHICS->Start();
 	TIME->Init();
 	INPUT->Init(_desc.hWnd);
-	RESOURCES->Init();
 	EDITOR->Init();
 
-	
 	_desc.app->Init();
 	SCENE->Init();
 

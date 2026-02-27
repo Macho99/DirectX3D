@@ -29,6 +29,7 @@ class ResourceManager
     ~ResourceManager();
 public:
 	void Init();
+	void Start();
 	void Update();
 	void OnDestroy();
 

@@ -382,35 +382,3 @@ void BillboardDemo::Update()
 void BillboardDemo::Render()
 {
 }
-
-void BillboardDemo::AddDebugImage(int32 width, int32 height, shared_ptr<Texture> texture, int techNum)
-{
-    // UI
-    {
-        const int debugUISize = 10;
-        auto objRef = CUR_SCENE->Add("DebugImage");
-        GameObject* obj = objRef.Resolve();
-        obj->SetLayerIndex(Layer_UI);
-        obj->AddComponent(make_unique<Button>());
-        auto material = make_shared<Material>();
-        //auto texture = make_shared<Texture>();
-        //texture->SetSRV(GRAPHICS->GetShadowMapSRV());
-        material->SetDiffuseMap(texture);
-        material->SetShader(make_shared<Shader>(L"DebugTexture.fx"));
-        material->GetShader()->SetTechNum(RenderTech::Draw, techNum);
-        obj->GetButton()->Create(Vec2(width / 2 + _debugImagePosX + 20, height / 2 + 20), Vec2(width, height), material);
-
-
-        obj->GetButton()->AddOnClickedEvent(
-            [objRef]()
-            {
-                if (objRef.Resolve() != nullptr)
-                {
-                    CUR_SCENE->Remove(objRef);
-                }
-            }
-        );
-    }
-
-    _debugImagePosX += width + 5;
-}

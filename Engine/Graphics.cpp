@@ -18,14 +18,17 @@ void Graphics::Init(HWND hwnd)
 	_hwnd = hwnd;
 
 	CreateDeviceAndSwapChain();
+}
 
+void Graphics::Start()
+{
 	_postProcesses.push_back(make_shared<Bloom>());
 	//_postProcesses[0]->SetEnabled(false);
-    _postProcesses.push_back(make_shared<ToneMapping>());
+	_postProcesses.push_back(make_shared<ToneMapping>());
 
 	CreateRenderTargetView();
 	CreateDSVAndShadowMap(true);
-	
+
 	_ssao = make_shared<Ssao>();
 	_normalDepthMap = RESOURCES->AllocateTempResource(make_unique<Texture>());
 }

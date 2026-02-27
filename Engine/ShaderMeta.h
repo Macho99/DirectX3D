@@ -6,8 +6,5 @@ class ShaderMeta : public MetaFile
 public:
     ShaderMeta();
     ~ShaderMeta();
-
-protected:
-    unique_ptr<ResourceBase> LoadResource() const override;
 };
 
