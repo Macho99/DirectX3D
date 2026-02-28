@@ -31,7 +31,7 @@ private:
 private:
 	void ReadMaterialData();
 	void WriteMaterialData(const fs::path& assetPath, const fs::path& artifactPath, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
-	ResourceRef<Texture> WriteTexture(string fileName, const fs::path& assetPath, const fs::path& artifactFolder, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
+	ResourceRef<Texture> WriteTexture(string file, const fs::path& assetPath, const fs::path& artifactFolder, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
 
 private:
 	shared_ptr<asAnimation> ReadAnimationData(aiAnimation* srcAnimation);

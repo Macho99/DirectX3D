@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "DirectXMath.h"
 #include "SimpleMath.h"
+#include "cereal/cereal.hpp"
 
 using int8 = __int8;
 using int16 = __int16;
@@ -54,3 +55,24 @@ enum class ResourceType : uint8
 
 	End
 };
+
+namespace cereal
+{
+	template <class Archive>
+	void serialize(Archive& ar, DirectX::XMFLOAT2& value)
+	{
+		ar(CEREAL_NVP(value.x), CEREAL_NVP(value.y));
+	}
+
+	template <class Archive>
+	void serialize(Archive& ar, DirectX::XMFLOAT3& value)
+	{
+		ar(CEREAL_NVP(value.x), CEREAL_NVP(value.y), CEREAL_NVP(value.z));
+	}
+
+	template <class Archive>
+	void serialize(Archive& ar, DirectX::XMFLOAT4& value)
+	{
+		ar(CEREAL_NVP(value.x), CEREAL_NVP(value.y), CEREAL_NVP(value.z), CEREAL_NVP(value.w));
+	}
+}

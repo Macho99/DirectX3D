@@ -207,7 +207,7 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
     }
 
     if(resource == nullptr)
-        assert(false, "MetaFile::LoadResource: Unsupported resource type: " + to_string((int)resourceType));
+        ASSERT(false, "MetaFile::LoadResource: Unsupported resource type: " + to_string((int)resourceType));
 
     return resource;
 }

@@ -92,5 +92,5 @@ InstanceID ModelRenderer::GetInstanceID()
 
 void ModelRenderer::SetMaterial(ResourceRef<Material> material)
 {
-	assert(false, "ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
+	ASSERT(false, "ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
 }

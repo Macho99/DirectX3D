@@ -45,3 +45,11 @@ enum Layer_Mask
 	Layer_Default = 0,
 	Layer_UI = 1
 };
+
+#ifdef _DEBUG
+#define ASSERT(cond, msg) \
+    Assert((cond), #cond, (msg), __FILE__, __LINE__)
+
+#else
+#define ASSERT(cond, msg) ((void)0)
+#endif

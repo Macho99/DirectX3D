@@ -37,9 +37,12 @@
 #include <optional>
 #include <fstream>
 #include <FoliageController.h>
+#include "Sky.h"
 
 void AssetSerializeDemo::Init()
 {
+    CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Shaders\\Sky.fx"));
+
     {
         GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
         GameObject* camera = cameraRef.Resolve();
@@ -64,21 +67,21 @@ void AssetSerializeDemo::Init()
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
 
-    shared_ptr<Model> m1 = make_shared<Model>();
-    m1->ReadModel(L"Kachujin/Kachujin");
-    m1->ReadMaterial(L"Kachujin/Kachujin");
-    m1->ReadAnimation(L"Kachujin/Idle");
+    //shared_ptr<Model> m1 = make_shared<Model>();
+    //m1->ReadModel(L"Kachujin/Kachujin");
+    //m1->ReadMaterial(L"Kachujin/Kachujin");
+    //m1->ReadAnimation(L"Kachujin/Idle");
     
     //shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");
     //ResourceRef<Texture> textureRef = ResourceRef<Texture>::CreateByPath(L"..\\Assets\\Images\\grass.png");
     //Texture* texture = textureRef.Resolve();
-    ResourceRef<Shader> foliageShader(RESOURCES->GetAssetIdByPath(L"Foliage.fx"));
+    ResourceRef<Shader> foliageShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
     {
         // Model
-        shared_ptr<Model> m2 = make_shared<Model>();
-        m2->ReadModel(L"Tree1/Tree");
-        m2->ReadMaterial(L"Tree1/Tree");
-    
+        //shared_ptr<Model> m2 = make_shared<Model>();
+        //m2->ReadModel(L"Tree1/Tree");
+        //m2->ReadMaterial(L"Tree1/Tree");
+        ResourceRef<Model> m2(RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tree1\\Tree.fbx"));
         for (int32 i = 0; i < 10; i++)
         {
             auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));

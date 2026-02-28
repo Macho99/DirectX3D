@@ -68,6 +68,35 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "Assimp/assimp-vc143-mt.lib")
 #endif
 
+inline void Assert(bool condition, const char* expr, const char* message,
+    const char* file, int line)
+{
+    if (!condition)
+    {
+        std::cerr << "Assertion Failed!\n";
+        std::cerr << "Expression: " << expr << "\n";
+        std::cerr << "Message   : " << (message ? message : "") << "\n";
+        std::cerr << "File      : " << file << "\n";
+        std::cerr << "Line      : " << line << "\n";
+
+        std::abort();
+    }
+}
+inline void Assert(bool condition, const char* expr, string message,
+    const char* file, int line)
+{
+    if (!condition)
+    {
+        std::cerr << "Assertion Failed!\n";
+        std::cerr << "Expression: " << expr << "\n";
+        std::cerr << "Message   : " << message << "\n";
+        std::cerr << "File      : " << file << "\n";
+        std::cerr << "Line      : " << line << "\n";
+
+        std::abort();
+    }
+}
+
 // Managers
 #include "Game.h"
 #include "Texture.h"
@@ -185,7 +214,6 @@ inline void DX_SetDebugName(
         ), \
         (outView).Get() \
     )
-
 
 //#if defined(_DEBUG)
 //#define CreateBuffer                DO_NOT_USE_CreateBuffer

@@ -32,9 +32,9 @@ T* ComponentRef<T>::Resolve() const
 }
 
 // 명시적 인스턴스화
-template class ComponentRef<Component>;
-template class ComponentRef<Transform>;
-template class ComponentRef<Camera>;
-template class ComponentRef<Light>;
-template class ComponentRef<TessTerrain>;
-template class ComponentRef<MonoBehaviour>;
+template struct ComponentRef<Component>;
+template struct ComponentRef<Transform>;
+template struct ComponentRef<Camera>;
+template struct ComponentRef<Light>;
+template struct ComponentRef<TessTerrain>;
+template struct ComponentRef<MonoBehaviour>;

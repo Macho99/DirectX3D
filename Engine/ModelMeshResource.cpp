@@ -119,7 +119,7 @@ void ModelMeshResource::BindCacheInfo(vector<ResourceRef<Material>> materials)
             }
         }
 
-		assert(false, "메테리얼 못찾음");
+		ASSERT(false, "메테리얼 못찾음");
 	}
 
 	// Mesh에 Bone 캐싱

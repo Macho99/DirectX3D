@@ -50,6 +50,7 @@ private:
 
     unordered_map<wstring, AssetId> _pathToAssetId;
     unordered_map<AssetId, unique_ptr<MetaFile>, AssetIdHash> _assetIdToMeta;
+    unordered_map<AssetId, MetaFile*, AssetIdHash> _subAssetContainer; // assetId가 sub asset인 경우, 해당 sub asset이 속한 meta file의 포인터
 
     vector<ReservedAssetId> _reservedAssetIds;
 };

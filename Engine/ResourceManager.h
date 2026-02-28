@@ -73,19 +73,19 @@ public:
 		AssetId assetId;
 		if (assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, OUT assetId) == false)
 		{
-			assert(false, "absPath is not valid");
+			ASSERT(false, "absPath is not valid");
 			return ResourceRef<T>();
 		}
 		MetaFile* metaFile;
         if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
         {
-            assert(false, "assetId is not valid");
+			ASSERT(false, "assetId is not valid");
 			return ResourceRef<T>();
         }
 
 		if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
 		{
-			assert(false, "ResourceRef type mismatch");
+			ASSERT(false, "ResourceRef type mismatch");
 			return ResourceRef<T>();
 		}
 

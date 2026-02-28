@@ -2,6 +2,27 @@
 #include "SubAssetMetaFile.h"
 #include "DndPayload.h"
 
+void SubAssetMetaFile::OnLoad(unordered_map<AssetId,MetaFile*, AssetIdHash>& subAssetContainer)
+{
+    Super::OnLoad(subAssetContainer);
+    for (const SubAssetInfo& sub : _subAssets)
+    {
+        subAssetContainer[sub.assetId] = this;
+    }
+}
+
+void SubAssetMetaFile::OnDestroy(unordered_map<AssetId,MetaFile*, AssetIdHash>& subAssetContainer)
+{
+    Super::OnDestroy(subAssetContainer);
+    for (const SubAssetInfo& sub : _subAssets)
+    {
+        auto it = subAssetContainer.find(sub.assetId);
+        ASSERT(it != subAssetContainer.end(), "SubAssetMetaFile::OnDestroy: sub asset not found in container: " + sub.assetId.ToString());
+        ASSERT(it->second == this, "SubAssetMetaFile::OnDestroy: sub asset container mismatch for assetId: " + sub.assetId.ToString());
+        subAssetContainer.erase(it);
+    }
+}
+
 void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
     Super::DrawContentBrowserItem(selectedPath, currentFolder, thumbSize, curCol, columns);
@@ -105,6 +126,6 @@ unique_ptr<ResourceBase> SubAssetMetaFile::LoadResource(AssetId assetId) const
             return LoadResource(sub.resourceType, fs::path(GetArtifactPath()) / sub.fileName);
         }
     }
-    assert(false, "SubAssetMetaFile::LoadResource: assetId not found: " + assetId.ToString());
+    ASSERT(false, "SubAssetMetaFile::LoadResource: assetId not found: " + assetId.ToString());
     return nullptr;
 }

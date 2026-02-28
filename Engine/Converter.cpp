@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "FileUtils.h"
 #include "Material.h"
+#include "fstream"
 
 Converter::Converter()
 {
@@ -344,12 +345,20 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
         desc.emissive = asMaterial->emissive;
 
         wstring assetName = Utils::ToWString(asMaterial->name) + L".mat";
+        {
+            fs::path materialPath = artifactPath / assetName;
+            std::ofstream os(materialPath);
+            cereal::JSONOutputArchive archive(os);
+            archive(material);
+        }
+
         AddExported(prev, exported, assetName, ResourceType::Material);
     }
 }
 
-ResourceRef<Texture> Converter::WriteTexture(string fileName, const fs::path& assetPath, const fs::path& artifactFolder, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported)
+ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetPath, const fs::path& artifactFolder, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported)
 {
+    string fileName = filesystem::path(file).filename().string();
     const aiTexture* srcTexture = _scene->GetEmbeddedTexture(fileName.c_str());
     // fbx 파일에 텍스쳐가 포함되어 있을 경우
     if (srcTexture)

@@ -37,6 +37,8 @@ public:
         :Super(resourceType)
     {
     }
+    virtual void OnLoad(unordered_map<AssetId, MetaFile*, AssetIdHash>& subAssetContainer) override;
+    virtual void OnDestroy(unordered_map<AssetId, MetaFile*, AssetIdHash>& subAssetContainer) override;
 
     wstring GetResourcePath() const override
     {

@@ -42,7 +42,7 @@ public:
 
 	//shared_ptr<Material> Clone();
 		
-    template<typename Archive>
+    template<class Archive>
     void serialize(Archive& ar)
     {
 		ar(CEREAL_NVP(_desc));

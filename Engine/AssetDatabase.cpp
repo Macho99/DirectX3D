@@ -137,6 +137,7 @@ void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
         std::lock_guard lk(_mtx);
         _pathToAssetId.clear();
         _assetIdToMeta.clear();
+        _subAssetContainer.clear();
     }
 
     for (auto& src : sources)
@@ -153,6 +154,7 @@ void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
         {
             std::lock_guard lk(_mtx);
             _pathToAssetId[src.wstring()] = loaded->GetAssetId();
+            loaded->OnLoad(_subAssetContainer);
             _assetIdToMeta[loaded->GetAssetId()] = std::move(loaded);
         }
     }
@@ -187,7 +189,7 @@ void AssetDatabase::OnFileEvent(const FsEvent& e)
         break;
 
     default:
-        assert(false, "AssetDatabase::OnFileEvent: unknown action");
+        ASSERT(false, "AssetDatabase::OnFileEvent: unknown action");
     }
 
 }
@@ -235,6 +237,7 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
         renamedAssetId = meta->GetAssetId();
         {
             std::lock_guard lk(_mtx);
+            meta->OnLoad(_subAssetContainer);
             _assetIdToMeta[renamedAssetId] = std::move(meta);
         }
         DBG->LogErrorW(L"[AssetDB] Rename: old path not found, treating as Insert: " + newAbsPath.wstring());
@@ -248,7 +251,7 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
         }
         else
         {
-            assert(false, "AssetDatabase::Rename: meta not found for assetId: " + renamedAssetId.ToString());
+            ASSERT(false, "AssetDatabase::Rename: meta not found for assetId: " + renamedAssetId.ToString());
         }
     }
 
@@ -287,6 +290,7 @@ void AssetDatabase::Insert(const fs::path& absPath)
         AssetId assetId = meta->GetAssetId();
         std::lock_guard lk(_mtx);
         _pathToAssetId[absPath.wstring()] = assetId;
+        meta->OnLoad(_subAssetContainer);
         _assetIdToMeta[assetId] = std::move(meta);
     }
 
@@ -311,6 +315,8 @@ void AssetDatabase::Remove(const fs::path& absPath)
         {
             AssetId removedAssetId = it->second;
             _pathToAssetId.erase(it);
+            MetaFile* metaFile = _assetIdToMeta[removedAssetId].get();
+            metaFile->OnDestroy(_subAssetContainer);
             _assetIdToMeta.erase(removedAssetId);
         }
     }
@@ -327,7 +333,9 @@ void AssetDatabase::Modify(const fs::path& absPath)
 
     if (metaFile)
     {
+        metaFile->OnDestroy(_subAssetContainer);
         MetaStore::ImportIfDirty(metaFilePtr);
+        metaFile->OnLoad(_subAssetContainer);
         DBG->LogW(L"[AssetDB] Modify: " + absPath.wstring());
     }
 }
