@@ -332,13 +332,13 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
     for (int i = 0; i < _materials.size(); i++)
     {
         shared_ptr<asMaterial>& asMaterial = _materials[i];
-        Material material;
+        unique_ptr<Material> material = make_unique<Material>();
 
-        material.SetDiffuseMap(WriteTexture(asMaterial->diffuseFile, assetPath, artifactPath, prev, exported));
-        material.SetSpecularMap(WriteTexture(asMaterial->specularFile, assetPath, artifactPath, prev, exported));
-        material.SetNormalMap(WriteTexture(asMaterial->normalFile, assetPath, artifactPath, prev, exported));
+        material->SetDiffuseMap(WriteTexture(asMaterial->diffuseFile, assetPath, artifactPath, prev, exported));
+        material->SetSpecularMap(WriteTexture(asMaterial->specularFile, assetPath, artifactPath, prev, exported));
+        material->SetNormalMap(WriteTexture(asMaterial->normalFile, assetPath, artifactPath, prev, exported));
 
-        MaterialDesc& desc = material.GetMaterialDesc();
+        MaterialDesc& desc = material->GetMaterialDesc();
         desc.ambient = asMaterial->ambient;
         desc.diffuse = asMaterial->diffuse;
         desc.specular = asMaterial->specular;
@@ -572,6 +572,15 @@ void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring fi
 
 AssetId Converter::AddExported(const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported, wstring fileName, ResourceType resourceType)
 {
+    for (const SubAssetInfo& info : exported)
+    {
+        if (info.fileName == fileName && info.resourceType == resourceType)
+        {
+            // Skip if already exported
+            return info.assetId;
+        }
+    }
+
     AssetId assetId;
     for (const SubAssetInfo& info : prev)
     {

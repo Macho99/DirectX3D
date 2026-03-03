@@ -109,17 +109,19 @@ void ModelMeshResource::BindCacheInfo(vector<ResourceRef<Material>> materials)
 		if (mesh->material.IsValid())
 			continue;
 
+        bool found = false;
         for (auto& materialRef : materials)
         {
             Material* material = materialRef.Resolve();
             if (material->GetName() == mesh->materialName)
             {
                 mesh->material = materialRef;
+                found = true;
                 break;
             }
         }
 
-		ASSERT(false, "메테리얼 못찾음");
+		ASSERT(found, "메테리얼 못찾음");
 	}
 
 	// Mesh에 Bone 캐싱

@@ -190,12 +190,14 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
             archive(material);
         }
         resource = std::move(material);
+        break;
     }
     case ResourceType::ModelMesh:
     {
         unique_ptr<ModelMeshResource> modelMeshResource = make_unique<ModelMeshResource>();
         modelMeshResource->ReadModel(filePath);
         resource = std::move(modelMeshResource);
+        break;
     }
     case ResourceType::Animation:
     {
@@ -209,6 +211,7 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
     if(resource == nullptr)
         ASSERT(false, "MetaFile::LoadResource: Unsupported resource type: " + to_string((int)resourceType));
 
+    resource->SetName(filePath.stem().wstring());
     return resource;
 }
 

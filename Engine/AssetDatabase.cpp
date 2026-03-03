@@ -34,9 +34,16 @@ bool AssetDatabase::TryGetMetaByAssetId(const AssetId& guid, OUT MetaFile*& out)
 {
     std::lock_guard lk(_mtx);
     auto it = _assetIdToMeta.find(guid);
-    if (it == _assetIdToMeta.end())
-        return false;
-    out = it->second.get();
+    if (it != _assetIdToMeta.end())
+        out = it->second.get();
+    else
+    {
+        auto subIt = _subAssetContainer.find(guid);
+        if (subIt != _subAssetContainer.end())
+            out = subIt->second;
+        else
+            return false;
+    }
     return true;
 }
 
