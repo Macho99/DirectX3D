@@ -1,6 +1,7 @@
 #pragma once
-#include "InspectorDrawer.h"
-class TransformDrawer : public InspectorDrawer<Transform>
+#include "ComponentDrawer.h"
+
+class TransformDrawer : public ComponentDrawer<Transform>
 {
 public:
     TransformDrawer() {}

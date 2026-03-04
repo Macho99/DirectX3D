@@ -215,7 +215,6 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        ResourceRef<Shader> animShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
         //animShader->SetTechNum(RenderTech::NormalDepth, -1);
         // Animation
         ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Kachujin\\Mesh.fbx");
@@ -235,7 +234,7 @@ void AssetSerializeDemo::Init()
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
-            obj->AddComponent(make_unique<ModelAnimator>(animShader));
+            obj->AddComponent(make_unique<ModelAnimator>(renderShader));
             {
                 obj->GetModelAnimator()->SetModel(modelRef);
                 obj->GetModelAnimator()->SetPass(2);

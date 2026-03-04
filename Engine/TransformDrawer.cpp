@@ -20,6 +20,5 @@ bool TransformDrawer::DrawImpl(Transform& component)
     {
         component.SetLocalScale(scale);
     }
-
     return false;
 }

@@ -166,3 +166,23 @@ void EditorManager::OnDestroy()
 
     _editorWindows.clear();
 }
+
+void EditorManager::UnselectAll()
+{
+    _selectedTransform = TransformRef();
+    _selectedAsset = AssetRef();
+    _selectedSubAsset = -1;
+}
+
+void EditorManager::SetSelectedTransform(const TransformRef& transformRef)
+{
+    UnselectAll();
+    _selectedTransform = transformRef;
+}
+
+void EditorManager::SetSelectedAsset(const AssetRef& assetRef, int subAssetIndex)
+{
+    UnselectAll();
+    _selectedAsset = assetRef;
+    _selectedSubAsset = subAssetIndex;
+}

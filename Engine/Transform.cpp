@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Transform.h"
+#include "MathUtils.h"
 
 Transform::Transform() : Super(ComponentType::Transform)
 {
@@ -265,6 +266,27 @@ void Transform::SetSiblingIndex(int index)
 		newIndex -= 1;
 
 	siblings->insert(siblings->begin() + newIndex, std::move(self));
+}
+
+void Transform::OnGUI()
+{
+    float dragSpeed = 0.1f;
+	Vec3 position = GetLocalPosition();
+	if (ImGui::DragFloat3("Position", &position.x, dragSpeed))
+	{
+		SetLocalPosition(position);
+	}
+	Vec3 radRotation = GetLocalRotation();
+	Vec3 degRotation = MathUtils::RadToDeg(radRotation);
+	if (ImGui::DragFloat3("Rotation", &degRotation.x, dragSpeed))
+	{
+		SetLocalRotation(MathUtils::DegToRad(degRotation));
+	}
+	Vec3 scale = GetLocalScale();
+	if (ImGui::DragFloat3("Scale", &scale.x, dragSpeed))
+	{
+		SetLocalScale(scale);
+	}
 }
 
 bool Transform::IsAncestorOf(TransformRef& targetRef)

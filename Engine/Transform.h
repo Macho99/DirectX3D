@@ -53,6 +53,8 @@ public:
 
 	vector<TransformRef>& GetChildren() { return _children; }
 
+    virtual void OnGUI() override;
+
 private:
     bool IsAncestorOf(TransformRef& target);
 	void RemoveFromTransforms(vector<TransformRef>& transforms, TransformRef targetId);

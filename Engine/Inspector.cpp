@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "Inspector.h"
-#include "InspectorDrawer.h"
-#include "TransformDrawer.h"
 #include "EditorManager.h"
 #include "MonoBehaviour.h"
 
@@ -17,8 +15,6 @@ Inspector::~Inspector()
 void Inspector::Init(EditorManager* editorManager)
 {
     Super::Init(editorManager);
-
-    Register<Transform>(make_unique<TransformDrawer>());
 }
 
 void Inspector::OnGUI()
@@ -53,18 +49,6 @@ void Inspector::OnGUI()
 
         DrawComponentCard(*component);
     }
-}
-
-void Inspector::Draw(Component& component)
-{
-    auto it = _map.find(typeid(component));
-    if (it == _map.end())
-    {
-        ImGui::Text("No inspector for component type: %s", typeid(component).name());
-        return;
-    }
-
-    it->second->Draw(component);
 }
 
 void Inspector::DrawComponentCard(Component& component)
@@ -116,7 +100,7 @@ void Inspector::DrawComponentCard(Component& component)
     {
         ImGui::Indent(8.0f);
         ImGui::Separator();
-        Draw(component);
+        component.OnGUI();
         ImGui::Unindent(8.0f);
         ImGui::TreePop();
     }
