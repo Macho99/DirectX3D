@@ -8,7 +8,7 @@ class AssetSlot
 {
     struct Slot
     {
-        unique_ptr<ResourceBase> ptr;
+        unique_ptr<ResourceBase> ptr = nullptr;
         uint32 gen = 1;
     };
 

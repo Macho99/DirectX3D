@@ -71,20 +71,20 @@ Handle AssetSlot::AllocateSlot()
 
 Handle AssetSlot::Register(AssetId assetId)
 {
-    Handle handle = AllocateSlot();
-    Slot& slot = _slots[handle.index];
-
     MetaFile* meta = nullptr;
     unique_ptr<ResourceBase> obj = nullptr;
     if (RESOURCES->TryGetMetaByAssetId(assetId, OUT meta))
     {
         obj = meta->LoadResource(assetId);
-
-        if (obj != nullptr)
-            obj->SetId(assetId);
     }
+    Handle handle = AllocateSlot();
+    Slot& slot = _slots[handle.index];
 
-    slot.ptr = std::move(obj);
+    if (obj != nullptr)
+    {
+        obj->SetId(assetId);
+        slot.ptr = std::move(obj);
+    }
 
     _assetIdToHandle[assetId] = handle;
     return handle;
