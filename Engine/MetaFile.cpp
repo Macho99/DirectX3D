@@ -77,7 +77,7 @@ bool MetaFile::ImportIfDirty()
     return imported;
 }
 
-void MetaFile::ForceReImport()
+void MetaFile::ForceReimport()
 {
     _importManifest = ImportManifest();
     wstring manifestPath = GetManifestPath();

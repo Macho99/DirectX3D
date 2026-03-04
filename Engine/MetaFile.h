@@ -37,7 +37,7 @@ protected:
     unique_ptr<ResourceBase> LoadResource(ResourceType resourceType, const fs::path& filePath) const;
 
 private:
-    void ForceReImport();
+    void ForceReimport();
     bool ImportIfDirty();
     wstring GetManifestPath() { return GetArtifactPath() + L"\\asset.manifest"; }
 

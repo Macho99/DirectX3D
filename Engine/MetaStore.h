@@ -10,11 +10,12 @@ public:
 
     static unique_ptr<MetaFile> TryLoad(const fs::path& metaAbs);
     static void Save(const fs::path& metaAbs, const MetaFile& meta);
-    static unique_ptr<MetaFile> Create(const fs::path& sourceAbs);
+    static unique_ptr<MetaFile> Create(const fs::path& sourceAbs, bool forceReimport = false);
     //static unique_ptr<MetaFile> LoadOrCreate(const fs::path& sourceAbs);
     static bool IsMetaFile(const fs::path& path);
 
     static void ImportIfDirty(unique_ptr<MetaFile>& metaFile);
+    static void ForceReimport(unique_ptr<MetaFile>& metaFile);
     //static wstring GetResourceExtension(ResourceType resourceType);
 
 private:

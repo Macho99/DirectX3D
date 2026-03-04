@@ -100,6 +100,13 @@ public:
         return ResourceRef<T>(assetRef);
 	}
 
+	template<typename T>
+	ResourceRef<T> AllocateTempResource()
+	{
+		AssetRef assetRef = _assetSlot.Register(make_unique<T>());
+		return ResourceRef<T>(assetRef);
+	}
+
     void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
     unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }

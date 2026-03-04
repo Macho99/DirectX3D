@@ -30,7 +30,7 @@ fs::path MetaStore::SourcePathForMeta(const fs::path& metaAbs)
 unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
 {
     unique_ptr<MetaFile> meta;
-    const wstring sourceAbs = SourcePathForMeta(metaAbs);
+    const fs::path sourceAbs = SourcePathForMeta(metaAbs);
     try
     {
         std::ifstream is(metaAbs);
@@ -41,6 +41,16 @@ unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
     {
         DBG->LogW(L"[MetaStore] TryLoad failed And Recreated: " + metaAbs.wstring() + L", error: " + Utils::ToWString(e.what()));
         meta = Create(sourceAbs);
+    }
+
+    if (meta->GetResourceType() == ResourceType::None)
+    {
+        const auto& creators = InitAndGetCreators();
+        if (creators.find(sourceAbs.extension().string()) != creators.end())
+        {
+            DBG->LogW(L"[MetaStore] TryLoad: ResourceType is None, but extension is supported. Recreate meta. " + metaAbs.wstring());
+            meta = Create(sourceAbs, true);
+        }
     }
 
     meta->_absPath = sourceAbs;
@@ -56,7 +66,7 @@ void MetaStore::Save(const fs::path& metaAbs, const MetaFile& meta)
     archive(meta);
 }
 
-unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
+unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs, bool forceReimport)
 {
     string ext = sourceAbs.extension().string();
     const auto& creators = InitAndGetCreators();
@@ -87,7 +97,10 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs)
     meta->_assetId = assetId;
     meta->_absPath = sourceAbs;
 
-    ImportIfDirty(meta);
+    if (forceReimport)
+        ForceReimport(meta);
+    else
+        ImportIfDirty(meta);
     return meta;
 }
 
@@ -112,6 +125,15 @@ void MetaStore::ImportIfDirty(unique_ptr<MetaFile>& metaFile)
     bool imported = metaFile->ImportIfDirty();
     if (imported == false)
         return;
+
+    std::ofstream os(MetaPathForSource(metaFile->_absPath));
+    cereal::JSONOutputArchive archive(os);
+    archive(metaFile);
+}
+
+void MetaStore::ForceReimport(unique_ptr<MetaFile>& metaFile)
+{
+    metaFile->ForceReimport();
 
     std::ofstream os(MetaPathForSource(metaFile->_absPath));
     cereal::JSONOutputArchive archive(os);
@@ -150,6 +172,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
             _creators[".jpg"] = texCreator;
             _creators[".jpeg"] = texCreator;
             _creators[".bmp"] = texCreator;
+            _creators[".tif"] = texCreator;
         }
     }
 
