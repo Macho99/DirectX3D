@@ -46,18 +46,12 @@ public:
         return L"";
     }
 
-    wstring GetSubResourcePath(int index) const
-    {
-        if (index < 0 || index >= (int)_subAssets.size())
-        {
-            DBG->LogErrorW(L"[SubAssetMetaFile] GetResourcePath: index out of range: " + std::to_wstring(index));
-            return L"";
-        }
-        return GetArtifactPath() + L"\\" + _subAssets[index].fileName;
-    }
+    wstring GetSubResourcePath(int index) const;
 
     virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
+
+    bool TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const;
 
     template<class Archive>
     void serialize(Archive& ar)

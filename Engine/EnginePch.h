@@ -97,6 +97,8 @@ inline void Assert(bool condition, const char* expr, string message,
     }
 }
 
+#include "Utils.h"
+
 // Managers
 #include "Game.h"
 #include "Texture.h"
@@ -123,7 +125,6 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "GameObject.h"
 #include "Transform.h"
 #include "Mesh.h"
-#include "Utils.h"
 
 #if defined(_DEBUG)
 

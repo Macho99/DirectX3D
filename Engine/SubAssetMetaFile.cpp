@@ -23,6 +23,16 @@ void SubAssetMetaFile::OnDestroy(unordered_map<AssetId,MetaFile*, AssetIdHash>& 
     }
 }
 
+wstring SubAssetMetaFile::GetSubResourcePath(int index) const
+{
+    if (index < 0 || index >= (int)_subAssets.size())
+    {
+        DBG->LogErrorW(L"[SubAssetMetaFile] GetResourcePath: index out of range: " + std::to_wstring(index));
+        return L"";
+    }
+    return GetArtifactPath() + L"\\" + _subAssets[index].fileName;
+}
+
 void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
     Super::DrawContentBrowserItem(selectedPath, currentFolder, thumbSize, curCol, columns);
@@ -128,4 +138,17 @@ unique_ptr<ResourceBase> SubAssetMetaFile::LoadResource(AssetId assetId) const
     }
     ASSERT(false, "SubAssetMetaFile::LoadResource: assetId not found: " + assetId.ToString());
     return nullptr;
+}
+
+bool SubAssetMetaFile::TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const
+{
+    for (const SubAssetInfo& subAsset : _subAssets)
+    {
+        if (subAsset.resourceType == resourceType)
+        {
+            assetId = subAsset.assetId;
+            return true;
+        }
+    }
+    return false;
 }

@@ -7,7 +7,7 @@
 #include "AssetDatabase.h"
 #include "ResourceRef.h"
 #include "AssetSlot.h"
-#include "MetaFile.h"
+#include "SubAssetMetaFile.h"
 
 class Shader;
 class Texture;
@@ -26,7 +26,7 @@ class SlotManager;
 class ResourceManager
 {
 	DECLARE_SINGLE_WITH_CONSTRUCTOR(ResourceManager);
-    ~ResourceManager();
+	~ResourceManager();
 public:
 	void Init();
 	void Start();
@@ -56,18 +56,20 @@ private:
 	//array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
 
 public:
-    fs::path GetRootPath() const { return _root; }
+	fs::path GetRootPath() const { return _root; }
 	bool TryGetAssetIdByPath(const fs::path& assetsPath, OUT AssetId& assetId) const { return assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, assetId); }
-    bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	const { return assetDatabase.TryGetPathByAssetId(assetId, path); }
-    bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	const { return assetDatabase.TryGetMetaByAssetId(assetId, out); }
-    bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		const { return assetDatabase.TryGetMetaByPath(absPath, out); }
+	bool TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& path)	const { return assetDatabase.TryGetPathByAssetId(assetId, path); }
+	bool TryGetMetaByAssetId(const AssetId& assetId, OUT MetaFile*& out)	const { return assetDatabase.TryGetMetaByAssetId(assetId, out); }
+	bool TryGetMetaByPath(const fs::path& absPath, OUT MetaFile*& out)		const { return assetDatabase.TryGetMetaByPath(absPath, out); }
 	bool SearchAssetIdByPath(const fs::path& searchFolder, const wstring& fileName, OUT AssetId& assetId) const
-		{ return assetDatabase.SearchAssetIdByPath(searchFolder, fileName, OUT assetId); }
+	{
+		return assetDatabase.SearchAssetIdByPath(searchFolder, fileName, OUT assetId);
+	}
 
-    AssetDatabase& GetAssetDatabase() { return assetDatabase; }
-    AssetSlot& GetAssetSlot() { return _assetSlot; }
+	AssetDatabase& GetAssetDatabase() { return assetDatabase; }
+	AssetSlot& GetAssetSlot() { return _assetSlot; }
 
-    template<typename T>
+	template<typename T>
 	ResourceRef<T> GetResourceRefByPath(const fs::path& assetsPath) const
 	{
 		AssetId assetId;
@@ -77,11 +79,21 @@ public:
 			return ResourceRef<T>();
 		}
 		MetaFile* metaFile;
-        if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
-        {
+		if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
+		{
 			ASSERT(false, "assetId is not valid");
 			return ResourceRef<T>();
-        }
+		}
+
+		SubAssetMetaFile* subAssetMeta = dynamic_cast<SubAssetMetaFile*>(metaFile);
+		if (subAssetMeta != nullptr)
+		{
+            AssetId subAssetId;
+			if (subAssetMeta->TryGetSubAssetByType(ResourceTypeTrait<T>::value, OUT subAssetId))
+			{
+                return ResourceRef<T>(subAssetId);
+			}
+		}
 
 		if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
 		{
@@ -90,14 +102,14 @@ public:
 		}
 
 		ResourceRef<T> resourceRef(assetId);
-        return resourceRef;
+		return resourceRef;
 	}
 
-    template<typename T>
+	template<typename T>
 	ResourceRef<T> AllocateTempResource(unique_ptr<T> resource)
 	{
 		AssetRef assetRef = _assetSlot.Register(std::move(resource));
-        return ResourceRef<T>(assetRef);
+		return ResourceRef<T>(assetRef);
 	}
 
 	template<typename T>
@@ -107,20 +119,20 @@ public:
 		return ResourceRef<T>(assetRef);
 	}
 
-    void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
+	void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
-    unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }
+	unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }
 
-    ResourceRef<Mesh> GetQuadMesh() const { return _quad; }
-    ResourceRef<Mesh> GetCubeMesh() const { return _cube; }
-    ResourceRef<Mesh> GetSphereMesh() const { return _sphere; }
-    ResourceRef<Texture> GetRandomTexture() const { return _randomTexture; }
+	ResourceRef<Mesh> GetQuadMesh() const { return _quad; }
+	ResourceRef<Mesh> GetCubeMesh() const { return _cube; }
+	ResourceRef<Mesh> GetSphereMesh() const { return _sphere; }
+	ResourceRef<Texture> GetRandomTexture() const { return _randomTexture; }
 
 private:
 	static wstring ToStr(FsAction fsAction);
 
 private:
-    unordered_map<string, unique_ptr<ResourceBase>> _editorResources; // 에디터 전용 리소스(예: 아이콘)
+	unordered_map<string, unique_ptr<ResourceBase>> _editorResources; // 에디터 전용 리소스(예: 아이콘)
 
 	fs::path _root;
 
@@ -137,9 +149,9 @@ private:
 	AssetSlot _assetSlot;
 
 	ResourceRef<Mesh> _quad;
-    ResourceRef<Mesh> _cube;
-    ResourceRef<Mesh> _sphere;
-    ResourceRef<Texture> _randomTexture;
+	ResourceRef<Mesh> _cube;
+	ResourceRef<Mesh> _sphere;
+	ResourceRef<Texture> _randomTexture;
 };
 
 /*

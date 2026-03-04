@@ -46,6 +46,13 @@ ResourceRef<Material> Model::GetMaterialByName(const wstring& name)
 	return MaterialRef();
 }
 
+ModelAnimation* Model::GetAnimationByIndex(UINT index)
+{
+    if (index < 0 || index >= _animations.size())
+        return nullptr;
+    return _animations[index].Resolve();
+}
+
 ModelAnimation* Model::GetAnimationByName(wstring name)
 {
 	for (ResourceRef<ModelAnimation>& animationRef : _animations)

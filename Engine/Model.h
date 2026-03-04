@@ -21,8 +21,9 @@ public:
 
 	uint32 GetAnimationCount() { return _animations.size(); }
 	vector<ResourceRef<ModelAnimation>>& GetAnimations() { return _animations; }
-	ModelAnimation* GetAnimationByIndex(UINT index) { return (index < 0 || index >= _animations.size()) ? nullptr : _animations[index].Resolve(); }
+	ModelAnimation* GetAnimationByIndex(UINT index);
 	ModelAnimation* GetAnimationByName(wstring name);
+	void AddAnimation(ResourceRef<ModelAnimation> animation) { _animations.push_back(animation); }
 
     ModelMeshResource* GetMesh() { return _mesh.Resolve(); }
 
