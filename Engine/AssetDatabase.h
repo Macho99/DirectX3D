@@ -38,6 +38,8 @@ public:
     void ReserveAssetId(const fs::path& folderAbs, const wstring& fileName, AssetId assetId);
     bool TryGetReservedAssetId(const fs::path& absPath, OUT AssetId& assetId);
 
+    void GetOwnerAssetId(const AssetId & srcAssetId, OUT AssetId& ownerAssetId, OUT int& subAssetIdx) const;
+
 private:
     void Rename(const fs::path& oldAbsPath, const fs::path& newAbsPath);
     void ExtensionRename(const fs::path& oldAbsPath, const fs::path& newAbsPath);

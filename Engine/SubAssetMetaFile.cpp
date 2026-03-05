@@ -40,7 +40,7 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thu
 
     AssetRef selectedAsset;
     int selectedSubAssetIndex;
-    EDITOR->TryGetSelectedAsset(OUT selectedAsset, OUT selectedSubAssetIndex);
+    EDITOR->TryGetContentBrowserAsset(OUT selectedAsset, OUT selectedSubAssetIndex);
 
     if (selectedAsset.GetAssetId() != _assetId)
         return;
@@ -91,7 +91,7 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thu
             ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
             !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
         {
-            EDITOR->SetSelectedAsset(_assetId, i);
+            EDITOR->ClickAsset(sub.assetId);
         }
 
         // 3. 배경 그리기 (선택/호버)
@@ -161,6 +161,27 @@ AssetId SubAssetMetaFile::GetSubAssetIdByIndex(int subAssetIdx) const
         return AssetId();
     }
     return _subAssets[subAssetIdx].assetId;
+}
+
+int SubAssetMetaFile::GetSubAssetIndexById(const AssetId& assetId) const
+{
+    for (int i = 0; i < _subAssets.size(); i++)
+    {
+        if (_subAssets[i].assetId == assetId)
+            return i;
+    }
+    return -1;
+}
+
+string SubAssetMetaFile::GetName(const AssetId& assetId)
+{
+    for (const SubAssetInfo& sub : _subAssets)
+    {
+        if (sub.assetId == assetId)
+            return Utils::ToString(sub.fileName);
+    }
+    ASSERT(false, "SubAssetMetaFile::GetName: assetId not found: " + assetId.ToString());
+    return "";
 }
 
 bool SubAssetMetaFile::TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const

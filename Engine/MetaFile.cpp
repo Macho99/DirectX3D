@@ -90,7 +90,10 @@ void MetaFile::ForceReimport()
 
 void MetaFile::OnGUI()
 {
-    ImGui::Text("No inspector");
+    if (ImGui::Button("Reimport"))
+    {
+        ForceReimport();
+    }
 }
 
 void MetaFile::Import()
@@ -226,6 +229,11 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(AssetId assetId) const
     return LoadResource(_resourceType, _absPath);
 }
 
+string MetaFile::GetName(const AssetId& assetId)
+{
+    return GetAbsPath().filename().string();
+}
+
 Texture* MetaFile::GetIconTexture() const
 {
     return GetIconTexture(GetResourceType(), GetAssetId(), GetAbsPath());
@@ -257,7 +265,7 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
 
     AssetRef selectedAsset; 
     int selectedSubAssetIndex;
-    EDITOR->TryGetSelectedAsset(OUT selectedAsset, OUT selectedSubAssetIndex);
+    EDITOR->TryGetContentBrowserAsset(OUT selectedAsset, OUT selectedSubAssetIndex);
     bool selected = (selectedAsset.GetAssetId() == _assetId);
 
     // source
@@ -279,11 +287,11 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
         ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
         !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
     {
-        EDITOR->SetSelectedAsset(_assetId);
+        EDITOR->ClickAsset(_assetId);
     }
     if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
-        EDITOR->UnselectAll();
+        EDITOR->UnselectAsset();
         currentFolder = absPath;
     }
 

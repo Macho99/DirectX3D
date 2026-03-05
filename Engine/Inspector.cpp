@@ -20,15 +20,18 @@ void Inspector::Init(EditorManager* editorManager)
 void Inspector::OnGUI()
 {
     Super::OnGUI();
-    DrawGameObject();
-    DrawAsset();
+    TransformRef selectedTransform;
+    AssetRef selectedAsset;
+    int selectedSubAssetIndex;
+    _editorManager->GetInspectorRef(OUT selectedTransform, OUT selectedAsset, OUT selectedSubAssetIndex);
+
+    DrawGameObject(selectedTransform);
+    DrawAsset(selectedAsset, selectedSubAssetIndex);
 }
 
-void Inspector::DrawGameObject()
+void Inspector::DrawGameObject(TransformRef& transformRef)
 {
-    TransformRef selectedTransform;
-    _editorManager->TryGetSelectedTransform(OUT selectedTransform);
-    Transform* transform = selectedTransform.Resolve();
+    Transform* transform = transformRef.Resolve();
     if (transform == nullptr)
     {
         return;
@@ -56,17 +59,15 @@ void Inspector::DrawGameObject()
     }
 }
 
-void Inspector::DrawAsset()
+void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
 {
-    AssetRef selectedAsset;
-    int selectedSubAssetIndex;
-    if (_editorManager->TryGetSelectedAsset(OUT selectedAsset, OUT selectedSubAssetIndex) == false)
+    if (assetRef.IsValid() == false)
         return;
 
     MetaFile* meta = nullptr;
-    if (RESOURCES->TryGetMetaByAssetId(selectedAsset.GetAssetId(), meta) == false)
+    if (RESOURCES->TryGetMetaByAssetId(assetRef.GetAssetId(), meta) == false)
     {
-        DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to get meta for selected asset: " + selectedAsset.GetAssetId().ToWString());
+        DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to get meta for selected asset: " + assetRef.GetAssetId().ToWString());
         return;
     }
 
@@ -77,26 +78,31 @@ void Inspector::DrawAsset()
         return;
     }
 
+    bool readOnly = false;
     ResourceBase* resource;
-    if (selectedSubAssetIndex == -1)
+    if (subAssetIdx == -1)
     {
-        resource = selectedAsset.Resolve();
+        resource = assetRef.Resolve();
     }
     else
     {
-        AssetRef selectedSubAsset(static_cast<SubAssetMetaFile*>(meta)->GetSubAssetIdByIndex(selectedSubAssetIndex));
+        readOnly = true;
+        AssetRef selectedSubAsset(static_cast<SubAssetMetaFile*>(meta)->GetSubAssetIdByIndex(subAssetIdx));
         resource = selectedSubAsset.Resolve();
+        DrawCard(typeid(*resource).name(), &resource, [&]() { resource->OnGUI(true); });
+        return;
     }
 
     if (resource == nullptr)
     {
-        DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to resolve selected asset: " + selectedAsset.GetAssetId().ToWString());
+        DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to resolve selected asset: " + assetRef.GetAssetId().ToWString());
         return;
     }
 
-    DrawCard(typeid(*resource).name(), &resource, [&]() { resource->OnGUI(); });
+    DrawCard(typeid(*resource).name(), &resource, [&]() { resource->OnGUI(false); });
     DrawCard(typeid(*meta).name(), &meta, [&]() { meta->OnGUI(); });
 }
+
 void Inspector::DrawCard(string title, const void* const idPtr, function<void()> onGui)
 {
     ImGui::PushID(idPtr);

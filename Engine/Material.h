@@ -39,7 +39,7 @@ public:
 	bool GetCastShadow() { return _castShadow; }
 
 	void Update();
-    virtual void OnGUI() override;
+    virtual void OnGUI(bool isReadOnly) override;
 	//shared_ptr<Material> Clone();
 		
     template<class Archive>

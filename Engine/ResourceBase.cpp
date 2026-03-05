@@ -12,7 +12,7 @@ ResourceBase::~ResourceBase()
 
 }
 
-void ResourceBase::OnGUI()
+void ResourceBase::OnGUI(bool isReadOnly)
 {
 	ImGui::Text("No inspector");
 }

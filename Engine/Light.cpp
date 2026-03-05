@@ -24,10 +24,10 @@ void Light::Update()
 void Light::OnGUI()
 {
 	LightDesc& lightDesc = GetLightDesc();
-	OnGUIUtils::DrawColor("Ambient", &lightDesc.ambient.x);
-	OnGUIUtils::DrawColor("Diffuse", &lightDesc.diffuse.x);
-	OnGUIUtils::DrawColor("Specular", &lightDesc.specular.x);
-    OnGUIUtils::DrawColor("Emissive", &lightDesc.emissive.x);
+	OnGUIUtils::DrawColor("Ambient", &lightDesc.ambient.x, false);
+	OnGUIUtils::DrawColor("Diffuse", &lightDesc.diffuse.x, false);
+	OnGUIUtils::DrawColor("Specular", &lightDesc.specular.x, false);
+	OnGUIUtils::DrawColor("Emissive", &lightDesc.emissive.x, false);
 }
 
 void Light::SetVPMatrix(Matrix matView, Matrix matProjection, int cascadeIdx)

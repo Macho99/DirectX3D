@@ -14,8 +14,8 @@ public:
 protected:
     void Init(class EditorManager* editorManager) override;
     void OnGUI() override;
-    void DrawGameObject();
-    void DrawAsset();
+    void DrawGameObject(TransformRef& transformRef);
+    void DrawAsset(AssetRef& assetRef, int subAssetIdx);
 
     void DrawCard(string title, const void* const idPtr, function<void()> onGui);
 

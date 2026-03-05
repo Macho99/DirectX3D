@@ -21,17 +21,26 @@ public:
     void OnDestroy();
 
 public:
-    void UnselectAll();
+    void GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
+    void ClickTransform(const TransformRef& transformRef);
+    void ClickAsset(const AssetRef& assetRef);
+    void UnselectAsset() { ClickAsset(AssetRef()); }
 
-	bool TryGetSelectedTransform(OUT TransformRef& transformRef) const;
-	void SetSelectedTransform(const TransformRef& transformRef);
+	bool TryGetHierarchyTransform(OUT TransformRef& transformRef) const;
+	void FocusHierarchyTransform(const TransformRef& transformRef);
 
-	bool TryGetSelectedAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
-	void SetSelectedAsset(const AssetRef& assetRef, int subAssetIndex = -1);
+	bool TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
+	void FocusContentBrowserAsset(const AssetRef& assetRef);
 
 private:
-	TransformRef _selectedTransform;
-    AssetRef _selectedAsset;
-	int _selectedSubAsset = -1;
+	TransformRef _inspectorTransform;
+    AssetRef _inspectorAsset;
+    int _inspectorSubAsset = -1;
+
+	TransformRef _hierarchyTransform;
+
+    AssetRef _contentBrowserAsset;
+	int _contentBrowserSubAsset = -1;
+
 	vector<unique_ptr<EditorWindow>> _editorWindows;
 };

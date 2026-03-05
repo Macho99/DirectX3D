@@ -377,3 +377,31 @@ bool AssetDatabase::TryGetReservedAssetId(const fs::path& absPath, OUT AssetId& 
         return true;
     }
 }
+
+void AssetDatabase::GetOwnerAssetId(const AssetId& srcAssetId, OUT AssetId& ownerAssetId, OUT int& subAssetIdx) const
+{
+    MetaFile* meta = nullptr;
+    subAssetIdx = -1;
+    
+    if (srcAssetId.IsValid() == false)
+    {
+        ownerAssetId = AssetId();
+        subAssetIdx = -1;
+        return;
+    }
+
+    if (TryGetMetaByAssetId(srcAssetId, OUT meta) == false)
+    {
+        DBG->LogWarningW(L"[AssetDB] GetOwnerAssetId: assetId not found: " + srcAssetId.ToWString());
+        ownerAssetId = AssetId();
+        subAssetIdx = -1;
+        return;
+    }
+
+    if (srcAssetId != meta->GetAssetId())
+    {
+        SubAssetMetaFile* subMeta = static_cast<SubAssetMetaFile*>(meta);
+        subAssetIdx = subMeta->GetSubAssetIndexById(srcAssetId);
+    }
+    ownerAssetId = meta->GetAssetId();
+}

@@ -358,6 +358,8 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
 
 ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetPath, const fs::path& artifactFolder, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported)
 {
+    if (file.empty())
+        return ResourceRef<Texture>();
     string fileName = filesystem::path(file).filename().string();
     const aiTexture* srcTexture = _scene->GetEmbeddedTexture(fileName.c_str());
     // fbx 파일에 텍스쳐가 포함되어 있을 경우

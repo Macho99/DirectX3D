@@ -167,36 +167,59 @@ void EditorManager::OnDestroy()
     _editorWindows.clear();
 }
 
-void EditorManager::UnselectAll()
+void EditorManager::GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef& assetRef, OUT int& subAssetIndex) const
 {
-    _selectedTransform = TransformRef();
-    _selectedAsset = AssetRef();
-    _selectedSubAsset = -1;
+    transformRef = _inspectorTransform;
+    assetRef = _inspectorAsset;
+    subAssetIndex = _inspectorSubAsset;
 }
 
-bool EditorManager::TryGetSelectedTransform(OUT TransformRef& transformRef) const
+void EditorManager::ClickTransform(const TransformRef& transformRef)
 {
-    if (_selectedTransform.IsValid())
+    _inspectorAsset = AssetRef();
+    _inspectorSubAsset = -1;
+
+    _inspectorTransform = transformRef;
+    _hierarchyTransform = transformRef;
+}
+
+void EditorManager::ClickAsset(const AssetRef& assetRef)
+{
+    _inspectorTransform = TransformRef();
+
+    AssetId ownerAssetId;
+    int subAssetIndex;
+    RESOURCES->GetAssetDatabase().GetOwnerAssetId(assetRef.GetAssetId(), OUT ownerAssetId, OUT subAssetIndex);
+
+    _inspectorAsset = ownerAssetId;
+    _inspectorSubAsset = subAssetIndex;
+
+    _contentBrowserAsset = ownerAssetId;
+    _contentBrowserSubAsset = subAssetIndex;
+}
+
+bool EditorManager::TryGetHierarchyTransform(OUT TransformRef& transformRef) const
+{
+    if (_hierarchyTransform.IsValid())
     {
-        transformRef = _selectedTransform;
+        transformRef = _hierarchyTransform;
         return true;
     }
     transformRef = TransformRef();
     return false;
 }
 
-void EditorManager::SetSelectedTransform(const TransformRef& transformRef)
+void EditorManager::FocusHierarchyTransform(const TransformRef& transformRef)
 {
-    UnselectAll();
-    _selectedTransform = transformRef;
+    _hierarchyTransform = transformRef;
 }
 
-bool EditorManager::TryGetSelectedAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const
+bool EditorManager::TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const
 {
-    if (_selectedAsset.IsValid())
+    if (_contentBrowserAsset.IsValid())
     {
-        assetRef = _selectedAsset;
-        subAssetIndex = _selectedSubAsset;
+        assetRef = _contentBrowserAsset;
+        subAssetIndex = _contentBrowserSubAsset;
         return true;
     }
     assetRef = AssetRef();
@@ -204,9 +227,12 @@ bool EditorManager::TryGetSelectedAsset(OUT AssetRef& assetRef, OUT int& subAsse
     return false;
 }
 
-void EditorManager::SetSelectedAsset(const AssetRef& assetRef, int subAssetIndex)
+void EditorManager::FocusContentBrowserAsset(const AssetRef& assetRef)
 {
-    UnselectAll();
-    _selectedAsset = assetRef;
-    _selectedSubAsset = subAssetIndex;
+    AssetId ownerAssetId;
+    int subAssetIndex;
+    RESOURCES->GetAssetDatabase().GetOwnerAssetId(assetRef.GetAssetId(), OUT ownerAssetId, OUT subAssetIndex);
+
+    _contentBrowserAsset = ownerAssetId;
+    _contentBrowserSubAsset = subAssetIndex;
 }

@@ -17,6 +17,7 @@ public:
     virtual void OnLoad(unordered_map<AssetId, MetaFile*, AssetIdHash>& subAssetContainer) {}
     virtual void OnDestroy(unordered_map<AssetId, MetaFile*, AssetIdHash>& subAssetContainer) {}
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const;
+    virtual string GetName(const AssetId& assetId);
 
     Texture* GetIconTexture() const;
     virtual void DrawContentBrowserItem(fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;

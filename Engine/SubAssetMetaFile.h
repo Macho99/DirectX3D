@@ -51,6 +51,8 @@ public:
     virtual void DrawContentBrowserItem(fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
     AssetId GetSubAssetIdByIndex(int subAssetIdx) const;
+    int GetSubAssetIndexById(const AssetId& assetId) const;
+    virtual string GetName(const AssetId& assetId) override;
 
     bool TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const;
 

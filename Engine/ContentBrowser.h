@@ -48,8 +48,7 @@ private:
     fs::path _root;
     fs::path _currentFolder;
 
-    // 선택 상태(파일)
-    fs::path _selectedPath;
+    AssetId _selectedId;
 
     ViewMode _viewMode = ViewMode::Grid;
 

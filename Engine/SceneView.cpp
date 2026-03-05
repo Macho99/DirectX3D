@@ -40,7 +40,7 @@ void SceneView::OnGUI()
 
     // ImGuizmo
     TransformRef selectedTransformRef;
-    _editorManager->TryGetSelectedTransform(OUT selectedTransformRef);
+    _editorManager->TryGetHierarchyTransform(OUT selectedTransformRef);
     Transform* selectedTransform = selectedTransformRef.Resolve();
     Camera* camera = CUR_SCENE->GetMainCamera()->GetCamera();
     if (selectedTransform != nullptr)

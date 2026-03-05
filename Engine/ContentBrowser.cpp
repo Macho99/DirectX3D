@@ -4,6 +4,7 @@
 
 #include "MetaFile.h"
 #include "MetaStore.h"
+#include "EditorManager.h"
 
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
@@ -70,10 +71,25 @@ void ContentBrowser::GetCurMetaFiles()
 void ContentBrowser::OnGUI()
 {
     Super::OnGUI();
+    {
+        AssetRef curAssetRef;
+        int curSubAssetIdx;
+        EDITOR->TryGetContentBrowserAsset(OUT curAssetRef, OUT curSubAssetIdx);
+        AssetId curAssetId = curAssetRef.GetAssetId();
+        if (_selectedId != curAssetId)
+        {
+            _selectedId = curAssetId;
+            MetaFile* meta = nullptr;
+            if (RESOURCES->TryGetMetaByAssetId(curAssetId, meta))
+            {
+                _currentFolder = meta->GetAbsPath().parent_path();
+            }
+        }
+    }
 
     if (!fs::exists(_currentFolder))
     {
-        _currentFolder = _root;
+        SetCurrentFolder(_root);
     }
     GetCurMetaFiles();
 
@@ -227,7 +243,7 @@ void ContentBrowser::DrawBreadcrumb()
         if (ImGui::SmallButton(label.c_str()))
         {
             SetCurrentFolder(p);
-            _selectedPath.clear();
+            _selectedId = AssetId();
         }
 
         if (i + 1 < parts.size())
@@ -290,7 +306,7 @@ void ContentBrowser::DrawItemsList()
         fs::path absPath = meta->GetAbsPath();
         ImGui::PushID(absPath.c_str());
 
-        bool selected = (_selectedPath == absPath);
+        bool selected = (_selectedId == meta->GetAssetId());
 
         bool isFolder = meta->GetResourceType() == ResourceType::Folder;
         // 작은 아이콘(텍스트로 대체)
@@ -302,13 +318,13 @@ void ContentBrowser::DrawItemsList()
 
         if (ImGui::Selectable(name.c_str(), selected, ImGuiSelectableFlags_SpanAllColumns))
         {
-            _selectedPath = absPath;
+            _editorManager->ClickAsset(meta->GetAssetId());
         }
 
         if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
             SetCurrentFolder(absPath);
-            _selectedPath.clear();
+            _editorManager->UnselectAsset();
         }
 
         ImGui::PopID();
@@ -324,6 +340,7 @@ void ContentBrowser::SetCurrentFolder(const fs::path& folderAbs)
 {
     if (fs::exists(folderAbs) && fs::is_directory(folderAbs))
     {
+        _editorManager->UnselectAsset();
         _currentFolder = folderAbs;
     }
 }
