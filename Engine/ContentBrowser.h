@@ -28,6 +28,8 @@ private:
     void DrawFolderNodeRecursive(FolderTreeCache::Node* node);
 
     void DrawRightUnityStyle();
+    void DrawEmptySpaceContextMenu();
+
     void DrawToolbarRow();
     void DrawBreadcrumb();
     void DrawSearchBox();

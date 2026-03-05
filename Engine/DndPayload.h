@@ -24,7 +24,7 @@ namespace DndPayload
     }
 
     // Target: 드랍되면 droppedId를 out에 채우고 true
-    inline bool AssetTarget(AssetId& outDroppedId)
+    inline bool AssetTarget(OUT AssetId& outDroppedId)
     {
         if (!ImGui::BeginDragDropTarget())
             return false;
@@ -44,5 +44,18 @@ namespace DndPayload
 
         ImGui::EndDragDropTarget();
         return accepted;
+    }
+
+    template<typename T>
+    inline bool ResourceTarget(OUT ResourceRef<T>& outDroppedRef)
+    {
+        AssetId droppedId;
+        if (AssetTarget(droppedId) == false)
+            return false;
+
+        if (RESOURCES->TryGetResourceRefByAssetId(droppedId, OUT outDroppedRef) == false)
+            return false;
+
+        return true;
     }
 }

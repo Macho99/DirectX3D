@@ -5,6 +5,8 @@
 #include "MetaFile.h"
 #include "MetaStore.h"
 #include "EditorManager.h"
+#include "FileUtils.h"
+#include "Material.h"
 
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
@@ -50,7 +52,7 @@ void ContentBrowser::GetCurMetaFiles()
         MetaFile* meta = nullptr;
         if (RESOURCES->TryGetMetaByPath(path, meta) == false)
         {
-            DBG->LogW(L"[ContentBrowser] Refresh: Skip non-asset file: " + path.wstring());
+            //DBG->LogW(L"[ContentBrowser] Refresh: Skip non-asset file: " + path.wstring());
             continue;
         }
         _curMetaFiles.push_back(meta);
@@ -194,9 +196,41 @@ void ContentBrowser::DrawRightUnityStyle()
     else
         DrawItemsList();
 
+    DrawEmptySpaceContextMenu();
+
     ImGui::EndChild();
 }
 
+void ContentBrowser::DrawEmptySpaceContextMenu()
+{
+    if (ImGui::BeginPopupContextWindow("##CB_EmptySpaceContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+    {
+        if (ImGui::BeginMenu("Create"))
+        {
+            if (ImGui::MenuItem("Material"))
+            {
+                const fs::path newMatName = _currentFolder / "New Material";
+                for (int suffix = 0; suffix < 10; suffix++)
+                {
+                    fs::path tryPath = newMatName;
+                    if (suffix > 0)
+                        tryPath += " " + std::to_string(suffix);
+
+                    tryPath += ".mat";
+                    if (fs::exists(tryPath))
+                        continue;
+
+                    unique_ptr<Material> newMat = make_unique<Material>();
+                    FileUtils::SaveToJson(tryPath, newMat);
+                    break;
+                }
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndPopup();
+    }
+}
 void ContentBrowser::DrawToolbarRow()
 {
     // 상단 한 줄: Breadcrumb(왼쪽) + Search(오른쪽) + View toggle

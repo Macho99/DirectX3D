@@ -1,5 +1,6 @@
 #pragma once
 #include "EditorManager.h"
+#include "DndPayload.h"
 
 class OnGUIUtils
 {
@@ -7,11 +8,11 @@ public:
     static void DrawColor(const char* label, float* color, bool isReadOnly);
 
     template<class T>
-    static void DrawResourceRef(const char* label, const ResourceRef<T>& resourceRef, bool isReadOnly);
+    static void DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly);
 };
 
 template<class T>
-inline void OnGUIUtils::DrawResourceRef(const char* label, const ResourceRef<T>& resourceRef, bool isReadOnly)
+inline void OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)
 {
     bool allowClear = true;
     bool changed = false;
@@ -55,6 +56,15 @@ inline void OnGUIUtils::DrawResourceRef(const char* label, const ResourceRef<T>&
     if (clicked && hasRef)
     {
         EDITOR->FocusContentBrowserAsset(assetId);
+    }
+
+    if(isReadOnly == false)
+    {
+        ResourceRef<T> dropped;
+        if (DndPayload::ResourceTarget(OUT dropped))
+        {
+            resourceRef = dropped;
+        }
     }
 
     // 드래그 드랍 수용

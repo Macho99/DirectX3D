@@ -70,6 +70,35 @@ public:
 	AssetSlot& GetAssetSlot() { return _assetSlot; }
 
 	template<typename T>
+	bool TryGetResourceRefByAssetId(const AssetId& assetId, OUT ResourceRef<T>& resourceRef) const
+	{
+		MetaFile* metaFile;
+		if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
+		{
+			return false;
+		}
+
+		SubAssetMetaFile* subAssetMeta = dynamic_cast<SubAssetMetaFile*>(metaFile);
+		if (subAssetMeta != nullptr)
+		{
+			AssetId subAssetId;
+			if (subAssetMeta->TryGetSubAssetByType(ResourceTypeTrait<T>::value, OUT subAssetId))
+			{
+                resourceRef = ResourceRef<T>(subAssetId);
+				return true;
+			}
+		}
+
+		if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
+        {
+            return false;
+		}
+
+		resourceRef = ResourceRef<T>(assetId);
+		return true;
+	}
+
+	template<typename T>
 	ResourceRef<T> GetResourceRefByPath(const fs::path& assetsPath) const
 	{
 		AssetId assetId;
@@ -78,31 +107,14 @@ public:
 			ASSERT(false, "absPath is not valid");
 			return ResourceRef<T>();
 		}
-		MetaFile* metaFile;
-		if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
-		{
-			ASSERT(false, "assetId is not valid");
-			return ResourceRef<T>();
-		}
 
-		SubAssetMetaFile* subAssetMeta = dynamic_cast<SubAssetMetaFile*>(metaFile);
-		if (subAssetMeta != nullptr)
+        ResourceRef<T> resourceRef;
+		if (TryGetResourceRefByAssetId<T>(assetId, OUT resourceRef) == false)
 		{
-            AssetId subAssetId;
-			if (subAssetMeta->TryGetSubAssetByType(ResourceTypeTrait<T>::value, OUT subAssetId))
-			{
-                return ResourceRef<T>(subAssetId);
-			}
+            ASSERT(false, "Failed to get ResourceRef by assetId");
+            return ResourceRef<T>();
 		}
-
-		if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
-		{
-			ASSERT(false, "ResourceRef type mismatch");
-			return ResourceRef<T>();
-		}
-
-		ResourceRef<T> resourceRef(assetId);
-		return resourceRef;
+        return resourceRef;
 	}
 
 	template<typename T>

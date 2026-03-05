@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fstream"
+
 enum FileMode : uint8
 {
 	Write,
@@ -49,6 +51,14 @@ public:
 	void Read(OUT string& data);
 	
 	void static SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filename);
+
+	template<class T>
+	void static SaveToJson(const fs::path path, unique_ptr<T>& target)
+	{
+        std::ofstream os(path);
+        cereal::JSONOutputArchive archive(os);
+        archive(target);
+	}
 
 private:
 	HANDLE _handle = INVALID_HANDLE_VALUE;
