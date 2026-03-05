@@ -5,17 +5,17 @@
 class OnGUIUtils
 {
 public:
-    static void DrawColor(const char* label, float* color, bool isReadOnly);
+    static bool DrawColor(const char* label, float* color, bool isReadOnly);
 
-    template<class T>
-    static void DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly);
+    template<typename T>
+    static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly);
 };
 
-template<class T>
-inline void OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)
+template<typename T>
+inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)
 {
-    bool allowClear = true;
     bool changed = false;
+    const bool allowClear = true;
 
     ImGui::PushID(label);
 
@@ -64,26 +64,9 @@ inline void OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
         if (DndPayload::ResourceTarget(OUT dropped))
         {
             resourceRef = dropped;
+            changed = true;
         }
     }
-
-    // 드래그 드랍 수용
-    //if (ImGui::BeginDragDropTarget())
-    //{
-    //    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(dndPayloadType))
-    //    {
-    //        if (payload->DataSize == sizeof(AssetId128))
-    //        {
-    //            AssetId128 incoming = *(const AssetId128*)payload->Data;
-    //            if (!(incoming == value))
-    //            {
-    //                value = incoming;
-    //                changed = true;
-    //            }
-    //        }
-    //    }
-    //    ImGui::EndDragDropTarget();
-    //}
 
     // 우클릭 메뉴(선택): Clear / Copy
     //if (ImGui::BeginPopupContextItem("RefFieldContext"))
@@ -116,4 +99,5 @@ inline void OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
     //}
 
     ImGui::PopID();
+    return changed;
 }

@@ -33,27 +33,9 @@ public:
 	void Update();
 	void OnDestroy();
 
-	//template<typename T>
-	//shared_ptr<T> Load(const wstring& key, const wstring& path);
-	//
-	//template<typename T>
-	//bool Add(const wstring& key, shared_ptr<T> object);
-	//
-	//template<typename T>
-	//shared_ptr<T> Get(const wstring& key);
-	//
-	//shared_ptr<Texture> GetOrAddTexture(const wstring& key, const wstring& path);
-	//
-	//template<typename T>
-	//ResourceType GetResourceType();
-
 private:
 	void CreateDefaultMesh();
 	void CreateRandomTexture();
-
-private:
-	//using KeyObjMap = map<wstring/*key*/, shared_ptr<ResourceBase>>;
-	//array<KeyObjMap, RESOURCE_TYPE_COUNT> _resources;
 
 public:
 	fs::path GetRootPath() const { return _root; }
@@ -66,56 +48,16 @@ public:
 		return assetDatabase.SearchAssetIdByPath(searchFolder, fileName, OUT assetId);
 	}
 
+    void SaveAsset(const AssetId & assetId);
+
 	AssetDatabase& GetAssetDatabase() { return assetDatabase; }
 	AssetSlot& GetAssetSlot() { return _assetSlot; }
 
 	template<typename T>
-	bool TryGetResourceRefByAssetId(const AssetId& assetId, OUT ResourceRef<T>& resourceRef) const
-	{
-		MetaFile* metaFile;
-		if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
-		{
-			return false;
-		}
-
-		SubAssetMetaFile* subAssetMeta = dynamic_cast<SubAssetMetaFile*>(metaFile);
-		if (subAssetMeta != nullptr)
-		{
-			AssetId subAssetId;
-			if (subAssetMeta->TryGetSubAssetByType(ResourceTypeTrait<T>::value, OUT subAssetId))
-			{
-                resourceRef = ResourceRef<T>(subAssetId);
-				return true;
-			}
-		}
-
-		if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
-        {
-            return false;
-		}
-
-		resourceRef = ResourceRef<T>(assetId);
-		return true;
-	}
+	bool TryGetResourceRefByAssetId(const AssetId& assetId, OUT ResourceRef<T>& resourceRef) const;
 
 	template<typename T>
-	ResourceRef<T> GetResourceRefByPath(const fs::path& assetsPath) const
-	{
-		AssetId assetId;
-		if (assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, OUT assetId) == false)
-		{
-			ASSERT(false, "absPath is not valid");
-			return ResourceRef<T>();
-		}
-
-        ResourceRef<T> resourceRef;
-		if (TryGetResourceRefByAssetId<T>(assetId, OUT resourceRef) == false)
-		{
-            ASSERT(false, "Failed to get ResourceRef by assetId");
-            return ResourceRef<T>();
-		}
-        return resourceRef;
-	}
+	ResourceRef<T> GetResourceRefByPath(const fs::path& assetsPath) const;
 
 	template<typename T>
 	ResourceRef<T> AllocateTempResource(unique_ptr<T> resource)
@@ -168,51 +110,6 @@ private:
 
 /*
 template<typename T>
-shared_ptr<T>
-ResourceManager::Load(const wstring& key, const wstring& path)
-{
-	auto objectType = GetResourceType<T>();
-	KeyObjMap& keyObjMap = _resources[static_cast<uint8>(objectType)];
-
-	auto findIt = keyObjMap.find(key);
-	if (findIt != keyObjMap.end())
-		return static_pointer_cast<T>(findIt->second);
-
-	shared_ptr<T> object = make_shared<T>();
-	object->Load(path);
-	keyObjMap[key] = object;
-
-	return object;
-}
-
-template<typename T>
-bool ResourceManager::Add(const wstring& key, shared_ptr<T> object)
-{
-	ResourceType resourceType = GetResourceType<T>();
-	KeyObjMap& keyObjMap = _resources[static_cast<uint8>(resourceType)];
-
-	auto findIt = keyObjMap.find(key);
-	if (findIt != keyObjMap.end())
-		return false;
-
-	keyObjMap[key] = object;
-	return true;
-}
-
-template<typename T>
-shared_ptr<T> ResourceManager::Get(const wstring& key)
-{
-	ResourceType resourceType = GetResourceType<T>();
-	KeyObjMap& keyObjMap = _resources[static_cast<uint8>(resourceType)];
-
-	auto findIt = keyObjMap.find(key);
-	if (findIt != keyObjMap.end())
-		return static_pointer_cast<T>(findIt->second);
-
-	return nullptr;
-}
-
-template<typename T>
 ResourceType ResourceManager::GetResourceType()
 {
 	if (std::is_same_v<T, Texture>)
@@ -227,3 +124,51 @@ ResourceType ResourceManager::GetResourceType()
 }
 */
 
+template<typename T>
+bool ResourceManager::TryGetResourceRefByAssetId(const AssetId& assetId, OUT ResourceRef<T>& resourceRef) const
+{
+	MetaFile* metaFile;
+	if (assetDatabase.TryGetMetaByAssetId(assetId, OUT metaFile) == false)
+	{
+		return false;
+	}
+
+	SubAssetMetaFile* subAssetMeta = dynamic_cast<SubAssetMetaFile*>(metaFile);
+	if (subAssetMeta != nullptr)
+	{
+		AssetId subAssetId;
+		if (subAssetMeta->TryGetSubAssetByType(ResourceTypeTrait<T>::value, OUT subAssetId))
+		{
+			resourceRef = ResourceRef<T>(subAssetId);
+			return true;
+		}
+	}
+
+	if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
+	{
+		return false;
+	}
+
+	resourceRef = ResourceRef<T>(assetId);
+	return true;
+}
+
+
+template<typename T>
+ResourceRef<T> ResourceManager::GetResourceRefByPath(const fs::path& assetsPath) const
+{
+	AssetId assetId;
+	if (assetDatabase.TryGetAssetIdByPath(L"..\\Assets\\" / assetsPath, OUT assetId) == false)
+	{
+		ASSERT(false, "absPath is not valid");
+		return ResourceRef<T>();
+	}
+
+	ResourceRef<T> resourceRef;
+	if (TryGetResourceRefByAssetId<T>(assetId, OUT resourceRef) == false)
+	{
+		ASSERT(false, "Failed to get ResourceRef by assetId");
+		return ResourceRef<T>();
+	}
+	return resourceRef;
+}

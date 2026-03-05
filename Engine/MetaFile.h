@@ -30,7 +30,7 @@ public:
     void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
     ResourceType GetResourceType() const { return _resourceType; }
 
-    virtual void OnGUI();
+    virtual bool OnGUI();
 
 protected:
     virtual void Import();

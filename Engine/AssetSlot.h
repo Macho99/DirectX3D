@@ -39,6 +39,8 @@ public:
     void Remove(const AssetId& assetId);
     AssetRef Register(unique_ptr<ResourceBase> resource);
 
+    void SaveAsset(const AssetId & assetId, const fs::path& assetPath);
+
 private:
     Handle AllocateSlot();
     Handle Register(AssetId assetId);

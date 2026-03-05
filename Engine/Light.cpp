@@ -21,13 +21,16 @@ void Light::Update()
 	//RENDER->PushLightData(_desc);
 }
 
-void Light::OnGUI()
+bool Light::OnGUI()
 {
 	LightDesc& lightDesc = GetLightDesc();
-	OnGUIUtils::DrawColor("Ambient", &lightDesc.ambient.x, false);
-	OnGUIUtils::DrawColor("Diffuse", &lightDesc.diffuse.x, false);
-	OnGUIUtils::DrawColor("Specular", &lightDesc.specular.x, false);
-	OnGUIUtils::DrawColor("Emissive", &lightDesc.emissive.x, false);
+    bool changed = false;
+	changed |= OnGUIUtils::DrawColor("Ambient", &lightDesc.ambient.x, false);
+	changed |= OnGUIUtils::DrawColor("Diffuse", &lightDesc.diffuse.x, false);
+	changed |= OnGUIUtils::DrawColor("Specular", &lightDesc.specular.x, false);
+	changed |= OnGUIUtils::DrawColor("Emissive", &lightDesc.emissive.x, false);
+
+    return changed;
 }
 
 void Light::SetVPMatrix(Matrix matView, Matrix matProjection, int cascadeIdx)

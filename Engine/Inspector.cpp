@@ -89,7 +89,7 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
         readOnly = true;
         AssetRef selectedSubAsset(static_cast<SubAssetMetaFile*>(meta)->GetSubAssetIdByIndex(subAssetIdx));
         resource = selectedSubAsset.Resolve();
-        DrawCard(typeid(*resource).name(), &resource, [&]() { resource->OnGUI(true); });
+        DrawCard(typeid(*resource).name(), &resource, [&]() { return resource->OnGUI(true); });
         return;
     }
 
@@ -99,11 +99,15 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
         return;
     }
 
-    DrawCard(typeid(*resource).name(), &resource, [&]() { resource->OnGUI(false); });
-    DrawCard(typeid(*meta).name(), &meta, [&]() { meta->OnGUI(); });
+    bool resourceChanged = DrawCard(typeid(*resource).name(), &resource, [&]() { return resource->OnGUI(false); });
+    if (resourceChanged)
+    {
+        RESOURCES->SaveAsset(assetRef.GetAssetId());
+    }
+    DrawCard(typeid(*meta).name(), &meta, [&]() { return meta->OnGUI(); });
 }
 
-void Inspector::DrawCard(string title, const void* const idPtr, function<void()> onGui)
+bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()> onGui)
 {
     ImGui::PushID(idPtr);
     ImGui::Spacing();
@@ -147,11 +151,12 @@ void Inspector::DrawCard(string title, const void* const idPtr, function<void()>
         ImGui::EndPopup();
     }
 
+    bool changed = false;
     if (open)
     {
         ImGui::Indent(8.0f);
         ImGui::Separator();
-        onGui();
+        changed = onGui();
         ImGui::Unindent(8.0f);
         ImGui::TreePop();
     }
@@ -165,12 +170,13 @@ void Inspector::DrawCard(string title, const void* const idPtr, function<void()>
     dl->AddRect(start, end, ImGui::GetColorU32(ImGuiCol_Border), 4.0f);
 
     ImGui::PopID();
+    return changed;
 }
 
 void Inspector::DrawComponentCard(Component& component)
 {
     DrawCard(typeid(component).name(), &component, [&]
         {
-            component.OnGUI();
+            return component.OnGUI();
         });
 }

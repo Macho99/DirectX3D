@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "AssetSlot.h"
 #include "MetaFile.h"
+#include "FileUtils.h"
 
 AssetSlot::AssetSlot()
 {
@@ -101,4 +102,24 @@ AssetRef AssetSlot::Register(unique_ptr<ResourceBase> resource)
 
     _assetIdToHandle[assetId] = handle;
     return AssetRef(assetId, handle);
+}
+
+void AssetSlot::SaveAsset(const AssetId& assetId, const fs::path& assetPath)
+{
+    auto it = _assetIdToHandle.find(assetId);
+    if (it == _assetIdToHandle.end())
+    {
+        DBG->LogErrorW(L"AssetSlot::SaveAsset: AssetId not found: " + assetId.ToWString());
+        return;
+    }
+
+    Handle h = it->second;
+    Slot& slot = _slots[h.index];
+    if (!slot.ptr || h.gen != slot.gen)
+    {
+        DBG->LogErrorW(L"AssetSlot::SaveAsset: Resource pointer is null for assetId: " + assetId.ToWString());
+        return;
+    }
+
+    FileUtils::SaveToJson(assetPath, slot.ptr);
 }

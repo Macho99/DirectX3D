@@ -115,8 +115,10 @@ void Material::Update()
 	_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap().Resolve()->GetComPtr().Get());
 }
 
-void Material::OnGUI(bool isReadOnly)
+bool Material::OnGUI(bool isReadOnly)
 {
+    Super::OnGUI(isReadOnly);
+
 	//ar(CEREAL_NVP(_desc));
 	//ar(CEREAL_NVP(_renderQueue));
 	//ar(CEREAL_NVP(_castShadow));
@@ -126,15 +128,17 @@ void Material::OnGUI(bool isReadOnly)
 	//ar(CEREAL_NVP(_specularMap));
 	//ar(CEREAL_NVP(_randomTex));
 	//ar(CEREAL_NVP(_cubeMap));
+	bool changed = false;
+	changed |= OnGUIUtils::DrawColor("Ambient", &_desc.ambient.x, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse.x, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Specular", &_desc.specular.x, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Emissive", &_desc.emissive.x, isReadOnly);
+	changed |= OnGUIUtils::DrawResourceRef("Shader", _shader, isReadOnly);
+	changed |= OnGUIUtils::DrawResourceRef("DiffuseMap", _diffuseMap, isReadOnly);
+	changed |= OnGUIUtils::DrawResourceRef("NormalMap", _normalMap, isReadOnly);
+	changed |= OnGUIUtils::DrawResourceRef("SpecularMap", _specularMap, isReadOnly);
 
-	OnGUIUtils::DrawColor("Ambient", &_desc.ambient.x, isReadOnly);
-	OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse.x, isReadOnly);
-	OnGUIUtils::DrawColor("Specular", &_desc.specular.x, isReadOnly);
-	OnGUIUtils::DrawColor("Emissive", &_desc.emissive.x, isReadOnly);
-    OnGUIUtils::DrawResourceRef("Shader", _shader, isReadOnly);
-	OnGUIUtils::DrawResourceRef("DiffuseMap", _diffuseMap, isReadOnly);
-    OnGUIUtils::DrawResourceRef("NormalMap", _normalMap, isReadOnly);
-    OnGUIUtils::DrawResourceRef("SpecularMap", _specularMap, isReadOnly);
+	return changed;
 }
 
 //shared_ptr<Material> Material::Clone()

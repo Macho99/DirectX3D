@@ -220,7 +220,7 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
                     if (fs::exists(tryPath))
                         continue;
 
-                    unique_ptr<Material> newMat = make_unique<Material>();
+                    unique_ptr<ResourceBase> newMat = make_unique<Material>();
                     FileUtils::SaveToJson(tryPath, newMat);
                     break;
                 }

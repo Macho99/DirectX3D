@@ -345,12 +345,10 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
         desc.emissive = asMaterial->emissive;
 
         wstring assetName = Utils::ToWString(asMaterial->name) + L".mat";
-        {
-            fs::path materialPath = artifactPath / assetName;
-            std::ofstream os(materialPath);
-            cereal::JSONOutputArchive archive(os);
-            archive(material);
-        }
+        fs::path materialPath = artifactPath / assetName;
+
+        unique_ptr<ResourceBase> resource = std::move(material);
+        FileUtils::SaveToJson(materialPath, resource);
 
         AddExported(prev, exported, assetName, ResourceType::Material);
     }

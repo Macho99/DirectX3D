@@ -23,7 +23,7 @@ public:
 	void SetEmissive(const Color& color) { _desc.emissive = color; }
 	void SetLightDirection(Vec3 direction) { _desc.direction = direction; }
 
-    virtual void OnGUI() override;
+    virtual bool OnGUI() override;
 
 public:
 	void SetVPMatrix(Matrix matView, Matrix matProjection, int cascadeIdx);

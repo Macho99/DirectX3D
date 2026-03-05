@@ -53,7 +53,7 @@ public:
 
 	vector<TransformRef>& GetChildren() { return _children; }
 
-    virtual void OnGUI() override;
+    virtual bool OnGUI() override;
 
 private:
     bool IsAncestorOf(TransformRef& target);

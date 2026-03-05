@@ -88,12 +88,13 @@ void MetaFile::ForceReimport()
     ImportIfDirty();
 }
 
-void MetaFile::OnGUI()
+bool MetaFile::OnGUI()
 {
     if (ImGui::Button("Reimport"))
     {
         ForceReimport();
     }
+    return false;
 }
 
 void MetaFile::Import()

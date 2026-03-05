@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "OnGUIUtils.h"
 
-void OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
+bool OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
 {
     bool showAlpha = true;
 
@@ -16,8 +16,10 @@ void OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
     if (isReadOnly)
         ImGui::BeginDisabled();
 
-    ImGui::ColorEdit4(label, color, flags);
+    bool changed = ImGui::ColorEdit4(label, color, flags);
 
     if (isReadOnly)
         ImGui::EndDisabled();
+
+    return changed;
 }

@@ -17,7 +17,7 @@ protected:
     void DrawGameObject(TransformRef& transformRef);
     void DrawAsset(AssetRef& assetRef, int subAssetIdx);
 
-    void DrawCard(string title, const void* const idPtr, function<void()> onGui);
+    bool DrawCard(string title, const void* const idPtr, function<bool()> onGui);
 
 private:
     void DrawComponentCard(Component& component);

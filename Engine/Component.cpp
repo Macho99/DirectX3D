@@ -22,7 +22,8 @@ Transform* Component::GetTransform()
 	return _gameObject.Resolve()->GetTransform();
 }
 
-void Component::OnGUI()
+bool Component::OnGUI()
 {
 	ImGui::Text("No inspector");
+	return false;
 }

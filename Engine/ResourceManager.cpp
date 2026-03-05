@@ -169,6 +169,18 @@ void ResourceManager::CreateRandomTexture()
     _randomTexture = AllocateTempResource(std::move(texture));
 }
 
+void ResourceManager::SaveAsset(const AssetId& assetId)
+{
+    fs::path assetPath;
+	if (assetDatabase.TryGetPathByAssetId(assetId, OUT assetPath) == false)
+	{
+        ASSERT(false, "ResourceManager::SaveAsset: assetId not found in database: " + assetId.ToString());
+		return;
+	}
+
+	_assetSlot.SaveAsset(assetId, assetPath);
+}
+
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)

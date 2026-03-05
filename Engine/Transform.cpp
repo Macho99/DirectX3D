@@ -268,25 +268,30 @@ void Transform::SetSiblingIndex(int index)
 	siblings->insert(siblings->begin() + newIndex, std::move(self));
 }
 
-void Transform::OnGUI()
+bool Transform::OnGUI()
 {
+    bool changed = false;
     float dragSpeed = 0.1f;
 	Vec3 position = GetLocalPosition();
 	if (ImGui::DragFloat3("Position", &position.x, dragSpeed))
 	{
+		changed = true;
 		SetLocalPosition(position);
 	}
 	Vec3 radRotation = GetLocalRotation();
 	Vec3 degRotation = MathUtils::RadToDeg(radRotation);
 	if (ImGui::DragFloat3("Rotation", &degRotation.x, dragSpeed))
 	{
+		changed = true;
 		SetLocalRotation(MathUtils::DegToRad(degRotation));
 	}
 	Vec3 scale = GetLocalScale();
 	if (ImGui::DragFloat3("Scale", &scale.x, dragSpeed))
 	{
+		changed = true;
 		SetLocalScale(scale);
 	}
+    return changed;
 }
 
 bool Transform::IsAncestorOf(TransformRef& targetRef)
