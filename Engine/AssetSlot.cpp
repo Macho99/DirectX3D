@@ -121,5 +121,5 @@ void AssetSlot::SaveAsset(const AssetId& assetId, const fs::path& assetPath)
         return;
     }
 
-    FileUtils::SaveToJson(assetPath, slot.ptr);
+    FileUtils::SaveResourceToJson(assetPath, slot.ptr);
 }

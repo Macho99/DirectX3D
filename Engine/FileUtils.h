@@ -51,23 +51,8 @@ public:
 	void Read(OUT string& data);
 	
 	static void SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filename);
-
-    static void SaveToJson(const fs::path path, unique_ptr<ResourceBase>& target)
-    {
-        std::ofstream os(path);
-        cereal::JSONOutputArchive archive(os);
-        archive(target);
-    }
-
-	template<class T>
-	static unique_ptr<T> LoadFromJson(const fs::path path)
-    {
-        unique_ptr<T> target;
-        std::ifstream is(path);
-        cereal::JSONInputArchive archive(is);
-        archive(target);
-        return target;
-    }
+	static void SaveResourceToJson(const fs::path path, unique_ptr<ResourceBase>& target);
+	static unique_ptr<ResourceBase> LoadResourceFromJson(const fs::path path);
 
 private:
 	HANDLE _handle = INVALID_HANDLE_VALUE;

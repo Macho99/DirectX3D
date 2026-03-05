@@ -2,6 +2,8 @@
 #include "FileUtils.h"
 #include <d3d11.h>
 #include <wrl/client.h>
+#include "ResourceBase.h"
+
 using namespace Microsoft::WRL;
 
 FileUtils::FileUtils()
@@ -114,4 +116,20 @@ void FileUtils::SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filenam
 	// PNG 파일로 저장
 	HR(DirectX::SaveToWICFile(*image.GetImages(), WIC_FLAGS_NONE,
 		GetWICCodec(WIC_CODEC_PNG), filename));
+}
+
+void FileUtils::SaveResourceToJson(const fs::path path, unique_ptr<ResourceBase>& target)
+{
+	std::ofstream os(path);
+	cereal::JSONOutputArchive archive(os);
+	archive(target);
+}
+
+unique_ptr<ResourceBase> FileUtils::LoadResourceFromJson(const fs::path path)
+{
+	unique_ptr<ResourceBase> target = nullptr;
+	std::ifstream is(path);
+	cereal::JSONInputArchive archive(is);
+	archive(target);
+	return target;
 }

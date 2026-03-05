@@ -2,6 +2,11 @@
 #include "ResourceBase.h"
 #include "Material.h"
 
+ResourceBase::ResourceBase()
+    : _type(ResourceType::None)
+{
+}
+
 ResourceBase::ResourceBase(ResourceType type)
 	: _type(type)
 {

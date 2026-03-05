@@ -6,5 +6,8 @@ class MaterialMeta : public MetaFile
 public:
     MaterialMeta();
     ~MaterialMeta() {}
+
+private:
+    virtual int GetVersion() const override { return 2; }
 };
 

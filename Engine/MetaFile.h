@@ -43,6 +43,7 @@ private:
     void ForceReimport();
     bool ImportIfDirty();
     wstring GetManifestPath() { return GetArtifactPath() + L"\\asset.manifest"; }
+    virtual int GetVersion() const { return 1; }
 
 public:
     template<class Archive>

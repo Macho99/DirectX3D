@@ -221,7 +221,7 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
                         continue;
 
                     unique_ptr<ResourceBase> newMat = make_unique<Material>();
-                    FileUtils::SaveToJson(tryPath, newMat);
+                    FileUtils::SaveResourceToJson(tryPath, newMat);
                     break;
                 }
             }

@@ -348,7 +348,7 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
         fs::path materialPath = artifactPath / assetName;
 
         unique_ptr<ResourceBase> resource = std::move(material);
-        FileUtils::SaveToJson(materialPath, resource);
+        FileUtils::SaveResourceToJson(materialPath, resource);
 
         AddExported(prev, exported, assetName, ResourceType::Material);
     }

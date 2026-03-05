@@ -17,6 +17,7 @@
 #include "fstream"
 #include "MetaStore.h"
 #include "DndPayload.h"
+#include "FileUtils.h"
 
 MetaFile::MetaFile()
     :_resourceType(ResourceType::None)
@@ -61,7 +62,7 @@ bool MetaFile::ImportIfDirty()
     }
 
     bool isDirty = false;
-    bool isManifestRefreshed = _importManifest.Refresh(_absPath, isDirty);
+    bool isManifestRefreshed = _importManifest.Refresh(_absPath, GetVersion(), isDirty);
 
     if (isDirty)
     {
@@ -193,13 +194,12 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
         break;
     case ResourceType::Material:
     {
-        unique_ptr<Material> material;
-        {
-            std::ifstream is(filePath);
-            cereal::JSONInputArchive archive(is);
-            archive(material);
-        }
-        resource = std::move(material);
+        resource = FileUtils::LoadResourceFromJson(filePath);
+        //{
+        //    std::ifstream is(filePath);
+        //    cereal::JSONInputArchive archive(is);
+        //    archive(resource);
+        //}
         break;
     }
     case ResourceType::ModelMesh:

@@ -10,14 +10,16 @@ public:
     {
         ar(CEREAL_NVP(size),
             CEREAL_NVP(timestamp),
-            CEREAL_NVP(hash));
+            CEREAL_NVP(hash),
+            CEREAL_NVP(version));
     }
 
     // Returns true if Manifest need to save
-    bool Refresh(fs::path filePath, OUT bool& isDirty);
+    bool Refresh(fs::path filePath, int curVersion, OUT bool& isDirty);
 
 private:
     uint64_t size = 0;
     uint64_t timestamp = 0;
     string hash = "";
+    int version = 0;
 };

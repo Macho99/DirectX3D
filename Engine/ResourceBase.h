@@ -11,6 +11,7 @@ enum
 class ResourceBase
 {
 public:
+    ResourceBase();
 	ResourceBase(ResourceType type);
 	virtual ~ResourceBase();
 
