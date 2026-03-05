@@ -23,10 +23,10 @@ public:
 public:
     void UnselectAll();
 
-    TransformRef GetSelectedTransform() const { return _selectedTransform; }
+	bool TryGetSelectedTransform(OUT TransformRef& transformRef) const;
 	void SetSelectedTransform(const TransformRef& transformRef);
 
-    AssetRef GetSelectedAsset() const { return _selectedAsset; }
+	bool TryGetSelectedAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
 	void SetSelectedAsset(const AssetRef& assetRef, int subAssetIndex = -1);
 
 private:

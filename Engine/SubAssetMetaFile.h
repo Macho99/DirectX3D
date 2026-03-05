@@ -48,8 +48,9 @@ public:
 
     wstring GetSubResourcePath(int index) const;
 
-    virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
+    virtual void DrawContentBrowserItem(fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
+    AssetId GetSubAssetIdByIndex(int subAssetIdx) const;
 
     bool TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const;
 

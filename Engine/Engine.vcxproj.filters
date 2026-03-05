@@ -747,6 +747,9 @@
     <ClInclude Include="MaterialDrawer.h">
       <Filter>50. Editor\InspectorDrawer\ResourceDrawer</Filter>
     </ClInclude>
+    <ClInclude Include="OnGUIUtils.h">
+      <Filter>98. Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1126,6 +1129,9 @@
     </ClCompile>
     <ClCompile Include="MaterialDrawer.cpp">
       <Filter>50. Editor\InspectorDrawer\ResourceDrawer</Filter>
+    </ClCompile>
+    <ClCompile Include="OnGUIUtils.cpp">
+      <Filter>98. Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -278,7 +278,7 @@ void ContentBrowser::DrawItemsGrid()
     int col = 0;
     for (const auto meta : _curMetaFiles)
     {
-        meta->DrawContentBrowserItem(_selectedPath, _currentFolder, _thumbSize, col, columns);
+        meta->DrawContentBrowserItem(_currentFolder, _thumbSize, col, columns);
     }
 }
 

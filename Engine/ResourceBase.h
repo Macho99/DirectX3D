@@ -20,6 +20,7 @@ public:
 	const wstring& GetName() { return _name; }
 	AssetId GetID() { return _assetId; }
 	void SetId(const AssetId& assetId) { _assetId = assetId; }
+	virtual void OnGUI();
 
 protected:
 	virtual void Load(const wstring& path) { }

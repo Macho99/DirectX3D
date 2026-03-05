@@ -15,10 +15,12 @@ void Hierarchy::OnGUI()
 {
     Super::OnGUI();
 
-    _selectedId = _editorManager->GetSelectedTransform();
+    _editorManager->TryGetSelectedTransform(OUT _selectedId);
     ShowHierarchy();
     ApplyPending();
-    _editorManager->SetSelectedTransform(_selectedId);
+
+    if (_selectedId.IsValid())
+        _editorManager->SetSelectedTransform(_selectedId);
 }
 
 void Hierarchy::DrawInsertLine(const ImRect& r, bool top)

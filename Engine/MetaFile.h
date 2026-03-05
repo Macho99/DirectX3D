@@ -19,7 +19,7 @@ public:
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const;
 
     Texture* GetIconTexture() const;
-    virtual void DrawContentBrowserItem(fs::path& _selectedPath, fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
+    virtual void DrawContentBrowserItem(fs::path& _currentFolder, float _thumbSize, int& curCol, int columns) const;
 
 public:
     AssetId GetAssetId() const { return _assetId; }
@@ -28,6 +28,8 @@ public:
     fs::path GetAbsPath() const { return _absPath; }
     void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
     ResourceType GetResourceType() const { return _resourceType; }
+
+    virtual void OnGUI();
 
 protected:
     virtual void Import();

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Material.h"
+#include "OnGUIUtils.h"
 
 Material::Material() : Super(ResourceType::Material)
 {
@@ -112,6 +113,24 @@ void Material::Update()
 
 	// TODO: 필요할때만 업데이트하기
 	_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap().Resolve()->GetComPtr().Get());
+}
+
+void Material::OnGUI()
+{
+	//ar(CEREAL_NVP(_desc));
+	//ar(CEREAL_NVP(_renderQueue));
+	//ar(CEREAL_NVP(_castShadow));
+	//ar(CEREAL_NVP(_shader));
+	//ar(CEREAL_NVP(_diffuseMap));
+	//ar(CEREAL_NVP(_normalMap));
+	//ar(CEREAL_NVP(_specularMap));
+	//ar(CEREAL_NVP(_randomTex));
+	//ar(CEREAL_NVP(_cubeMap));
+
+    OnGUIUtils::DrawColor("Ambient", &_desc.ambient.x);
+    OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse.x);
+    OnGUIUtils::DrawColor("Specular", &_desc.specular.x);
+    OnGUIUtils::DrawColor("Emissive", &_desc.emissive.x);
 }
 
 //shared_ptr<Material> Material::Clone()

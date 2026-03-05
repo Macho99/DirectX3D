@@ -20,12 +20,17 @@ void Inspector::Init(EditorManager* editorManager)
 void Inspector::OnGUI()
 {
     Super::OnGUI();
+    DrawGameObject();
+    DrawAsset();
+}
 
-    TransformRef selectedTransform = _editorManager->GetSelectedTransform();
+void Inspector::DrawGameObject()
+{
+    TransformRef selectedTransform;
+    _editorManager->TryGetSelectedTransform(OUT selectedTransform);
     Transform* transform = selectedTransform.Resolve();
     if (transform == nullptr)
     {
-        ImGui::Text("No selection");
         return;
     }
 
@@ -37,7 +42,7 @@ void Inspector::OnGUI()
     {
         Component* component = compRef.Resolve();
         if (component == nullptr)
-            continue; 
+            continue;
 
         DrawComponentCard(*component);
     }
@@ -51,9 +56,50 @@ void Inspector::OnGUI()
     }
 }
 
-void Inspector::DrawComponentCard(Component& component)
+void Inspector::DrawAsset()
 {
-    ImGui::PushID(&component);
+    AssetRef selectedAsset;
+    int selectedSubAssetIndex;
+    if (_editorManager->TryGetSelectedAsset(OUT selectedAsset, OUT selectedSubAssetIndex) == false)
+        return;
+
+    MetaFile* meta = nullptr;
+    if (RESOURCES->TryGetMetaByAssetId(selectedAsset.GetAssetId(), meta) == false)
+    {
+        DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to get meta for selected asset: " + selectedAsset.GetAssetId().ToWString());
+        return;
+    }
+
+    switch (meta->GetResourceType())
+    {
+    case ResourceType::Folder:
+    case ResourceType::None:
+        return;
+    }
+
+    ResourceBase* resource;
+    if (selectedSubAssetIndex == -1)
+    {
+        resource = selectedAsset.Resolve();
+    }
+    else
+    {
+        AssetRef selectedSubAsset(static_cast<SubAssetMetaFile*>(meta)->GetSubAssetIdByIndex(selectedSubAssetIndex));
+        resource = selectedSubAsset.Resolve();
+    }
+
+    if (resource == nullptr)
+    {
+        DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to resolve selected asset: " + selectedAsset.GetAssetId().ToWString());
+        return;
+    }
+
+    DrawCard(typeid(*resource).name(), &resource, [&]() { resource->OnGUI(); });
+    DrawCard(typeid(*meta).name(), &meta, [&]() { meta->OnGUI(); });
+}
+void Inspector::DrawCard(string title, const void* const idPtr, function<void()> onGui)
+{
+    ImGui::PushID(idPtr);
     ImGui::Spacing();
 
     // 카드 테두리용 그룹
@@ -67,8 +113,7 @@ void Inspector::DrawComponentCard(Component& component)
         ImGuiTreeNodeFlags_SpanAvailWidth |
         ImGuiTreeNodeFlags_OpenOnArrow; // 화살표 클릭으로 열기(유니티 느낌)
 
-    const char* title = typeid(component).name();
-    bool open = ImGui::TreeNodeEx("##Header", flags, "%s", title);
+    bool open = ImGui::TreeNodeEx("##Header", flags, "%s", title.c_str());
 
     // 헤더 오른쪽에 버튼 배치
     // TreeNodeEx가 그린 "헤더 영역"의 오른쪽 끝 좌표를 이용합니다.
@@ -100,7 +145,7 @@ void Inspector::DrawComponentCard(Component& component)
     {
         ImGui::Indent(8.0f);
         ImGui::Separator();
-        component.OnGUI();
+        onGui();
         ImGui::Unindent(8.0f);
         ImGui::TreePop();
     }
@@ -114,4 +159,12 @@ void Inspector::DrawComponentCard(Component& component)
     dl->AddRect(start, end, ImGui::GetColorU32(ImGuiCol_Border), 4.0f);
 
     ImGui::PopID();
+}
+
+void Inspector::DrawComponentCard(Component& component)
+{
+    DrawCard(typeid(component).name(), &component, [&]
+        {
+            component.OnGUI();
+        });
 }

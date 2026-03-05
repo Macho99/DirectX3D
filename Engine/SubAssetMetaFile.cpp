@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SubAssetMetaFile.h"
 #include "DndPayload.h"
+#include "EditorManager.h"
 
 void SubAssetMetaFile::OnLoad(unordered_map<AssetId,MetaFile*, AssetIdHash>& subAssetContainer)
 {
@@ -33,11 +34,15 @@ wstring SubAssetMetaFile::GetSubResourcePath(int index) const
     return GetArtifactPath() + L"\\" + _subAssets[index].fileName;
 }
 
-void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
+void SubAssetMetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
-    Super::DrawContentBrowserItem(selectedPath, currentFolder, thumbSize, curCol, columns);
+    Super::DrawContentBrowserItem(currentFolder, thumbSize, curCol, columns);
 
-    if (selectedPath != GetAbsPath())
+    AssetRef selectedAsset;
+    int selectedSubAssetIndex;
+    EDITOR->TryGetSelectedAsset(OUT selectedAsset, OUT selectedSubAssetIndex);
+
+    if (selectedAsset.GetAssetId() != _assetId)
         return;
 
     for (int i = 0; i < _subAssets.size(); i++)
@@ -63,6 +68,7 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
         // 2. 상호작용 영역 (클릭/호버 감지용 투명 버튼)
         ImGui::InvisibleButton("##tile", ImVec2(tileW, tileH));
         bool hovered = ImGui::IsItemHovered();
+        bool selected = (selectedSubAssetIndex == i);
 
         ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, GetSubResourcePath(i))->GetComPtr().Get();
         {
@@ -81,9 +87,16 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& 
             }
         }
 
+        if (ImGui::IsItemHovered() &&
+            ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+            !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+        {
+            EDITOR->SetSelectedAsset(_assetId, i);
+        }
+
         // 3. 배경 그리기 (선택/호버)
         ImU32 bgCol = 0;
-        if (hovered) bgCol = ImGui::GetColorU32(ImGuiCol_HeaderHovered);
+        if (hovered || selected) bgCol = ImGui::GetColorU32(ImGuiCol_HeaderHovered);
         else bgCol = ImGui::GetColorU32(ImGuiCol_Header);
 
         if (bgCol != 0)
@@ -138,6 +151,16 @@ unique_ptr<ResourceBase> SubAssetMetaFile::LoadResource(AssetId assetId) const
     }
     ASSERT(false, "SubAssetMetaFile::LoadResource: assetId not found: " + assetId.ToString());
     return nullptr;
+}
+
+AssetId SubAssetMetaFile::GetSubAssetIdByIndex(int subAssetIdx) const
+{
+    if (subAssetIdx < 0 || subAssetIdx >= (int)_subAssets.size())
+    {
+        DBG->LogErrorW(L"[SubAssetMetaFile] GetSubAssetIdByIndex: index out of range: " + std::to_wstring(subAssetIdx));
+        return AssetId();
+    }
+    return _subAssets[subAssetIdx].assetId;
 }
 
 bool SubAssetMetaFile::TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const

@@ -329,6 +329,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="ModelMeshResource.h" />
     <ClInclude Include="ModelMeta.h" />
     <ClInclude Include="NotSupportMeta.h" />
+    <ClInclude Include="OnGUIUtils.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Light.h" />
@@ -517,6 +518,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="ModelMeshResource.cpp" />
     <ClCompile Include="ModelMeta.cpp" />
     <ClCompile Include="NotSupportMeta.cpp" />
+    <ClCompile Include="OnGUIUtils.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Light.cpp" />

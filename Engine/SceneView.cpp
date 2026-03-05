@@ -39,7 +39,9 @@ void SceneView::OnGUI()
     DrawSceneViewGizmoOverlay();
 
     // ImGuizmo
-    Transform* selectedTransform = _editorManager->GetSelectedTransform().Resolve();
+    TransformRef selectedTransformRef;
+    _editorManager->TryGetSelectedTransform(OUT selectedTransformRef);
+    Transform* selectedTransform = selectedTransformRef.Resolve();
     Camera* camera = CUR_SCENE->GetMainCamera()->GetCamera();
     if (selectedTransform != nullptr)
     {

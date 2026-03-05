@@ -11,3 +11,8 @@ ResourceBase::~ResourceBase()
 {
 
 }
+
+void ResourceBase::OnGUI()
+{
+	ImGui::Text("No inspector");
+}

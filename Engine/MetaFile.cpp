@@ -12,6 +12,7 @@
 #include "Material.h"
 #include "ModelMeshResource.h"
 #include "ModelAnimation.h"
+#include "EditorManager.h"
 
 #include "fstream"
 #include "MetaStore.h"
@@ -85,6 +86,11 @@ void MetaFile::ForceReimport()
         fs::remove(manifestPath);
 
     ImportIfDirty();
+}
+
+void MetaFile::OnGUI()
+{
+    ImGui::Text("No inspector");
 }
 
 void MetaFile::Import()
@@ -225,7 +231,7 @@ Texture* MetaFile::GetIconTexture() const
     return GetIconTexture(GetResourceType(), GetAssetId(), GetAbsPath());
 }
 
-void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
+void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
     fs::path absPath = GetAbsPath();
     bool isFolder = (GetResourceType() == ResourceType::Folder);
@@ -248,7 +254,11 @@ void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentF
     // 2. 상호작용 영역 (클릭/호버 감지용 투명 버튼)
     ImGui::InvisibleButton("##tile", ImVec2(tileW, tileH));
     bool hovered = ImGui::IsItemHovered();
-    bool selected = (selectedPath == absPath);
+
+    AssetRef selectedAsset; 
+    int selectedSubAssetIndex;
+    EDITOR->TryGetSelectedAsset(OUT selectedAsset, OUT selectedSubAssetIndex);
+    bool selected = (selectedAsset.GetAssetId() == _assetId);
 
     // source
     ImTextureID iconTex = (ImTextureID)GetIconTexture()->GetComPtr().Get();
@@ -269,12 +279,12 @@ void MetaFile::DrawContentBrowserItem(fs::path& selectedPath, fs::path& currentF
         ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
         !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
     {
-        selectedPath = absPath;
+        EDITOR->SetSelectedAsset(_assetId);
     }
     if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
+        EDITOR->UnselectAll();
         currentFolder = absPath;
-        selectedPath.clear();
     }
 
     // 3. 배경 그리기 (선택/호버)

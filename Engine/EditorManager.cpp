@@ -174,10 +174,34 @@ void EditorManager::UnselectAll()
     _selectedSubAsset = -1;
 }
 
+bool EditorManager::TryGetSelectedTransform(OUT TransformRef& transformRef) const
+{
+    if (_selectedTransform.IsValid())
+    {
+        transformRef = _selectedTransform;
+        return true;
+    }
+    transformRef = TransformRef();
+    return false;
+}
+
 void EditorManager::SetSelectedTransform(const TransformRef& transformRef)
 {
     UnselectAll();
     _selectedTransform = transformRef;
+}
+
+bool EditorManager::TryGetSelectedAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const
+{
+    if (_selectedAsset.IsValid())
+    {
+        assetRef = _selectedAsset;
+        subAssetIndex = _selectedSubAsset;
+        return true;
+    }
+    assetRef = AssetRef();
+    subAssetIndex = -1;
+    return false;
 }
 
 void EditorManager::SetSelectedAsset(const AssetRef& assetRef, int subAssetIndex)
