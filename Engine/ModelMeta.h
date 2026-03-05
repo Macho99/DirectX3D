@@ -11,5 +11,8 @@ public:
 
 protected:
     void Import() override;
+
+private:
+    virtual int GetVersion() const override { return 3; }
 };
 

@@ -340,6 +340,8 @@ void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& art
 
         MaterialDesc& desc = material->GetMaterialDesc();
         desc.ambient = asMaterial->ambient;
+        if (desc.ambient.x <= 0.001f && desc.ambient.y <= 0.001f && desc.ambient.z <= 0.001f)
+            desc.ambient = Color(1.f, 1.f, 1.f, 1.f);
         desc.diffuse = asMaterial->diffuse;
         desc.specular = asMaterial->specular;
         desc.emissive = asMaterial->emissive;
