@@ -36,7 +36,8 @@ void SceneView::OnGUI()
 
     ImGui::Image((ImTextureID)GRAPHICS->GetSceneViewSRV().Get(), avail);
 
-    DrawSceneViewGizmoOverlay();
+    if(gameDesc.sceneFocused)
+        DrawSceneViewGizmoOverlay();
 
     // ImGuizmo
     TransformRef selectedTransformRef;

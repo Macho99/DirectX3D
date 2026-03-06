@@ -184,7 +184,10 @@ void Game::Update()
 	GRAPHICS->RenderBegin();
 
 	RESOURCES->Update();
-	SCENE->Update();
+
+	if(_desc.sceneFocused)
+		SCENE->Update();
+
 	GRAPHICS->SetBackBufferRenderTarget();
     if (_desc.isEditor)
 		EDITOR->Update();

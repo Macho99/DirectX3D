@@ -49,13 +49,24 @@ namespace DndPayload
     template<typename T>
     inline bool ResourceTarget(OUT ResourceRef<T>& outDroppedRef)
     {
-        AssetId droppedId;
-        if (AssetTarget(droppedId) == false)
+        if (!ImGui::BeginDragDropTarget())
             return false;
 
-        if (RESOURCES->TryGetResourceRefByAssetId(droppedId, OUT outDroppedRef) == false)
-            return false;
+        bool accepted = false;
 
-        return true;
+        const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+        if (payload && payload->IsDataType(DndPayload::Asset))
+        {
+            const AssetId droppedId = *reinterpret_cast<const AssetId*>(payload->Data);
+            if (RESOURCES->TryGetResourceRefByAssetId(droppedId, OUT outDroppedRef) == false)
+                accepted = false;
+            else if (ImGui::AcceptDragDropPayload(DndPayload::Asset))
+            {
+                accepted = true;
+            }
+        }
+
+        ImGui::EndDragDropTarget();
+        return accepted;
     }
 }
