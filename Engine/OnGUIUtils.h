@@ -5,11 +5,44 @@
 class OnGUIUtils
 {
 public:
+    static bool DrawBool(const char* label, bool* value, bool isReadOnly);
+
+    static bool DrawVec3(const char* label, Vec3* value, float dragSpeed, bool isReadOnly);
     static bool DrawColor(const char* label, float* color, bool isReadOnly);
+    
+    template<typename TEnum>
+    static bool DrawEnumCombo(const char* label, TEnum& value, const char* const* names, int count, bool isReadOnly);
 
     template<typename T>
     static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly);
+
+private:
+    static void Begin(const char* label, bool setDisable);
+    static void End(bool setDisable);
+
+private:
+    static const float _labelWidth;
+    static const char* const _valueLabel;
 };
+
+template<typename TEnum>
+inline bool OnGUIUtils::DrawEnumCombo(const char* label, TEnum& value, const char* const* names, int count, bool isReadOnly)
+{
+    int current = (int)value;
+    bool changed = false;
+
+    Begin(label, isReadOnly);
+
+    if (ImGui::Combo(_valueLabel, &current, names, count))
+    {
+        value = (TEnum)current;
+        changed = true;
+    }
+
+    End(isReadOnly);
+
+    return changed;
+}
 
 template<typename T>
 inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)
@@ -17,12 +50,8 @@ inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
     bool changed = false;
     const bool allowClear = true;
 
-    ImGui::PushID(label);
+    //ImGui::PushID(label);
 
-    // 좌측 라벨
-    ImGui::AlignTextToFramePadding();
-    ImGui::TextUnformatted(label);
-    ImGui::SameLine();
 
     // 표시 문자열 만들기
     AssetId assetId = resourceRef.GetAssetId();
@@ -48,9 +77,18 @@ inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
     float clearBtnW = allowClear ? (ImGui::GetFrameHeight() + ImGui::GetStyle().ItemInnerSpacing.x) : 0.0f;
     float fieldW = (fullW > clearBtnW) ? (fullW - clearBtnW) : fullW;
 
+    Begin(label, false);
+
+    if(isReadOnly)
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+
     // “필드” (버튼처럼 보이는 입력칸)
-    ImGui::SetNextItemWidth(fieldW);
+    //ImGui::SetNextItemWidth(fieldW);
     bool clicked = ImGui::Button(display.c_str(), ImVec2(fieldW, 0));
+    
+    if(isReadOnly)
+        ImGui::PopStyleColor();
+
 
     // 클릭 시 포커스
     if (clicked && hasRef)
@@ -98,6 +136,7 @@ inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
     //    ImGui::EndDisabled();
     //}
 
-    ImGui::PopID();
+    End(false);
+    //ImGui::PopID();
     return changed;
 }

@@ -34,7 +34,7 @@ void Ssao::OnSize(int32 width, int32 height, float fovy, float farZ)
 			ResourceRef<Shader> shader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Ssao.fx");
 			ResourceRef<Material> material = RESOURCES->AllocateTempResource(make_unique<Material>());
 			material.Resolve()->SetShader(shader);
-			material.Resolve()->SetRandomTex(RESOURCES->GetRandomTexture());
+			material.Resolve()->SetRandomTex(true);
 			material.Resolve()->SetNormalMap(GRAPHICS->GetNormalDepthMap());
 			_ssaoMaterial = material;
 		}

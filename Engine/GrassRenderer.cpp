@@ -114,7 +114,7 @@ void GrassRenderer::CreateResources()
     Shader* grassComputeShader = _grassComputeShader.Resolve();
     _grassEffectBuffer = grassComputeShader->GetConstantBuffer("GrassConstant");
     _randomEffectBuffer = grassComputeShader->GetSRV("RandomMap");
-    _randomTex = RESOURCES->GetRandomTexture();
+    //_randomTex = RESOURCES->GetRandomTexture();
 
     _layerMapArrayEffectBuffer = grassComputeShader->GetSRV("LayerMapArray");
     _blendMapEffectBuffer = grassComputeShader->GetSRV("BlendMap");
@@ -146,7 +146,7 @@ void GrassRenderer::UpdateGrass()
     _layerMapArrayEffectBuffer->SetResource(terrain->GetLayerMapArraySRV());
     _blendMapEffectBuffer->SetResource(terrain->GetBlendMapSRV());
 
-    _randomEffectBuffer->SetResource(_randomTex.Resolve()->GetComPtr().Get());
+    _randomEffectBuffer->SetResource(RESOURCES->GetRandomTexture()->GetComPtr().Get());
     _grassComputeShader.Resolve()->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
     _initGrassEffectBuffer->SetResource(_initGrassSRV.Get());
 

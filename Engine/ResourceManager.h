@@ -80,7 +80,7 @@ public:
 	ResourceRef<Mesh> GetQuadMesh() const { return _quad; }
 	ResourceRef<Mesh> GetCubeMesh() const { return _cube; }
 	ResourceRef<Mesh> GetSphereMesh() const { return _sphere; }
-	ResourceRef<Texture> GetRandomTexture() const { return _randomTexture; }
+	Texture* GetRandomTexture();
 
 private:
 	static wstring ToStr(FsAction fsAction);

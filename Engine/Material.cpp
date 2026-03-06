@@ -53,11 +53,6 @@ void Material::SetSpecularMap(ResourceRef<Texture> specularMap)
     _specularMap = specularMap;
 }
 
-void Material::SetRandomTex(ResourceRef<Texture> randomTex)
-{
-    _randomTex = randomTex;
-}
-
 void Material::SetCubeMap(ResourceRef<Texture> cubeMap)
 {
     _cubeMap = cubeMap;
@@ -89,10 +84,9 @@ void Material::Update()
 		_specularEffectBuffer->SetResource(specularMap->GetComPtr().Get());
 	}
 
-    Texture* randomTex = _randomTex.Resolve();
-	if (randomTex)
+	if (_useRandomTexture)
 	{
-		_randomEffectBuffer->SetResource(randomTex->GetComPtr().Get());
+		_randomEffectBuffer->SetResource(RESOURCES->GetRandomTexture()->GetComPtr().Get());
 	}
 	
     Texture* cubeMap = _cubeMap.Resolve();
@@ -133,10 +127,12 @@ bool Material::OnGUI(bool isReadOnly)
 	changed |= OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse.x, isReadOnly);
 	changed |= OnGUIUtils::DrawColor("Specular", &_desc.specular.x, isReadOnly);
 	changed |= OnGUIUtils::DrawColor("Emissive", &_desc.emissive.x, isReadOnly);
+    changed |= OnGUIUtils::DrawEnumCombo("RenderQueue", _renderQueue, RenderQueueNames, (int)RenderQueue::Max, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("Shader", _shader, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("DiffuseMap", _diffuseMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("NormalMap", _normalMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("SpecularMap", _specularMap, isReadOnly);
+	changed |= OnGUIUtils::DrawBool("UseRandomTexture", &_useRandomTexture, isReadOnly);
 
 	return changed;
 }

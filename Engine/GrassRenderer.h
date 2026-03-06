@@ -86,7 +86,7 @@ private:
     shared_ptr<ConstantBuffer<GrassConstant>> _grassConstantBuffer;     // 상수 버퍼
     ComPtr<ID3DX11EffectConstantBuffer> _grassEffectBuffer;
     ComPtr<ID3DX11EffectShaderResourceVariable> _randomEffectBuffer;
-    ResourceRef<Texture> _randomTex;
+    //ResourceRef<Texture> _randomTex;
 
     ComponentRef<TessTerrain> _terrain;
     ComPtr<ID3DX11EffectShaderResourceVariable> _layerMapArrayEffectBuffer;

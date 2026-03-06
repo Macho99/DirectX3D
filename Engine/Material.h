@@ -1,12 +1,24 @@
 #pragma once
 #include "ResourceBase.h"
 
+#define RENDER_QUEUE_LIST \
+    X(Opaque) \
+    X(Cutout) \
+    X(Transparent) \
+
 enum class RenderQueue
 {
-	Opaque,
-	Cutout,
-	Transparent,
+#define X(name) name,
+	RENDER_QUEUE_LIST
+#undef X
 	Max
+};
+
+static const char* RenderQueueNames[] =
+{
+#define X(name) #name,
+	RENDER_QUEUE_LIST
+#undef X
 };
 
 class Material : public ResourceBase
@@ -22,15 +34,16 @@ public:
 	ResourceRef<Texture> GetDiffuseMap() { return _diffuseMap; }
 	ResourceRef<Texture> GetNormalMap() { return _normalMap; }
 	ResourceRef<Texture> GetSpecularMap() { return _specularMap; }
-	ResourceRef<Texture> GetRandomTex() { return _randomTex; }
+	//ResourceRef<Texture> GetRandomTex() { return _randomTex; }
 
 	void SetShader(ResourceRef<Shader> shader);
 	void SetDiffuseMap(ResourceRef<Texture> diffuseMap);
 	void SetNormalMap(ResourceRef<Texture> normalMap);
 	void SetSpecularMap(ResourceRef<Texture> specularMap);
-	void SetRandomTex(ResourceRef<Texture> randomTex);
+	//void SetRandomTex(ResourceRef<Texture> randomTex);
 	void SetCubeMap(ResourceRef<Texture> cubeMap);
     void SetLayerMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerMapArraySRV = srv; }
+	void SetRandomTex(bool useRandomTexture) { _useRandomTexture = useRandomTexture; }
 
 	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
 	RenderQueue GetRenderQueue() { return _renderQueue; }
@@ -52,8 +65,8 @@ public:
         ar(CEREAL_NVP(_diffuseMap));
         ar(CEREAL_NVP(_normalMap));
         ar(CEREAL_NVP(_specularMap));
-        ar(CEREAL_NVP(_randomTex));
         ar(CEREAL_NVP(_cubeMap));
+        ar(CEREAL_NVP(_useRandomTexture));
     }
 
 private:
@@ -67,9 +80,10 @@ private:
 	ResourceRef<Texture> _diffuseMap;
 	ResourceRef<Texture> _normalMap;
 	ResourceRef<Texture> _specularMap;
-	ResourceRef<Texture> _randomTex;
 	ResourceRef<Texture> _cubeMap;
     ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
+
+	bool _useRandomTexture = false;
 
 	// Cache
 	ID3DX11EffectShaderResourceVariable* _diffuseEffectBuffer = nullptr;

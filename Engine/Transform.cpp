@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Transform.h"
 #include "MathUtils.h"
+#include "OnGUIUtils.h"
 
 Transform::Transform() : Super(ComponentType::Transform)
 {
@@ -273,20 +274,20 @@ bool Transform::OnGUI()
     bool changed = false;
     float dragSpeed = 0.1f;
 	Vec3 position = GetLocalPosition();
-	if (ImGui::DragFloat3("Position", &position.x, dragSpeed))
+	if (OnGUIUtils::DrawVec3("Position", &position, dragSpeed, false))
 	{
 		changed = true;
 		SetLocalPosition(position);
 	}
 	Vec3 radRotation = GetLocalRotation();
 	Vec3 degRotation = MathUtils::RadToDeg(radRotation);
-	if (ImGui::DragFloat3("Rotation", &degRotation.x, dragSpeed))
+	if (OnGUIUtils::DrawVec3("Rotation", &degRotation, dragSpeed, false))
 	{
 		changed = true;
 		SetLocalRotation(MathUtils::DegToRad(degRotation));
 	}
 	Vec3 scale = GetLocalScale();
-	if (ImGui::DragFloat3("Scale", &scale.x, dragSpeed))
+	if (OnGUIUtils::DrawVec3("Scale", &scale, dragSpeed, false))
 	{
 		changed = true;
 		SetLocalScale(scale);

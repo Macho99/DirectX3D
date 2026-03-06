@@ -183,7 +183,7 @@ void AssetSerializeDemo::Init()
         material->SetShader(particleShader);
         auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\flare0.png");
         material->SetDiffuseMap(texture);
-        material->SetRandomTex(RESOURCES->GetRandomTexture());
+        material->SetRandomTex(true);
         particleSystem->SetMaterial(materialRef);
     }
 

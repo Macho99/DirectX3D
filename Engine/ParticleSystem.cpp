@@ -134,7 +134,7 @@ void ParticleSystem::SetMaterial(ResourceRef<Material> material)
 	Super::SetMaterial(material);
     Material* materialPtr = _material.Resolve();
 
-	materialPtr->SetRandomTex(RESOURCES->GetRandomTexture());
+	materialPtr->SetRandomTex(true);
 	materialPtr->SetCastShadow(false);
     materialPtr->GetShader()->SetTechNum(RenderTech::Draw, 1);
 }

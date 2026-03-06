@@ -199,6 +199,11 @@ Texture* ResourceManager::GetEditorTexture(string key, const fs::path& loadPath)
 	}
 }
 
+Texture* ResourceManager::GetRandomTexture()
+{
+	return _randomTexture.Resolve();
+}
+
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)
