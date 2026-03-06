@@ -21,5 +21,8 @@ protected:
 
 private:
     void DrawComponentCard(Component& component);
+
+private:
+    //Vec2 _testValue = Vec2(0.f);
 };
 

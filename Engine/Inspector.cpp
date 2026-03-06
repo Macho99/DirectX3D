@@ -20,6 +20,9 @@ void Inspector::Init(EditorManager* editorManager)
 void Inspector::OnGUI()
 {
     Super::OnGUI();
+
+    //ImGui::DragFloat2("Test Float", &_testValue.x, 0.1f);
+
     TransformRef selectedTransform;
     AssetRef selectedAsset;
     int selectedSubAssetIndex;
@@ -121,6 +124,7 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
         ImGuiTreeNodeFlags_DefaultOpen |
         ImGuiTreeNodeFlags_Framed |
         ImGuiTreeNodeFlags_SpanAvailWidth |
+        ImGuiTreeNodeFlags_AllowOverlap |
         ImGuiTreeNodeFlags_OpenOnArrow; // 화살표 클릭으로 열기(유니티 느낌)
 
     bool open = ImGui::TreeNodeEx("##Header", flags, "%s", title.c_str());
@@ -140,8 +144,10 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive));
 
     ImGui::SetCursorScreenPos(ImVec2(x, y));
-    if (ImGui::SmallButton("..."))
+    if (ImGui::Button("...", ImVec2(btnW, 23.f)))
+    {
         ImGui::OpenPopup("##CompMenu");
+    }
 
     ImGui::PopStyleColor(3);
 
@@ -154,15 +160,17 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
     bool changed = false;
     if (open)
     {
-        ImGui::Indent(8.0f);
-        ImGui::Separator();
+        ImGui::Indent(8.f);
+        ImGui::Dummy(ImVec2(0, 4));
         changed = onGui();
-        ImGui::Unindent(8.0f);
+        ImGui::Dummy(ImVec2(0, 8));
+        ImGui::Unindent(8.f);
         ImGui::TreePop();
     }
 
     ImGui::EndGroup();
     ImVec2 end = ImGui::GetItemRectMax();
+    end.x += 7.2f;
     start.x -= 4.0f;
 
     // 수동 테두리
