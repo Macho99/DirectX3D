@@ -6,6 +6,7 @@
 #include "ModelAnimation.h"
 #include "Camera.h"
 #include "Light.h"
+#include "OnGUIUtils.h"
 
 ModelAnimator::ModelAnimator(ResourceRef<Shader> shader)
 	: Super(ComponentType::Animator), _shader(shader)
@@ -99,6 +100,15 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 InstanceID ModelAnimator::GetInstanceID()
 {
 	return make_pair((uint64)_model.GetAssetId().GetLeftId(), (uint64)_shader.GetAssetId().GetLeftId());
+}
+
+bool ModelAnimator::OnGUI()
+{
+	bool changed = false;
+    changed |= Super::OnGUI();
+	ImGui::Separator();
+    changed |= OnGUIUtils::DrawResourceRef("Model", _model);
+	return changed;
 }
 
 void ModelAnimator::CreateTexture()

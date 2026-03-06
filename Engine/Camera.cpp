@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "Renderer.h"
 #include "Material.h"
+#include "OnGUIUtils.h"
 
 Matrix Camera::S_MatView = Matrix::Identity;
 Matrix Camera::S_MatProjection = Matrix::Identity;
@@ -44,6 +45,21 @@ void Camera::UpdateMatrix()
 	{
 		_matProjection = ::XMMatrixOrthographicLH(_width, _height, _near, _far);
 	}
+}
+
+bool Camera::OnGUI()
+{
+	bool changed = false;
+
+	changed |= Super::OnGUI();
+    changed |= OnGUIUtils::DrawEnumCombo("Projection Type", _type, ProjectionTypeNames, (int)ProjectionType::Max);
+    changed |= OnGUIUtils::DrawFloat("Near", &_near, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Far", &_far, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("FOV", &_fov, 0.01f);
+    changed |= OnGUIUtils::DrawFloat("Width", &_width, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Height", &_height, 1.f);
+
+	return changed;
 }
 
 void Camera::SortGameObject()

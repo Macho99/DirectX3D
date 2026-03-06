@@ -271,6 +271,8 @@ void Transform::SetSiblingIndex(int index)
 
 bool Transform::OnGUI()
 {
+	Super::OnGUI();
+
     bool changed = false;
     float dragSpeed = 0.1f;
 	Vec3 position = GetLocalPosition();

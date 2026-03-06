@@ -27,6 +27,8 @@ public:
 
     ModelMeshResource* GetMesh() { return _mesh.Resolve(); }
 
+	virtual bool OnGUI(bool isReadOnly) override;
+
 private:
 	vector<ResourceRef<Material>> _materials;
     ResourceRef<ModelMeshResource> _mesh;

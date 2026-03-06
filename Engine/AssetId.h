@@ -23,6 +23,7 @@ public:
     }
 
     static AssetId CreateAssetId();
+    static bool TryParse(const string& str, OUT AssetId& out);
 
     uint64 GetLeftId() const { return leftId; }
     uint64 GetRightId() const { return rightId; }

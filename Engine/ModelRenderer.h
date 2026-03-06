@@ -14,16 +14,16 @@ public:
 	virtual ~ModelRenderer();
 
 	void SetModel(ResourceRef<Model> model);
-	void SetPass(uint8 pass) { _pass = pass; }
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
 	InstanceID GetInstanceID();
 
 	void SetMaterial(ResourceRef<Material> material) override;
 
+    virtual bool OnGUI() override;
+
 private:
 	ResourceRef<Shader>	_shader;
-	uint8				_pass = 0;
 	ResourceRef<Model>	_model;
 };
 

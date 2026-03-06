@@ -1,10 +1,24 @@
 #pragma once
 #include "Component.h"
 
+#define PROJECTION_TYPE_LIST(X) \
+    X(Perspective)              \
+    X(Orthographic) \
+
 enum class ProjectionType
 {
-	Perspective, // 원근 투영
-	Orthographic, // 직교 투영
+#define X(name) name,
+	PROJECTION_TYPE_LIST(X)
+#undef X
+
+	Max
+};
+
+static const char* ProjectionTypeNames[] =
+{
+#define X(name) #name,
+	PROJECTION_TYPE_LIST(X)
+#undef X
 };
 
 class Camera :  public Component
@@ -37,6 +51,8 @@ public:
     float GetNear() { return _near; }
     float GetFar() { return _far; }
     float GetFOV() { return _fov; }
+
+    virtual bool OnGUI() override;
 
 private:
 	ProjectionType _type = ProjectionType::Perspective;

@@ -16,6 +16,30 @@ bool OnGUIUtils::DrawBool(const char* label, bool* value, bool isReadOnly)
     return changed;
 }
 
+bool OnGUIUtils::DrawUInt8(const char* label, uint8* value, float dragSpeed, bool isReadOnly)
+{
+    return DrawScalar(label, ImGuiDataType_U8, value, dragSpeed, isReadOnly);
+}
+
+bool OnGUIUtils::DrawUInt32(const char* label, uint32* value, float dragSpeed, bool isReadOnly)
+{
+    return DrawScalar(label, ImGuiDataType_U32, value, dragSpeed, isReadOnly);
+}
+
+bool OnGUIUtils::DrawInt32(const char* label, int* value, float dragSpeed, bool isReadOnly)
+{
+    return DrawScalar(label, ImGuiDataType_S32, value, dragSpeed, isReadOnly);
+}
+
+bool OnGUIUtils::DrawFloat(const char* label, float* value, float dragSpeed, bool isReadOnly)
+{
+    Begin(label, isReadOnly);
+    bool changed = ImGui::DragFloat(_valueLabel, value, dragSpeed);
+    End(isReadOnly);
+
+    return changed;
+}
+
 bool OnGUIUtils::DrawVec3(const char* label, Vec3* value, float dragSpeed, bool isReadOnly)
 {
     Begin(label, isReadOnly);
@@ -43,6 +67,14 @@ bool OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
 
     End(isReadOnly);
 
+    return changed;
+}
+
+bool OnGUIUtils::DrawScalar(const char* label, ImGuiDataType dataType, void* value, float dragSpeed, bool isReadOnly)
+{
+    Begin(label, isReadOnly);
+    bool changed = ImGui::DragScalar(_valueLabel, dataType, value, dragSpeed);
+    End(isReadOnly);
     return changed;
 }
 

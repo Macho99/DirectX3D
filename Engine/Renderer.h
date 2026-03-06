@@ -15,10 +15,14 @@ public:
 
 	virtual bool Render(RenderTech renderTech);
     void SetBeforeRender(function<void(Material*)> func) { _beforeRender = func; }
+    virtual bool OnGUI() override;
 
 protected:
 	virtual void InnerRender(RenderTech renderTech);
+
+protected:
 	ResourceRef<Material> _material;
+
 	uint8 _pass = 0;
     function<void(Material*)> _beforeRender = nullptr;
 };

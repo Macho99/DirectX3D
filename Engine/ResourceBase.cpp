@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ResourceBase.h"
 #include "Material.h"
+#include "Model.h"
 
 ResourceBase::ResourceBase()
     : _type(ResourceType::None)
@@ -30,3 +31,7 @@ bool ResourceBase::OnGUI(bool isReadOnly)
 
 CEREAL_REGISTER_TYPE(Material);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Material);
+
+CEREAL_REGISTER_TYPE(Model);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Model);
+

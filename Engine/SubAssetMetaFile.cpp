@@ -175,10 +175,13 @@ int SubAssetMetaFile::GetSubAssetIndexById(const AssetId& assetId) const
 
 string SubAssetMetaFile::GetName(const AssetId& assetId)
 {
+    if (assetId == _assetId)
+        return Super::GetName(assetId);
+
     for (const SubAssetInfo& sub : _subAssets)
     {
         if (sub.assetId == assetId)
-            return Utils::ToString(sub.fileName);
+            return Super::GetName(assetId) + "/" + Utils::ToString(sub.fileName);
     }
     ASSERT(false, "SubAssetMetaFile::GetName: assetId not found: " + assetId.ToString());
     return "";

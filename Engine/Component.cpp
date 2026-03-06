@@ -24,6 +24,5 @@ Transform* Component::GetTransform()
 
 bool Component::OnGUI()
 {
-	ImGui::Text("No inspector");
 	return false;
 }

@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "Camera.h"
 #include "Light.h"
+#include "OnGUIUtils.h"
 
 Renderer::Renderer(ComponentType componentType) : Super(componentType)
 {
@@ -27,6 +28,18 @@ bool Renderer::Render(RenderTech renderTech)
 	InnerRender(renderTech);
 
 	return true;
+}
+
+bool Renderer::OnGUI()
+{
+	bool changed = false;
+
+	changed |= Super::OnGUI();
+
+    changed |= OnGUIUtils::DrawUInt8("Pass", & _pass, 1.f);
+    changed |= OnGUIUtils::DrawResourceRef("Material", _material);
+
+	return changed;
 }
 
 void Renderer::InnerRender(RenderTech renderTech)

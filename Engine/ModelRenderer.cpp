@@ -4,6 +4,7 @@
 #include "ModelMesh.h"
 #include "Model.h"
 #include "Camera.h"
+#include "OnGUIUtils.h"
 
 ModelRenderer::ModelRenderer(ResourceRef<Shader> shader)
 	: Super(ComponentType::ModelRenderer), _shader(shader)
@@ -93,4 +94,14 @@ InstanceID ModelRenderer::GetInstanceID()
 void ModelRenderer::SetMaterial(ResourceRef<Material> material)
 {
 	ASSERT(false, "ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
+}
+
+bool ModelRenderer::OnGUI()
+{
+	bool changed = false;
+	changed |= Super::OnGUI();
+	ImGui::Separator();
+    changed |= OnGUIUtils::DrawResourceRef("Model", _model);
+    changed |= OnGUIUtils::DrawResourceRef("Shader", _shader);
+	return changed;
 }

@@ -22,11 +22,12 @@ public:
 	void UpdateTweenData();
 
 	void SetModel(ResourceRef<Model> model);
-	void SetPass(uint8 pass) { _pass = pass; }
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
 	InstanceID GetInstanceID();
 	TweenDesc& GetTweenDesc() { return _tweenDesc; }
+
+    virtual bool OnGUI() override;
 
 private:
 	void CreateTexture();
@@ -42,7 +43,6 @@ private:
 	TweenDesc _tweenDesc;
 
 private:
-	uint8 _pass = 0;
 	ResourceRef<Shader> _shader;
 	ResourceRef<Model> _model;
 };

@@ -3,9 +3,12 @@
 
 class CameraMove : public MonoBehaviour
 {
+    using Super = MonoBehaviour;
 public:
 	virtual void Start() override;
 	virtual void Update() override;
+
+	virtual bool OnGUI() override;
 
 private:
 	float _moveSpeed = 10.f;

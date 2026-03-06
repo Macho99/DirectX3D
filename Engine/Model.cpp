@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "ModelMesh.h"
 #include "ModelAnimation.h"
+#include "OnGUIUtils.h"
 
 Model::Model()
     : Super(ResourceType::Model)
@@ -63,4 +64,22 @@ ModelAnimation* Model::GetAnimationByName(wstring name)
 	}
 
 	return nullptr;
+}
+
+bool Model::OnGUI(bool isReadOnly)
+{
+	bool changed = false;
+    changed |= Super::OnGUI(isReadOnly);
+    changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh, isReadOnly);
+    for (int i = 0; i < _materials.size(); i++)
+    {
+        string label = "Material " + to_string(i);
+        changed |= OnGUIUtils::DrawResourceRef(label.c_str(), _materials[i], isReadOnly);
+    }
+    for (int i = 0; i < _animations.size(); i++)
+    {
+        string label = "Animation " + to_string(i);
+        changed |= OnGUIUtils::DrawResourceRef(label.c_str(), _animations[i], isReadOnly);
+    }
+    return changed;
 }

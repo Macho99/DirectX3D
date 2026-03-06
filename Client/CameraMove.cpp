@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CameraMove.h"
 #include "Transform.h"
+#include "OnGUIUtils.h"
 
 void CameraMove::Start()
 {
@@ -79,4 +80,14 @@ void CameraMove::Update()
 	//	rotation.y -= dt * 0.5f;
 	//	GetTransform()->SetLocalRotation(rotation);
 	//}
+}
+
+bool CameraMove::OnGUI()
+{
+	bool changed = false;
+	changed |= Super::OnGUI();
+    changed |= OnGUIUtils::DrawFloat("Move Speed", &_moveSpeed, .1f);
+    changed |= OnGUIUtils::DrawFloat("Sprint Speed", &_sprintSpeed, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Mouse Speed", &_mouseSpeed, 0.0001f);
+	return changed;
 }

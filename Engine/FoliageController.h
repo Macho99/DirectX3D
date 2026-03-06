@@ -13,6 +13,8 @@ public:
     void SetBendFactor(float factor) { _foliageDesc.bendFactor = factor; }
     void SetStiffness(float stiffness) { _foliageDesc.stiffness = stiffness; }
 
+    virtual bool OnGUI() override;
+
 private:
     void BeforeRender(Material* material);
     FoliageDesc _foliageDesc;
