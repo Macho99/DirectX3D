@@ -117,63 +117,40 @@ wstring MetaFile::GetArtifactPath() const
 
 Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& assetId, const fs::path& absPath) const
 {
-    auto& editorResources = RESOURCES->GetEditorResources();
-    Texture* returnValue = nullptr;
+    string key;
+    fs::path loadPath;
+
     if (resourceType == ResourceType::Texture)
     {
-        const string assetIdStr = assetId.ToString();
-        auto it = editorResources.find(assetIdStr);
-
-        if (it == editorResources.end())
-        {
-            unique_ptr<Texture> texture = make_unique<Texture>();
-            texture->Load(absPath);
-            returnValue = texture.get();
-            editorResources[assetIdStr] = std::move(texture);
-            return returnValue;
-        }
-        else
-        {
-            return static_cast<Texture*>(it->second.get());
-        }
-    }
-
-    string iconKey;
-    switch (resourceType)
-    {
-    case ResourceType::Animation:
-        iconKey = "AnimationIcon";
-        break;
-    case ResourceType::Model:
-        iconKey = "ModelIcon";
-        break;
-    case ResourceType::Folder:
-        iconKey = "FolderIcon";
-        break;
-    case ResourceType::Material:
-        iconKey = "MaterialIcon";
-        break;
-    case ResourceType::Mesh:
-        iconKey = "MeshIcon";
-        break;
-    default:
-        iconKey = "DefaultFileIcon";
-        break;
-    }
-
-    auto it = editorResources.find(iconKey);
-    if (it == editorResources.end())
-    {
-        unique_ptr<Texture> texture = make_unique<Texture>();
-        texture->Load(L"..\\EditorResource\\" + Utils::ToWString(iconKey) + L".png");
-        Texture* texturePtr = texture.get();
-        editorResources[iconKey] = std::move(texture);
-        return texturePtr;
+        key = assetId.ToString();
+        loadPath = absPath;
     }
     else
     {
-        return static_cast<Texture*>(it->second.get());
+        switch (resourceType)
+        {
+        case ResourceType::Animation:
+            key = "AnimationIcon";
+            break;
+        case ResourceType::Model:
+            key = "ModelIcon";
+            break;
+        case ResourceType::Folder:
+            key = "FolderIcon";
+            break;
+        case ResourceType::Material:
+            key = "MaterialIcon";
+            break;
+        case ResourceType::Mesh:
+            key = "MeshIcon";
+            break;
+        default:
+            key = "DefaultFileIcon";
+            break;
+        }
+        loadPath = L"..\\EditorResource\\" + Utils::ToWString(key) + L".png";
     }
+    return RESOURCES->GetEditorTexture(key, loadPath);
 }
 
 unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const fs::path& filePath) const

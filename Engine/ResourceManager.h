@@ -75,7 +75,7 @@ public:
 
 	void SetOnFileEventCallback(function<void(const FsEvent&)> cb) { onFileEventCallback = cb; }
 
-	unordered_map<string, unique_ptr<ResourceBase>>& GetEditorResources() { return _editorResources; }
+	Texture * GetEditorTexture(string key, const fs::path& loadPath);
 
 	ResourceRef<Mesh> GetQuadMesh() const { return _quad; }
 	ResourceRef<Mesh> GetCubeMesh() const { return _cube; }

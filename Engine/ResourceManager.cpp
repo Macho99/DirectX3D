@@ -181,6 +181,24 @@ void ResourceManager::SaveAsset(const AssetId& assetId)
 	_assetSlot.SaveAsset(assetId, assetPath);
 }
 
+Texture* ResourceManager::GetEditorTexture(string key, const fs::path& loadPath)
+{
+	auto it = _editorResources.find(key);
+
+	if (it == _editorResources.end())
+	{
+		unique_ptr<Texture> texture = make_unique<Texture>();
+		texture->Load(loadPath);
+		Texture* returnValue = texture.get();
+		_editorResources[key] = std::move(texture);
+		return returnValue;
+	}
+	else
+	{
+		return static_cast<Texture*>(it->second.get());
+	}
+}
+
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)

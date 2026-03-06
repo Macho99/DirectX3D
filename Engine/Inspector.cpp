@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Inspector.h"
 #include "EditorManager.h"
 #include "MonoBehaviour.h"
@@ -21,6 +21,18 @@ void Inspector::OnGUI()
 {
     Super::OnGUI();
 
+    {
+        float size = 15.0f;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - size);
+
+        bool locked = _editorManager->IsInspectorLocked();
+        EditorIcon lockIcon = locked ? EditorIcon::Lock : EditorIcon::Unlock;
+        ImTextureID iconTex = (ImTextureID)_editorManager->GetEditorIconTexture(lockIcon)->GetComPtr().Get();
+        if (ImGui::ImageButton("LockButton", iconTex, ImVec2(size, size)))
+        {
+            _editorManager->SetInspectorLock(!locked);
+        }
+    }
     //ImGui::DragFloat2("Test Float", &_testValue.x, 0.1f);
 
     TransformRef selectedTransform;
@@ -115,22 +127,22 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
     ImGui::PushID(idPtr);
     ImGui::Spacing();
 
-    // Ä«µå Å×µÎ¸®¿ë ±×·ì
+    // ì¹´ë“œ í…Œë‘ë¦¬ìš© ê·¸ë£¹
     ImVec2 start = ImGui::GetCursorScreenPos();
     ImGui::BeginGroup();
 
-    // Çì´õ ÇÁ·¹ÀÓÃ³·³ º¸ÀÌ°Ô
+    // í—¤ë” í”„ë ˆì„ì²˜ëŸ¼ ë³´ì´ê²Œ
     ImGuiTreeNodeFlags flags =
         ImGuiTreeNodeFlags_DefaultOpen |
         ImGuiTreeNodeFlags_Framed |
         ImGuiTreeNodeFlags_SpanAvailWidth |
         ImGuiTreeNodeFlags_AllowOverlap |
-        ImGuiTreeNodeFlags_OpenOnArrow; // È­»ìÇ¥ Å¬¸¯À¸·Î ¿­±â(À¯´ÏÆ¼ ´À³¦)
+        ImGuiTreeNodeFlags_OpenOnArrow; // í™”ì‚´í‘œ í´ë¦­ìœ¼ë¡œ ì—´ê¸°(ìœ ë‹ˆí‹° ëŠë‚Œ)
 
     bool open = ImGui::TreeNodeEx("##Header", flags, "%s", title.c_str());
 
-    // Çì´õ ¿À¸¥ÂÊ¿¡ ¹öÆ° ¹èÄ¡
-    // TreeNodeEx°¡ ±×¸° "Çì´õ ¿µ¿ª"ÀÇ ¿À¸¥ÂÊ ³¡ ÁÂÇ¥¸¦ ÀÌ¿ëÇÕ´Ï´Ù.
+    // í—¤ë” ì˜¤ë¥¸ìª½ì— ë²„íŠ¼ ë°°ì¹˜
+    // TreeNodeExê°€ ê·¸ë¦° "í—¤ë” ì˜ì—­"ì˜ ì˜¤ë¥¸ìª½ ë ì¢Œí‘œë¥¼ ì´ìš©í•©ë‹ˆë‹¤.
     ImVec2 rmin = ImGui::GetItemRectMin();
     ImVec2 rmax = ImGui::GetItemRectMax();
 
@@ -173,7 +185,7 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
     end.x += 7.2f;
     start.x -= 4.0f;
 
-    // ¼öµ¿ Å×µÎ¸®
+    // ìˆ˜ë™ í…Œë‘ë¦¬
     auto* dl = ImGui::GetWindowDrawList();
     dl->AddRect(start, end, ImGui::GetColorU32(ImGuiCol_Border), 4.0f);
 

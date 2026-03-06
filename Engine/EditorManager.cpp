@@ -18,12 +18,12 @@ EditorManager::~EditorManager()
 
 void EditorManager::Init()
 {
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();// (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();// (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImFont* font = io.Fonts->AddFontFromFileTTF(
         "..\\Assets\\Pretendard-Medium.ttf",
@@ -33,13 +33,13 @@ void EditorManager::Init()
     );
 
     IM_ASSERT(font != NULL);
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
 
-	// Setup Platform/Renderer backends
-	ImGui_ImplWin32_Init(GAME->GetGameDesc().hWnd);
-	ImGui_ImplDX11_Init(DEVICE.Get(), DC.Get());
+    // Setup Platform/Renderer backends
+    ImGui_ImplWin32_Init(GAME->GetGameDesc().hWnd);
+    ImGui_ImplDX11_Init(DEVICE.Get(), DC.Get());
 
     _editorWindows.push_back(make_unique<SceneView>());
     _editorWindows.push_back(make_unique<Hierarchy>());
@@ -51,7 +51,7 @@ void EditorManager::Init()
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("NormalDepthMap", []() { return GRAPHICS->GetNormalDepthMap().Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("SsaoMap", []() { return GRAPHICS->GetSsaoMap().Resolve(); }));
-    _editorWindows.push_back(make_unique<DebugTexWindow>("PostProcess", [](){ return GRAPHICS->GetPostProcessDebugTexture(0).Resolve();}));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("PostProcess", []() { return GRAPHICS->GetPostProcessDebugTexture(0).Resolve(); }));
 
     for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
     {
@@ -75,9 +75,9 @@ void EditorManager::Update()
         io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
     }
 
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -85,7 +85,7 @@ void EditorManager::Update()
         {
             for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
             {
-                if(editorWindow->IsMenuEnabled() == false)
+                if (editorWindow->IsMenuEnabled() == false)
                     continue;
 
                 ImGui::MenuItem(editorWindow->GetName().c_str(), nullptr, &editorWindow->IsOpen);
@@ -152,17 +152,17 @@ void EditorManager::DrawDockSpace()
 
 void EditorManager::Render()
 {
-	// Rendering
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    // Rendering
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void EditorManager::OnDestroy()
 {
     // Cleanup
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 
     _editorWindows.clear();
 }
@@ -176,23 +176,28 @@ void EditorManager::GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef
 
 void EditorManager::ClickTransform(const TransformRef& transformRef)
 {
-    _inspectorAsset = AssetRef();
-    _inspectorSubAsset = -1;
+    if (_inspectorLock == false)
+    {
+        _inspectorAsset = AssetRef();
+        _inspectorSubAsset = -1;
 
-    _inspectorTransform = transformRef;
+        _inspectorTransform = transformRef;
+    }
     _hierarchyTransform = transformRef;
 }
 
 void EditorManager::ClickAsset(const AssetRef& assetRef)
 {
-    _inspectorTransform = TransformRef();
-
     AssetId ownerAssetId;
     int subAssetIndex;
     RESOURCES->GetAssetDatabase().GetOwnerAssetId(assetRef.GetAssetId(), OUT ownerAssetId, OUT subAssetIndex);
 
-    _inspectorAsset = ownerAssetId;
-    _inspectorSubAsset = subAssetIndex;
+    if (_inspectorLock == false)
+    {
+        _inspectorTransform = TransformRef();
+        _inspectorAsset = ownerAssetId;
+        _inspectorSubAsset = subAssetIndex;
+    }
 
     _contentBrowserAsset = ownerAssetId;
     _contentBrowserSubAsset = subAssetIndex;
@@ -235,4 +240,18 @@ void EditorManager::FocusContentBrowserAsset(const AssetRef& assetRef)
 
     _contentBrowserAsset = ownerAssetId;
     _contentBrowserSubAsset = subAssetIndex;
+}
+
+Texture* EditorManager::GetEditorIconTexture(EditorIcon icon)
+{
+    switch (icon)
+    {
+    case EditorIcon::Lock:
+        return RESOURCES->GetEditorTexture("Icon_Lock", L"..\\EditorResource\\Lock.png");
+    case EditorIcon::Unlock:
+        return RESOURCES->GetEditorTexture("Icon_Unlock", L"..\\EditorResource\\Unlock.png");
+    }
+
+    ASSERT(false, "EditorManager::GetEditorIconTexture: Unsupported icon type: " + std::to_string((int)icon));
+    return nullptr;
 }

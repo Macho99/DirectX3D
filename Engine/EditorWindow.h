@@ -25,4 +25,3 @@ protected:
 
     EditorManager* _editorManager = nullptr;
 };
-

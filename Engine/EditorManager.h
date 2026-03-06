@@ -2,6 +2,14 @@
 #include "DirectoryWatcherWin.h"
 class EditorWindow;
 
+enum class EditorIcon
+{
+	Lock,
+	Unlock,
+
+	Max,
+};
+
 class EditorManager
 {
 public:
@@ -32,6 +40,11 @@ public:
 	bool TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
 	void FocusContentBrowserAsset(const AssetRef& assetRef);
 
+    Texture * GetEditorIconTexture(EditorIcon icon);
+
+    bool IsInspectorLocked() const { return _inspectorLock; }
+    void SetInspectorLock(bool lock) { _inspectorLock = lock; }
+
 private:
 	TransformRef _inspectorTransform;
     AssetRef _inspectorAsset;
@@ -41,6 +54,8 @@ private:
 
     AssetRef _contentBrowserAsset;
 	int _contentBrowserSubAsset = -1;
+
+	bool _inspectorLock = false;
 
 	vector<unique_ptr<EditorWindow>> _editorWindows;
 };
