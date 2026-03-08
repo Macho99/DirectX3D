@@ -219,6 +219,22 @@ void EditorManager::FocusHierarchyTransform(const TransformRef& transformRef)
     _hierarchyTransform = transformRef;
 }
 
+bool EditorManager::TryGetHierarchyFocusMoveTransform(OUT TransformRef& transformRef) const
+{
+    if (_hierarchyFocusMoveTransform.IsValid())
+    {
+        transformRef = _hierarchyFocusMoveTransform;
+        return true;
+    }
+    transformRef = TransformRef();
+    return false;
+}
+
+void EditorManager::SetFocusMoveHierarchyTransform(const TransformRef& transformRef)
+{
+    _hierarchyFocusMoveTransform = transformRef;
+}
+
 bool EditorManager::TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const
 {
     if (_contentBrowserAsset.IsValid())

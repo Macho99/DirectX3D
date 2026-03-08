@@ -51,6 +51,8 @@ struct AABB3D
 	Point3D position = Vec3(0.f);
 	Vec3 size = Vec3(1.f, 1.f, 1.f);
 
+	AABB3D(Vec3 pos, Vec3 size) : position(pos), size(size) {}
+
 	static Vec3 GetMin(const AABB3D& aabb)
 	{
 		Vec3 p1 = aabb.position + aabb.size;

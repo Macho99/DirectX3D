@@ -79,5 +79,12 @@ struct MathUtils
 	static void ExtractFrustumPlanes(Vec4 planes[6], Matrix CM);
     static Vec3 RadToDeg(const Vec3& rad);
     static Vec3 DegToRad(const Vec3& deg);
+
+	template<typename T>
+	static T Lerp(const T& a, const T& b, float t)
+	{
+		t = std::clamp(t, 0.0f, 1.0f);
+		return a + (b - a) * t;
+	}
 };
 

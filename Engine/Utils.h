@@ -13,6 +13,8 @@ public:
 	static string ToString(wstring value);
 
 	static string ToString(Vec3& value);
+    
+	static string Format(const char* fmt, ...);
 
 	static ComPtr<ID3D11ShaderResourceView> CreateTexture2DArraySRV(vector<wstring>& filenames);
 
@@ -27,6 +29,7 @@ public:
 	static string ToUtf8(const fs::path& p);
 
     static bool IsAncestorOrSame(const fs::path& ancestor, const fs::path& child);
+
 
 	private:
 	static thread_local std::mt19937_64 s_rng;

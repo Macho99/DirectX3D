@@ -37,6 +37,9 @@ public:
 	bool TryGetHierarchyTransform(OUT TransformRef& transformRef) const;
 	void FocusHierarchyTransform(const TransformRef& transformRef);
 
+    bool TryGetHierarchyFocusMoveTransform(OUT TransformRef& transformRef) const;
+    void SetFocusMoveHierarchyTransform(const TransformRef& transformRef);
+
 	bool TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
 	void FocusContentBrowserAsset(const AssetRef& assetRef);
 
@@ -51,6 +54,7 @@ private:
     int _inspectorSubAsset = -1;
 
 	TransformRef _hierarchyTransform;
+	TransformRef _hierarchyFocusMoveTransform;
 
     AssetRef _contentBrowserAsset;
 	int _contentBrowserSubAsset = -1;

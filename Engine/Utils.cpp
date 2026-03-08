@@ -103,6 +103,19 @@ string Utils::ToString(Vec3& value)
 	return std::to_string(value.x) + ", " + std::to_string(value.y) + ", " + std::to_string(value.z);
 }
 
+string Utils::Format(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int size = std::vsnprintf(nullptr, 0, fmt, args);
+    va_end(args);
+    std::string result(size, 0);
+    va_start(args, fmt);
+    std::vsnprintf(result.data(), size + 1, fmt, args);
+    va_end(args);
+    return result;
+}
+
 ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<wstring>& filenames)
 {	//
 	// Load the texture elements individually from file.  These textures

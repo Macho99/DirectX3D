@@ -148,11 +148,17 @@ void Hierarchy::DrawNode(Transform* node)
 
     bool open = ImGui::TreeNodeEx((void*)(intptr_t)nodeId.GetLocalId(), flags, "%s", name.c_str());
 
-    if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-        _selectedId = nodeId;
+    if (ImGui::IsItemHovered())
+    {
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) || ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+            _selectedId = nodeId;
 
-    if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-        _selectedId = nodeId;
+        if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        {
+            _editorManager->SetFocusMoveHierarchyTransform(nodeId);
+            DBG->Log(Utils::Format("Focused Hierarchy Transform: %s (id=%llu_%llu)", name.c_str(), nodeId.GetInstanceId(), nodeId.GetLocalId()));
+        }
+    }
 
     // Context menu on node
     if (ImGui::BeginPopupContextItem("NodeContext"))
