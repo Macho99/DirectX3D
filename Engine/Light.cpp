@@ -18,7 +18,7 @@ Light::~Light()
 
 void Light::Update()
 {
-	//RENDER->PushLightData(_desc);
+    _desc.direction = GetTransform()->GetLook();
 }
 
 bool Light::OnGUI()

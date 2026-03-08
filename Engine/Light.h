@@ -21,7 +21,7 @@ public:
 	void SetDiffuse(const Color& color) { _desc.diffuse = color; }
 	void SetSpecular(const Color& color) { _desc.specular = color; }
 	void SetEmissive(const Color& color) { _desc.emissive = color; }
-	void SetLightDirection(Vec3 direction) { _desc.direction = direction; }
+	//void SetLightDirection(Vec3 direction) { _desc.direction = direction; }
 
     virtual bool OnGUI() override;
 

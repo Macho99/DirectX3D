@@ -139,8 +139,7 @@ void SceneSerializeDemo::Init()
         lightDesc.ambient = Vec4(0.4f);
         lightDesc.diffuse = Vec4(1.f);
         lightDesc.specular = Vec4(0.1f);
-        lightDesc.direction = Vec3(1.f, -1.f, 1.f);
-        light.Resolve()->GetTransform()->SetRotation(lightDesc.direction);
+        light.Resolve()->GetTransform()->SetRotation(Vec3(1.f, -1.f, 1.f));
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
 
