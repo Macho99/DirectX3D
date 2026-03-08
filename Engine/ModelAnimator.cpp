@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "OnGUIUtils.h"
+#include "MathUtils.h"
 
 ModelAnimator::ModelAnimator(ResourceRef<Shader> shader)
 	: Super(ComponentType::Animator), _shader(shader)
@@ -14,7 +15,7 @@ ModelAnimator::ModelAnimator(ResourceRef<Shader> shader)
 	// TEST
 	_tweenDesc.next.animIndex = rand() % 3;
 	_tweenDesc.tweenSumTime += rand();
-	_tweenDesc.next.speed = (rand() % 50) / 10.0f + 1.0f;
+	_tweenDesc.speed = (rand() % 50) / 10.0f + 1.0f;
 }
 
 ModelAnimator::~ModelAnimator()
@@ -108,6 +109,12 @@ bool ModelAnimator::OnGUI()
     changed |= Super::OnGUI();
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Model", _model);
+    changed |= OnGUIUtils::DrawFloat("Tween Duration", &_tweenDesc.tweenDuration, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Tween Ratio", &_tweenDesc.tweenRatio, 0.01f);
+    changed |= OnGUIUtils::DrawFloat("Tween SumTime", &_tweenDesc.tweenSumTime, 0.01f);
+	changed |= OnGUIUtils::DrawInt32("Cur Anim Index", &_tweenDesc.cur.animIndex, 1.f);
+	changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animIndex, 1.f);
+	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
 	return changed;
 }
 
@@ -250,7 +257,7 @@ void ModelAnimator::UpdateTweenData()
 		ModelAnimation* currentAnim = model->GetAnimationByIndex(desc.cur.animIndex);
 		if (currentAnim)
 		{
-			float timePerFrame = 1 / (currentAnim->GetFrameRate() * desc.cur.speed);
+			float timePerFrame = 1 / (currentAnim->GetFrameRate() * desc.speed);
 			if (desc.cur.sumTime >= timePerFrame)
 			{
 				desc.cur.sumTime = 0;
@@ -276,10 +283,11 @@ void ModelAnimator::UpdateTweenData()
 		else
 		{
 			// ±³Ã¼Áß
-			ModelAnimation* nextAnim = model->GetAnimationByIndex(desc.next.animIndex);
 			desc.next.sumTime += DT;
 
-			float timePerFrame = 1.f / (nextAnim->GetFrameCount() * desc.next.speed);
+			desc.next.animIndex = std::clamp(desc.next.animIndex, 0, (int)model->GetAnimationCount() - 1);
+			ModelAnimation* nextAnim = model->GetAnimationByIndex(desc.next.animIndex);
+			float timePerFrame = 1.f / (nextAnim->GetFrameCount() * desc.speed);
 
 			if (desc.next.ratio >= 1.f)
 			{

@@ -66,8 +66,7 @@ struct KeyframeDesc
 	uint32 nextFrame = 0;
 	float ratio = 0.f;
 	float sumTime = 0.f;
-	float speed = 1.f;
-	Vec2 padding;
+	Vec3 padding;
 };
 
 struct TweenDesc
@@ -91,7 +90,7 @@ struct TweenDesc
 	float tweenDuration = 1.0f;
 	float tweenRatio = 0.f;
 	float tweenSumTime = 0.f;
-	float padding = 0.f;
+	float speed = 1.f;
 	KeyframeDesc cur;
 	KeyframeDesc next;
 };
