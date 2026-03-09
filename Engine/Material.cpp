@@ -13,29 +13,6 @@ Material::~Material()
 void Material::SetShader(ResourceRef<Shader> shader)
 {
 	_shader = shader;
-
-    Shader* shaderPtr = _shader.Resolve();    
-	if (shaderPtr == nullptr)
-	{
-		_diffuseEffectBuffer = nullptr;
-		_normalEffectBuffer = nullptr;
-		_specularEffectBuffer = nullptr;
-		_randomEffectBuffer = nullptr;
-		_cubeMapEffectBuffer = nullptr;
-		_shadowMapEffectBuffer = nullptr;
-		_ssaoMapEffectBuffer = nullptr;
-		_layerMapArrayEffectBuffer = nullptr;
-		return;
-	}
-
-	_diffuseEffectBuffer =			shaderPtr->GetSRV("DiffuseMap").Get();
-	_normalEffectBuffer =			shaderPtr->GetSRV("NormalMap").Get();
-	_specularEffectBuffer =			shaderPtr->GetSRV("SpecularMap").Get();
-	_randomEffectBuffer =			shaderPtr->GetSRV("RandomMap").Get();
-	_cubeMapEffectBuffer =			shaderPtr->GetSRV("CubeMap").Get();
-	_shadowMapEffectBuffer =		shaderPtr->GetSRV("ShadowMap").Get();
-	_ssaoMapEffectBuffer =			shaderPtr->GetSRV("SsaoMap").Get();
-	_layerMapArrayEffectBuffer =	shaderPtr->GetSRV("LayerMapArray").Get();
 }
 
 void Material::SetDiffuseMap(ResourceRef<Texture> diffuseMap)
@@ -63,6 +40,8 @@ void Material::Update()
     Shader* shader = _shader.Resolve();
 	if (shader == nullptr)
 		return;
+
+	InitializeEffectBuffers();
 
 	shader->PushMaterialData(_desc);
 
@@ -135,6 +114,40 @@ bool Material::OnGUI(bool isReadOnly)
 	changed |= OnGUIUtils::DrawBool("UseRandomTexture", &_useRandomTexture, isReadOnly);
 
 	return changed;
+}
+
+void Material::InitializeEffectBuffers()
+{
+    if (_initializedEffectBuffers)
+        return;
+
+	Shader* shaderPtr = _shader.Resolve();
+    if (shaderPtr == nullptr)
+        return;
+
+	if (shaderPtr == nullptr)
+	{
+		_diffuseEffectBuffer = nullptr;
+		_normalEffectBuffer = nullptr;
+		_specularEffectBuffer = nullptr;
+		_randomEffectBuffer = nullptr;
+		_cubeMapEffectBuffer = nullptr;
+		_shadowMapEffectBuffer = nullptr;
+		_ssaoMapEffectBuffer = nullptr;
+		_layerMapArrayEffectBuffer = nullptr;
+		return;
+	}
+
+	_diffuseEffectBuffer = shaderPtr->GetSRV("DiffuseMap").Get();
+	_normalEffectBuffer = shaderPtr->GetSRV("NormalMap").Get();
+	_specularEffectBuffer = shaderPtr->GetSRV("SpecularMap").Get();
+	_randomEffectBuffer = shaderPtr->GetSRV("RandomMap").Get();
+	_cubeMapEffectBuffer = shaderPtr->GetSRV("CubeMap").Get();
+	_shadowMapEffectBuffer = shaderPtr->GetSRV("ShadowMap").Get();
+	_ssaoMapEffectBuffer = shaderPtr->GetSRV("SsaoMap").Get();
+	_layerMapArrayEffectBuffer = shaderPtr->GetSRV("LayerMapArray").Get();
+
+    _initializedEffectBuffers = true;
 }
 
 //shared_ptr<Material> Material::Clone()

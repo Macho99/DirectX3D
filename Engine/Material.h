@@ -68,6 +68,8 @@ public:
         ar(CEREAL_NVP(_cubeMap));
         ar(CEREAL_NVP(_useRandomTexture));
     }
+private:
+    void InitializeEffectBuffers();
 
 private:
 	friend class MeshRenderer;
@@ -86,6 +88,7 @@ private:
 	bool _useRandomTexture = false;
 
 	// Cache
+    bool _initializedEffectBuffers = false;
 	ID3DX11EffectShaderResourceVariable* _diffuseEffectBuffer = nullptr;
 	ID3DX11EffectShaderResourceVariable* _normalEffectBuffer = nullptr;
 	ID3DX11EffectShaderResourceVariable* _specularEffectBuffer = nullptr;
