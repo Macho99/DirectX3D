@@ -14,6 +14,7 @@ class ModelAnimator : public Renderer
 	using Super = Renderer;
 
 public:
+	static constexpr ComponentType StaticType = ComponentType::Animator;
 	ModelAnimator(ResourceRef<Shader> shader);
 	~ModelAnimator();
 

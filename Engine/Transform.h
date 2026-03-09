@@ -6,6 +6,7 @@ class Transform : public Component
 {
 	using Super = Component;
 public:
+	static constexpr ComponentType StaticType = ComponentType::Transform;
 	static Vec3 ToEulerAngles(Quaternion q);
 
 	Transform();
@@ -16,6 +17,7 @@ public:
 
 	void UpdateTransform();
 
+	TransformRef GetRef();
 	// Local
 	Vec3 GetLocalScale() { return _localScale; }
 	void SetLocalScale(const Vec3& localScale) { _localScale = localScale; UpdateTransform(); }

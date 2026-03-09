@@ -6,6 +6,7 @@ class FoliageController : public Component
     using Super = Component;
 
 public:
+    static constexpr ComponentType StaticType = ComponentType::FoliageController;
     FoliageController();
     ~FoliageController();
 

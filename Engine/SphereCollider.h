@@ -4,6 +4,7 @@ class SphereCollider : public BaseCollider
 {
 	using Super = BaseCollider;
 public:
+    static constexpr ComponentType StaticType = ComponentType::SphereCollider;
 	SphereCollider();
 	virtual ~SphereCollider();
 

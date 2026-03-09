@@ -5,7 +5,7 @@
 #include "Camera.h"
 
 Billboard::Billboard()
-	: Super(ComponentType::Billboard)
+	: Super(StaticType)
 {
 	int32 vertexCount = MAX_BILLBOARD_COUNT * 4;
 	int32 indexCount = MAX_BILLBOARD_COUNT * 6;

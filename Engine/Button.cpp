@@ -4,7 +4,7 @@
 #include "Material.h"
 
 Button::Button()
-	:Super(ComponentType::Button)
+	:Super(StaticType)
 {
 }
 

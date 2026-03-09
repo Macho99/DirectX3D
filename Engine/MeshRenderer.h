@@ -9,6 +9,7 @@ class MeshRenderer : public Renderer
 {
 	using Super = Renderer;
 public:
+	static constexpr ComponentType StaticType = ComponentType::MeshRenderer;
 	MeshRenderer();
 	virtual ~MeshRenderer();
 

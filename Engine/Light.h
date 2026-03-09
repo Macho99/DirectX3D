@@ -8,6 +8,7 @@ class Light : public Component
 	using Super = Component;
 
 public:
+	static constexpr ComponentType StaticType = ComponentType::Light;
 	Light();
 	virtual ~Light();
 

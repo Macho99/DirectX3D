@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Hierarchy.h"
 #include "EditorManager.h"
+#include "DndPayload.h"
 
 Hierarchy::Hierarchy()
     :Super("Hierarchy")
@@ -121,8 +122,9 @@ void Hierarchy::DrawNode(Transform* node)
     if (node == nullptr)
         return;
 
-    TransformRef nodeId(node->GetGuid());
+    TransformRef nodeId(node->GetRef());
     GameObject* gameObject = node->GetGameObject();
+    GameObjectRef gameObjectRef = node->GetGameObjectRef();
     ImGui::PushID((int)nodeId.GetLocalId());
 
     string name = gameObject->GetName();
@@ -174,51 +176,41 @@ void Hierarchy::DrawNode(Transform* node)
         ImGui::EndPopup();
     }
 
-    // Drag source
-    if (ImGui::BeginDragDropSource())
+    DndPayload::GameObjectSource(gameObjectRef);
+
     {
-        ImGui::SetDragDropPayload("DND_ENTITY", &nodeId, sizeof(TransformRef));
-        ImGui::Text("Move: %s", string(name.begin(), name.end()).c_str());
-        ImGui::EndDragDropSource();
-    }
-
-    // Drop target with 3-zone preview + action
-    if (ImGui::BeginDragDropTarget())
-    {
-        const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-        if (payload && payload->IsDataType("DND_ENTITY"))
-        {
-            ImRect r(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
-            float h = r.GetHeight();
-            float t0 = r.Min.y + h * 0.25f;
-            float t1 = r.Min.y + h * 0.75f;
-
-            float y = ImGui::GetIO().MousePos.y;
-
-            DropAction dropAction;
-            if (y < t0) dropAction = DropAction::InsertBefore;
-            else if (y > t1) dropAction = DropAction::InsertAfter;
-            else dropAction = DropAction::MakeChild;
-
-            // Preview drawing
-            if (dropAction == DropAction::InsertBefore)
-                DrawInsertLine(r, true);
-            else if (dropAction == DropAction::InsertAfter)
-                DrawInsertLine(r, false);
-            else
-                DrawChildHighlight(r);
-
-            // Commit on drop
-            if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("DND_ENTITY"))
+        GameObjectRef dropped;
+        DropAction dropAction;
+        function<void()> onDragFunc = [this, &dropAction]()
             {
-                TransformRef dropped = *(const TransformRef*)p->Data;
-                _pendingOps.push_back(make_unique<PendingReparent>(dropped, nodeId, dropAction));
-            }
+                // Drop target with 3-zone preview + action
+                ImRect r(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+                float h = r.GetHeight();
+                float t0 = r.Min.y + h * 0.25f;
+                float t1 = r.Min.y + h * 0.75f;
+
+                float y = ImGui::GetIO().MousePos.y;
+
+                if (y < t0) dropAction = DropAction::InsertBefore;
+                else if (y > t1) dropAction = DropAction::InsertAfter;
+                else dropAction = DropAction::MakeChild;
+
+                // Preview drawing
+                if (dropAction == DropAction::InsertBefore)
+                    DrawInsertLine(r, true);
+                else if (dropAction == DropAction::InsertAfter)
+                    DrawInsertLine(r, false);
+                else
+                    DrawChildHighlight(r);
+            };
+
+        if (DndPayload::GameObjectTarget(OUT dropped, onDragFunc))
+        {
+            TransformRef droppedTransformRef = dropped.Resolve()->GetFixedComponentRef<Transform>();
+            _pendingOps.push_back(make_unique<PendingReparent>(droppedTransformRef, nodeId, dropAction));
         }
-
-        ImGui::EndDragDropTarget();
     }
-
+    
     if (open)
     {
         vector<TransformRef>& children = node->GetChildren();
@@ -262,7 +254,7 @@ void PendingReparent::Do()
         if (parent == nullptr)
             parentRef = TransformRef();
         else
-            parentRef = TransformRef(parent->GetGuid());
+            parentRef = (parent->GetGameObject()->GetFixedComponentRef<Transform>());
         droppedTransform->SetParent(parentRef);
 
         // siblings는 parent 기준/루트 기준으로 다시 계산
@@ -286,5 +278,5 @@ void PendingDelete::Do()
     if (targetTransform == nullptr)
         return;
 
-    CUR_SCENE->Remove(targetTransform->GetGameObject()->GetGuid());
+    CUR_SCENE->Remove(targetTransform->GetGameObjectRef());
 }

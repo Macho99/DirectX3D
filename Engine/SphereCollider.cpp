@@ -4,7 +4,7 @@
 #include "OBBBoxCollider.h"
 
 SphereCollider::SphereCollider()
-    :Super(ColliderType::Sphere)
+    :Super(StaticType, ColliderType::Sphere)
 {
 }
 

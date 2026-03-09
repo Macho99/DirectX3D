@@ -4,6 +4,7 @@
 class OBBBoxCollider : public BaseCollider
 {
 public:
+    static constexpr ComponentType StaticType = ComponentType::OBBBoxCollider;
 	OBBBoxCollider();
 	virtual ~OBBBoxCollider();
 

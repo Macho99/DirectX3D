@@ -6,7 +6,7 @@
 
 WindDesc FoliageController::S_WindDesc = WindDesc();
 
-FoliageController::FoliageController() : Super(ComponentType::FoliageController)
+FoliageController::FoliageController() : Super(StaticType)
 {
 }
 

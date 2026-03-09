@@ -4,7 +4,7 @@
 #include "Camera.h"
 
 Terrain::Terrain()
-	:Super(ComponentType::Terrain)
+	:Super(StaticType)
 {
 }
 

@@ -8,7 +8,7 @@
 #include "OnGUIUtils.h"
 
 GrassRenderer::GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath)
-    : _grassComputeShader(grassComputeShader), Renderer(ComponentType::GrassRenderer), _terrain(terrain)
+    : _grassComputeShader(grassComputeShader), Renderer(StaticType), _terrain(terrain)
 {
     CreateResources();
 
@@ -31,7 +31,7 @@ bool GrassRenderer::OnGUI()
     changed |= Super::OnGUI();
     ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Grass Compute Shader", _grassComputeShader);
-    //changed |= OnGUIUtils::DrawResourceRef("Terrain", _terrain);
+    changed |= OnGUIUtils::DrawComponentRef("Terrain", _terrain);
     return changed;
 }
 

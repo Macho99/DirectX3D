@@ -10,7 +10,7 @@
 #include "MathUtils.h"
 
 ModelAnimator::ModelAnimator(ResourceRef<Shader> shader)
-	: Super(ComponentType::Animator), _shader(shader)
+	: Super(StaticType), _shader(shader)
 {
 	// TEST
 	_tweenDesc.next.animIndex = rand() % 3;

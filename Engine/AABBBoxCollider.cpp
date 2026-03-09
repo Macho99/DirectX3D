@@ -4,7 +4,7 @@
 #include "SphereCollider.h"
 
 AABBBoxCollider::AABBBoxCollider() 
-	:Super(ColliderType::AABB)
+	:Super(StaticType, ColliderType::AABB)
 {
 }
 

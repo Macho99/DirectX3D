@@ -9,7 +9,7 @@
 #include "Camera.h"
 #include "OnGUIUtils.h"
 
-TessTerrain::TessTerrain() : Super(ComponentType::TessTerrain)
+TessTerrain::TessTerrain() : Super(StaticType)
 {
     //_mat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     //_mat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);

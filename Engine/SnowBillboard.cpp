@@ -5,7 +5,7 @@
 #include "MathUtils.h"
 
 SnowBillboard::SnowBillboard(Vec3 extent, int32 drawCount)
-	: Super(ComponentType::SnowBillboard)
+	: Super(StaticType)
 {
 	_desc.extent = extent;
 	_desc.drawDistance = _desc.extent.z * 2.0f;

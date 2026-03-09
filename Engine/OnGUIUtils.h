@@ -114,5 +114,5 @@ inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
 template<typename T>
 inline bool OnGUIUtils::DrawComponentRef(const char* label, ComponentRef<T>& componentRef, bool isReadOnly)
 {
-
+    return false;
 }

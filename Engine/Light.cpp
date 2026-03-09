@@ -7,7 +7,7 @@ Matrix Light::S_MatView = Matrix::Identity;
 Matrix Light::S_MatProjection = Matrix::Identity;
 ShadowDesc Light::S_ShadowData = {};
 
-Light::Light() : Super(ComponentType::Light)
+Light::Light() : Super(StaticType)
 {
 
 }

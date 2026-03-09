@@ -3,7 +3,7 @@
 #include "SphereCollider.h"
 #include "AABBBoxCollider.h"
 
-OBBBoxCollider::OBBBoxCollider() : BaseCollider(ColliderType::OBB)
+OBBBoxCollider::OBBBoxCollider() : BaseCollider(StaticType, ColliderType::OBB)
 {
 
 }

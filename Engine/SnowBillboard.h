@@ -17,6 +17,7 @@ class SnowBillboard : public Renderer
 	using Super = Renderer;
 
 public:
+	static constexpr ComponentType StaticType = ComponentType::SnowBillboard;
 	SnowBillboard(Vec3 extent, int32 drawCount = 100);
 	~SnowBillboard();
 

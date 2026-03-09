@@ -5,6 +5,7 @@ class Button : public Component
 	using Super = Component;
 
 public:
+	static constexpr ComponentType StaticType = ComponentType::Button;
 	Button();
 	virtual ~Button();
 

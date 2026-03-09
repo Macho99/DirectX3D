@@ -7,6 +7,9 @@ namespace DndPayload
     inline constexpr const char* Asset = "DND_ASSET";
     inline constexpr const char* FilePath = "DND_FILEPATH";
 
+    void GameObjectSource(const GameObjectRef& objRef, function<void()> onDrag = nullptr);
+    bool GameObjectTarget(OUT GameObjectRef& outDroppedRef, function<void()> onDrag = nullptr);
+
     // Source: AssetId를 payload로 올림
     template<typename TDrawPreview>
     inline void AssetSource(const AssetId& assetId, TDrawPreview&& drawPreview)

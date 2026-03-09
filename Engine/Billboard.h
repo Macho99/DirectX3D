@@ -16,6 +16,7 @@ class Billboard : public Renderer
 	using Super = Renderer;
 
 public:
+	static constexpr ComponentType StaticType = ComponentType::Billboard;
 	Billboard();
 	~Billboard();
 

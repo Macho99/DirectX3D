@@ -4,6 +4,7 @@ class AABBBoxCollider : public BaseCollider
 {
 	using Super = BaseCollider;
 public:
+    static constexpr ComponentType StaticType = ComponentType::AABBBoxCollider;
 	AABBBoxCollider();
 	virtual ~AABBBoxCollider();
 

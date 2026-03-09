@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "Light.h"
+#include <wrl/client.h>
 class MonoBehaviour;
 class Transform;
 class Camera;
@@ -29,6 +30,9 @@ public:
     void OnDestroy();
 
 	Component* GetFixedComponent(ComponentType type);
+	template<class T>
+    ComponentRef<T> GetFixedComponentRef();
+
 	Transform* GetTransform();
 	Camera* GetCamera();
 	Light* GetLight();
@@ -73,3 +77,15 @@ private:
 	string _name;
     Guid _guid;
 };
+
+template<class T>
+inline ComponentRef<T> GameObject::GetFixedComponentRef()
+{
+    ComponentType type = T::StaticType;
+    if (type >= ComponentType::End)
+    {
+        ASSERT(false, "type out of range");
+        return ComponentRef<T>();
+    }
+    return ComponentRef<T>(_components[static_cast<uint8>(type)]);
+}

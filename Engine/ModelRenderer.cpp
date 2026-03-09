@@ -7,7 +7,7 @@
 #include "OnGUIUtils.h"
 
 ModelRenderer::ModelRenderer(ResourceRef<Shader> shader)
-	: Super(ComponentType::ModelRenderer), _shader(shader)
+	: Super(StaticType), _shader(shader)
 {
 
 }

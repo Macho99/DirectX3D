@@ -6,7 +6,7 @@
 #include "Material.h"
 #include "Light.h"
 
-MeshRenderer::MeshRenderer() : Super(ComponentType::MeshRenderer)
+MeshRenderer::MeshRenderer() : Super(StaticType)
 {
 
 }

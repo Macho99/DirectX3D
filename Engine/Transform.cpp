@@ -3,7 +3,7 @@
 #include "MathUtils.h"
 #include "OnGUIUtils.h"
 
-Transform::Transform() : Super(ComponentType::Transform)
+Transform::Transform() : Super(StaticType)
 {
 
 }
@@ -72,6 +72,11 @@ void Transform::UpdateTransform()
 	// Children
 	for (const TransformRef& child : _children)
 		child.Resolve()->UpdateTransform();
+}
+
+TransformRef Transform::GetRef()
+{
+	return GetGameObject()->GetFixedComponentRef<Transform>();
 }
 
 void Transform::SetScale(const Vec3& worldScale)
@@ -164,7 +169,7 @@ void Transform::SetParent(TransformRef& newParentRef)
 	Transform* oldParent;
 	TryGetParent(OUT oldParent);
     Transform* newParent = newParentRef.Resolve();
-    TransformRef myRef(_guid);
+    TransformRef myRef = GetRef();
 
 	if (newParent == nullptr && oldParent == nullptr)
 		return;
@@ -204,7 +209,7 @@ void Transform::SetParent(TransformRef& newParentRef)
 		{
 			// Remove from old parent's children
 			vector<TransformRef>& siblings = oldParent->_children;
-			RemoveFromTransforms(siblings, myID);
+			RemoveFromTransforms(siblings, myRef);
 		}
 		// oldParent == nullptr
 		else
@@ -212,7 +217,7 @@ void Transform::SetParent(TransformRef& newParentRef)
 			if (CUR_SCENE->IsInScene(_gameObject))
 			{
 				vector<TransformRef>& rootObjects = CUR_SCENE->GetRootObjects();
-				RemoveFromTransforms(rootObjects, myID);
+				RemoveFromTransforms(rootObjects, myRef);
 			}
 		}
 	}
@@ -246,7 +251,7 @@ void Transform::SetSiblingIndex(int index)
     if (siblings->empty())
         return;
 
-	auto it = std::find(siblings->begin(), siblings->end(), TransformRef(_guid));
+	auto it = std::find(siblings->begin(), siblings->end(), GetRef());
 
 	size_t oldIndex = static_cast<size_t>(std::distance(siblings->begin(), it));
 

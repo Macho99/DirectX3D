@@ -246,7 +246,7 @@ void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 
 	if (transform->HasParent() == false)
 	{
-		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), TransformRef(transform->GetGuid())), _rootObjects.end());
+		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), gameObject->GetFixedComponentRef<Transform>()), _rootObjects.end());
 	}
 
 	_gameObjects.erase(gameObjectRef);
@@ -418,7 +418,7 @@ GameObjectRef Scene::Add(GuidRef guidRef)
 	Transform* transform = gameObject->GetTransform();
 	if (transform->HasParent() == false)
 	{
-		_rootObjects.push_back(TransformRef(transform->GetGuid()));
+		_rootObjects.push_back(gameObject->GetFixedComponentRef<Transform>());
 	}
 	_gameObjects.insert(gameObjectRef);
 	return gameObjectRef;

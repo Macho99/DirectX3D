@@ -10,6 +10,7 @@ class ModelRenderer : public Renderer
 	using Super = Renderer;
 
 public:
+	static constexpr ComponentType StaticType = ComponentType::ModelRenderer;
 	ModelRenderer(ResourceRef<Shader> shader);
 	virtual ~ModelRenderer();
 

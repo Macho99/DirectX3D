@@ -25,6 +25,8 @@ class Camera :  public Component
 {
 	using Super = Component;
 public:
+    static constexpr ComponentType StaticType = ComponentType::Camera;
+	
 	Camera();
 	virtual ~Camera();
 	

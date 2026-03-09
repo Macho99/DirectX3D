@@ -9,7 +9,7 @@ Matrix Camera::S_MatView = Matrix::Identity;
 Matrix Camera::S_MatProjection = Matrix::Identity;
 Vec3 Camera::S_Pos = Vec3::Zero;
 
-Camera::Camera() : Super(ComponentType::Camera)
+Camera::Camera() : Super(StaticType)
 {
     OnSize();
 }

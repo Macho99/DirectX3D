@@ -5,7 +5,7 @@
 #include "Windows.h"
 
 ParticleSystem::ParticleSystem()
-	: Super(ComponentType::ParticleSystem)
+	: Super(StaticType)
 	, _firstRun(true)
 	, _age(0.0f)
 	, _timeStep(0.0f)

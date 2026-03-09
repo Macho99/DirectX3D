@@ -8,6 +8,7 @@ class TessTerrain : public Renderer
 {
     using Super = Renderer;
 public:
+	static constexpr ComponentType StaticType = ComponentType::TessTerrain;
 	TessTerrain();
 	~TessTerrain();
 

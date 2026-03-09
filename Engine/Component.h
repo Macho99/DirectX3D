@@ -20,6 +20,9 @@ enum class ComponentType : uint8
 	ParticleSystem,
 	FoliageController,
     GrassRenderer,
+	AABBBoxCollider,
+    OBBBoxCollider,
+    SphereCollider,
 	// ...
 	Script,
 
