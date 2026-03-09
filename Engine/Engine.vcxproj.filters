@@ -1153,5 +1153,6 @@
     <None Include="cereal\external\rapidxml\manual.html">
       <Filter>98. Utils\cereal</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

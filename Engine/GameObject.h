@@ -30,6 +30,7 @@ public:
     void OnDestroy();
 
 	Component* GetFixedComponent(ComponentType type);
+
 	template<class T>
     ComponentRef<T> GetFixedComponentRef();
 
@@ -66,6 +67,8 @@ public:
 
     Guid GetGuid() const { return _guid; }
 	void SetGuid(const Guid& guid) { _guid = guid; }
+
+    static GameObjectRef GetGameObjectRefByGuid(const Guid& guid);
 
 private:
 	bool _isActive = true;

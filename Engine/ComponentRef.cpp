@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "TessTerrain.h"
 #include "MonoBehaviour.h"
+#include "ModelAnimator.h"
 
 template<class T>
 T* ComponentRef<T>::Resolve() const
@@ -38,3 +39,4 @@ template struct ComponentRef<Camera>;
 template struct ComponentRef<Light>;
 template struct ComponentRef<TessTerrain>;
 template struct ComponentRef<MonoBehaviour>;
+template struct ComponentRef<ModelAnimator>;

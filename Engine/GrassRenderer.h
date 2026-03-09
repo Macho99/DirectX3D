@@ -67,6 +67,8 @@ private:
     void UpdateGrass();
 
 private:
+    GameObjectRef _testRef;
+
     ResourceRef<Shader> _grassComputeShader; // 미리 로드된 셰이더
     ComPtr<ID3D11Buffer> _initGrassBuffer; // (SRV) CPU -> GPU, 모든 풀 위치
     ComPtr<ID3D11ShaderResourceView> _initGrassSRV;

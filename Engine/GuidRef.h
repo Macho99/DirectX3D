@@ -41,6 +41,11 @@ public:
         return guid.GetLocalId();
     }
 
+    Guid GetGuid() const noexcept
+    {
+        return guid;
+    }
+
 public:
     Guid guid;
     mutable Handle cached;

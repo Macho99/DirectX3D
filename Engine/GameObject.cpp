@@ -222,15 +222,21 @@ void GameObject::AddComponent(unique_ptr<Component> component)
 	component->SetGameObject(thisRef);
 	uint8 index = static_cast<uint8>(component->GetType());
 	GuidRef guidRef = CUR_SCENE->AddComponent(thisRef, std::move(component));
-
 	if (index < FIXED_COMPONENT_COUNT)
 	{
 		ComponentRefBase componentRefBase(guidRef);
 		_components[index] = componentRefBase;
+        _components[index].Resolve();
 	}
 	else
 	{
         ComponentRef<MonoBehaviour> scriptRef(guidRef);
 		_scripts.push_back((scriptRef));
+        _scripts.back().Resolve();
 	}
+}
+
+GameObjectRef GameObject::GetGameObjectRefByGuid(const Guid& guid)
+{
+    return GameObjectRef(guid);
 }

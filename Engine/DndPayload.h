@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace DndPayload
 {
     inline constexpr const char* Entity = "DND_ENTITY";
@@ -9,6 +8,9 @@ namespace DndPayload
 
     void GameObjectSource(const GameObjectRef& objRef, function<void()> onDrag = nullptr);
     bool GameObjectTarget(OUT GameObjectRef& outDroppedRef, function<void()> onDrag = nullptr);
+
+    template<class T>
+    bool ComponentTarget(OUT ComponentRef<T>& outDroppedRef, function<void()> onDrag = nullptr);
 
     // Source: AssetId를 payload로 올림
     template<typename TDrawPreview>
@@ -70,6 +72,41 @@ namespace DndPayload
         }
 
         ImGui::EndDragDropTarget();
+        return accepted;
+    }
+
+    template<class T>
+    bool ComponentTarget(ComponentRef<T>& outDroppedRef, function<void()> onDrag)
+    {
+        bool accepted = false;
+        if (ImGui::BeginDragDropTarget())
+        {
+            const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+            if (payload && payload->IsDataType(Entity))
+            {
+                const GameObjectRef droppedObjRef = *reinterpret_cast<const GameObjectRef*>(payload->Data);
+                GameObject* droppedObj = droppedObjRef.Resolve();
+                if (droppedObj != nullptr)
+                {
+                    ComponentRef<T> droppedCompRef = droppedObj->GetFixedComponentRef<T>();
+                    if (droppedCompRef.Resolve() != nullptr)
+                    {
+                        if (onDrag)
+                            onDrag();
+
+                        // Commit on drop
+                        if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload(Entity))
+                        {
+                            outDroppedRef = droppedCompRef;
+                            accepted = true;
+                        }
+                    }
+                }
+            }
+
+            ImGui::EndDragDropTarget();
+        }
+
         return accepted;
     }
 }

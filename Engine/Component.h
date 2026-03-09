@@ -62,6 +62,14 @@ private:
 	friend class GameObject;
 	void SetGameObject(const GameObjectRef& gameObject) { _gameObject = gameObject; }
 
+public:
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(CEREAL_NVP(_gameObject));
+        ar(CEREAL_NVP(_guid));
+    }
+
 protected:
 	ComponentType _type;
 	GameObjectRef _gameObject;

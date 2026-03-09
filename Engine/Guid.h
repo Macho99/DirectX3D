@@ -28,8 +28,17 @@ public:
         ar(CEREAL_NVP(localId));
     }
 
-    static Guid CreateGuid();
+    wstring ToWString() const
+    {
+        return std::to_wstring(instanceId) + L"_" + std::to_wstring(localId);
+    }
+    string ToString() const
+    {
+        return std::to_string(instanceId) + "_" + std::to_string(localId);
+    }
 
+    static Guid CreateGuid();
+    static bool TryParse(const string& str, OUT Guid& guid);
     static void SetCurrentInstanceId(uint64 id);
 
     uint64 GetInstanceId() const { return instanceId; }

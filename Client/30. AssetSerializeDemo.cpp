@@ -135,7 +135,7 @@ void AssetSerializeDemo::Init()
         auto objRef = CUR_SCENE->Add("Terrain");
         objRef.Resolve()->GetTransform()->SetPosition(Vec3(0, 0, 0));
         objRef.Resolve()->AddComponent(std::move(tessTerrain));
-        tessTerrainRef = ComponentRef<TessTerrain>(objRef.Resolve()->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain)->GetGuid());
+        tessTerrainRef = objRef.Resolve()->GetFixedComponentRef<TessTerrain>();
     }
 
     {

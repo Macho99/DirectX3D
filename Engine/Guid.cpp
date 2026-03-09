@@ -13,6 +13,28 @@ Guid Guid::CreateGuid()
     return newGuid;
 }
 
+bool Guid::TryParse(const string& str, OUT Guid& guid)
+{
+    size_t sep = str.find('_');
+    if (sep == string::npos)
+        return false;
+    string highStr = str.substr(0, sep);
+    string lowStr = str.substr(sep + 1);
+    uint64 high, low;
+    try
+    {
+        high = stoull(highStr);
+        low = stoull(lowStr);
+    }
+    catch (const std::exception&)
+    {
+        return false;
+    }
+    guid = Guid(high, low);
+    return true;
+
+}
+
 void Guid::SetCurrentInstanceId(uint64 id)
 { 
     s_currentInstanceId = id;

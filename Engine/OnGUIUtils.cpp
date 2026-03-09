@@ -126,6 +126,88 @@ bool OnGUIUtils::DrawAssetRef(const char* label, AssetRef& assetRef, bool isRead
 
 }
 
+bool OnGUIUtils::DrawGameObjectRef(const char* label, GameObjectRef& gameObjectRef, bool isReadOnly)
+{
+    bool changed = false;
+    const bool hasRef = gameObjectRef.IsValid();
+    Guid guid;
+    GameObject* gameObject = nullptr;
+
+    std::string display;
+    if (hasRef)
+    {
+        gameObject = gameObjectRef.Resolve();
+        if (gameObject != nullptr)
+        {
+            guid = gameObject->GetGuid();
+            display = gameObject->GetName();
+        }
+    }
+
+    if (display.empty())
+    {
+        display = hasRef ? "Missing (" + guid.ToString() + ")" : "None";
+    }
+
+    bool clicked = BeginRef(label, display, isReadOnly);
+
+    if (clicked && gameObject != nullptr)
+    {
+        EDITOR->FocusHierarchyTransform(gameObject->GetFixedComponentRef<Transform>());
+    }
+
+    if (isReadOnly == false)
+    {
+        GameObjectRef dropped;
+        if (DndPayload::GameObjectTarget(OUT dropped))
+        {
+            gameObjectRef = dropped;
+            changed = true;
+        }
+    }
+
+    // 우클릭 메뉴(선택): Clear / Copy
+    if (ImGui::BeginPopupContextItem("RefFieldContext"))
+    {
+        if (ImGui::MenuItem("Copy", nullptr, false, hasRef))
+        {
+            ImGui::SetClipboardText(guid.ToString().c_str());
+        }
+
+        const char* clipboadText = ImGui::GetClipboardText();
+        Guid pastedId;
+        bool canPaste = false;
+        GameObjectRef pastedRef;
+        if (clipboadText != nullptr) // 유효한 AssetId 길이
+        {
+            if (Guid::TryParse(clipboadText, OUT pastedId))
+            {
+                pastedRef = GameObject::GetGameObjectRefByGuid(pastedId);
+                if (pastedRef.IsValid())
+                {
+                    canPaste = true;
+                }
+            }
+        }
+
+        if (ImGui::MenuItem("Paste", nullptr, false, canPaste))
+        {
+            gameObjectRef = pastedRef;
+            changed = true;
+        }
+
+        if (ImGui::MenuItem("Clear", nullptr, false, hasRef))
+        {
+            gameObjectRef = GameObjectRef();
+            changed = true;
+        }
+        ImGui::EndPopup();
+    }
+
+    End(false);
+    return changed;
+}
+
 bool OnGUIUtils::DrawScalar(const char* label, ImGuiDataType dataType, void* value, float dragSpeed, bool isReadOnly)
 {
     Begin(label, isReadOnly);
@@ -145,6 +227,23 @@ void OnGUIUtils::Begin(const char* label, bool setDisable)
 
     if (setDisable)
         ImGui::BeginDisabled();
+}
+
+bool OnGUIUtils::BeginRef(const char* label, const string& display, bool setDisable)
+{
+    Begin(label, false);
+
+    if (setDisable)
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+
+    // “필드” (버튼처럼 보이는 입력칸)
+    //ImGui::SetNextItemWidth(fieldW);
+    bool clicked = ImGui::Button(display.c_str(), ImVec2(ImGui::CalcItemWidth(), 0));
+
+    if (setDisable)
+        ImGui::PopStyleColor();
+
+    return clicked;
 }
 
 void OnGUIUtils::BeginAssetRef(const char* label, const AssetId& assetId, bool setDisable)
@@ -167,17 +266,7 @@ void OnGUIUtils::BeginAssetRef(const char* label, const AssetId& assetId, bool s
         display = hasRef ? "Missing (" + assetId.ToString() + ")" : "None";
     }
 
-    Begin(label, false);
-
-    if (setDisable)
-        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
-
-    // “필드” (버튼처럼 보이는 입력칸)
-    //ImGui::SetNextItemWidth(fieldW);
-    bool clicked = ImGui::Button(display.c_str(), ImVec2(ImGui::CalcItemWidth(), 0));
-
-    if (setDisable)
-        ImGui::PopStyleColor();
+    bool clicked = BeginRef(label, display, setDisable);
 
     // 클릭 시 포커스
     if (clicked && hasRef)

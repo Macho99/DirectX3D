@@ -110,10 +110,10 @@ void Hierarchy::ShowHierarchy()
         }
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-            _selectedId = TransformRef();
+            _editorManager->ClickTransform(TransformRef());
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-            _selectedId = TransformRef();
+            _editorManager->ClickTransform(TransformRef());
     }
 }
 
@@ -153,7 +153,7 @@ void Hierarchy::DrawNode(Transform* node)
     if (ImGui::IsItemHovered())
     {
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) || ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-            _selectedId = nodeId;
+            _editorManager->ClickTransform(nodeId);
 
         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {

@@ -5,6 +5,7 @@
 #include "TessTerrain.h"
 #include "Camera.h"
 #include "Utils.h"
+#include "ModelAnimator.h"
 #include "OnGUIUtils.h"
 
 GrassRenderer::GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath)
@@ -32,6 +33,7 @@ bool GrassRenderer::OnGUI()
     ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Grass Compute Shader", _grassComputeShader);
     changed |= OnGUIUtils::DrawComponentRef("Terrain", _terrain);
+    changed |= OnGUIUtils::DrawGameObjectRef("TestRef", _testRef);
     return changed;
 }
 
