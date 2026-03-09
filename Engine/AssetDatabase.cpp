@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "MetaStore.h"
 #include "AssetDatabase.h"
+#include "EditorManager.h"
 
 AssetDatabase::AssetDatabase()
 {
@@ -314,19 +315,21 @@ void AssetDatabase::Remove(const fs::path& absPath)
         if (!ec)
             DBG->LogW(L"[Meta] Deleted on Remove: " + metaAbs.wstring());
     }
+    AssetId removedAssetId;
     // 2) ¸Ê¿¡¼­ Á¦°Å
     {
         std::lock_guard lk(_mtx);
         auto it = _pathToAssetId.find(absPath.wstring());
         if (it != _pathToAssetId.end())
         {
-            AssetId removedAssetId = it->second;
+            removedAssetId = it->second;
             _pathToAssetId.erase(it);
             MetaFile* metaFile = _assetIdToMeta[removedAssetId].get();
             metaFile->OnDestroy(_subAssetContainer);
             _assetIdToMeta.erase(removedAssetId);
         }
     }
+    EDITOR->HandleRemove(removedAssetId);
 
     DBG->LogW(L"[AssetDB] Remove: " + absPath.wstring());
 }

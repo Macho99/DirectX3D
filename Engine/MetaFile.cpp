@@ -239,11 +239,11 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
     static bool requestRenameFocus = false;
     const bool isRenaming = (renamingAssetId == _assetId);
 
-    fs::path absPath = GetAssetPath();
+    fs::path assetPath = GetAssetPath();
     bool isFolder = (GetResourceType() == ResourceType::Folder);
-    std::string name = Utils::ToUtf8(absPath.filename());
+    std::string name = Utils::ToUtf8(assetPath.filename());
 
-    ImGui::PushID(absPath.string().c_str());
+    ImGui::PushID(assetPath.string().c_str());
     if (curCol > 0) ImGui::SameLine();
 
     // 1. 타일 레이아웃 설정
@@ -260,6 +260,15 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
     // 2. 상호작용 영역 (클릭/호버 감지용 투명 버튼)
     ImGui::InvisibleButton("##tile", ImVec2(tileW, tileH));
     bool hovered = ImGui::IsItemHovered();
+
+    if (ImGui::BeginPopupContextItem("Context"))
+    {
+        if (ImGui::MenuItem("Delete"))
+        {
+            fs::remove(assetPath);
+        }
+        ImGui::EndPopup();
+    }
 
     AssetRef selectedAsset; 
     int selectedSubAssetIndex;
@@ -290,7 +299,7 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
     if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         EDITOR->UnselectAsset();
-        currentFolder = absPath;
+        currentFolder = assetPath;
     }
 
     // 3. 배경 그리기 (선택/호버)
@@ -356,20 +365,20 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
                 else
                     newName = newName.substr(begin, end - begin + 1);
 
-                newName += absPath.extension().string(); // 확장자 유지
+                newName += assetPath.extension().string(); // 확장자 유지
 
                 if (!newName.empty())
                 {
-                    fs::path newAbsPath = absPath;
+                    fs::path newAbsPath = assetPath;
                     newAbsPath.replace_filename(newName);
 
-                    if (newAbsPath != absPath)
+                    if (newAbsPath != assetPath)
                     {
                         std::error_code ec;
-                        fs::rename(absPath, newAbsPath, ec);
+                        fs::rename(assetPath, newAbsPath, ec);
                         if (ec)
                         {
-                            DBG->LogErrorW(L"[MetaFile] Rename failed: " + absPath.wstring() + L" -> " + newAbsPath.wstring() + L", error=" + Utils::ToWString(ec.message()));
+                            DBG->LogErrorW(L"[MetaFile] Rename failed: " + assetPath.wstring() + L" -> " + newAbsPath.wstring() + L", error=" + Utils::ToWString(ec.message()));
                         }
                     }
                 }
@@ -400,7 +409,7 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
         ImGui::IsMouseHoveringRect(textPos, textMax))
     {
         renamingAssetId = _assetId;
-        const string baseName = absPath.stem().string();
+        const string baseName = assetPath.stem().string();
         strncpy_s(renameBuffer, baseName.c_str(), _TRUNCATE);
         requestRenameFocus = true;
     }

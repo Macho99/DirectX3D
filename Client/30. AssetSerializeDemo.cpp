@@ -70,18 +70,18 @@ void AssetSerializeDemo::Init()
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
     {
-        ResourceRef<Material> materialRef = RESOURCES->AllocateTempResource<Material>();
+        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
         // Mesh
         // Material
         {
-            Material* material = materialRef.Resolve();
-            material->SetShader(renderShader);
-            auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\veigar.jpg");
-            material->SetDiffuseMap(texture);
-            MaterialDesc& desc = material->GetMaterialDesc();
-            desc.ambient = Vec4(1.f);
-            desc.diffuse = Vec4(1.f);
-            desc.specular = Vec4(1.f);
+            //Material* material = materialRef.Resolve();
+            //material->SetShader(renderShader);
+            //auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\veigar.jpg");
+            //material->SetDiffuseMap(texture);
+            //MaterialDesc& desc = material->GetMaterialDesc();
+            //desc.ambient = Vec4(1.f);
+            //desc.diffuse = Vec4(1.f);
+            //desc.specular = Vec4(1.f);
             //RESOURCES->Add(L"Veigar", material);
         }
 
@@ -125,11 +125,11 @@ void AssetSerializeDemo::Init()
         //tessTerrain->Init();
         tessTerrain->SetTerrainData(RESOURCES->GetResourceRefByPath<TerrainData>(L"Textures\\Terrain\\TerrainData.terrain"));
 
-        ResourceRef<Material> materialRef = RESOURCES->AllocateTempResource<Material>();
-        Material* material = materialRef.Resolve();
-        material->SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Terrain.fx"));
-        material->SetRenderQueue(RenderQueue::Opaque);
-        material->GetMaterialDesc().ambient = Vec4(1.f);
+        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\TerrainMat.mat");
+        //Material* material = materialRef.Resolve();
+        //material->SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Terrain.fx"));
+        //material->SetRenderQueue(RenderQueue::Opaque);
+        //material->GetMaterialDesc().ambient = Vec4(1.f);
         tessTerrain->SetMaterial(materialRef);
 
         auto objRef = CUR_SCENE->Add("Terrain");
@@ -137,8 +137,9 @@ void AssetSerializeDemo::Init()
         objRef.Resolve()->AddComponent(std::move(tessTerrain));
         tessTerrainRef = ComponentRef<TessTerrain>(objRef.Resolve()->GetFixedComponent<TessTerrain>(ComponentType::TessTerrain)->GetGuid());
     }
+
     {
-        ResourceRef<Shader> grassRenderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\GrassRender.fx");
+        //ResourceRef<Shader> grassRenderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\GrassRender.fx");
         ResourceRef<Shader> grassComputeShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\GrassCompute.fx");
         auto objRef = CUR_SCENE->Add("GrassRenderer");
         GameObject* obj = objRef.Resolve();
@@ -147,16 +148,16 @@ void AssetSerializeDemo::Init()
         {
             // Material
             {
-                ResourceRef<Material> materialRef = RESOURCES->AllocateTempResource<Material>();
-                Material* material = materialRef.Resolve();
-                material->SetShader(grassRenderShader);
-                auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\Grass\\Grass_A_BaseColor.tif");
-                //auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
-                material->SetDiffuseMap(texture);
-                MaterialDesc& desc = material->GetMaterialDesc();
-                desc.ambient = Vec4(1.f);
-                desc.diffuse = Vec4(1.f);
-                desc.specular = Vec4(1.f);
+                ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\GrassRenderMat.mat");
+                //Material* material = materialRef.Resolve();
+                //material->SetShader(grassRenderShader);
+                //auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\Grass\\Grass_A_BaseColor.tif");
+                ////auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
+                //material->SetDiffuseMap(texture);
+                //MaterialDesc& desc = material->GetMaterialDesc();
+                //desc.ambient = Vec4(1.f);
+                //desc.diffuse = Vec4(1.f);
+                //desc.specular = Vec4(1.f);
                 grassRenderer->SetMaterial(materialRef);
             }
         }
@@ -177,21 +178,23 @@ void AssetSerializeDemo::Init()
         obj->AddComponent(make_unique<ParticleSystem>());
         ParticleSystem* particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
         particleSystem->SetEmitDirW(Vec3(0.f, 2.f, 0.f));
-        ResourceRef<Material> materialRef = RESOURCES->AllocateTempResource<Material>();
-        Material* material = materialRef.Resolve();
-        material->GetMaterialDesc().diffuse = Vec4(1.f);
-        material->SetRenderQueue(RenderQueue::Transparent);
-        material->SetShader(particleShader);
-        auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\flare0.png");
-        material->SetDiffuseMap(texture);
-        material->SetRandomTex(true);
+
+        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\FireMat.mat");
+        //Material* material = materialRef.Resolve();
+        //material->GetMaterialDesc().diffuse = Vec4(1.f);
+        //material->SetRenderQueue(RenderQueue::Transparent);
+        //material->SetShader(particleShader);
+        //auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\flare0.png");
+        //material->SetDiffuseMap(texture);
+        //material->SetRandomTex(true);
+
         particleSystem->SetMaterial(materialRef);
     }
 
     // SnowBillboard
     {	// Billboard
         {
-            auto snowShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\24. SnowDemo.fx");
+            //auto snowShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\24. SnowDemo.fx");
             auto objRef = CUR_SCENE->Add("Snow");
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
@@ -199,16 +202,16 @@ void AssetSerializeDemo::Init()
             {
                 // Material
                 {
-                    ResourceRef<Material> materialRef = RESOURCES->AllocateTempResource<Material>();
-                    Material* material = materialRef.Resolve();
-                    material->SetShader(snowShader);
-                    auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\grass.png");
-                    //auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
-                    material->SetDiffuseMap(texture);
-                    MaterialDesc& desc = material->GetMaterialDesc();
-                    desc.ambient = Vec4(1.f);
-                    desc.diffuse = Vec4(1.f);
-                    desc.specular = Vec4(1.f);
+                    ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\SnowMat.mat");
+                    //Material* material = materialRef.Resolve();
+                    //material->SetShader(snowShader);
+                    //auto texture = RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\grass.png");
+                    ////auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
+                    //material->SetDiffuseMap(texture);
+                    //MaterialDesc& desc = material->GetMaterialDesc();
+                    //desc.ambient = Vec4(1.f);
+                    //desc.diffuse = Vec4(1.f);
+                    //desc.specular = Vec4(1.f);
                     obj->GetSnowBillboard()->SetMaterial(materialRef);
                 }
             }

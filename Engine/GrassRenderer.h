@@ -56,6 +56,8 @@ public:
     explicit GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath);
     ~GrassRenderer();
 
+    virtual bool OnGUI() override;
+
 protected:
     void InnerRender(RenderTech renderTech) override;
 

@@ -20,6 +20,9 @@ public:
     static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly = false);
     static bool DrawAssetRef(const char* label, AssetRef& assetRef, bool isReadOnly = false);
 
+    template<typename T>
+    static bool DrawComponentRef(const char* label, ComponentRef<T>& componentRef, bool isReadOnly = false);
+
 private:
     static bool DrawScalar(const char* label, ImGuiDataType dataType, void* value, float dragSpeed, bool isReadOnly = false);
     static void Begin(const char* label, bool setDisable);
@@ -106,4 +109,10 @@ inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resou
 
     End(false);
     return changed;
+}
+
+template<typename T>
+inline bool OnGUIUtils::DrawComponentRef(const char* label, ComponentRef<T>& componentRef, bool isReadOnly)
+{
+
 }

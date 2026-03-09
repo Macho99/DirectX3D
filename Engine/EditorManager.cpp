@@ -203,6 +203,40 @@ void EditorManager::ClickAsset(const AssetRef& assetRef)
     _contentBrowserSubAsset = subAssetIndex;
 }
 
+void EditorManager::HandleRemove(const AssetRef& assetRef)
+{
+    if (_inspectorAsset == assetRef)
+    {
+        if (_inspectorLock)
+            SetInspectorLock(false);
+
+        _inspectorAsset = AssetRef();
+        _inspectorSubAsset = -1;
+    }
+
+    if (_contentBrowserAsset == assetRef)
+    {
+        _contentBrowserAsset = AssetRef();
+        _contentBrowserSubAsset = -1;
+    }
+}
+
+void EditorManager::HandleRemove(const TransformRef& transformRef)
+{
+    if (_inspectorTransform == transformRef)
+    {
+        if (_inspectorLock)
+            SetInspectorLock(false);
+
+        _inspectorTransform = TransformRef();
+    }
+
+    if (_hierarchyTransform == transformRef)
+    {
+        _hierarchyTransform = TransformRef();
+    }
+}
+
 bool EditorManager::TryGetHierarchyTransform(OUT TransformRef& transformRef) const
 {
     if (_hierarchyTransform.IsValid())

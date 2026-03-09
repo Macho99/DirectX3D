@@ -34,6 +34,9 @@ public:
     void ClickAsset(const AssetRef& assetRef);
     void UnselectAsset() { ClickAsset(AssetRef()); }
 
+	void HandleRemove(const AssetRef& assetRef);
+    void HandleRemove(const TransformRef& transformRef);
+
 	bool TryGetHierarchyTransform(OUT TransformRef& transformRef) const;
 	void FocusHierarchyTransform(const TransformRef& transformRef);
 
