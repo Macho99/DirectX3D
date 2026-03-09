@@ -16,6 +16,7 @@ class ModelAnimation;
 class ModelMesh;
 class Model;
 class ModelMeshResource;
+class TerrainData;
 
 template<>
 struct ResourceTypeTrait<Texture>
@@ -57,6 +58,12 @@ template<>
 struct ResourceTypeTrait<Model>
 {
     static constexpr ResourceType value = ResourceType::Model;
+};
+
+template<>
+struct ResourceTypeTrait<TerrainData>
+{
+    static constexpr ResourceType value = ResourceType::TerrainData;
 };
 
 template<class T>

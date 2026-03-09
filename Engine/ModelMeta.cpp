@@ -48,7 +48,7 @@ void ModelMeta::Import()
 
     wstring artifactFoloder = GetArtifactPath();
     Converter converter;
-    wstring absPath = GetAbsPath();
+    wstring absPath = GetAssetPath();
     converter.ReadAssetFile(absPath);
 
     fs::create_directories(artifactFoloder);

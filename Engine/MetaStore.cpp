@@ -11,6 +11,8 @@
 #include "MeshMeta.h"
 #include "MaterialMeta.h"
 #include "ShaderMeta.h"
+#include "TerrainDataMeta.h"
+#include "TerrainData.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -53,7 +55,7 @@ unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
         }
     }
 
-    meta->_absPath = sourceAbs;
+    meta->_assetPath = sourceAbs;
     ImportIfDirty(meta);
 
     return meta;
@@ -95,7 +97,7 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs, bool forceReim
     }
 
     meta->_assetId = assetId;
-    meta->_absPath = sourceAbs;
+    meta->_assetPath = sourceAbs;
 
     if (forceReimport)
         ForceReimport(meta);
@@ -126,7 +128,7 @@ void MetaStore::ImportIfDirty(unique_ptr<MetaFile>& metaFile)
     if (imported == false)
         return;
 
-    std::ofstream os(MetaPathForSource(metaFile->_absPath));
+    std::ofstream os(MetaPathForSource(metaFile->_assetPath));
     cereal::JSONOutputArchive archive(os);
     archive(metaFile);
 }
@@ -135,7 +137,7 @@ void MetaStore::ForceReimport(unique_ptr<MetaFile>& metaFile)
 {
     metaFile->ForceReimport();
 
-    std::ofstream os(MetaPathForSource(metaFile->_absPath));
+    std::ofstream os(MetaPathForSource(metaFile->_assetPath));
     cereal::JSONOutputArchive archive(os);
     archive(metaFile);
 }
@@ -164,6 +166,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         _creators[".mesh"] = []() { return make_unique<MeshMeta>(); };
         _creators[".mat"] = []() { return make_unique<MaterialMeta>(); };
         _creators[".fx"] = []() { return make_unique<ShaderMeta>(); };
+        _creators[TerrainData::GetExtension()] = []() { return make_unique<TerrainDataMeta>(); };
 
         {
             function<unique_ptr<MetaFile>()> texCreator = []() { return make_unique<TextureMeta>(); };
@@ -173,6 +176,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
             _creators[".jpeg"] = texCreator;
             _creators[".bmp"] = texCreator;
             _creators[".tif"] = texCreator;
+            _creators[".dds"] = texCreator;
         }
     }
 

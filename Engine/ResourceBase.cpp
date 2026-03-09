@@ -2,6 +2,7 @@
 #include "ResourceBase.h"
 #include "Material.h"
 #include "Model.h"
+#include "TerrainData.h"
 
 ResourceBase::ResourceBase()
     : _type(ResourceType::None)
@@ -35,3 +36,5 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Material);
 CEREAL_REGISTER_TYPE(Model);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Model);
 
+CEREAL_REGISTER_TYPE(TerrainData);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, TerrainData);

@@ -7,6 +7,7 @@
 #include "EditorManager.h"
 #include "FileUtils.h"
 #include "Material.h"
+#include "TerrainData.h"
 
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
@@ -66,7 +67,7 @@ void ContentBrowser::GetCurMetaFiles()
             if (lhs->GetResourceType() != ResourceType::Folder && rhs->GetResourceType() == ResourceType::Folder)
                 return false;
 
-            return lhs->GetAbsPath().filename().wstring() < rhs->GetAbsPath().filename().wstring();
+            return lhs->GetAssetPath().filename().wstring() < rhs->GetAssetPath().filename().wstring();
         });
 }
 
@@ -84,7 +85,7 @@ void ContentBrowser::OnGUI()
             MetaFile* meta = nullptr;
             if (RESOURCES->TryGetMetaByAssetId(curAssetId, meta))
             {
-                _currentFolder = meta->GetAbsPath().parent_path();
+                _currentFolder = meta->GetAssetPath().parent_path();
             }
         }
     }
@@ -207,26 +208,29 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
     {
         if (ImGui::BeginMenu("Create"))
         {
+            _editorManager->FocusContentBrowserAsset(AssetRef());
+
+            fs::path newPath;
             if (ImGui::MenuItem("Material"))
             {
-                const fs::path newMatName = _currentFolder / "New Material";
-                for (int suffix = 0; suffix < 10; suffix++)
+                if (TryGetNewFilePath(_currentFolder, "New Material", ".mat", OUT newPath))
                 {
-                    fs::path tryPath = newMatName;
-                    if (suffix > 0)
-                        tryPath += " " + std::to_string(suffix);
-
-                    tryPath += ".mat";
-                    if (fs::exists(tryPath))
-                        continue;
-
                     unique_ptr<ResourceBase> newMat = make_unique<Material>();
-                    FileUtils::SaveResourceToJson(tryPath, newMat);
-                    break;
+                    FileUtils::SaveResourceToJson(newPath, newMat);
                 }
             }
+            if (ImGui::MenuItem("TerrainData"))
+            {
+                if (TryGetNewFilePath(_currentFolder, "New TerrainData", TerrainData::GetExtension(), OUT newPath))
+                {
+                    unique_ptr<ResourceBase> newTerrainData = make_unique<TerrainData>();
+                    FileUtils::SaveResourceToJson(newPath, newTerrainData);
+                }
+            }
+
             ImGui::EndMenu();
         }
+
 
         ImGui::EndPopup();
     }
@@ -337,7 +341,7 @@ void ContentBrowser::DrawItemsList()
     // 유니티 Project의 List 모드 느낌: 한 줄씩, 왼쪽 작은 아이콘 + 이름
     for (const auto meta : _curMetaFiles)
     {
-        fs::path absPath = meta->GetAbsPath();
+        fs::path absPath = meta->GetAssetPath();
         ImGui::PushID(absPath.c_str());
 
         bool selected = (_selectedId == meta->GetAssetId());
@@ -363,6 +367,25 @@ void ContentBrowser::DrawItemsList()
 
         ImGui::PopID();
     }
+}
+
+bool ContentBrowser::TryGetNewFilePath(const fs::path& folder, const string& baseName, const string& extension, OUT fs::path& newPath)
+{
+    const fs::path newPathName = folder / baseName;
+
+    for (int suffix = 0; suffix < 10; suffix++)
+    {
+        fs::path tryPath = newPathName;
+        if (suffix > 0)
+            tryPath += " " + std::to_string(suffix);
+
+        tryPath += extension;
+        if (fs::exists(tryPath))
+            continue;
+        newPath = tryPath;
+        return true;
+    }
+    return false;
 }
 
 wstring ContentBrowser::DisplayName(const fs::path& p)

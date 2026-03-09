@@ -18,10 +18,12 @@ public:
 
     template<typename T>
     static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly = false);
+    static bool DrawAssetRef(const char* label, AssetRef& assetRef, bool isReadOnly = false);
 
 private:
     static bool DrawScalar(const char* label, ImGuiDataType dataType, void* value, float dragSpeed, bool isReadOnly = false);
     static void Begin(const char* label, bool setDisable);
+    static void BeginAssetRef(const char* label, const AssetId& assetId, bool setDisable);
     static void End(bool setDisable);
 
 private:
@@ -52,43 +54,9 @@ template<typename T>
 inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)
 {
     bool changed = false;
-
-    // 표시 문자열 만들기
     AssetId assetId = resourceRef.GetAssetId();
     const bool hasRef = assetId.IsValid();
-
-    std::string display;
-    if (hasRef)
-    {
-        MetaFile* meta = nullptr;
-        if (RESOURCES->TryGetMetaByAssetId(assetId, OUT meta))
-        {
-            display = meta->GetName(assetId);
-        }
-    }
-
-    if (display.empty())
-    {
-        display = hasRef ? "Missing (" + assetId.ToString() + ")" : "None";
-    }
-
-    Begin(label, false);
-
-    if(isReadOnly)
-        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
-
-    // “필드” (버튼처럼 보이는 입력칸)
-    //ImGui::SetNextItemWidth(fieldW);
-    bool clicked = ImGui::Button(display.c_str(), ImVec2(ImGui::CalcItemWidth(), 0));
-    
-    if(isReadOnly)
-        ImGui::PopStyleColor();
-
-        // 클릭 시 포커스
-    if (clicked && hasRef)
-    {
-        EDITOR->FocusContentBrowserAsset(assetId);
-    }
+    BeginAssetRef(label, assetId, isReadOnly);
 
     if(isReadOnly == false)
     {

@@ -26,8 +26,9 @@ public:
     AssetId GetAssetId() const { return _assetId; }
     virtual wstring GetResourcePath() const;
 
-    fs::path GetAbsPath() const { return _absPath; }
-    void SetAbsPath(const fs::path& absPath) { _absPath = absPath; }
+    fs::path GetAssetPath() const { return _assetPath; }
+    virtual fs::path GetImportedAssetPath() const;
+    void SetAssetPath(const fs::path& assetPath) { _assetPath = assetPath; }
     ResourceType GetResourceType() const { return _resourceType; }
 
     virtual bool OnGUI();
@@ -57,7 +58,7 @@ protected:
     AssetId _assetId;
     ResourceType _resourceType;
 
-    fs::path _absPath;
+    fs::path _assetPath;
 private:
     ImportManifest _importManifest;
     

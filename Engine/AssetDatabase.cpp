@@ -26,7 +26,7 @@ bool AssetDatabase::TryGetPathByAssetId(const AssetId& assetId, OUT fs::path& ou
     auto it = _assetIdToMeta.find(assetId);
     if (it == _assetIdToMeta.end()) 
         return false;
-    out = it->second->GetAbsPath();
+    out = it->second->GetAssetPath();
     return true;
 }
 
@@ -254,7 +254,7 @@ void AssetDatabase::Rename(const fs::path& oldAbsPath, const fs::path& newAbsPat
         MetaFile* metaFile = nullptr;
         if (TryGetMetaByAssetId(renamedAssetId, OUT metaFile))
         {
-            metaFile->SetAbsPath(newAbsPath);
+            metaFile->SetAssetPath(newAbsPath);
         }
         else
         {

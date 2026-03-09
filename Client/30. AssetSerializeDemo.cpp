@@ -109,20 +109,21 @@ void AssetSerializeDemo::Init()
     ComponentRef<TessTerrain> tessTerrainRef;
     {
         unique_ptr<TessTerrain> tessTerrain = make_unique<TessTerrain>();
-        TessTerrain::InitInfo info;
-        ZeroMemory(&info, sizeof(info));
-        info.heightMapFilename = L"../Resources/Textures/Terrain/terrain.raw";
-        info.layerMapFilename0 = L"../Resources/Textures/Terrain/grass.dds";
-        info.layerMapFilename1 = L"../Resources/Textures/Terrain/darkdirt.dds";
-        info.layerMapFilename2 = L"../Resources/Textures/Terrain/stone.dds";
-        info.layerMapFilename3 = L"../Resources/Textures/Terrain/lightdirt.dds";
-        info.layerMapFilename4 = L"../Resources/Textures/Terrain/snow.dds";
-        info.blendMapFilename = L"../Resources/Textures/Terrain/blend.dds";
-        info.heightScale = 50.0f;
-        info.heightmapWidth = 2049;
-        info.heightmapHeight = 2049;
-        info.cellSpacing = 0.5f;
-        tessTerrain->Init(info);
+        //TessTerrain::InitInfo info;
+        //ZeroMemory(&info, sizeof(info));
+        //info.heightMapFilename = L"../Resources/Textures/Terrain/terrain.raw";
+        //info.layerMapFilename0 = L"../Resources/Textures/Terrain/grass.dds";
+        //info.layerMapFilename1 = L"../Resources/Textures/Terrain/darkdirt.dds";
+        //info.layerMapFilename2 = L"../Resources/Textures/Terrain/stone.dds";
+        //info.layerMapFilename3 = L"../Resources/Textures/Terrain/lightdirt.dds";
+        //info.layerMapFilename4 = L"../Resources/Textures/Terrain/snow.dds";
+        //info.blendMapFilename = L"../Resources/Textures/Terrain/blend.dds";
+        //info.heightScale = 50.0f;
+        //info.heightmapWidth = 2049;
+        //info.heightmapHeight = 2049;
+        //info.cellSpacing = 0.5f;
+        //tessTerrain->Init();
+        tessTerrain->SetTerrainData(RESOURCES->GetResourceRefByPath<TerrainData>(L"Textures\\Terrain\\TerrainData.terrain"));
 
         ResourceRef<Material> materialRef = RESOURCES->AllocateTempResource<Material>();
         Material* material = materialRef.Resolve();
@@ -160,7 +161,7 @@ void AssetSerializeDemo::Init()
             }
         }
         obj->AddComponent(std::move(grassRenderer));
-
+    
         auto foliageController = make_unique<FoliageController>();
         foliageController->SetBendFactor(0.1f);
         foliageController->SetStiffness(0.65f);

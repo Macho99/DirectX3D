@@ -38,8 +38,9 @@ private:
     void DrawItemsGrid();
     void DrawItemsList();
 
-    static wstring DisplayName(const fs::path& p);
+    bool TryGetNewFilePath(const fs::path& folder, const string& baseName, const string& extension, OUT fs::path& newPath);
 
+    static wstring DisplayName(const fs::path& p);
 
 private:
     void SetCurrentFolder(const fs::path& folderAbs);

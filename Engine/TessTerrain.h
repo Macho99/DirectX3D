@@ -1,5 +1,6 @@
 #pragma once
 #include "Renderer.h"
+#include "TerrainData.h"
 class Material;
 class Texture;
 
@@ -7,21 +8,6 @@ class TessTerrain : public Renderer
 {
     using Super = Renderer;
 public:
-	struct InitInfo
-	{
-		std::wstring heightMapFilename;
-		std::wstring layerMapFilename0;
-		std::wstring layerMapFilename1;
-		std::wstring layerMapFilename2;
-		std::wstring layerMapFilename3;
-		std::wstring layerMapFilename4;
-		std::wstring blendMapFilename;
-		float heightScale;
-		uint32 heightmapWidth;
-		uint32 heightmapHeight;
-		float cellSpacing;
-	};
-
 	TessTerrain();
 	~TessTerrain();
 
@@ -29,12 +15,16 @@ public:
 	float GetDepth() const;
 	float GetHeight(float x, float z) const;
 
-	void Init(const InitInfo& initInfo);
 	void InnerRender(RenderTech renderTech) override;
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
     ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
+	void SetTerrainData(const ResourceRef<TerrainData>& terrainData);
+    bool IsInitialized() const { return _initialized; }
+
+    virtual bool OnGUI() override;
 
 private:
+	void Init();
 	void LoadHeightmap();
 	void Smooth();
 	bool InBounds(int32 i, int32 j);
@@ -46,6 +36,8 @@ private:
 	void BuildHeightmapSRV();
 
 private:
+	mutable ResourceRef<TerrainData> _terrainData;
+    bool _initialized = false;
 
 	// Divide heightmap into patches such that each patch has CellsPerPatch cells
 	// and CellsPerPatch+1 vertices.  Use 64 so that if we tessellate all the way 
@@ -62,14 +54,10 @@ private:
 
     TerrainDesc _terrainDesc;
 
-	InitInfo _info;
-
 	uint32 _numPatchVertices = 0;
 	uint32 _numPatchQuadFaces = 0;
 	uint32 _numPatchVertRows = 0;
 	uint32 _numPatchVertCols = 0;
-
-	ResourceRef<Material> _mat;
 
 	std::vector<XMFLOAT2> _patchBoundsY;
 	std::vector<float> _heightmap;

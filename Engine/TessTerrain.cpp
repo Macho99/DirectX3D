@@ -7,6 +7,7 @@
 #include "VertexData.h"
 #include "MathUtils.h"
 #include "Camera.h"
+#include "OnGUIUtils.h"
 
 TessTerrain::TessTerrain() : Super(ComponentType::TessTerrain)
 {
@@ -25,20 +26,35 @@ TessTerrain::~TessTerrain()
 float TessTerrain::GetWidth() const
 {
     // Total terrain width.
-    return (_info.heightmapWidth - 1) * _info.cellSpacing;
+    TerrainData* terrainData = _terrainData.Resolve();
+    if (terrainData == nullptr)
+        return 0.0f;
+
+    return (terrainData->GetHeightmapWidth() - 1) * terrainData->GetCellSpacing();
 }
 
 float TessTerrain::GetDepth() const
 {
     // Total terrain depth.
-    return (_info.heightmapHeight - 1) * _info.cellSpacing;
+	TerrainData* terrainData = _terrainData.Resolve();
+	if (terrainData == nullptr)
+		return 0.0f;
+    return (terrainData->GetHeightmapHeight() - 1) * terrainData->GetCellSpacing();
 }
 
 float TessTerrain::GetHeight(float x, float z) const
 {
+	TerrainData* terrainData = _terrainData.Resolve();
+	if (terrainData == nullptr)
+		return 0.0f;
+
+    float cellSpacing = terrainData->GetCellSpacing();
+    float heightmapWidth = terrainData->GetHeightmapWidth();
+    float heightmapHeight = terrainData->GetHeightmapHeight();
+
 	// Transform from terrain local space to "cell" space.
-	float c = (x + 0.5f * GetWidth()) / _info.cellSpacing;
-	float d = (z - 0.5f * GetDepth()) / -_info.cellSpacing;
+	float c = (x + 0.5f * GetWidth()) / cellSpacing;
+	float d = (z - 0.5f * GetDepth()) / -cellSpacing;
 
 	// Get the row and column we are in.
 	int row = (int)floorf(d);
@@ -49,10 +65,10 @@ float TessTerrain::GetHeight(float x, float z) const
 	//  | /|
 	//  |/ |
 	// C*--*D
-	float A = _heightmap[row * _info.heightmapWidth + col];
-	float B = _heightmap[row * _info.heightmapWidth + col + 1];
-	float C = _heightmap[(row + 1) * _info.heightmapWidth + col];
-	float D = _heightmap[(row + 1) * _info.heightmapWidth + col + 1];
+	float A = _heightmap[row * heightmapWidth + col];
+	float B = _heightmap[row * heightmapWidth + col + 1];
+	float C = _heightmap[(row + 1) * heightmapWidth + col];
+	float D = _heightmap[(row + 1) * heightmapWidth + col + 1];
 
 	// Where we are relative to the cell.
 	float s = c - (float)col;
@@ -73,13 +89,22 @@ float TessTerrain::GetHeight(float x, float z) const
 	}
 }
 
-void TessTerrain::Init(const InitInfo& initInfo)
+bool TessTerrain::OnGUI()
 {
-	_info = initInfo;
+    bool changed = false;
+    changed |= Super::OnGUI();
+	ImGui::Separator();
+    changed |= OnGUIUtils::DrawResourceRef("Terrain Data", _terrainData, false);
+    return changed;
+}
+
+void TessTerrain::Init()
+{
+    TerrainData* terrainData = _terrainData.Resolve();
 
 	// Divide heightmap into patches such that each patch has CellsPerPatch.
-	_numPatchVertRows = ((_info.heightmapHeight - 1) / CellsPerPatch) + 1;
-	_numPatchVertCols = ((_info.heightmapWidth - 1) / CellsPerPatch) + 1;
+	_numPatchVertRows = ((terrainData->GetHeightmapHeight() - 1) / CellsPerPatch) + 1;
+	_numPatchVertCols = ((terrainData->GetHeightmapWidth() - 1) / CellsPerPatch) + 1;
 
 	_numPatchVertices = _numPatchVertRows * _numPatchVertCols;
 	_numPatchQuadFaces = (_numPatchVertRows - 1) * (_numPatchVertCols - 1);
@@ -92,25 +117,23 @@ void TessTerrain::Init(const InitInfo& initInfo)
 	BuildQuadPatchIB();
 	BuildHeightmapSRV();
 
-	vector<wstring> layerFilenames;
-	layerFilenames.push_back(_info.layerMapFilename0);
-	layerFilenames.push_back(_info.layerMapFilename1);
-	layerFilenames.push_back(_info.layerMapFilename2);
-	layerFilenames.push_back(_info.layerMapFilename3);
-	layerFilenames.push_back(_info.layerMapFilename4);
+	_layerMapArraySRV = terrainData->GetLayerMapArraySRV();
+	_blendMapTexture = terrainData->GetBlendMap();
 
-	_layerMapArraySRV = Utils::CreateTexture2DArraySRV(layerFilenames);
-
-    _blendMapTexture = RESOURCES->AllocateTempResource(make_unique<Texture>());
-    _blendMapTexture.Resolve()->Load(_info.blendMapFilename);
+	_initialized = true;
 }
-
 
 void TessTerrain::InnerRender(RenderTech renderTech)
 {
 	Material* material = GetMaterial().Resolve();
     if (material == nullptr)
         return;
+
+	TerrainData* terrainData = _terrainData.Resolve();
+    if (terrainData == nullptr)
+        return;
+	if (!_initialized)
+		Init();
 
     Super::InnerRender(renderTech);
 
@@ -137,9 +160,9 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 	}
 	
 	Shader* shader = material->GetShader();
-    _terrainDesc.gTexelCellSpaceU = 1.0f / _info.heightmapWidth;
-    _terrainDesc.gTexelCellSpaceV = 1.0f / _info.heightmapHeight;
-    _terrainDesc.gWorldCellSpace = _info.cellSpacing;
+    _terrainDesc.gTexelCellSpaceU = 1.0f / terrainData->GetHeightmapWidth();
+    _terrainDesc.gTexelCellSpaceV = 1.0f / terrainData->GetHeightmapHeight();
+    _terrainDesc.gWorldCellSpace = terrainData->GetCellSpacing();
 	shader->PushTerrainData(_terrainDesc);
 
     material->SetLayerMapArraySRV(_layerMapArraySRV);
@@ -166,14 +189,25 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 	DC->DSSetShader(0, 0, 0);
 }
 
+void TessTerrain::SetTerrainData(const ResourceRef<TerrainData>& terrainData)
+{
+	_terrainData = terrainData;
+    if (_initialized == false)
+        Init();
+}
+
 void TessTerrain::LoadHeightmap()
 {
+    TerrainData* terrainData = _terrainData.Resolve();
 	// A height for each vertex
-	vector<unsigned char> in(_info.heightmapWidth * _info.heightmapHeight);
+	float heightmapHeight = terrainData->GetHeightmapHeight();
+    float heightmapWidth = terrainData->GetHeightmapWidth();
+    float heightScale = terrainData->GetHeightScale();
+	vector<unsigned char> in(heightmapWidth * heightmapHeight);
 
 	// Open the file.
 	ifstream inFile;
-	inFile.open(_info.heightMapFilename.c_str(), std::ios_base::binary);
+	inFile.open(terrainData->GetHeightMapPath().c_str(), std::ios_base::binary);
 
 	if (inFile)
 	{
@@ -185,23 +219,26 @@ void TessTerrain::LoadHeightmap()
 	}
 
 	// Copy the array data into a float array and scale it.
-	_heightmap.resize(_info.heightmapHeight * _info.heightmapWidth, 0);
+	_heightmap.resize(heightmapHeight * heightmapWidth, 0);
 
-	for (uint32 i = 0; i < _info.heightmapHeight * _info.heightmapWidth; ++i)
+	for (uint32 i = 0; i < heightmapHeight * heightmapWidth; ++i)
 	{
-		_heightmap[i] = (in[i] / 255.0f) * _info.heightScale;
+		_heightmap[i] = (in[i] / 255.0f) * heightScale;
 	}
 }
 
 void TessTerrain::Smooth()
 {
+	TerrainData* terrainData = _terrainData.Resolve();
+	float heightmapHeight = terrainData->GetHeightmapHeight();
+	float heightmapWidth = terrainData->GetHeightmapWidth();
 	std::vector<float> dest(_heightmap.size());
 
-	for (uint32 i = 0; i < _info.heightmapHeight; ++i)
+	for (uint32 i = 0; i < heightmapHeight; ++i)
 	{
-		for (uint32 j = 0; j < _info.heightmapWidth; ++j)
+		for (uint32 j = 0; j < heightmapWidth; ++j)
 		{
-			dest[i * _info.heightmapWidth + j] = Average(i, j);
+			dest[i * heightmapWidth + j] = Average(i, j);
 		}
 	}
 
@@ -211,14 +248,20 @@ void TessTerrain::Smooth()
 
 bool TessTerrain::InBounds(int32 i, int32 j)
 {
+	TerrainData* terrainData = _terrainData.Resolve();
+	float heightmapHeight = terrainData->GetHeightmapHeight();
+	float heightmapWidth = terrainData->GetHeightmapWidth();
+
 	// True if ij are valid indices; false otherwise.
 	return
-		i >= 0 && i < (int32)_info.heightmapHeight &&
-		j >= 0 && j < (int32)_info.heightmapWidth;
+		i >= 0 && i < (int32)heightmapHeight &&
+		j >= 0 && j < (int32)heightmapWidth;
 }
 
 float TessTerrain::Average(int32 i, int32 j)
 {
+	TerrainData* terrainData = _terrainData.Resolve();
+	float heightmapWidth = terrainData->GetHeightmapWidth();
 	// Function computes the average height of the ij element.
 	// It averages itself with its eight neighbor pixels.  Note
 	// that if a pixel is missing neighbor, we just don't include it
@@ -243,7 +286,7 @@ float TessTerrain::Average(int32 i, int32 j)
 		{
 			if (InBounds(m, n))
 			{
-				avg += _heightmap[m * _info.heightmapWidth + n];
+				avg += _heightmap[m * heightmapWidth + n];
 				num += 1.0f;
 			}
 		}
@@ -268,6 +311,8 @@ void TessTerrain::CalcAllPatchBoundsY()
 
 void TessTerrain::CalcPatchBoundsY(uint32 i, uint32 j)
 {
+	TerrainData* terrainData = _terrainData.Resolve();
+	float heightmapWidth = terrainData->GetHeightmapWidth();
 	// Scan the heightmap values this patch covers and compute the min/max height.
 
 	uint32 x0 = j * CellsPerPatch;
@@ -283,7 +328,7 @@ void TessTerrain::CalcPatchBoundsY(uint32 i, uint32 j)
 	{
 		for (uint32 x = x0; x <= x1; ++x)
 		{
-			uint32 k = y * _info.heightmapWidth + x;
+			uint32 k = y * heightmapWidth + x;
 			minY = std::min<float>(minY, _heightmap[k]);
 			maxY = std::max<float>(maxY, _heightmap[k]);
 		}
@@ -380,9 +425,13 @@ void TessTerrain::BuildQuadPatchIB()
 
 void TessTerrain::BuildHeightmapSRV()
 {
+	TerrainData* terrainData = _terrainData.Resolve();
+	float heightmapWidth = terrainData->GetHeightmapWidth();
+    float heightmapHeight = terrainData->GetHeightmapHeight();
+
 	D3D11_TEXTURE2D_DESC texDesc;
-	texDesc.Width = _info.heightmapWidth;
-	texDesc.Height = _info.heightmapHeight;
+	texDesc.Width = heightmapWidth;
+	texDesc.Height = heightmapHeight;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
 	texDesc.Format = DXGI_FORMAT_R16_FLOAT;
@@ -399,7 +448,7 @@ void TessTerrain::BuildHeightmapSRV()
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &hmap[0];
-	data.SysMemPitch = _info.heightmapWidth * sizeof(uint16);
+	data.SysMemPitch = heightmapWidth * sizeof(uint16);
 	data.SysMemSlicePitch = 0;
 
 	ComPtr<ID3D11Texture2D> hmapTex;

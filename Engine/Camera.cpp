@@ -58,6 +58,7 @@ bool Camera::OnGUI()
     changed |= OnGUIUtils::DrawFloat("FOV", &_fov, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Width", &_width, 1.f);
     changed |= OnGUIUtils::DrawFloat("Height", &_height, 1.f);
+    changed |= OnGUIUtils::DrawUInt32("Culling Mask", &_cullingMask, 1.f);
 
 	return changed;
 }

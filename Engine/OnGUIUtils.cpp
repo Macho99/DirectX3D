@@ -70,6 +70,62 @@ bool OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
     return changed;
 }
 
+bool OnGUIUtils::DrawAssetRef(const char* label, AssetRef& assetRef, bool isReadOnly)
+{
+    bool changed = false;
+    AssetId assetId = assetRef.GetAssetId();
+    const bool hasRef = assetId.IsValid();
+    BeginAssetRef(label, assetRef.GetAssetId(), isReadOnly);
+
+    if (isReadOnly == false)
+    {
+        AssetId droppedId;
+        if (DndPayload::AssetTarget(OUT droppedId))
+        {
+            assetRef = AssetRef(droppedId);
+            changed = true;
+        }
+    }
+
+    // 우클릭 메뉴(선택): Clear / Copy
+    if (ImGui::BeginPopupContextItem("RefFieldContext"))
+    {
+        if (ImGui::MenuItem("Copy", nullptr, false, hasRef))
+        {
+            ImGui::SetClipboardText(assetId.ToString().c_str());
+        }
+
+        const char* clipboadText = ImGui::GetClipboardText();
+        AssetId pastedId;
+        AssetRef pastedRef;
+        bool canPaste = false;
+        if (clipboadText != nullptr) // 유효한 AssetId 길이
+        {
+            if (AssetId::TryParse(clipboadText, OUT pastedId))
+            {
+                canPaste = true;
+                pastedRef = AssetRef(pastedId);
+            }
+        }
+        if (ImGui::MenuItem("Paste", nullptr, false, canPaste))
+        {
+            assetRef = pastedRef;
+            changed = true;
+        }
+
+        if (ImGui::MenuItem("Clear", nullptr, false, hasRef))
+        {
+            assetRef = AssetRef();
+            changed = true;
+        }
+        ImGui::EndPopup();
+    }
+
+    End(false);
+    return changed;
+
+}
+
 bool OnGUIUtils::DrawScalar(const char* label, ImGuiDataType dataType, void* value, float dragSpeed, bool isReadOnly)
 {
     Begin(label, isReadOnly);
@@ -89,6 +145,45 @@ void OnGUIUtils::Begin(const char* label, bool setDisable)
 
     if (setDisable)
         ImGui::BeginDisabled();
+}
+
+void OnGUIUtils::BeginAssetRef(const char* label, const AssetId& assetId, bool setDisable)
+{
+    // 표시 문자열 만들기
+    const bool hasRef = assetId.IsValid();
+
+    std::string display;
+    if (hasRef)
+    {
+        MetaFile* meta = nullptr;
+        if (RESOURCES->TryGetMetaByAssetId(assetId, OUT meta))
+        {
+            display = meta->GetName(assetId);
+        }
+    }
+
+    if (display.empty())
+    {
+        display = hasRef ? "Missing (" + assetId.ToString() + ")" : "None";
+    }
+
+    Begin(label, false);
+
+    if (setDisable)
+        ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+
+    // “필드” (버튼처럼 보이는 입력칸)
+    //ImGui::SetNextItemWidth(fieldW);
+    bool clicked = ImGui::Button(display.c_str(), ImVec2(ImGui::CalcItemWidth(), 0));
+
+    if (setDisable)
+        ImGui::PopStyleColor();
+
+    // 클릭 시 포커스
+    if (clicked && hasRef)
+    {
+        EDITOR->FocusContentBrowserAsset(assetId);
+    }
 }
 
 void OnGUIUtils::End(bool setDisable)

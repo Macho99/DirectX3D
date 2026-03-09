@@ -9,6 +9,9 @@
 #include "MaterialMeta.h"
 #include "MeshMeta.h"
 #include "ShaderMeta.h"
+#include "TerrainDataMeta.h"
+#include "TerrainData.h"
+
 #include "Material.h"
 #include "ModelMeshResource.h"
 #include "ModelAnimation.h"
@@ -42,6 +45,12 @@ wstring MetaFile::GetResourcePath() const
     return GetArtifactPath() + L"\\asset";
 }
 
+fs::path MetaFile::GetImportedAssetPath() const
+{
+    // TODO: 빌드 환경 대응
+    return GetAssetPath();
+}
+
 bool MetaFile::ImportIfDirty()
 {
     bool imported = false;
@@ -62,7 +71,7 @@ bool MetaFile::ImportIfDirty()
     }
 
     bool isDirty = false;
-    bool isManifestRefreshed = _importManifest.Refresh(_absPath, GetVersion(), isDirty);
+    bool isManifestRefreshed = _importManifest.Refresh(_assetPath, GetVersion(), isDirty);
 
     if (isDirty)
     {
@@ -144,6 +153,9 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
         case ResourceType::Mesh:
             key = "MeshIcon";
             break;
+        case ResourceType::TerrainData:
+            key = "TerrainIcon";
+            break;
         default:
             key = "DefaultFileIcon";
             break;
@@ -191,7 +203,10 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
         unique_ptr<ModelAnimation> animation = make_unique<ModelAnimation>();
         animation->ReadAnimation(filePath);
         resource = std::move(animation);
+        break;
     }
+    case ResourceType::TerrainData:
+        resource = FileUtils::LoadResourceFromJson(filePath);
         break;
     }
 
@@ -204,22 +219,22 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
 
 unique_ptr<ResourceBase> MetaFile::LoadResource(AssetId assetId) const
 {
-    return LoadResource(_resourceType, _absPath);
+    return LoadResource(_resourceType, _assetPath);
 }
 
 string MetaFile::GetName(const AssetId& assetId)
 {
-    return GetAbsPath().filename().string();
+    return GetAssetPath().filename().string();
 }
 
 Texture* MetaFile::GetIconTexture() const
 {
-    return GetIconTexture(GetResourceType(), GetAssetId(), GetAbsPath());
+    return GetIconTexture(GetResourceType(), GetAssetId(), GetAssetPath());
 }
 
 void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
-    fs::path absPath = GetAbsPath();
+    fs::path absPath = GetAssetPath();
     bool isFolder = (GetResourceType() == ResourceType::Folder);
     std::string name = Utils::ToUtf8(absPath.filename());
 
@@ -344,3 +359,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, MeshMeta);
 
 CEREAL_REGISTER_TYPE(ShaderMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, ShaderMeta);
+
+CEREAL_REGISTER_TYPE(TerrainDataMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, TerrainDataMeta);

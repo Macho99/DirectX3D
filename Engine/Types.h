@@ -52,6 +52,7 @@ enum class ResourceType : uint8
 	Model,
 	Folder,
 	ModelMesh,
+	TerrainData,
 
 	End
 };

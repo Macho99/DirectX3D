@@ -116,7 +116,7 @@ string Utils::Format(const char* fmt, ...)
     return result;
 }
 
-ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<wstring>& filenames)
+ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<fs::path>& filenames)
 {	//
 	// Load the texture elements individually from file.  These textures
 	// won't be used by the GPU (0 bind flags), they are just used to 
@@ -135,7 +135,7 @@ ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<wstring>&
 		DirectX::TexMetadata md = {};
 
 		DirectX::ScratchImage img;
-		HRESULT hr = ::LoadFromDDSFile(filenames[i].c_str(), DDS_FLAGS_NONE, &md, img);
+		HRESULT hr = ::LoadFromDDSFile(filenames[i].wstring().c_str(), DDS_FLAGS_NONE, &md, img);
 		CHECK(hr);
 
 		hr = ::CreateTextureEx(device.Get(), img.GetImages(), img.GetImageCount(), md,
