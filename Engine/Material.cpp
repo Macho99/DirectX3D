@@ -2,7 +2,7 @@
 #include "Material.h"
 #include "OnGUIUtils.h"
 
-Material::Material() : Super(ResourceType::Material)
+Material::Material() : Super(StaticType)
 {
 }
 

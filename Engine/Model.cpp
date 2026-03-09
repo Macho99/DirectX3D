@@ -10,13 +10,13 @@
 #include "OnGUIUtils.h"
 
 Model::Model()
-    : Super(ResourceType::Model)
+    : Super(StaticType)
 {
 
 }
 
 Model::Model(vector<ResourceRef<Material>> materials, ResourceRef<ModelMeshResource> mesh, vector<ResourceRef<ModelAnimation>> animations)
-    :Super(ResourceType::Model), _materials(materials), _mesh(mesh), _animations(animations)
+    :Super(StaticType), _materials(materials), _mesh(mesh), _animations(animations)
 {
 	BindCache();
 }

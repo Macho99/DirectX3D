@@ -25,6 +25,7 @@ public:
 	friend struct Pass;
 
 public:
+	static constexpr ResourceType StaticType = ResourceType::Shader;
 	Shader(wstring file);
 	~Shader();
 

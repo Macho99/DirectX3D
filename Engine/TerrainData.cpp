@@ -4,7 +4,7 @@
 #include "Utils.h"
 
 TerrainData::TerrainData()
-    : Super(ResourceType::TerrainData)
+    : Super(StaticType)
 {
 }
 

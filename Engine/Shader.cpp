@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "Camera.h"
 
-Shader::Shader(wstring file) : Super(ResourceType::Shader), _file(file)
+Shader::Shader(wstring file) : Super(StaticType), _file(file)
 {
 	_initialStateBlock = make_shared<StateBlock>();
 	{

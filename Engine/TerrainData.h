@@ -4,6 +4,7 @@ class TerrainData : public ResourceBase
 {
     using Super = ResourceBase;
 public:
+    static constexpr ResourceType StaticType = ResourceType::TerrainData;
     TerrainData();
     ~TerrainData();
 

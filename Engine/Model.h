@@ -7,6 +7,7 @@ class Model : public ResourceBase
 {
 	using Super = ResourceBase;
 public:
+	static constexpr ResourceType StaticType = ResourceType::Model;
 	Model();
     Model(vector<ResourceRef<Material>> materials, ResourceRef<ModelMeshResource> mesh, vector<ResourceRef<ModelAnimation>> animations);
 	~Model();

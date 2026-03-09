@@ -19,6 +19,7 @@ class ModelAnimation : public ResourceBase
 {
     using Super = ResourceBase;
 public:
+	static constexpr ResourceType StaticType = ResourceType::Animation;
     ModelAnimation();
     ~ModelAnimation();
 

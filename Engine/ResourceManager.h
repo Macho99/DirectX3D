@@ -16,13 +16,6 @@ class Material;
 template<class T>
 class SlotManager;
 
-//struct BrowserItem
-//{
-//	fs::path absPath;
-//	AssetId assetId;       // 파일이면 guid, 폴더면 invalid
-//	bool isFolder = false;
-//};
-
 class ResourceManager
 {
 	DECLARE_SINGLE_WITH_CONSTRUCTOR(ResourceManager);
@@ -108,22 +101,6 @@ private:
 	ResourceRef<Texture> _randomTexture;
 };
 
-/*
-template<typename T>
-ResourceType ResourceManager::GetResourceType()
-{
-	if (std::is_same_v<T, Texture>)
-		return ResourceType::Texture;
-	if (std::is_same_v<T, Mesh>)
-		return ResourceType::Mesh;
-	if (std::is_same_v<T, Material>)
-		return ResourceType::Material;
-
-	assert(false);
-	return ResourceType::None;
-}
-*/
-
 template<typename T>
 bool ResourceManager::TryGetResourceRefByAssetId(const AssetId& assetId, OUT ResourceRef<T>& resourceRef) const
 {
@@ -137,14 +114,14 @@ bool ResourceManager::TryGetResourceRefByAssetId(const AssetId& assetId, OUT Res
 	if (subAssetMeta != nullptr)
 	{
 		AssetId subAssetId;
-		if (subAssetMeta->TryGetSubAssetByType(ResourceTypeTrait<T>::value, OUT subAssetId))
+		if (subAssetMeta->TryGetSubAssetByType(T::StaticType, OUT subAssetId))
 		{
 			resourceRef = ResourceRef<T>(subAssetId);
 			return true;
 		}
 	}
 
-	if (metaFile->GetResourceType() != ResourceTypeTrait<T>::value)
+	if (metaFile->GetResourceType() != T::StaticType)
 	{
 		return false;
 	}

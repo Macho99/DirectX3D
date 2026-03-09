@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include "GeometryHelper.h"
 
-Mesh::Mesh()  : Super(ResourceType::Mesh)
+Mesh::Mesh()  : Super(StaticType)
 {
 
 }

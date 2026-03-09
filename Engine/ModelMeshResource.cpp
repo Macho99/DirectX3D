@@ -5,7 +5,7 @@
 #include "Material.h"
 
 ModelMeshResource::ModelMeshResource()
-    : Super(ResourceType::ModelMesh)
+    : Super(StaticType)
 {
 }
 

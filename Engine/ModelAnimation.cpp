@@ -3,7 +3,7 @@
 #include "FileUtils.h"
 
 ModelAnimation::ModelAnimation()
-    : Super(ResourceType::Animation)
+    : Super(StaticType)
 {
 }
 
