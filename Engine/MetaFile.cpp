@@ -234,6 +234,11 @@ Texture* MetaFile::GetIconTexture() const
 
 void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, int& curCol, int columns) const
 {
+    static AssetId renamingAssetId;
+    static char renameBuffer[260] = {};
+    static bool requestRenameFocus = false;
+    const bool isRenaming = (renamingAssetId == _assetId);
+
     fs::path absPath = GetAssetPath();
     bool isFolder = (GetResourceType() == ResourceType::Folder);
     std::string name = Utils::ToUtf8(absPath.filename());
@@ -314,8 +319,70 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
     // 세로 높이 제한 (3줄 이상은 그리지 않음)
     ImGui::GetWindowDrawList()->PushClipRect(textPos, textMax, true);
 
-    // 텍스트 출력
-    ImGui::TextWrapped("%s", name.c_str());
+    if (isRenaming)
+    {
+        ImGui::SetNextItemWidth(tileW);
+        if (requestRenameFocus)
+        {
+            ImGui::SetKeyboardFocusHere();
+            requestRenameFocus = false;
+        }
+
+        const ImGuiInputTextFlags renameFlags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue;
+        const bool enterPressed = ImGui::InputText("##rename", renameBuffer, IM_ARRAYSIZE(renameBuffer), renameFlags);
+
+        bool finishRename = enterPressed;
+        bool cancelRename = false;
+
+        if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+        {
+            cancelRename = true;
+            finishRename = false;
+        }
+        else if (!ImGui::IsItemActive() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+            finishRename = true;
+        }
+
+        if (finishRename || cancelRename)
+        {
+            if (!cancelRename)
+            {
+                string newName(renameBuffer);
+                const auto begin = newName.find_first_not_of(" \t\n\r");
+                const auto end = newName.find_last_not_of(" \t\n\r");
+                if (begin == string::npos)
+                    newName.clear();
+                else
+                    newName = newName.substr(begin, end - begin + 1);
+
+                newName += absPath.extension().string(); // 확장자 유지
+
+                if (!newName.empty())
+                {
+                    fs::path newAbsPath = absPath;
+                    newAbsPath.replace_filename(newName);
+
+                    if (newAbsPath != absPath)
+                    {
+                        std::error_code ec;
+                        fs::rename(absPath, newAbsPath, ec);
+                        if (ec)
+                        {
+                            DBG->LogErrorW(L"[MetaFile] Rename failed: " + absPath.wstring() + L" -> " + newAbsPath.wstring() + L", error=" + Utils::ToWString(ec.message()));
+                        }
+                    }
+                }
+            }
+
+            renamingAssetId = AssetId();
+        }
+    }
+    else
+    {
+        ImGui::TextWrapped("%s", name.c_str());
+    }
+
 
     ImGui::GetWindowDrawList()->PopClipRect();
     ImGui::PopTextWrapPos();
@@ -325,6 +392,19 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
 
     if (++curCol >= columns)
         curCol = 0;
+
+    if (selected &&
+        !isRenaming &&
+        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+        !ImGui::IsMouseDragging(ImGuiMouseButton_Left) &&
+        ImGui::IsMouseHoveringRect(textPos, textMax))
+    {
+        renamingAssetId = _assetId;
+        const string baseName = absPath.stem().string();
+        strncpy_s(renameBuffer, baseName.c_str(), _TRUNCATE);
+        requestRenameFocus = true;
+    }
+
     if (hovered)
     {
         ImGui::SetTooltip("%s\n%s", name.c_str(), _assetId.ToString().c_str());
