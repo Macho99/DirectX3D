@@ -57,6 +57,17 @@ public:
 
     virtual bool OnGUI() override;
 
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(Super::serialize(ar),
+			CEREAL_NVP(_localScale),
+            CEREAL_NVP(_localRotation),
+            CEREAL_NVP(_localPosition),
+            CEREAL_NVP(_parent)
+        );
+    }
+
 private:
     bool IsAncestorOf(TransformRef& target);
 	void RemoveFromTransforms(vector<TransformRef>& transforms, TransformRef targetId);

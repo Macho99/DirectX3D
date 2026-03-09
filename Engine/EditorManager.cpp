@@ -6,6 +6,7 @@
 #include "Inspector.h"
 #include "DebugTexWindow.h"
 #include "ContentBrowser.h"
+#include "FileUtils.h"
 
 EditorManager::EditorManager()
 {
@@ -89,6 +90,19 @@ void EditorManager::Update()
                     continue;
 
                 ImGui::MenuItem(editorWindow->GetName().c_str(), nullptr, &editorWindow->IsOpen);
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Scene Serialize"))
+        {
+            if (ImGui::MenuItem("Save"))
+            {
+                shared_ptr<Scene> target = CUR_SCENE;
+                std::ofstream os("..\\scene.scene");
+                cereal::JSONOutputArchive archive(os);
+                archive(target);
             }
 
             ImGui::EndMenu();

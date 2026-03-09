@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "Light.h"
 #include <wrl/client.h>
+#include "cereal/types/array.hpp"
 class MonoBehaviour;
 class Transform;
 class Camera;
@@ -69,6 +70,17 @@ public:
 	void SetGuid(const Guid& guid) { _guid = guid; }
 
     static GameObjectRef GetGameObjectRefByGuid(const Guid& guid);
+
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(cereal::make_nvp("Guid", _guid));
+        ar(cereal::make_nvp("Name", _name));
+        ar(cereal::make_nvp("IsActive", _isActive));
+        ar(cereal::make_nvp("LayerIndex", _layerIndex));
+        ar(cereal::make_nvp("Components", _components));
+        ar(cereal::make_nvp("Scripts", _scripts));
+    }
 
 private:
 	bool _isActive = true;

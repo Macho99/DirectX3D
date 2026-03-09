@@ -66,8 +66,8 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
-        ar(CEREAL_NVP(_gameObject));
-        ar(CEREAL_NVP(_guid));
+        ar(cereal::make_nvp("GameObject", _gameObject));
+        ar(cereal::make_nvp("Guid", _guid));
     }
 
 protected:

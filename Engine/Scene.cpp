@@ -13,8 +13,6 @@
 
 Scene::Scene()
 {
-    _gameObjectSlotManager = make_unique<SlotManager<GameObject>>();
-    _componentSlotManager = make_unique<SlotManager<Component>>();
     _instanceId = Utils::GetRandomUInt64();
 }
 
@@ -202,7 +200,7 @@ void Scene::RenderUICamera(Camera* cam)
 
 GameObjectRef Scene::Add(string name)
 {
-	GuidRef guidRef = _gameObjectSlotManager->CreateAndRegister<GameObject>(name);
+	GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(name);
 	return Add(guidRef);
 }
 
@@ -254,13 +252,13 @@ void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 	_lights.erase(gameObjectRef);
     for (auto& componentRef : gameObject->GetAllFixedComponents())
     {
-        _componentSlotManager->Remove(componentRef.guid);
+        _componentSlotManager.Remove(componentRef.guid);
     }
     for (auto& scriptRef : gameObject->GetScripts())
     {
-        _componentSlotManager->Remove(scriptRef.guid);
+        _componentSlotManager.Remove(scriptRef.guid);
     }
-	_gameObjectSlotManager->Remove(gameObjectRef.guid);
+	_gameObjectSlotManager.Remove(gameObjectRef.guid);
 }
 
 GameObject* Scene::GetMainCamera()

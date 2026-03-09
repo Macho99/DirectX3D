@@ -1,6 +1,8 @@
 #pragma once
 #include "Guid.h"
 #include "Handle.h"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/memory.hpp"
 
 template<class T>
 class SlotManager
@@ -8,11 +10,26 @@ class SlotManager
 public:
     SlotManager() {}
     ~SlotManager() {}
+    SlotManager(const SlotManager&) = delete;
+    SlotManager& operator=(const SlotManager&) = delete;
 
     struct Slot
     {
         std::unique_ptr<T> ptr;
         uint32 gen = 1;          // 0은 보통 "없음"으로 쓰기 쉬워서 1부터 시작
+
+        template<class Archive>
+        void save(Archive& ar) const
+        {
+            ar(CEREAL_NVP(ptr));
+        }
+
+        template<class Archive>
+        void load(Archive& ar)
+        {
+            ar(CEREAL_NVP(ptr));
+            gen = 1;
+        }
     };
 
     // 생성 + 등록
@@ -98,6 +115,36 @@ private:
         uint32 idx = static_cast<uint32>(_slots.size());
         _slots.push_back(Slot{});
         return Handle{ idx, _slots[idx].gen };
+    }
+
+public:
+    template<class Archive>
+    void save(Archive& ar) const
+    {
+        ar(CEREAL_NVP(_slots));
+    }
+
+    template<class Archive>
+    void load(Archive& ar)
+    {
+        ar(CEREAL_NVP(_slots));
+
+        _freeIndices.clear();
+        _guidToHandle.clear();
+
+        for (int i = 0; i < _slots.size(); i++)
+        {
+            Slot& slot = _slots[i];
+            if (slot.ptr)
+            {
+                Guid guid = slot.ptr->GetGuid();
+                _guidToHandle[guid] = Handle{ i, slot.gen };
+            }
+            else
+            {
+                _freeIndices.push_back(i);
+            }
+        }
     }
 
 private:

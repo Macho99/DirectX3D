@@ -1,14 +1,13 @@
 #pragma once
 #include "GameObjectRef.h"
 #include "ComponentRef.h"
+#include "SlotManager.h"
+#include "cereal/types/unordered_set.hpp"
 
 class Sky;
 class Camera;
 class Transform;
 struct Guid;
-
-template<class T>
-class SlotManager;
 
 class Scene
 {
@@ -47,13 +46,27 @@ public:
 	bool IsInScene(const GameObjectRef& ref) { return _gameObjects.find(ref) != _gameObjects.end(); }
 	vector<TransformRef>& GetRootObjects() { return _rootObjects; }
 
-    SlotManager<GameObject>* GetGameObjectSlotManager() { return _gameObjectSlotManager.get(); }
-    SlotManager<Component>* GetComponentSlotManager() { return _componentSlotManager.get(); }
+    SlotManager<GameObject>* GetGameObjectSlotManager() { return &_gameObjectSlotManager; }
+    SlotManager<Component>* GetComponentSlotManager() { return &_componentSlotManager; }
 
     uint64 GetInstanceId() const { return _instanceId; }
 
 private:
 	GameObjectRef Add(GuidRef guidRef);
+
+public:
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(
+			cereal::make_nvp("RootObjects", _rootObjects),
+            cereal::make_nvp("GameObjects", _gameObjects),
+            cereal::make_nvp("Cameras", _cameras),
+            cereal::make_nvp("Lights", _lights),
+            cereal::make_nvp("GameObjectSlots", _gameObjectSlotManager),
+            cereal::make_nvp("ComponentSlots", _componentSlotManager)
+		);
+    }
 
 private:
     vector<TransformRef> _rootObjects;
@@ -63,8 +76,8 @@ private:
 	shared_ptr<Sky> _sky;
 	vector<GameObjectRef> _removeLists;
 
-    unique_ptr<SlotManager<GameObject>> _gameObjectSlotManager;
-    unique_ptr<SlotManager<Component>> _componentSlotManager;
+    SlotManager<GameObject> _gameObjectSlotManager;
+    SlotManager<Component> _componentSlotManager;
 
 	uint64 _instanceId;
 };
