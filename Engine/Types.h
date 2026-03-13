@@ -76,4 +76,10 @@ namespace cereal
 	{
 		ar(CEREAL_NVP(value.x), CEREAL_NVP(value.y), CEREAL_NVP(value.z), CEREAL_NVP(value.w));
 	}
+
+	template <class Archive>
+    void serialize(Archive& ar, RECT& value)
+    {
+        ar(CEREAL_NVP(value.left), CEREAL_NVP(value.top), CEREAL_NVP(value.right), CEREAL_NVP(value.bottom));
+    }
 }

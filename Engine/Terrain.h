@@ -1,5 +1,7 @@
 #pragma once
 #include "Component.h"
+
+// Terrain is Obsolete, use TessTerrain instead.
 class Terrain : public Component
 {
 	using Super = Component;

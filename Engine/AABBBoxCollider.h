@@ -14,6 +14,15 @@ public:
 
 	BoundingBox& GetBoundingBox() { return _boundingBox; }
 
+    virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_boundingBox.Center));
+        ar(CEREAL_NVP(_boundingBox.Extents));
+    }
+
 private:
 	BoundingBox _boundingBox;
 };

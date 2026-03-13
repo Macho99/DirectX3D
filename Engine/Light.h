@@ -25,6 +25,12 @@ public:
 	//void SetLightDirection(Vec3 direction) { _desc.direction = direction; }
 
     virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_desc));
+    }
 
 public:
 	void SetVPMatrix(Matrix matView, Matrix matProjection, int cascadeIdx);

@@ -2,6 +2,7 @@
 #include "AABBBoxCollider.h"
 #include "OBBBoxCollider.h"
 #include "SphereCollider.h"
+#include "OnGUIUtils.h"
 
 AABBBoxCollider::AABBBoxCollider() 
 	:Super(StaticType, ColliderType::AABB)
@@ -36,4 +37,13 @@ bool AABBBoxCollider::Intersects(BaseCollider* other)
     }
 
     return false;
+}
+
+bool AABBBoxCollider::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+    changed |= OnGUIUtils::DrawFloat3("Center", &_boundingBox.Center.x, 0.1f);
+    changed |= OnGUIUtils::DrawFloat3("Extents", &_boundingBox.Extents.x, 0.1f);
+    return changed;
 }

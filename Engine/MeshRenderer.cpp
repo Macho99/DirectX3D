@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Light.h"
+#include "OnGUIUtils.h"
 
 MeshRenderer::MeshRenderer() : Super(StaticType)
 {
@@ -67,4 +68,13 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 InstanceID MeshRenderer::GetInstanceID()
 {
 	return make_pair((uint64)_mesh.GetAssetId().GetLeftId(), (uint64)_material.GetAssetId().GetLeftId());
+}
+
+bool MeshRenderer::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+	ImGui::Separator();
+    changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh);
+    return changed;
 }

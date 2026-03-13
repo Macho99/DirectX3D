@@ -23,6 +23,12 @@ public:
     bool IsInitialized() const { return _initialized; }
 
     virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_terrainData));
+    }
 
 private:
 	void Init();

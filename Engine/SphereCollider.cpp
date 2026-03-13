@@ -41,3 +41,12 @@ bool SphereCollider::Intersects(BaseCollider* other)
 
     return false;
 }
+
+bool SphereCollider::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+    changed |= ImGui::DragFloat("Radius", &_radius, 0.1f);
+    changed |= ImGui::DragFloat3("Center", &_boundingSphere.Center.x, 0.1f);
+    return changed;
+}

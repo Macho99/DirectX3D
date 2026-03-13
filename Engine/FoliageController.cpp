@@ -29,15 +29,14 @@ bool FoliageController::OnGUI()
     bool changed = false;
     changed |= Super::OnGUI();
     changed |= OnGUIUtils::DrawFloat("Time", &_foliageDesc.time, 1.f, true);
+    changed |= OnGUIUtils::DrawFloat("Bend Factor", &_foliageDesc.bendFactor, 0.01f, false);
+    changed |= OnGUIUtils::DrawFloat("Stiffness", &_foliageDesc.stiffness, 0.01f, false);
 
     ImGui::Separator();
     changed |= OnGUIUtils::DrawVec3("Wind Direction", &S_WindDesc.windDirection, 0.01f, false);
     changed |= OnGUIUtils::DrawFloat("Wind Strength", &S_WindDesc.windStrength, 0.01f, false);
     changed |= OnGUIUtils::DrawFloat("Wave Frequency", &S_WindDesc.waveFrequency, 0.01f, false);
-    ImGui::Separator();
 
-    changed |= OnGUIUtils::DrawFloat("Bend Factor", &_foliageDesc.bendFactor, 0.01f, false);
-    changed |= OnGUIUtils::DrawFloat("Stiffness", &_foliageDesc.stiffness, 0.01f, false);
     return changed;
 }
 

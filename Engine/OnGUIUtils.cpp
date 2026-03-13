@@ -40,6 +40,15 @@ bool OnGUIUtils::DrawFloat(const char* label, float* value, float dragSpeed, boo
     return changed;
 }
 
+bool OnGUIUtils::DrawFloat3(const char* label, float* value, float dragSpeed, bool isReadOnly)
+{
+    Begin(label, isReadOnly);
+    bool changed = ImGui::DragFloat3(_valueLabel, value, dragSpeed);
+    End(isReadOnly);
+
+    return changed;
+}
+
 bool OnGUIUtils::DrawVec3(const char* label, Vec3* value, float dragSpeed, bool isReadOnly)
 {
     Begin(label, isReadOnly);
@@ -67,6 +76,16 @@ bool OnGUIUtils::DrawColor(const char* label, Color* color, bool isReadOnly)
 
     End(isReadOnly);
 
+    return changed;
+}
+
+bool OnGUIUtils::DrawRect(const char* label, RECT* rect, float dragSpeed, bool isReadOnly)
+{
+    bool changed = false;
+    changed |= DrawInt32("Left", reinterpret_cast<int32*>(&rect->left), dragSpeed, isReadOnly);
+    changed |= DrawInt32("Top", reinterpret_cast<int32*>(&rect->top), dragSpeed, isReadOnly);
+    changed |= DrawInt32("Right", reinterpret_cast<int32*>(&rect->right), dragSpeed, isReadOnly);
+    changed |= DrawInt32("Bottom", reinterpret_cast<int32*>(&rect->bottom), dragSpeed, isReadOnly);
     return changed;
 }
 

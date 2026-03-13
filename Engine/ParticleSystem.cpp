@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Windows.h"
+#include "OnGUIUtils.h"
 
 ParticleSystem::ParticleSystem()
 	: Super(StaticType)
@@ -137,6 +138,16 @@ void ParticleSystem::SetMaterial(ResourceRef<Material> material)
 	materialPtr->SetRandomTex(true);
 	materialPtr->SetCastShadow(false);
     materialPtr->GetShader()->SetTechNum(RenderTech::Draw, 1);
+}
+
+bool ParticleSystem::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+	ImGui::Separator();
+    changed |= OnGUIUtils::DrawVec3("EmitPosW", &_emitPosW);
+
+    return changed;
 }
 
 void ParticleSystem::BuildVB()

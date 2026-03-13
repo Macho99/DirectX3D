@@ -27,6 +27,15 @@ struct LightDesc
 
 	Vec3 direction;
 	float padding0;
+
+    template<typename Archive>
+	void serialize(Archive& archive)
+	{
+		archive(CEREAL_NVP(ambient));
+		archive(CEREAL_NVP(diffuse));
+		archive(CEREAL_NVP(specular));
+		archive(CEREAL_NVP(emissive));
+	}
 };
 
 struct MaterialDesc
@@ -67,6 +76,12 @@ struct KeyframeDesc
 	float ratio = 0.f;
 	float sumTime = 0.f;
 	Vec3 padding;
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+        archive(CEREAL_NVP(animIndex));
+    }
 };
 
 struct TweenDesc
@@ -93,6 +108,14 @@ struct TweenDesc
 	float speed = 1.f;
 	KeyframeDesc cur;
 	KeyframeDesc next;
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+        archive(CEREAL_NVP(speed));
+        archive(CEREAL_NVP(cur));
+        archive(CEREAL_NVP(next));
+    }
 };
 
 struct InstancedTweenDesc
@@ -112,6 +135,17 @@ struct SnowBillboardDesc
 
 	Vec3 extent = Vec3(0, 0, 0);
 	float time = 0;
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+        archive(CEREAL_NVP(color));
+        archive(CEREAL_NVP(velocity));
+        archive(CEREAL_NVP(drawDistance));
+        archive(CEREAL_NVP(origin));
+        archive(CEREAL_NVP(turbulence));
+        archive(CEREAL_NVP(extent));
+    }
 };
 
 struct ParticleDesc

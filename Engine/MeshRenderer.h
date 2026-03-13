@@ -16,7 +16,15 @@ public:
 	void SetMesh(ResourceRef<Mesh> mesh) { _mesh = mesh; }
 	bool Render(RenderTech renderTech) override;
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
-	InstanceID GetInstanceID();
+    InstanceID GetInstanceID();
+    virtual bool OnGUI() override;
+
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(_mesh);
+    }
 
 private:
 	ResourceRef<Mesh> _mesh;

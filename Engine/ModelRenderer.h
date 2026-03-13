@@ -25,6 +25,16 @@ public:
     virtual bool OnGUI() override;
 	virtual bool TryInitialize() override;
 
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(
+			CEREAL_NVP(_shader), 
+			CEREAL_NVP(_model)
+		);
+    }
+
 private:
 	ResourceRef<Shader>	_shader;
 	ResourceRef<Model>	_model;

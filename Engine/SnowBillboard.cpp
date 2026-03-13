@@ -138,7 +138,7 @@ bool SnowBillboard::OnGUI()
     changed |= OnGUIUtils::DrawVec3("Origin", &_desc.origin, 0.1f);
     changed |= OnGUIUtils::DrawFloat("Turbulence", &_desc.turbulence, 0.1f);
     changed |= OnGUIUtils::DrawVec3("Extent", &_desc.extent, 0.1f, true);
-    changed |= OnGUIUtils::DrawFloat("Time", &_desc.time, 0.1f);
+    //changed |= OnGUIUtils::DrawFloat("Time", &_desc.time, 0.1f);
 	changed |= OnGUIUtils::DrawInt32("Draw Count", &_drawCount, 1.f, true);
 
     return changed;

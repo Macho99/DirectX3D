@@ -55,6 +55,20 @@ public:
     float GetFOV() { return _fov; }
 
     virtual bool OnGUI() override;
+    template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		Super::serialize(ar);
+		ar(
+            CEREAL_NVP(_type),
+            CEREAL_NVP(_near),
+            CEREAL_NVP(_far),
+            CEREAL_NVP(_fov),
+            CEREAL_NVP(_width),
+            CEREAL_NVP(_height),
+            CEREAL_NVP(_cullingMask)
+		);
+	}
 
 private:
 	ProjectionType _type = ProjectionType::Perspective;

@@ -32,6 +32,17 @@ public:
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 
+    template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		Super::serialize(ar);
+		ar(
+			CEREAL_NVP(_shader),
+			CEREAL_NVP(_model),
+			CEREAL_NVP(_keyframeDesc)
+			);
+	}
+
 private:
 	void CreateTexture();
 	void CreateAnimationTransform(uint32 index);

@@ -61,6 +61,17 @@ public:
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(
+            CEREAL_NVP(_grassComputeShader),
+            CEREAL_NVP(_terrain),
+            CEREAL_NVP(_uvAsset)
+        );
+    }
+
 protected:
     void InnerRender(RenderTech renderTech) override;
 
@@ -68,8 +79,6 @@ private:
     void UpdateGrass();
 
 private:
-    GameObjectRef _testRef;
-
     ResourceRef<Shader> _grassComputeShader; // 미리 로드된 셰이더
     ComPtr<ID3D11Buffer> _initGrassBuffer; // (SRV) CPU -> GPU, 모든 풀 위치
     ComPtr<ID3D11ShaderResourceView> _initGrassSRV;

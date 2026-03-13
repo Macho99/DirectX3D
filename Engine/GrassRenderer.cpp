@@ -30,7 +30,6 @@ bool GrassRenderer::OnGUI()
     ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Grass Compute Shader", _grassComputeShader);
     changed |= OnGUIUtils::DrawComponentRef("Terrain", _terrain);
-    changed |= OnGUIUtils::DrawGameObjectRef("TestRef", _testRef);
     changed |= OnGUIUtils::DrawAssetRef("UV Asset", _uvAsset);
     return changed;
 }

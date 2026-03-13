@@ -40,3 +40,14 @@ bool OBBBoxCollider::Intersects(BaseCollider* other)
 
     return false;
 }
+
+bool OBBBoxCollider::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+    ImGui::Separator();
+    changed |= ImGui::DragFloat3("Center", &_boundingBox.Center.x, 0.1f);
+    changed |= ImGui::DragFloat3("Extents", &_boundingBox.Extents.x, 0.1f);
+    changed |= ImGui::DragFloat4("Orientation", &_boundingBox.Orientation.x, 0.1f);
+    return changed;
+}

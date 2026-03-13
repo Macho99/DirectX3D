@@ -2,6 +2,7 @@
 #include "Button.h"
 #include "MeshRenderer.h"
 #include "Material.h"
+#include "OnGUIUtils.h"
 
 Button::Button()
 	:Super(StaticType)
@@ -57,4 +58,13 @@ void Button::InvokeOnClicked()
 {
 	if (_onClicked)
 		_onClicked();
+}
+
+bool Button::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+    ImGui::Separator();
+    changed |= OnGUIUtils::DrawRect("Rect", &_rect);
+    return changed;
 }

@@ -32,6 +32,13 @@ public:
 	void SetMaterial(ResourceRef<Material> material) override;
 
     virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_desc));
+        ar(CEREAL_NVP(_drawCount));
+    }
 
 protected:
     virtual bool TryInitialize() override;

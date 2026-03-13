@@ -16,6 +16,14 @@ public:
 	void AddOnClickedEvent(std::function<void(void)> func);
 	void InvokeOnClicked();
 
+	virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_rect));
+    }
+
 private:
 	std::function<void(void)> _onClicked;
 	RECT _rect;

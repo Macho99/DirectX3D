@@ -30,6 +30,14 @@ public:
 	void SetEmitPosW(Vec3 emitPosW) { _emitPosW = emitPosW; }
 	void SetEmitDirW(Vec3 emitDirW) { _emitDirW = emitDirW; }
 
+    virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_emitDirW));
+    }
+
 private:
 	void BuildVB();
 

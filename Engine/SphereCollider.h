@@ -15,6 +15,18 @@ public:
 	void SetRadius(float radius) { _radius = radius; }
 	BoundingSphere& GetBoundingSphere() { return _boundingSphere; }
 
+    virtual bool OnGUI() override;
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(
+            CEREAL_NVP(_radius),
+            CEREAL_NVP(_boundingSphere.Center)
+            //CEREAL_NVP(_boundingSphere.Radius)) radius is calculated from scale, so no need to serialize
+            );
+    }
+
 private:
 	float _radius = 1.f;
 	BoundingSphere _boundingSphere;
