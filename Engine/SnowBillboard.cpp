@@ -3,13 +3,29 @@
 #include "Material.h"
 #include "Camera.h"
 #include "MathUtils.h"
+#include "OnGUIUtils.h"
 
-SnowBillboard::SnowBillboard(Vec3 extent, int32 drawCount)
+SnowBillboard::SnowBillboard()
 	: Super(StaticType)
 {
-	_desc.extent = extent;
+}
+
+SnowBillboard::~SnowBillboard()
+{
+}
+
+bool SnowBillboard::TryInitialize()
+{
+    if (_initialized)
+        return true;
+
+    if (_drawCount <= 0 || _drawCount > MAX_BILLBOARD_COUNT)
+        return false;
+
+	if (_desc.extent == Vec3::Zero)
+		return false;
+
 	_desc.drawDistance = _desc.extent.z * 2.0f;
-	_drawCount = drawCount;
 
 	const int32 vertexCount = _drawCount * 4;
 	_vertices.resize(vertexCount);
@@ -64,16 +80,19 @@ SnowBillboard::SnowBillboard(Vec3 extent, int32 drawCount)
 
 	_indexBuffer = make_shared<IndexBuffer>();
 	_indexBuffer->Create(_indices);
-}
 
-SnowBillboard::~SnowBillboard()
-{
+    _initialized = true;
+	return true;
 }
 
 void SnowBillboard::InnerRender(RenderTech renderTech)
 {
 	// TODO: not Implemented
 	assert(renderTech == RenderTech::Draw);
+
+    if (!TryInitialize())
+        return;
+
 	Super::InnerRender(renderTech);
 
 	_desc.origin = CUR_SCENE->GetMainCamera()->GetTransform()->GetPosition();
@@ -106,4 +125,21 @@ void SnowBillboard::SetMaterial(ResourceRef<Material> material)
 {
 	Super::SetMaterial(material);
 	material.Resolve()->SetCastShadow(false);
+}
+
+bool SnowBillboard::OnGUI()
+{
+    bool changed = false;
+    changed |= Super::OnGUI();
+    ImGui::Separator();
+    changed |= OnGUIUtils::DrawColor("Color", &_desc.color);
+    changed |= OnGUIUtils::DrawVec3("Velocity", &_desc.velocity, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Draw Distance", &_desc.drawDistance, 0.1f, true);
+    changed |= OnGUIUtils::DrawVec3("Origin", &_desc.origin, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Turbulence", &_desc.turbulence, 0.1f);
+    changed |= OnGUIUtils::DrawVec3("Extent", &_desc.extent, 0.1f, true);
+    changed |= OnGUIUtils::DrawFloat("Time", &_desc.time, 0.1f);
+	changed |= OnGUIUtils::DrawInt32("Draw Count", &_drawCount, 1.f, true);
+
+    return changed;
 }

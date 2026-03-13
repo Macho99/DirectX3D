@@ -102,10 +102,10 @@ bool Material::OnGUI(bool isReadOnly)
 	//ar(CEREAL_NVP(_randomTex));
 	//ar(CEREAL_NVP(_cubeMap));
 	bool changed = false;
-	changed |= OnGUIUtils::DrawColor("Ambient", &_desc.ambient.x, isReadOnly);
-	changed |= OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse.x, isReadOnly);
-	changed |= OnGUIUtils::DrawColor("Specular", &_desc.specular.x, isReadOnly);
-	changed |= OnGUIUtils::DrawColor("Emissive", &_desc.emissive.x, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Ambient", &_desc.ambient, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Specular", &_desc.specular, isReadOnly);
+	changed |= OnGUIUtils::DrawColor("Emissive", &_desc.emissive, isReadOnly);
     changed |= OnGUIUtils::DrawEnumCombo("RenderQueue", _renderQueue, RenderQueueNames, (int)RenderQueue::Max, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("Shader", _shader, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("DiffuseMap", _diffuseMap, isReadOnly);

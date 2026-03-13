@@ -144,7 +144,10 @@ void AssetSerializeDemo::Init()
         auto objRef = CUR_SCENE->Add("GrassRenderer");
         GameObject* obj = objRef.Resolve();
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
-        auto grassRenderer = make_unique<GrassRenderer>(grassComputeShader, tessTerrainRef, L"..\\Assets\\Textures\\Grass\\Grass_A_BaseColor_Split.txt");
+        AssetId uvAssetId;
+        RESOURCES->TryGetAssetIdByPath(L"Textures\\Grass\\Grass_A_BaseColor_Split.txt", OUT uvAssetId);
+        AssetRef uvAsset = AssetRef(uvAssetId);
+        auto grassRenderer = make_unique<GrassRenderer>(grassComputeShader, tessTerrainRef, uvAsset);
         {
             // Material
             {
@@ -198,7 +201,7 @@ void AssetSerializeDemo::Init()
             auto objRef = CUR_SCENE->Add("Snow");
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
-            obj->AddComponent(make_unique<SnowBillboard>(Vec3(100, 100, 100), 10000));
+            obj->AddComponent(make_unique<SnowBillboard>());
             {
                 // Material
                 {
@@ -214,6 +217,8 @@ void AssetSerializeDemo::Init()
                     //desc.specular = Vec4(1.f);
                     obj->GetSnowBillboard()->SetMaterial(materialRef);
                 }
+                obj->GetSnowBillboard()->SetExtent(Vec3(100, 100, 100));
+                obj->GetSnowBillboard()->SetDrawCount(10000);
             }
         }
     }
@@ -238,8 +243,9 @@ void AssetSerializeDemo::Init()
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
-            obj->AddComponent(make_unique<ModelAnimator>(renderShader));
+            obj->AddComponent(make_unique<ModelAnimator>());
             {
+                obj->GetModelAnimator()->SetShader(renderShader);
                 obj->GetModelAnimator()->SetModel(modelRef);
                 obj->GetModelAnimator()->SetPass(2);
             }
@@ -256,7 +262,8 @@ void AssetSerializeDemo::Init()
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
 
-            auto modelRenderer = make_unique<ModelRenderer>(renderShader);
+            auto modelRenderer = make_unique<ModelRenderer>();
+            modelRenderer->SetShader(renderShader);
             modelRenderer->SetModel(model);
             modelRenderer->SetPass(1);
             obj->AddComponent(std::move(modelRenderer));
@@ -277,8 +284,9 @@ void AssetSerializeDemo::Init()
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(5.f));
 
-            obj->AddComponent(make_unique<ModelRenderer>(foliageShader));
+            obj->AddComponent(make_unique<ModelRenderer>());
             {
+                obj->GetModelRenderer()->SetShader(foliageShader);
                 obj->GetModelRenderer()->SetModel(m2);
                 obj->GetModelRenderer()->SetPass(0);
             }

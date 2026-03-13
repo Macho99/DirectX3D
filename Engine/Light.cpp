@@ -25,10 +25,10 @@ bool Light::OnGUI()
 {
 	LightDesc& lightDesc = GetLightDesc();
     bool changed = false;
-	changed |= OnGUIUtils::DrawColor("Ambient", &lightDesc.ambient.x, false);
-	changed |= OnGUIUtils::DrawColor("Diffuse", &lightDesc.diffuse.x, false);
-	changed |= OnGUIUtils::DrawColor("Specular", &lightDesc.specular.x, false);
-	changed |= OnGUIUtils::DrawColor("Emissive", &lightDesc.emissive.x, false);
+	changed |= OnGUIUtils::DrawColor("Ambient", &lightDesc.ambient, false);
+	changed |= OnGUIUtils::DrawColor("Diffuse", &lightDesc.diffuse, false);
+	changed |= OnGUIUtils::DrawColor("Specular", &lightDesc.specular, false);
+	changed |= OnGUIUtils::DrawColor("Emissive", &lightDesc.emissive, false);
 
     return changed;
 }

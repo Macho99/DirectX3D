@@ -81,6 +81,9 @@ void Camera::SortGameObject()
 		if (renderer == nullptr)
 			continue;
 
+		if (renderer->TryInitialize() == false)
+			continue;
+
 		Material* material = renderer->GetMaterial().Resolve();
         if (material == nullptr)
             continue;

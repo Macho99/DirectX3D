@@ -18,8 +18,11 @@ class SnowBillboard : public Renderer
 
 public:
 	static constexpr ComponentType StaticType = ComponentType::SnowBillboard;
-	SnowBillboard(Vec3 extent, int32 drawCount = 100);
+	SnowBillboard();
 	~SnowBillboard();
+
+    void SetDrawCount(int32 count) { _drawCount = count; }
+    void SetExtent(Vec3 extent) { _desc.extent = extent; }
 
 	void InnerRender(RenderTech renderTech) override;
 
@@ -27,6 +30,11 @@ public:
 	void SetPass(uint8 pass) { _pass = pass; }
 
 	void SetMaterial(ResourceRef<Material> material) override;
+
+    virtual bool OnGUI() override;
+
+protected:
+    virtual bool TryInitialize() override;
 
 private:
 	vector<VertexSnow> _vertices;
@@ -41,5 +49,7 @@ private:
 
 	SnowBillboardDesc _desc;
 	float _elapsedTime = 0.f;
+
+    bool _initialized = false;
 };
 

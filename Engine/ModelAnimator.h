@@ -15,13 +15,14 @@ class ModelAnimator : public Renderer
 
 public:
 	static constexpr ComponentType StaticType = ComponentType::Animator;
-	ModelAnimator(ResourceRef<Shader> shader);
+	ModelAnimator();
 	~ModelAnimator();
 
 	virtual void Update() override;
 
 	void UpdateTweenData();
 
+    void SetShader(ResourceRef<Shader> shader);
 	void SetModel(ResourceRef<Model> model);
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
@@ -29,6 +30,7 @@ public:
 	TweenDesc& GetTweenDesc() { return _tweenDesc; }
 
     virtual bool OnGUI() override;
+    virtual bool TryInitialize() override;
 
 private:
 	void CreateTexture();
@@ -45,6 +47,8 @@ private:
 
 private:
 	ResourceRef<Shader> _shader;
-	ResourceRef<Model> _model;
+    ResourceRef<Model> _model;
+
+    bool _initialized = false;
 };
 

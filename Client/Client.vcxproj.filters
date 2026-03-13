@@ -54,6 +54,9 @@
     <ClCompile Include="30. AssetSerializeDemo.cpp">
       <Filter>Game\Week3</Filter>
     </ClCompile>
+    <ClCompile Include="CerealRegister.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="30. AssetSerializeDemo.h">
       <Filter>Game\Week3</Filter>
+    </ClInclude>
+    <ClInclude Include="CerealRegister.h">
+      <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

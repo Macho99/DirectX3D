@@ -16,6 +16,7 @@ public:
 	virtual bool Render(RenderTech renderTech);
     void SetBeforeRender(function<void(Material*)> func) { _beforeRender = func; }
     virtual bool OnGUI() override;
+	virtual bool TryInitialize() { return true; }
 
 protected:
 	virtual void InnerRender(RenderTech renderTech);

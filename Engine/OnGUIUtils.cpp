@@ -49,7 +49,7 @@ bool OnGUIUtils::DrawVec3(const char* label, Vec3* value, float dragSpeed, bool 
     return changed;
 }
 
-bool OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
+bool OnGUIUtils::DrawColor(const char* label, Color* color, bool isReadOnly)
 {
     bool showAlpha = true;
 
@@ -63,7 +63,7 @@ bool OnGUIUtils::DrawColor(const char* label, float* color, bool isReadOnly)
 
     Begin(label, isReadOnly);
 
-    bool changed = ImGui::ColorEdit4(_valueLabel, color, flags);
+    bool changed = ImGui::ColorEdit4(_valueLabel, &color->x, flags);
 
     End(isReadOnly);
 

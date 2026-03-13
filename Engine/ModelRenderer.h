@@ -11,9 +11,10 @@ class ModelRenderer : public Renderer
 
 public:
 	static constexpr ComponentType StaticType = ComponentType::ModelRenderer;
-	ModelRenderer(ResourceRef<Shader> shader);
+	ModelRenderer();
 	virtual ~ModelRenderer();
 
+    void SetShader(ResourceRef<Shader> shader);
 	void SetModel(ResourceRef<Model> model);
 
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
@@ -22,9 +23,12 @@ public:
 	void SetMaterial(ResourceRef<Material> material) override;
 
     virtual bool OnGUI() override;
+	virtual bool TryInitialize() override;
 
 private:
 	ResourceRef<Shader>	_shader;
 	ResourceRef<Model>	_model;
+
+    bool _initialized = false;
 };
 

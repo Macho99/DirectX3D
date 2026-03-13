@@ -6,8 +6,8 @@
 #include "Camera.h"
 #include "OnGUIUtils.h"
 
-ModelRenderer::ModelRenderer(ResourceRef<Shader> shader)
-	: Super(StaticType), _shader(shader)
+ModelRenderer::ModelRenderer()
+	: Super(StaticType)
 {
 
 }
@@ -17,19 +17,14 @@ ModelRenderer::~ModelRenderer()
 
 }
 
+void ModelRenderer::SetShader(ResourceRef<Shader> shader)
+{
+    _shader = shader;
+}
+
 void ModelRenderer::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
-    Model* modelPtr = _model.Resolve();
-
-	auto& materials = modelPtr->GetMaterials();
-	for (auto& material : materials)
-	{
-        if (material.Resolve() == nullptr)
-            continue;
-		material.Resolve()->SetShader(_shader);
-		_material = material;
-	}
 }
 
 void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
@@ -42,6 +37,9 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
         return;
     Shader* shader = _shader.Resolve();
     if (shader == nullptr)
+        return;
+
+    if (!TryInitialize())
         return;
 
 	if (Super::Render(renderTech) == false)
@@ -104,4 +102,30 @@ bool ModelRenderer::OnGUI()
     changed |= OnGUIUtils::DrawResourceRef("Model", _model);
     changed |= OnGUIUtils::DrawResourceRef("Shader", _shader);
 	return changed;
+}
+
+bool ModelRenderer::TryInitialize()
+{
+    if (_initialized)
+        return true;
+
+	Model* modelPtr = _model.Resolve();
+	if(modelPtr == nullptr)
+        return false;
+
+    Shader* shaderPtr = _shader.Resolve();
+    if (shaderPtr == nullptr)
+        return false;
+
+	auto& materials = modelPtr->GetMaterials();
+	for (auto& material : materials)
+	{
+		if (material.Resolve() == nullptr)
+			continue;
+		material.Resolve()->SetShader(_shader);
+		_material = material;
+    }
+
+    _initialized = true;
+    return true;
 }

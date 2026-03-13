@@ -9,8 +9,8 @@
 #include "OnGUIUtils.h"
 #include "MathUtils.h"
 
-ModelAnimator::ModelAnimator(ResourceRef<Shader> shader)
-	: Super(StaticType), _shader(shader)
+ModelAnimator::ModelAnimator()
+	: Super(StaticType)
 {
 	// TEST
 	_tweenDesc.next.animIndex = rand() % 3;
@@ -27,17 +27,14 @@ void ModelAnimator::Update()
 	UpdateTweenData();
 }
 
+void ModelAnimator::SetShader(ResourceRef<Shader> shader)
+{
+    _shader = shader;
+}
+
 void ModelAnimator::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
-
-	auto& materials = _model.Resolve()->GetMaterials();
-	for (auto& material : materials)
-	{
-		material.Resolve()->SetShader(_shader);
-		_material = material;
-		break;
-	}
 }
 
 void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
@@ -64,9 +61,6 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	//auto lightObj = SCENE->GetCurrentScene()->GetLight();
 	//if (lightObj)
 	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
-
-	if (_texture == nullptr)
-		CreateTexture();
 
 	// SRV를 통해 정보 전달
 	_shader.Resolve()->GetSRV("TransformMap")->SetResource(_srv.Get());
@@ -116,6 +110,33 @@ bool ModelAnimator::OnGUI()
 	changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animIndex, 1.f);
 	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
 	return changed;
+}
+
+bool ModelAnimator::TryInitialize()
+{
+	if(_initialized)
+        return true;
+
+    Model* modelPtr = _model.Resolve();
+    if (modelPtr == nullptr)
+        return false;
+
+    Shader* shaderPtr = _shader.Resolve();
+    if (shaderPtr == nullptr)
+        return false;
+
+	auto& materials = modelPtr->GetMaterials();
+	for (auto& material : materials)
+	{
+		material.Resolve()->SetShader(_shader);
+		_material = material;
+		break;
+	}
+
+	CreateTexture();
+
+    _initialized = true;
+    return true;
 }
 
 void ModelAnimator::CreateTexture()

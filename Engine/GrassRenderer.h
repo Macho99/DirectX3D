@@ -54,16 +54,17 @@ class GrassRenderer : public Renderer
     using Super = Renderer;
 public:
     static constexpr ComponentType StaticType = ComponentType::GrassRenderer;
-    explicit GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath);
+    GrassRenderer();
+    GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const AssetRef& uvAsset);
     ~GrassRenderer();
 
     virtual bool OnGUI() override;
+    virtual bool TryInitialize() override;
 
 protected:
     void InnerRender(RenderTech renderTech) override;
 
 private:
-    void CreateResources();
     void UpdateGrass();
 
 private:
@@ -87,6 +88,7 @@ private:
     ComPtr<ID3D11Buffer> _nearbyDrawBuffer; // 간접 드로우 인자 버퍼
     ComPtr<ID3D11Buffer> _distantDrawBuffer; // 간접 드로우 인자 버퍼
 
+    AssetRef _uvAsset;
     GrassConstant _grassConstantData;
     shared_ptr<ConstantBuffer<GrassConstant>> _grassConstantBuffer;     // 상수 버퍼
     ComPtr<ID3DX11EffectConstantBuffer> _grassEffectBuffer;
@@ -98,5 +100,6 @@ private:
     ComPtr<ID3DX11EffectShaderResourceVariable> _blendMapEffectBuffer;
 
     int prevFrameCount = -1;
+    bool _initialized = false;
 };
 

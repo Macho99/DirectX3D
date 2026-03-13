@@ -60,7 +60,8 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
-        ar(Super::serialize(ar),
+		Super::serialize(ar);
+        ar(
 			CEREAL_NVP(_localScale),
             CEREAL_NVP(_localRotation),
             CEREAL_NVP(_localPosition),

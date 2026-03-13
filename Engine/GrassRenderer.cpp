@@ -8,18 +8,15 @@
 #include "ModelAnimator.h"
 #include "OnGUIUtils.h"
 
-GrassRenderer::GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const wstring& uvFilePath)
-    : _grassComputeShader(grassComputeShader), Renderer(StaticType), _terrain(terrain)
+GrassRenderer::GrassRenderer()
+    : Super(StaticType)
 {
-    CreateResources();
+}
 
-    ZeroMemory(&_grassConstantData, sizeof(GrassConstant));
-    vector<Vec4> uvs = Utils::ParseUVText(uvFilePath);
-    for (int i = 0; i < uvs.size(); i++)
-    {
-        _grassConstantData.uvs[i] = uvs[i];
-    }
-    _grassConstantData.uvCount = static_cast<UINT>(uvs.size());
+GrassRenderer::GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const AssetRef& uvAsset)
+    : _grassComputeShader(grassComputeShader), Super(StaticType), _terrain(terrain), _uvAsset(uvAsset)
+{
+    TryInitialize();
 }
 
 GrassRenderer::~GrassRenderer()
@@ -34,11 +31,41 @@ bool GrassRenderer::OnGUI()
     changed |= OnGUIUtils::DrawResourceRef("Grass Compute Shader", _grassComputeShader);
     changed |= OnGUIUtils::DrawComponentRef("Terrain", _terrain);
     changed |= OnGUIUtils::DrawGameObjectRef("TestRef", _testRef);
+    changed |= OnGUIUtils::DrawAssetRef("UV Asset", _uvAsset);
     return changed;
 }
 
-void GrassRenderer::CreateResources()
+bool GrassRenderer::TryInitialize()
 {
+    if (_initialized)
+        return true;
+
+    if (_grassComputeShader.Resolve() == nullptr)
+    {
+        return false;
+    }
+
+    if (_terrain.Resolve() == nullptr)
+    {
+        return false;
+    }
+
+    {
+        MetaFile* uvMeta = nullptr;
+        if (RESOURCES->TryGetMetaByAssetId(_uvAsset.GetAssetId(), OUT uvMeta) == false)
+        {
+            return false;
+        }
+
+        ZeroMemory(&_grassConstantData, sizeof(GrassConstant));
+        vector<Vec4> uvs = Utils::ParseUVText(uvMeta->GetImportedAssetPath());
+        for (int i = 0; i < uvs.size(); i++)
+        {
+            _grassConstantData.uvs[i] = uvs[i];
+        }
+        _grassConstantData.uvCount = static_cast<UINT>(uvs.size());
+    }
+
     // --- 1. 초기 풀 데이터 CPU에서 생성 ---
     vector<GrassData> grassData(MAX_GRASS_COUNT);
     TessTerrain* terrain = _terrain.Resolve();
@@ -135,6 +162,8 @@ void GrassRenderer::CreateResources()
     _initGrassEffectBuffer = grassComputeShader->GetSRV("Input");
     _nearbyGrassEffectBuffer = grassComputeShader->GetUAV("NearbyOutput");
     _distantGrassEffectBuffer = grassComputeShader->GetUAV("DistantOutput");
+
+    _initialized = true;
 }
 
 void GrassRenderer::UpdateGrass()
@@ -196,6 +225,9 @@ void GrassRenderer::UpdateGrass()
 void GrassRenderer::InnerRender(RenderTech renderTech)
 {
     Super::InnerRender(renderTech);
+
+    if (TryInitialize() == false)
+        return;
 
     if (prevFrameCount != TIME->GetTotalFrameCount())
     {
