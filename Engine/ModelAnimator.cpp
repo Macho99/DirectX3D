@@ -51,6 +51,9 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
     if (mesh == nullptr)
         return;
 
+	if (_texture == nullptr)
+		CreateTexture();
+
 	if (Super::Render(renderTech) == false)
 		return;
 
@@ -132,8 +135,6 @@ bool ModelAnimator::TryInitialize()
 		_material = material;
 		break;
 	}
-
-	CreateTexture();
 
     _initialized = true;
     return true;
