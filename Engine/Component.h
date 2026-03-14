@@ -37,6 +37,7 @@ enum
 class Component
 {
 public:
+	Component();
 	Component(ComponentType type);
 	virtual ~Component();
 

@@ -98,9 +98,14 @@ bool TessTerrain::OnGUI()
     return changed;
 }
 
-void TessTerrain::Init()
+bool TessTerrain::TryInitialize()
 {
+    if (_initialized)
+        return true;
+
     TerrainData* terrainData = _terrainData.Resolve();
+    if (terrainData == nullptr)
+        return false;
 
 	// Divide heightmap into patches such that each patch has CellsPerPatch.
 	_numPatchVertRows = ((terrainData->GetHeightmapHeight() - 1) / CellsPerPatch) + 1;
@@ -121,6 +126,7 @@ void TessTerrain::Init()
 	_blendMapTexture = terrainData->GetBlendMap();
 
 	_initialized = true;
+    return true;
 }
 
 void TessTerrain::InnerRender(RenderTech renderTech)
@@ -132,8 +138,9 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 	TerrainData* terrainData = _terrainData.Resolve();
     if (terrainData == nullptr)
         return;
-	if (!_initialized)
-		Init();
+
+	if (TryInitialize() == false)
+		return;
 
     Super::InnerRender(renderTech);
 
@@ -193,7 +200,7 @@ void TessTerrain::SetTerrainData(const ResourceRef<TerrainData>& terrainData)
 {
 	_terrainData = terrainData;
     if (_initialized == false)
-        Init();
+		TryInitialize();
 }
 
 void TessTerrain::LoadHeightmap()

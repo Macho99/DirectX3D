@@ -13,6 +13,7 @@ public:
 	template<typename T>
 	void ChangeScene(shared_ptr<T> scene)
 	{
+        _currentScene->OnDestroy();
 		_currentScene = scene;
 		scene->Start();
 	}

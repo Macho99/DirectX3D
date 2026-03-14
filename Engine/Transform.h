@@ -67,6 +67,11 @@ public:
             CEREAL_NVP(_localPosition),
             CEREAL_NVP(_parent)
         );
+
+		if constexpr (Archive::is_loading::value)
+		{
+			UpdateTransform();
+		}
     }
 
 private:

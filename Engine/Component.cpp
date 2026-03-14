@@ -20,6 +20,10 @@
 #include "GrassRenderer.h"
 #include "MonoBehaviour.h"
 
+Component::Component() : _type(ComponentType::End)
+{
+}
+
 Component::Component(ComponentType type) : _type(type)
 {
 

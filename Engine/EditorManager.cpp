@@ -105,9 +105,17 @@ void EditorManager::Update()
                 archive(target);
             }
 
+            if (ImGui::MenuItem("Load"))
+            {
+                shared_ptr<Scene> target;
+                std::ifstream is("..\\scene.scene");
+                cereal::JSONInputArchive archive(is);
+                archive(target);
+                SCENE->ChangeScene(target);
+            }
+
             ImGui::EndMenu();
         }
-
         ImGui::EndMainMenuBar();
     }
     DrawDockSpace();

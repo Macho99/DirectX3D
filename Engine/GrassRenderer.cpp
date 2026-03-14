@@ -44,7 +44,13 @@ bool GrassRenderer::TryInitialize()
         return false;
     }
 
-    if (_terrain.Resolve() == nullptr)
+    TessTerrain* terrain = _terrain.Resolve();
+    if (terrain == nullptr)
+    {
+        return false;
+    }
+
+    if (terrain->TryInitialize() == false)
     {
         return false;
     }
@@ -67,7 +73,6 @@ bool GrassRenderer::TryInitialize()
 
     // --- 1. 초기 풀 데이터 CPU에서 생성 ---
     vector<GrassData> grassData(MAX_GRASS_COUNT);
-    TessTerrain* terrain = _terrain.Resolve();
     for (UINT i = 0; i < MAX_GRASS_COUNT; ++i)
     {
         float x = MathUtils::Random(-500.f, 500.f);

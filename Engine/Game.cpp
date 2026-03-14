@@ -185,7 +185,7 @@ void Game::Update()
 
 	RESOURCES->Update();
 
-	if(_desc.sceneFocused)
+	//if(_desc.sceneFocused)
 		SCENE->Update();
 
 	GRAPHICS->SetBackBufferRenderTarget();

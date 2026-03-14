@@ -132,7 +132,7 @@ public:
         _freeIndices.clear();
         _guidToHandle.clear();
 
-        for (int i = 0; i < _slots.size(); i++)
+        for (uint32 i = 0; i < _slots.size(); i++)
         {
             Slot& slot = _slots[i];
             if (slot.ptr)

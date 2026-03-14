@@ -18,6 +18,13 @@ public:
     virtual bool OnGUI() override;
 	virtual bool TryInitialize() { return true; }
 
+    template<typename Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_material), CEREAL_NVP(_pass));
+    }
+
 protected:
 	virtual void InnerRender(RenderTech renderTech);
 

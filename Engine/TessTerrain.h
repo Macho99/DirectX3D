@@ -20,7 +20,8 @@ public:
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
     ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
 	void SetTerrainData(const ResourceRef<TerrainData>& terrainData);
-    bool IsInitialized() const { return _initialized; }
+
+	virtual bool TryInitialize() override;
 
     virtual bool OnGUI() override;
     template<typename Archive>
@@ -31,7 +32,6 @@ public:
     }
 
 private:
-	void Init();
 	void LoadHeightmap();
 	void Smooth();
 	bool InBounds(int32 i, int32 j);
