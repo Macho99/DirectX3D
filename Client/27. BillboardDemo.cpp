@@ -36,7 +36,7 @@
 
 void BillboardDemo::Init()
 {
-    CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
+    //CUR_SCENE->SetSky(make_shared<Sky>(L"..\\Resources\\Textures\\Sky\\snowcube1024.dds", L"Sky.fx"));
 
     //shared_ptr<Shader> renderShader = make_shared<Shader>(L"19. RenderDemo.fx");
     //shared_ptr<Shader> foliageShader = make_shared<Shader>(L"Foliage.fx");

@@ -111,6 +111,7 @@ bool Material::OnGUI(bool isReadOnly)
 	changed |= OnGUIUtils::DrawResourceRef("DiffuseMap", _diffuseMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("NormalMap", _normalMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("SpecularMap", _specularMap, isReadOnly);
+	changed |= OnGUIUtils::DrawResourceRef("CubeMap", _cubeMap, isReadOnly);
 	changed |= OnGUIUtils::DrawBool("UseRandomTexture", &_useRandomTexture, isReadOnly);
 
 	return changed;

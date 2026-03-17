@@ -3,12 +3,8 @@
 #include "Camera.h"
 #include "Material.h"
 
-Sky::Sky(const std::wstring& cubemapFilename, const wstring& shaderFileName)
+Sky::Sky()
 {
-	//_cubeMapSRV = Utils::LoadTexture(device, cubemapFilename);
-	_texture = RESOURCES->AllocateTempResource(make_unique<Texture>());
-	_texture.Resolve()->Load(cubemapFilename);
-
 	//GeometryGenerator::MeshData sphere;
 	//GeometryGenerator geoGen;
 	//geoGen.CreateSphere(skySphereRadius, 30, 30, sphere);
@@ -59,26 +55,22 @@ Sky::Sky(const std::wstring& cubemapFilename, const wstring& shaderFileName)
 	_ib = make_shared<IndexBuffer>();
 	_ib->Create(geoindices);
 
-	_material = RESOURCES->AllocateTempResource(make_unique<Material>());
-    ResourceRef<Shader> shader = RESOURCES->GetResourceRefByPath<Shader>(shaderFileName);
-	_material.Resolve()->SetShader(shader);
-	_material.Resolve()->SetCubeMap(_texture);
+	//_material = RESOURCES->AllocateTempResource(make_unique<Material>());
+    //ResourceRef<Shader> shader = RESOURCES->GetResourceRefByPath<Shader>(shaderFileName);
+	//_material.Resolve()->SetShader(shader);
+	//_material.Resolve()->SetCubeMap(_texture);
 }
 
 Sky::~Sky()
 {
 }
 
-ComPtr<ID3D11ShaderResourceView> Sky::CubeMapSRV()
-{
-    Texture* texture = _texture.Resolve();
-    if (texture == nullptr)
-        return nullptr;
-	return texture->GetComPtr();
-}
-
 void Sky::Render(Camera* camera)
 {
+	Material* material = _material.Resolve();
+	if (material == nullptr)
+		return;
+
 	// center Sky about eye in world space
 	//XMFLOAT3 eyePos = camera.GetPosition();
 	//XMMATRIX T = ::XMMatrixTranslation(eyePos.x, eyePos.y, eyePos.z);
@@ -94,7 +86,6 @@ void Sky::Render(Camera* camera)
 	Matrix p = camera->GetProjectionMatrix();
 	Matrix wvp = world * v * p;
 
-    Material* material = _material.Resolve();
 	Shader* shader = material->GetShader();
 	shader->PushTransformData(TransformDesc(wvp));
 	shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);

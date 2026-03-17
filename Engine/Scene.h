@@ -64,7 +64,8 @@ public:
             cereal::make_nvp("Cameras", _cameras),
             cereal::make_nvp("Lights", _lights),
             cereal::make_nvp("GameObjectSlots", _gameObjectSlotManager),
-            cereal::make_nvp("ComponentSlots", _componentSlotManager)
+            cereal::make_nvp("ComponentSlots", _componentSlotManager),
+            cereal::make_nvp("Sky", _sky)
 		);
     }
 

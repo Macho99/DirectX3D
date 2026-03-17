@@ -7,6 +7,7 @@
 #include "DebugTexWindow.h"
 #include "ContentBrowser.h"
 #include "FileUtils.h"
+#include "Sky.h"
 
 EditorManager::EditorManager()
 {

@@ -189,6 +189,18 @@ Texture* ResourceManager::GetEditorTexture(string key, const fs::path& loadPath)
 	{
 		unique_ptr<Texture> texture = make_unique<Texture>();
 		texture->Load(loadPath);
+
+		{
+			D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+			texture->GetComPtr()->GetDesc(&desc);
+
+			if (desc.ViewDimension == D3D11_SRV_DIMENSION_TEXTURECUBE
+				|| desc.ViewDimension == D3D11_SRV_DIMENSION_TEXTURECUBEARRAY)
+			{
+				texture->Load(L"..\\EditorResource\\ImageIcon.png");
+			}
+		}
+
 		Texture* returnValue = texture.get();
 		_editorResources[key] = std::move(texture);
 		return returnValue;
