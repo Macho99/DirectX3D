@@ -13,6 +13,6 @@ protected:
     void Import() override;
 
 private:
-    virtual int GetVersion() const override { return 4; }
+    virtual int GetVersion() const override { return 5; }
 };
 

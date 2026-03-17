@@ -151,6 +151,7 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
             key = "MaterialIcon";
             break;
         case ResourceType::Mesh:
+        case ResourceType::ModelMesh:
             key = "MeshIcon";
             break;
         case ResourceType::TerrainData:

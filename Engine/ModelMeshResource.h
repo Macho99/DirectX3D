@@ -8,6 +8,7 @@ class ModelMeshResource : public ResourceBase
     using Super = ResourceBase;
 public:
 	static constexpr ResourceType StaticType = ResourceType::ModelMesh;
+    static wstring GetExtension() { return L".modelmesh"; }
 	ModelMeshResource();
 	~ModelMeshResource();
 

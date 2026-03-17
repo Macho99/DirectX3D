@@ -5,6 +5,7 @@
 #include "FileUtils.h"
 #include "Material.h"
 #include "fstream"
+#include "ModelMeshResource.h"
 
 Converter::Converter()
 {
@@ -33,7 +34,7 @@ void Converter::ReadAssetFile(wstring file)
 
 void Converter::ExportModelData(wstring savePath)
 {
-    wstring finalPath = savePath + L".mesh";
+    wstring finalPath = savePath + ModelMeshResource::GetExtension();
     ReadModelData(_scene->mRootNode, -1, -1);
     ReadSkinData();
 
@@ -105,7 +106,7 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
         if (_meshes.size() > 0)
         {
             SubAssetInfo info = SubAssetInfo();
-            wstring assetName = Utils::ToWString(_meshes[0]->name) + L".mesh";
+            wstring assetName = Utils::ToWString(_meshes[0]->name) + ModelMeshResource::GetExtension();
             wstring finalPath = artifactPath + L"\\" + assetName;
             WriteModelFile(finalPath);
             AddExported(prev, exported, assetName, ResourceType::ModelMesh);
