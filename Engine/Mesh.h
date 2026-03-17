@@ -8,6 +8,7 @@ class Mesh : public ResourceBase
 
 public:
 	static constexpr ResourceType StaticType = ResourceType::Mesh;
+	static string GetExtension() { return ".mesh"; }
     Mesh();
     virtual ~Mesh();
 
@@ -21,12 +22,22 @@ public:
 
 	shared_ptr<Geometry<VertexTextureNormalTangentData>> GetGeometry() { return _geometry; }
 
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(CEREAL_NVP(_geometry));
+
+        if (Archive::is_loading::value)
+			CreateBuffers();
+    }
+
 private:
 	void CreateBuffers();
 
 private:
 	// Mesh
 	shared_ptr<Geometry<VertexTextureNormalTangentData>> _geometry;
+
 	shared_ptr<VertexBuffer> _vertexBuffer;
 	shared_ptr<IndexBuffer> _indexBuffer;
 };

@@ -227,6 +227,38 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
                     FileUtils::SaveResourceToJson(newPath, newTerrainData);
                 }
             }
+            if (ImGui::BeginMenu("Mesh"))
+            {
+                if (ImGui::MenuItem("Quad"))
+                {
+                    if (TryGetNewFilePath(_currentFolder, "New Quad Mesh", Mesh::GetExtension(), OUT newPath))
+                    {
+                        unique_ptr<ResourceBase> newMesh = make_unique<Mesh>();
+                        static_cast<Mesh*>(newMesh.get())->CreateQuad();
+                        FileUtils::SaveResourceToJson(newPath, newMesh);
+                    }
+                }
+                if (ImGui::MenuItem("Cube"))
+                {
+                    if (TryGetNewFilePath(_currentFolder, "New Cube Mesh", Mesh::GetExtension(), OUT newPath))
+                    {
+                        unique_ptr<ResourceBase> newMesh = make_unique<Mesh>();
+                        static_cast<Mesh*>(newMesh.get())->CreateCube();
+                        FileUtils::SaveResourceToJson(newPath, newMesh);
+                    }
+                }
+                if (ImGui::MenuItem("Sphere"))
+                {
+                    if (TryGetNewFilePath(_currentFolder, "New Sphere Mesh", Mesh::GetExtension(), OUT newPath))
+                    {
+                        unique_ptr<ResourceBase> newMesh = make_unique<Mesh>();
+                        static_cast<Mesh*>(newMesh.get())->CreateSphere();
+                        FileUtils::SaveResourceToJson(newPath, newMesh);
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
 
             ImGui::EndMenu();
         }

@@ -30,6 +30,15 @@ struct VertexTextureNormalTangentData
 	Vec2 uv = { 0, 0 };
 	Vec3 normal = { 0, 0, 0 };
 	Vec3 tangent = { 0, 0, 0 };
+
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(CEREAL_NVP(position));
+        ar(CEREAL_NVP(uv));
+        ar(CEREAL_NVP(normal));
+        ar(CEREAL_NVP(tangent));
+    }
 };
 
 struct VertexTextureNormalTangentBlendData

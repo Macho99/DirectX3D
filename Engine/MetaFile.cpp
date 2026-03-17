@@ -181,16 +181,6 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
     case ResourceType::Shader:
         resource = make_unique<Shader>(filePath);
         break;
-    case ResourceType::Material:
-    {
-        resource = FileUtils::LoadResourceFromJson(filePath);
-        //{
-        //    std::ifstream is(filePath);
-        //    cereal::JSONInputArchive archive(is);
-        //    archive(resource);
-        //}
-        break;
-    }
     case ResourceType::ModelMesh:
     {
         unique_ptr<ModelMeshResource> modelMeshResource = make_unique<ModelMeshResource>();
@@ -205,10 +195,14 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
         resource = std::move(animation);
         break;
     }
+    case ResourceType::Material:
     case ResourceType::TerrainData:
+    case ResourceType::Mesh:
         resource = FileUtils::LoadResourceFromJson(filePath);
         break;
     }
+
+
 
     if(resource == nullptr)
         ASSERT(false, "MetaFile::LoadResource: Unsupported resource type: " + to_string((int)resourceType));

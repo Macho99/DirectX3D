@@ -23,6 +23,13 @@ public:
 	void AddIndices(const vector<uint32>& indices) { _indices.insert(_indices.end(), indices.begin(), indices.end()); }
 	void SetIndices(const vector<uint32>& indices) { _indices = indices; }
 
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(CEREAL_NVP(_vertices));
+        ar(CEREAL_NVP(_indices));
+    }
+
 private:
 	vector<T> _vertices;
 	vector<uint32> _indices;

@@ -56,7 +56,7 @@ private:
     ViewMode _viewMode = ViewMode::Grid;
 
     // 유니티 느낌: 아이콘 크기 조절
-    float _thumbSize = 72.0f;     // 아이콘 박스 크기
+    float _thumbSize = 96.0f;     // 아이콘 박스 크기
     float _thumbPad = 10.0f;     // 아이템 간격
     float _leftPaneWidth = 260.0f;
 

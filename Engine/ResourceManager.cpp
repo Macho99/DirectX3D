@@ -38,7 +38,6 @@ void ResourceManager::Init()
 
 void ResourceManager::Start()
 {
-	CreateDefaultMesh();
 	CreateRandomTexture();
 }
 
@@ -100,22 +99,6 @@ void ResourceManager::OnDestroy()
 //
 //	return texture;
 //}
-
-void ResourceManager::CreateDefaultMesh()
-{
-	{
-		_quad = AllocateTempResource(make_unique<Mesh>());
-		_quad.Resolve()->CreateQuad();
-	}
-	{
-		_cube = AllocateTempResource(make_unique<Mesh>());
-		_cube.Resolve()->CreateCube();
-	}
-	{
-		_sphere = AllocateTempResource(make_unique<Mesh>());
-		_sphere.Resolve()->CreateSphere();
-	}
-}
 
 void ResourceManager::CreateRandomTexture()
 {
@@ -209,6 +192,21 @@ Texture* ResourceManager::GetEditorTexture(string key, const fs::path& loadPath)
 	{
 		return static_cast<Texture*>(it->second.get());
 	}
+}
+
+ResourceRef<Mesh> ResourceManager::GetQuadMesh() const
+{
+    return GetResourceRefByPath<Mesh>(L"Meshes\\Quad.mesh");
+}
+
+ResourceRef<Mesh> ResourceManager::GetCubeMesh() const
+{
+    return GetResourceRefByPath<Mesh>(L"Meshes\\Cube.mesh");
+}
+
+ResourceRef<Mesh> ResourceManager::GetSphereMesh() const
+{
+    return GetResourceRefByPath<Mesh>(L"Meshes\\Sphere.mesh");
 }
 
 Texture* ResourceManager::GetRandomTexture()

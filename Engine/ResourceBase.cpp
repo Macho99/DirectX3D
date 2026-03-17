@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "Model.h"
 #include "TerrainData.h"
+#include "Mesh.h"
 
 ResourceBase::ResourceBase()
     : _type(ResourceType::None)
@@ -38,3 +39,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Model);
 
 CEREAL_REGISTER_TYPE(TerrainData);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, TerrainData);
+
+CEREAL_REGISTER_TYPE(Mesh);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Mesh);

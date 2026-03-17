@@ -27,7 +27,6 @@ public:
 	void OnDestroy();
 
 private:
-	void CreateDefaultMesh();
 	void CreateRandomTexture();
 
 public:
@@ -70,9 +69,9 @@ public:
 
 	Texture * GetEditorTexture(string key, const fs::path& loadPath);
 
-	ResourceRef<Mesh> GetQuadMesh() const { return _quad; }
-	ResourceRef<Mesh> GetCubeMesh() const { return _cube; }
-	ResourceRef<Mesh> GetSphereMesh() const { return _sphere; }
+	ResourceRef<Mesh> GetQuadMesh() const;
+	ResourceRef<Mesh> GetCubeMesh() const;
+	ResourceRef<Mesh> GetSphereMesh() const;
 	Texture* GetRandomTexture();
 
 private:
@@ -95,9 +94,6 @@ private:
 
 	AssetSlot _assetSlot;
 
-	ResourceRef<Mesh> _quad;
-	ResourceRef<Mesh> _cube;
-	ResourceRef<Mesh> _sphere;
 	ResourceRef<Texture> _randomTexture;
 };
 
