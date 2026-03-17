@@ -47,7 +47,6 @@ void AssetSerializeDemo::Init()
     sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SnowSkyMat.mat"));
     CUR_SCENE->SetSky(sky);
 
-
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
     {
         GameObjectRef cameraRef = CUR_SCENE->Add("Camera");

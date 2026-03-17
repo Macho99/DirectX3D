@@ -7,8 +7,8 @@ struct GuidRef
 public:
     GuidRef() : guid(), cached() {}
     GuidRef(Guid guid) : guid(guid), cached() {}
-    GuidRef(const GuidRef& other) : guid(other.guid), cached(other.cached) {}
-    GuidRef(Guid guid, Handle handle) : guid(guid), cached(handle) {}
+    GuidRef(const GuidRef& other) : guid(other.guid), cached(other.cached), cachedSceneInstanceId(other.cachedSceneInstanceId) {}
+    GuidRef(Guid guid, Handle handle, uint64 sceneInstanceId) : guid(guid), cached(handle), cachedSceneInstanceId(sceneInstanceId) {}
 
     template <class Archive>
     void serialize(Archive& ar)
@@ -49,6 +49,7 @@ public:
 public:
     Guid guid;
     mutable Handle cached;
+    mutable uint64 cachedSceneInstanceId = 0;
 };
 
 struct GuidRefEq

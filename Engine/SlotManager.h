@@ -35,15 +35,15 @@ public:
     // 생성 + 등록
     //  - guid가 이미 존재하면(중복 로드 등) 교체/에러 정책은 프로젝트에 맞게 결정하세요.
     template<class... Args>
-    GuidRef CreateAndRegister(Args&&... args)
+    GuidRef CreateAndRegister(uint64 instanceId, Args&&... args)
     {
         unique_ptr<T> ptr = std::make_unique<T>(std::forward<Args>(args)...);
 
-        return RegisterExisting(std::move(ptr));
+        return RegisterExisting(std::move(ptr), instanceId);
     }
 
     // 외부에서 이미 만들어진 unique_ptr 등록하고 싶을 때
-    GuidRef RegisterExisting(std::unique_ptr<T> obj)
+    GuidRef RegisterExisting(std::unique_ptr<T> obj, uint64 sceneInstanceId)
     {
         Guid guid = Guid::CreateGuid();
         Handle handle = AllocateSlot();
@@ -53,7 +53,7 @@ public:
         slot.ptr->SetGuid(guid);
 
         _guidToHandle[guid] = handle;
-        return GuidRef(guid, handle);
+        return GuidRef(guid, handle, sceneInstanceId);
     }
 
     // Guid로 핸들 얻기

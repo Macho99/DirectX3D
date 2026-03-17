@@ -8,8 +8,14 @@ GameObject* GameObjectRef::Resolve() const
         return nullptr;
 
     SlotManager<GameObject>* manager = CUR_SCENE->GetGameObjectSlotManager();
-    if (!cached.IsValid())
+    uint64 sceneInstanceId = CUR_SCENE->GetInstanceId();
+
+    if (!cached.IsValid() || cachedSceneInstanceId != sceneInstanceId)
+    {
         cached = manager->FindHandle(guid);
+        cachedSceneInstanceId = sceneInstanceId;
+    }
+
     GameObject* p = manager->Resolve(cached);
     return p;
 }

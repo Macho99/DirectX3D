@@ -19,9 +19,13 @@ T* ComponentRef<T>::Resolve() const
         return nullptr;
 
     SlotManager<Component>* manager = CUR_SCENE->GetComponentSlotManager();
+    uint64 sceneInstanceId = CUR_SCENE->GetInstanceId();
 
-    if (!cached.IsValid())
+    if (!cached.IsValid() || cachedSceneInstanceId != sceneInstanceId)
+    {
         cached = manager->FindHandle(guid);
+        cachedSceneInstanceId = sceneInstanceId;
+    }
 
     Component* p = manager->Resolve(cached);
 

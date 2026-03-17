@@ -14,6 +14,7 @@
 Scene::Scene()
 {
     _instanceId = Utils::GetRandomUInt64();
+	Guid::SetCurrentInstanceId(_instanceId);
 }
 
 Scene::~Scene()
@@ -200,14 +201,14 @@ void Scene::RenderUICamera(Camera* cam)
 
 GameObjectRef Scene::Add(string name)
 {
-	GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(name);
+	GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(_instanceId, name);
 	return Add(guidRef);
 }
 
 GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
 {
 	ComponentType type = component->GetType();
-	GuidRef guidRef = GetComponentSlotManager()->RegisterExisting(std::move(component));
+	GuidRef guidRef = GetComponentSlotManager()->RegisterExisting(std::move(component), _instanceId);
 	if (type == ComponentType::Camera)
 	{
 		_cameras.insert(gameObjectRef);
