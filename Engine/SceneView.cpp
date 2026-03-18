@@ -43,9 +43,10 @@ void SceneView::OnGUI()
     TransformRef selectedTransformRef;
     _editorManager->TryGetHierarchyTransform(OUT selectedTransformRef);
     Transform* selectedTransform = selectedTransformRef.Resolve();
-    Camera* camera = CUR_SCENE->GetMainCamera()->GetCamera();
-    if (selectedTransform != nullptr)
+    GameObject* camObj = CUR_SCENE->GetMainCamera();
+    if (camObj != nullptr && selectedTransform != nullptr)
     {
+        Camera* camera = camObj->GetCamera();
         ImGuizmo::BeginFrame();
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist();

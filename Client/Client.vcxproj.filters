@@ -57,6 +57,9 @@
     <ClCompile Include="CerealRegister.cpp">
       <Filter>Main</Filter>
     </ClCompile>
+    <ClCompile Include="31. SceneDemo.cpp">
+      <Filter>Game\Week3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -82,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="CerealRegister.h">
       <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="31. SceneDemo.h">
+      <Filter>Game\Week3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

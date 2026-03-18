@@ -25,11 +25,10 @@ public:
 	void Update() override;
 	void InnerRender(RenderTech renderTech) override;
 
-	void SetMaterial(ResourceRef<Material> material) override;
-
 	void SetEmitPosW(Vec3 emitPosW) { _emitPosW = emitPosW; }
 	void SetEmitDirW(Vec3 emitDirW) { _emitDirW = emitDirW; }
 
+    virtual bool TryInitialize() override;
     virtual bool OnGUI() override;
     template<typename Archive>
     void serialize(Archive& ar)
@@ -58,6 +57,8 @@ private:
 	shared_ptr<VertexBuffer> _streamOutVB;
 
 	ComPtr<ID3D11InputLayout> _inputLayout;
+
+    ResourceRef<Material> _cachedMaterial; // 메테리얼 세팅
 };
 
 const D3D11_INPUT_ELEMENT_DESC ParticleInputDesc[5] =

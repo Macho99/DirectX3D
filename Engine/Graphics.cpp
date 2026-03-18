@@ -156,9 +156,15 @@ void Graphics::OnSize(bool isFirst)
         camera.Resolve()->GetCamera()->OnSize();
     }
 
-	Camera* mainCam = CUR_SCENE->GetMainCamera()->GetCamera();
-    float fov = mainCam->GetFOV();
-    float farZ = mainCam->GetFar();
+	GameObject* camObj = CUR_SCENE->GetMainCamera();
+	float fov = 1;
+	float farZ = 1;
+	if (camObj != nullptr)
+	{
+		Camera* mainCam = camObj->GetCamera();
+		fov = mainCam->GetFOV();
+		farZ = mainCam->GetFar();
+	}
 	_ssao->OnSize(sceneWidth, sceneHeight, fov, farZ);
 	_normalDepthMap.Resolve()->SetSRV(_ssao->GetNormalDepthSRV());
     _normalDepthMap.Resolve()->SetSize(Vec2((float)sceneWidth, (float)sceneHeight));

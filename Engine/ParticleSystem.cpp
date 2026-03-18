@@ -130,14 +130,20 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	shader->EndDraw(1, 0);
 }
 
-void ParticleSystem::SetMaterial(ResourceRef<Material> material)
+bool ParticleSystem::TryInitialize()
 {
-	Super::SetMaterial(material);
-    Material* materialPtr = _material.Resolve();
+	if (_cachedMaterial != _material)
+	{
+		Material* materialPtr = _material.Resolve();
+        if (materialPtr == nullptr)
+        {
+            return false;
+        }
 
-	materialPtr->SetRandomTex(true);
-	materialPtr->SetCastShadow(false);
-    materialPtr->GetShader()->SetTechNum(RenderTech::Draw, 1);
+		materialPtr->GetShader()->SetTechNum(RenderTech::Draw, 1);
+		_cachedMaterial = _material;
+	}
+	return true;
 }
 
 bool ParticleSystem::OnGUI()
