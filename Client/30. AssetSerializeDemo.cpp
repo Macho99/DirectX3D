@@ -169,16 +169,7 @@ void AssetSerializeDemo::Init()
     {
         //animShader->SetTechNum(RenderTech::NormalDepth, -1);
         // Animation
-        ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Kachujin\\Mesh.fbx");
-        Model* model = modelRef.Resolve();
-
-        model->GetAnimations().clear();
-        ResourceRef<ModelAnimation> animIdleRef = RESOURCES->GetResourceRefByPath<ModelAnimation>(L"Models\\Kachujin\\Idle.fbx");
-        model->AddAnimation(animIdleRef);
-        ResourceRef<ModelAnimation> animRunRef = RESOURCES->GetResourceRefByPath<ModelAnimation>(L"Models\\Kachujin\\Run.fbx");
-        model->AddAnimation(animRunRef);
-        ResourceRef<ModelAnimation> animSlashRef = RESOURCES->GetResourceRefByPath<ModelAnimation>(L"Models\\Kachujin\\Slash.fbx");
-        model->AddAnimation(animSlashRef);
+        ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Kachujin\\KachujinModel.model");
 
         for (int32 i = 0; i < 10; i++)
         {

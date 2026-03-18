@@ -9,6 +9,7 @@
 #include "Material.h"
 #include "TerrainData.h"
 #include "Scene.h"
+#include "Model.h"
 
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
@@ -258,6 +259,14 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
                 }
 
                 ImGui::EndMenu();
+            }
+            if (ImGui::MenuItem("Model"))
+            {
+                if (TryGetNewFilePath(_currentFolder, "New Model", Model::GetExtension(), OUT newPath))
+                {
+                    unique_ptr<ResourceBase> newModel = make_unique<Model>();
+                    FileUtils::SaveResourceToJson(newPath, newModel);
+                }
             }
 
             ImGui::EndMenu();

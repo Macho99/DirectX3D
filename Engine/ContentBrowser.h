@@ -19,6 +19,7 @@ public:
     void Update() override;
 
     void GetCurMetaFiles();
+    static bool TryGetNewFilePath(const fs::path& folder, const string& baseName, const string& extension, OUT fs::path& newPath);
 
 protected:
     void OnGUI() override;
@@ -38,7 +39,6 @@ private:
     void DrawItemsGrid();
     void DrawItemsList();
 
-    bool TryGetNewFilePath(const fs::path& folder, const string& baseName, const string& extension, OUT fs::path& newPath);
 
     static wstring DisplayName(const fs::path& p);
 

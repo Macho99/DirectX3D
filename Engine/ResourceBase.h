@@ -22,6 +22,7 @@ public:
 	AssetId GetID() { return _assetId; }
 	void SetId(const AssetId& assetId) { _assetId = assetId; }
 	virtual bool OnGUI(bool isReadOnly);
+	virtual void OnMenu(bool isReadOnly);
 
     template<class Archive>
     void serialize(Archive& ar)

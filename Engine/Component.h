@@ -58,6 +58,7 @@ public:
 	void SetGuid(const Guid& guid) { _guid = guid; }
 
 	virtual bool OnGUI();
+    virtual void OnMenu();
 
 private:
 	friend class GameObject;

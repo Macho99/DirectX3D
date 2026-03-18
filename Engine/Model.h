@@ -7,7 +7,8 @@ class Model : public ResourceBase
 {
 	using Super = ResourceBase;
 public:
-	static constexpr ResourceType StaticType = ResourceType::Model;
+    static constexpr ResourceType StaticType = ResourceType::Model;
+    static string GetExtension() { return ".model"; }
 	Model();
     Model(vector<ResourceRef<Material>> materials, ResourceRef<ModelMeshResource> mesh, vector<ResourceRef<ModelAnimation>> animations);
 	~Model();
@@ -29,6 +30,17 @@ public:
     ModelMeshResource* GetMesh() { return _mesh.Resolve(); }
 
 	virtual bool OnGUI(bool isReadOnly) override;
+
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(CEREAL_NVP(_materials));
+        ar(CEREAL_NVP(_mesh));
+        ar(CEREAL_NVP(_animations));
+
+		if (Archive::is_loading::value)
+			BindCache();
+    }
 
 private:
 	vector<ResourceRef<Material>> _materials;

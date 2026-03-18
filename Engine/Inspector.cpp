@@ -94,7 +94,6 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
         return;
     }
 
-    bool readOnly = false;
     ResourceBase* resource;
     if (subAssetIdx == -1)
     {
@@ -102,28 +101,28 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
     }
     else
     {
-        readOnly = true;
         AssetRef selectedSubAsset(static_cast<SubAssetMetaFile*>(meta)->GetSubAssetIdByIndex(subAssetIdx));
         resource = selectedSubAsset.Resolve();
-        DrawCard(typeid(*resource).name(), &resource, [&]() { return resource->OnGUI(true); });
+        DrawCard(typeid(*resource).name(), &resource, [&]() { return resource->OnGUI(true); }, [&]() { return resource->OnMenu(true); });
         return;
     }
 
+    bool isReadOnly = meta->IsReadOnly();
     if (resource == nullptr)
     {
         DBG->LogErrorW(L"[Inspector] DrawAsset: Failed to resolve selected asset: " + assetRef.GetAssetId().ToWString());
         return;
     }
 
-    bool resourceChanged = DrawCard(typeid(*resource).name(), &resource, [&]() { return resource->OnGUI(false); });
+    bool resourceChanged = DrawCard(typeid(*resource).name(), &resource, [&]() { return resource->OnGUI(isReadOnly); }, [&]() { return resource->OnMenu(isReadOnly); });
     if (resourceChanged)
     {
         RESOURCES->SaveAsset(assetRef.GetAssetId());
     }
-    DrawCard(typeid(*meta).name(), &meta, [&]() { return meta->OnGUI(); });
+    DrawCard(typeid(*meta).name(), &meta, [&]() { return meta->OnGUI(); }, [&]() { return meta->OnMenu(); });
 }
 
-bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()> onGui)
+bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()> onGui, function<void()> onMenu)
 {
     ImGui::PushID(idPtr);
     ImGui::Spacing();
@@ -159,14 +158,14 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
     ImGui::SetCursorScreenPos(ImVec2(x, y));
     if (ImGui::Button("...", ImVec2(btnW, 23.f)))
     {
-        ImGui::OpenPopup("##CompMenu");
+        ImGui::OpenPopup("##ETCMenu");
     }
 
     ImGui::PopStyleColor(3);
 
-    if (ImGui::BeginPopup("##CompMenu"))
+    if (ImGui::BeginPopup("##ETCMenu"))
     {
-        ImGui::TextDisabled("Component Menu");
+        onMenu();
         ImGui::EndPopup();
     }
 
@@ -199,5 +198,6 @@ void Inspector::DrawComponentCard(Component& component)
     DrawCard(typeid(component).name(), &component, [&]
         {
             return component.OnGUI();
-        });
+        }, 
+        [&]() { component.OnMenu(); });
 }

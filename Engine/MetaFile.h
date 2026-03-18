@@ -31,6 +31,8 @@ public:
     ResourceType GetResourceType() const { return _resourceType; }
 
     virtual bool OnGUI();
+    virtual void OnMenu();
+    virtual bool IsReadOnly() const { return false; }
 
 protected:
     virtual void Import();

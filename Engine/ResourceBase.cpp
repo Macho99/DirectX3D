@@ -31,6 +31,10 @@ bool ResourceBase::OnGUI(bool isReadOnly)
 	return false;
 }
 
+void ResourceBase::OnMenu(bool isReadOnly)
+{
+}
+
 CEREAL_REGISTER_TYPE(Material);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(ResourceBase, Material);
 

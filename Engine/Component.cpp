@@ -49,6 +49,10 @@ bool Component::OnGUI()
 	return false;
 }
 
+void Component::OnMenu()
+{
+}
+
 CEREAL_REGISTER_TYPE(Transform);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Transform);
 

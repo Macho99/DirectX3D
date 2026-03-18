@@ -12,6 +12,7 @@
 #include "TerrainDataMeta.h"
 #include "TerrainData.h"
 #include "SceneMeta.h"
+#include "ModelMeta.h"
 
 #include "Material.h"
 #include "ModelMeshResource.h"
@@ -101,6 +102,11 @@ bool MetaFile::OnGUI()
         ForceReimport();
     }
     return false;
+}
+
+void MetaFile::OnMenu()
+{
+
 }
 
 void MetaFile::Import()
@@ -198,6 +204,7 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
     case ResourceType::Material:
     case ResourceType::TerrainData:
     case ResourceType::Mesh:
+    case ResourceType::Model:
         resource = FileUtils::LoadResourceFromJson(filePath);
         break;
     }
@@ -459,3 +466,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, TerrainDataMeta);
 
 CEREAL_REGISTER_TYPE(SceneMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, SceneMeta);
+
+CEREAL_REGISTER_TYPE(ModelMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, ModelMeta);

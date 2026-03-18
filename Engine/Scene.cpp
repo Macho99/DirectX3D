@@ -309,7 +309,10 @@ void Scene::PickUI()
 
 GameObject* Scene::Pick(int32 screenX, int32 screenY)
 {
-	Camera* camera = GetMainCamera()->GetCamera();
+    GameObject* camObj = GetMainCamera();
+    if (camObj == nullptr)
+        return nullptr;
+	Camera* camera = camObj->GetCamera();
 
     const GameDesc& gameDesc = GAME->GetGameDesc();
 	float width = gameDesc.sceneWidth;

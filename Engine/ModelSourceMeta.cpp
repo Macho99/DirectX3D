@@ -3,6 +3,8 @@
 #include "Converter.h"
 #include <regex>
 #include "Model.h"
+#include "ContentBrowser.h"
+#include "FileUtils.h"
 
 ModelSourceMeta::ModelSourceMeta() : Super(ResourceType::Model)
 {
@@ -40,6 +42,21 @@ unique_ptr<ResourceBase> ModelSourceMeta::LoadResource(AssetId assetId) const
     }
     unique_ptr<Model> model = make_unique<Model>(materialRefs, meshRef, animationRefs);
     return model;
+}
+
+void ModelSourceMeta::OnMenu()
+{
+    Super::OnMenu();
+
+    if (ImGui::MenuItem("Create Model Asset"))
+    {
+        unique_ptr<ResourceBase> model = LoadResource(_assetId);
+        fs::path newAssetPath;
+        if (ContentBrowser::TryGetNewFilePath(GetAssetPath().parent_path(), "New Model", Model::GetExtension(), OUT newAssetPath))
+        {
+            FileUtils::SaveResourceToJson(newAssetPath, model);
+        }
+    }
 }
 
 void ModelSourceMeta::Import()

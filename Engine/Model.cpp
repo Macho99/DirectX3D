@@ -69,14 +69,58 @@ ModelAnimation* Model::GetAnimationByName(wstring name)
 bool Model::OnGUI(bool isReadOnly)
 {
 	bool changed = false;
-    isReadOnly = true;
     changed |= Super::OnGUI(isReadOnly);
     changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh, isReadOnly);
+    ImGui::Separator();
+    if (isReadOnly == false)
+    {
+        uint32 materialCount = _materials.size();
+        bool materialCountChanged = OnGUIUtils::DrawUInt32("Material Count", &materialCount, 1.f, isReadOnly);
+        if (materialCountChanged && materialCount >= 0)
+        {
+            if (materialCount > _materials.size())
+            {
+                for (int i = _materials.size(); i < materialCount; i++)
+                {
+                    _materials.push_back(ResourceRef<Material>());
+                }
+            }
+            else
+            {
+                _materials.resize(materialCount);
+            }
+            changed = true;
+        }
+    }
+
+    ImGui::Separator();
     for (int i = 0; i < _materials.size(); i++)
     {
         string label = "Material " + to_string(i);
         changed |= OnGUIUtils::DrawResourceRef(label.c_str(), _materials[i], isReadOnly);
     }
+
+    if (isReadOnly == false)
+    {
+        int animationCount = _animations.size();
+        bool animationCountChanged = OnGUIUtils::DrawInt32("Animation Count", &animationCount, 1.f, isReadOnly);
+        if (animationCountChanged && animationCount >= 0)
+        {
+            if (animationCount > _animations.size())
+            {
+                for (int i = _animations.size(); i < animationCount; i++)
+                {
+                    _animations.push_back(ResourceRef<ModelAnimation>());
+                }
+            }
+            else
+            {
+                _animations.resize(animationCount);
+            }
+            changed = true;
+        }
+    }
+
     for (int i = 0; i < _animations.size(); i++)
     {
         string label = "Animation " + to_string(i);
