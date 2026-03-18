@@ -47,31 +47,73 @@ void FsEventDebouncer::PopReady(uint32_t debounceMs, std::vector<FsEvent>& out)
     }
 }
 
-FsEvent FsEventDebouncer::Merge(const FsEvent& a, const FsEvent& b)
+FsEvent FsEventDebouncer::Merge(const FsEvent& prevEvent, const FsEvent& newEvent)
 {
-    if (a.absPath.empty()) return b;
-    if (b.absPath.empty()) return a;
+    if (prevEvent.absPath.empty()) return newEvent;
+    if (newEvent.absPath.empty()) return prevEvent;
 
     // 같은 경로라는 가정
-    FsEvent r = a;
+    FsEvent r = prevEvent;
 
-    auto pri = [](FsAction act) -> int
+    switch (prevEvent.action)
+    {
+    case FsAction::Added:
+        switch (newEvent.action)
         {
-            // 우선순위: Removed > Added > Modified
-            switch (act)
-            {
-            case FsAction::Removed:  return 3;
-            case FsAction::Added:    return 2;
-            case FsAction::Modified: return 1;
-            default: return 0;
-            }
-        };
+        case FsAction::Added:
+        case FsAction::Modified:
+            r.action = FsAction::Added;
+            break;
+        case FsAction::Removed:
+            r.action = FsAction::Removed;
+            break;
+        default:
+            r.action = newEvent.action;
+            break;
+        }
+        break;
 
-    // 우선순위 높은 쪽으로
-    r.action = (pri(b.action) > pri(a.action)) ? b.action : a.action;
+    case FsAction::Removed:
+        switch (newEvent.action)
+        {
+        case FsAction::Added:
+            r.action = FsAction::Added;
+            break;
+        case FsAction::Removed:
+        case FsAction::Modified:
+            r.action = FsAction::Removed;
+            break;
+        default:
+            r.action = newEvent.action;
+            break;
+        }
+        break;
+
+    case FsAction::Modified:
+        switch (newEvent.action)
+        {
+        case FsAction::Added:
+            r.action = FsAction::Added;
+            break;
+        case FsAction::Removed:
+            r.action = FsAction::Removed;
+            break;
+        case FsAction::Modified:
+            r.action = FsAction::Modified;
+            break;
+        default:
+            r.action = newEvent.action;
+            break;
+        }
+        break;
+
+    default:
+            r.action = newEvent.action;
+            break;
+    }
 
     // 경로는 동일
-    r.absPath = a.absPath;
+    r.absPath = prevEvent.absPath;
     r.oldAbsPath = fs::path(); // rename은 여기서 안 처리
     return r;
 }

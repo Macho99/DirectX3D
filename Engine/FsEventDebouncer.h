@@ -23,7 +23,7 @@ private:
     // - Added + Modified => Added(최초 생성이 더 중요)
     // - Modified 여러 개 => Modified
     // - Removed가 오면 => Removed(최종)
-    static FsEvent Merge(const FsEvent& a, const FsEvent& b);
+    static FsEvent Merge(const FsEvent & prevEvent, const FsEvent & newEvent);
 
 private:
     unordered_map<wstring, Entry> _map;
