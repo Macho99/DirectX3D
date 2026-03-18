@@ -47,6 +47,16 @@ void Camera::UpdateMatrix()
 	}
 }
 
+void Camera::SsaoOnSize()
+{
+	if (_type == ProjectionType::Perspective)
+	{
+		int sceneWidth = GAME->GetGameDesc().sceneWidth;
+		int sceneHeight = GAME->GetGameDesc().sceneHeight;
+		GRAPHICS->SsaoOnSize(sceneWidth, sceneHeight, _fov, _far);
+	}
+}
+
 bool Camera::OnGUI()
 {
 	bool changed = false;
@@ -54,8 +64,14 @@ bool Camera::OnGUI()
 	changed |= Super::OnGUI();
     changed |= OnGUIUtils::DrawEnumCombo("Projection Type", _type, ProjectionTypeNames, (int)ProjectionType::Max);
     changed |= OnGUIUtils::DrawFloat("Near", &_near, 0.1f);
-    changed |= OnGUIUtils::DrawFloat("Far", &_far, 0.1f);
-    changed |= OnGUIUtils::DrawFloat("FOV", &_fov, 0.01f);
+    bool farOrFovChanged = false;
+	farOrFovChanged |= OnGUIUtils::DrawFloat("Far", &_far, 0.1f);
+	farOrFovChanged |= OnGUIUtils::DrawFloat("FOV", &_fov, 0.01f);
+    if (farOrFovChanged)
+    {
+        changed = true;
+        SsaoOnSize();
+    }
     changed |= OnGUIUtils::DrawFloat("Width", &_width, 1.f);
     changed |= OnGUIUtils::DrawFloat("Height", &_height, 1.f);
     changed |= OnGUIUtils::DrawUInt32("Culling Mask", &_cullingMask, 1.f);

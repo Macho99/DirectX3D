@@ -33,6 +33,8 @@ public:
 
 	void SetNormalDepthRenderTarget();
 	void DrawSsaoMap(bool clearOnly);
+    void SsaoOnSize(float width, float height, float fovY, float farZ);
+
 	ResourceRef<Texture> GetNormalDepthMap();
 	ResourceRef<Texture> GetSsaoMap();
 	void SetRTVAndDSV();

@@ -40,10 +40,11 @@ public:
 	void UpdateMatrix();
 
 	void SetNear(float value) { _near = value; }
-	void SetFar(float value) { _far = value; }
-	void SetFOV(float value) { _fov = value; }
+	void SetFar(float value) { _far = value; SsaoOnSize(); }
+	void SetFOV(float value) { _fov = value; SsaoOnSize(); }
 	void SetWidth(float value) { _width = value; }
 	void SetHeight(float value) { _height = value; }
+	void SsaoOnSize();
 
 	Matrix& GetViewMatrix() { return _matView; }
 	Matrix& GetProjectionMatrix() { return _matProjection; }
@@ -68,6 +69,11 @@ public:
             CEREAL_NVP(_height),
             CEREAL_NVP(_cullingMask)
 		);
+
+        if (Archive::is_loading::value)
+        {
+			SsaoOnSize();
+        }
 	}
 
 private:

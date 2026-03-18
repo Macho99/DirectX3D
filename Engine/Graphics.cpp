@@ -165,8 +165,7 @@ void Graphics::OnSize(bool isFirst)
 		fov = mainCam->GetFOV();
 		farZ = mainCam->GetFar();
 	}
-	_ssao->OnSize(sceneWidth, sceneHeight, fov, farZ);
-	_normalDepthMap.Resolve()->SetSRV(_ssao->GetNormalDepthSRV());
+	SsaoOnSize(sceneWidth, sceneHeight, fov, farZ);
     _normalDepthMap.Resolve()->SetSize(Vec2((float)sceneWidth, (float)sceneHeight));
 	SetViewport(sceneWidth, sceneHeight);
     for (auto& postProcess : _postProcesses)
@@ -230,6 +229,13 @@ void Graphics::DrawSsaoMap(bool clearOnly)
 	_ssao->Clear();
 	if(clearOnly == false)
 		_ssao->Draw();
+}
+
+void Graphics::SsaoOnSize(float width, float height, float fovY, float farZ)
+{
+    DBG->LogWarningW(L"Graphics::SsaoOnSize: width=" + to_wstring(width) + L", height=" + to_wstring(height) + L", fovY=" + to_wstring(fovY) + L", farZ=" + to_wstring(farZ));
+    _ssao->OnSize(width, height, fovY, farZ);
+	_normalDepthMap.Resolve()->SetSRV(_ssao->GetNormalDepthSRV());
 }
 
 ResourceRef<Texture> Graphics::GetNormalDepthMap()
