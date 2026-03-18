@@ -11,6 +11,7 @@
 #include "ShaderMeta.h"
 #include "TerrainDataMeta.h"
 #include "TerrainData.h"
+#include "SceneMeta.h"
 
 #include "Material.h"
 #include "ModelMeshResource.h"
@@ -38,11 +39,6 @@ MetaFile::MetaFile(ResourceType resourceType)
 
 MetaFile::~MetaFile()
 {
-}
-
-wstring MetaFile::GetResourcePath() const
-{
-    return GetArtifactPath() + L"\\asset";
 }
 
 fs::path MetaFile::GetImportedAssetPath() const
@@ -156,6 +152,9 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
             break;
         case ResourceType::TerrainData:
             key = "TerrainIcon";
+            break;
+        case ResourceType::Scene:
+            key = "SceneIcon";
             break;
         default:
             key = "DefaultFileIcon";
@@ -291,10 +290,21 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
     {
         EDITOR->ClickAsset(_assetId);
     }
-    if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
-        EDITOR->UnselectAsset();
-        currentFolder = assetPath;
+        if (isFolder)
+        {
+            EDITOR->UnselectAsset();
+            currentFolder = assetPath;
+        }
+        else if (GetResourceType() == ResourceType::Scene)
+        {
+            shared_ptr<Scene> target;
+            std::ifstream is(GetImportedAssetPath());
+            cereal::JSONInputArchive archive(is);
+            archive(target);
+            SCENE->ChangeScene(target);
+        }
     }
 
     // 3. 배경 그리기 (선택/호버)
@@ -446,3 +456,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, ShaderMeta);
 
 CEREAL_REGISTER_TYPE(TerrainDataMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, TerrainDataMeta);
+
+CEREAL_REGISTER_TYPE(SceneMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, SceneMeta);

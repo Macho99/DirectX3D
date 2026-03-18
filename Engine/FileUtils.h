@@ -54,6 +54,11 @@ public:
 	static void SaveResourceToJson(const fs::path path, unique_ptr<ResourceBase>& target);
 	static unique_ptr<ResourceBase> LoadResourceFromJson(const fs::path path);
 
+	static fs::path SaveFileDialog(
+		const wchar_t* title,
+		const wchar_t* filter,
+		const wchar_t* defaultExt = L"",
+		const std::filesystem::path& initialDir = {});
 private:
 	HANDLE _handle = INVALID_HANDLE_VALUE;
 };

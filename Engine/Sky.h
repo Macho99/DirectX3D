@@ -9,7 +9,7 @@ public:
 
     void SetMaterial(ResourceRef<class Material> material) { _material = material; }
 
-	void Render(Camera* camera);
+	void Render(class Camera* camera);
 
     template<class Archive>
     void serialize(Archive& ar)

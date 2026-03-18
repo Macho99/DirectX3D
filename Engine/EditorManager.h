@@ -64,5 +64,6 @@ private:
 
 	bool _inspectorLock = false;
 
-	vector<unique_ptr<EditorWindow>> _editorWindows;
+	vector<unique_ptr<EditorWindow>> _editorWindows; 
+	char _saveSceneName[256] = "NewScene";
 };

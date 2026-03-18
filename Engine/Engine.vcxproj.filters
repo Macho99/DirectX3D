@@ -756,6 +756,9 @@
     <ClInclude Include="TerrainDataMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
+    <ClInclude Include="SceneMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1143,6 +1146,9 @@
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="TerrainDataMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
   </ItemGroup>

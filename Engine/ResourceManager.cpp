@@ -3,7 +3,6 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Mesh.h"
-#include <filesystem>
 #include "MathUtils.h"
 #include "SlotManager.h"
 #include "MetaStore.h"

@@ -8,6 +8,7 @@
 #include "FileUtils.h"
 #include "Material.h"
 #include "TerrainData.h"
+#include "Scene.h"
 
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
@@ -390,10 +391,21 @@ void ContentBrowser::DrawItemsList()
             _editorManager->ClickAsset(meta->GetAssetId());
         }
 
-        if (isFolder && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
-            SetCurrentFolder(absPath);
-            _editorManager->UnselectAsset();
+            if (isFolder)
+            {
+                SetCurrentFolder(absPath);
+                _editorManager->UnselectAsset();
+            }
+            else if (meta->GetResourceType() == ResourceType::Scene)
+            {
+                shared_ptr<Scene> target;
+                std::ifstream is(meta->GetImportedAssetPath());
+                cereal::JSONInputArchive archive(is);
+                archive(target);
+                SCENE->ChangeScene(target);
+            }
         }
 
         ImGui::PopID();

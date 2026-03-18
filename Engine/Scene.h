@@ -3,15 +3,17 @@
 #include "ComponentRef.h"
 #include "SlotManager.h"
 #include "cereal/types/unordered_set.hpp"
+#include "Sky.h"
 
-class Sky;
 class Camera;
 class Transform;
 struct Guid;
 
-class Scene
+class Scene : public ResourceBase
 {
+	using Super = ResourceBase;
 public:
+	static constexpr ResourceType StaticType = ResourceType::Scene;
 	Scene();
 	virtual ~Scene();
 

@@ -107,7 +107,6 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "TimeManager.h"
 #include "ResourceManager.h"
 #include "RenderManager.h"
-#include "SceneManager.h"
 #include "DebugManager.h"
 
 // Engine
@@ -117,6 +116,7 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "ConstantBuffer.h"
 #include "Shader.h"
 #include "IExecute.h"
+#include "SceneManager.h"
 
 #include "ComponentRef.h"
 #include "GameObjectRef.h"

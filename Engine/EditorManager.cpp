@@ -7,7 +7,6 @@
 #include "DebugTexWindow.h"
 #include "ContentBrowser.h"
 #include "FileUtils.h"
-#include "Sky.h"
 
 EditorManager::EditorManager()
 {
@@ -81,6 +80,8 @@ void EditorManager::Update()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
+    bool openSaveScenePopup = false;
+
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("Window"))
@@ -100,25 +101,36 @@ void EditorManager::Update()
         {
             if (ImGui::MenuItem("Save"))
             {
-                shared_ptr<Scene> target = CUR_SCENE;
-                std::ofstream os("..\\scene.scene");
-                cereal::JSONOutputArchive archive(os);
-                archive(target);
+                auto path = FileUtils::SaveFileDialog(
+                    L"Save Scene",
+                    L"Scene Files (*.scene)\0*.scene\0All Files (*.*)\0*.*\0",
+                    L"scene",
+                    L"..\\Assets\\Scenes"
+                );
+
+                if (!path.empty())
+                {
+                    shared_ptr<Scene> target = CUR_SCENE;
+
+                    std::ofstream os(path);
+                    cereal::JSONOutputArchive archive(os);
+                    archive(target);
+                }
             }
 
-            if (ImGui::MenuItem("Load"))
-            {
-                shared_ptr<Scene> target;
-                std::ifstream is("..\\scene.scene");
-                cereal::JSONInputArchive archive(is);
-                archive(target);
-                SCENE->ChangeScene(target);
-            }
-
+            //if (ImGui::MenuItem("Load"))
+            //{
+            //    shared_ptr<Scene> target;
+            //    std::ifstream is("..\\scene.scene");
+            //    cereal::JSONInputArchive archive(is);
+            //    archive(target);
+            //    SCENE->ChangeScene(target);
+            //}
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
+
     DrawDockSpace();
     bool showDemo = true;
     ImGui::ShowDemoWindow(&showDemo);

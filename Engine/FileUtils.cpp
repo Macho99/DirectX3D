@@ -3,6 +3,8 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 #include "ResourceBase.h"
+#include <windows.h>
+#include <commdlg.h>
 
 using namespace Microsoft::WRL;
 
@@ -132,4 +134,39 @@ unique_ptr<ResourceBase> FileUtils::LoadResourceFromJson(const fs::path path)
 	cereal::JSONInputArchive archive(is);
 	archive(target);
 	return target;
+}
+
+fs::path FileUtils::SaveFileDialog(const wchar_t* title, const wchar_t* filter, const wchar_t* defaultExt, const std::filesystem::path& initialDir)
+
+{
+	wchar_t filePath[MAX_PATH] = L"";
+
+	OPENFILENAMEW ofn = {};
+	ofn.lStructSize = sizeof(ofn);
+	ofn.lpstrTitle = title;
+
+	ofn.lpstrFile = filePath;
+	ofn.nMaxFile = MAX_PATH;
+
+	ofn.lpstrFilter = filter;
+	ofn.nFilterIndex = 1;
+
+	ofn.lpstrDefExt = defaultExt;
+
+	std::wstring initDir;
+	if (!initialDir.empty())
+	{
+		initDir = initialDir.wstring();
+		ofn.lpstrInitialDir = initDir.c_str();
+	}
+
+	ofn.Flags =
+		OFN_PATHMUSTEXIST |
+		OFN_NOCHANGEDIR |
+		OFN_OVERWRITEPROMPT;
+
+	if (GetSaveFileNameW(&ofn))
+		return std::filesystem::path(filePath);
+
+	return {};
 }

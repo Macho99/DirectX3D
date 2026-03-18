@@ -358,6 +358,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="ResourceRef.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SceneMeta.h" />
     <ClInclude Include="SceneView.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderMeta.h" />
@@ -554,6 +555,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="ResourceRef.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SceneMeta.cpp" />
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderMeta.cpp" />

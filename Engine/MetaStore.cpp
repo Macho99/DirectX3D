@@ -13,6 +13,7 @@
 #include "ShaderMeta.h"
 #include "TerrainDataMeta.h"
 #include "TerrainData.h"
+#include "SceneMeta.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -166,6 +167,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         _creators[".mesh"] = []() { return make_unique<MeshMeta>(); };
         _creators[".mat"] = []() { return make_unique<MaterialMeta>(); };
         _creators[".fx"] = []() { return make_unique<ShaderMeta>(); };
+        _creators[".scene"] = []() { return make_unique<SceneMeta>(); };
         _creators[TerrainData::GetExtension()] = []() { return make_unique<TerrainDataMeta>(); };
 
         {

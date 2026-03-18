@@ -89,6 +89,7 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
     switch (meta->GetResourceType())
     {
     case ResourceType::Folder:
+    case ResourceType::Scene:
     case ResourceType::None:
         return;
     }
