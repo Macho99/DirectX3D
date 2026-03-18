@@ -1,18 +1,10 @@
 #pragma once
-#include "SubAssetMetaFile.h"
-class ModelMeta : public SubAssetMetaFile
+#include "MetaFile.h"
+class ModelMeta : public MetaFile
 {
-    using Super = SubAssetMetaFile;
+    using Super = MetaFile;
 public:
-    ModelMeta();
-    ~ModelMeta();
-
-    virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
-
-protected:
-    void Import() override;
-
-private:
-    virtual int GetVersion() const override { return 5; }
+    ModelMeta() : Super(ResourceType::Model) {}
+    ~ModelMeta() {}
 };
 

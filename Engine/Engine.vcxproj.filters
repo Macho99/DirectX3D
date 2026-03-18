@@ -672,7 +672,7 @@
     <ClInclude Include="TextureMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
-    <ClInclude Include="ModelMeta.h">
+    <ClInclude Include="ModelSourceMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
     <ClInclude Include="SubAssetMetaFile.h">
@@ -757,6 +757,9 @@
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
     <ClInclude Include="SceneMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1067,7 +1070,7 @@
     <ClCompile Include="TextureMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
-    <ClCompile Include="ModelMeta.cpp">
+    <ClCompile Include="ModelSourceMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
     <ClCompile Include="AssetId.cpp">
@@ -1149,6 +1152,9 @@
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
     <ClCompile Include="SceneMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
   </ItemGroup>

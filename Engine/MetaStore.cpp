@@ -3,7 +3,7 @@
 #include "fstream"
 #include "cereal/types/polymorphic.hpp"
 #include "cereal/archives/json.hpp"
-#include "ModelMeta.h"
+#include "ModelSourceMeta.h"
 #include "TextureMeta.h"
 #include "FolderMeta.h"
 #include "NotSupportMeta.h"
@@ -162,7 +162,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
 {
     if (_creators.size() == 0)
     {
-        _creators[".fbx"] = []() { return make_unique<ModelMeta>(); };
+        _creators[".fbx"] = []() { return make_unique<ModelSourceMeta>(); };
         _creators[".clip"] = []() { return make_unique<AnimationMeta>(); };
         _creators[".mesh"] = []() { return make_unique<MeshMeta>(); };
         _creators[".mat"] = []() { return make_unique<MaterialMeta>(); };

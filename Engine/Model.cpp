@@ -69,6 +69,7 @@ ModelAnimation* Model::GetAnimationByName(wstring name)
 bool Model::OnGUI(bool isReadOnly)
 {
 	bool changed = false;
+    isReadOnly = true;
     changed |= Super::OnGUI(isReadOnly);
     changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh, isReadOnly);
     for (int i = 0; i < _materials.size(); i++)

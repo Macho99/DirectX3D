@@ -22,5 +22,5 @@ public:
 
     friend class ResourceManager;
     friend class Converter;
-    friend class ModelMeta;
+    friend class ModelSourceMeta;
 };

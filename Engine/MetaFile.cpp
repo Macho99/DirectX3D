@@ -2,7 +2,7 @@
 #include "MetaFile.h"
 #include "SubAssetMetaFile.h"
 #include "TextureMeta.h"
-#include "ModelMeta.h"
+#include "ModelSourceMeta.h"
 #include "FolderMeta.h"
 #include "NotSupportMeta.h"
 #include "AnimationMeta.h"
@@ -430,8 +430,8 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
 //CEREAL_REGISTER_TYPE(SubAssetMetaFile);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, SubAssetMetaFile);
 
-CEREAL_REGISTER_TYPE(ModelMeta);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(SubAssetMetaFile, ModelMeta);
+CEREAL_REGISTER_TYPE(ModelSourceMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(SubAssetMetaFile, ModelSourceMeta);
 
 CEREAL_REGISTER_TYPE(TextureMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, TextureMeta);
