@@ -206,10 +206,9 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
 {
     if (ImGui::BeginPopupContextWindow("##CB_EmptySpaceContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
     {
+        _editorManager->FocusContentBrowserAsset(AssetRef());
         if (ImGui::BeginMenu("Create"))
         {
-            _editorManager->FocusContentBrowserAsset(AssetRef());
-
             fs::path newPath;
             if (ImGui::MenuItem("Material"))
             {
