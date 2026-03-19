@@ -24,9 +24,8 @@ static const char* ProjectionTypeNames[] =
 class Camera :  public Component
 {
 	using Super = Component;
-public:
-    static constexpr ComponentType StaticType = ComponentType::Camera;
-	
+    DECLARE_COMPONENT(Camera)
+public:	
 	Camera();
 	virtual ~Camera();
 	

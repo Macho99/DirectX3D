@@ -8,8 +8,8 @@ class Material;
 class MeshRenderer : public Renderer
 {
 	using Super = Renderer;
+    DECLARE_COMPONENT(MeshRenderer)
 public:
-	static constexpr ComponentType StaticType = ComponentType::MeshRenderer;
 	MeshRenderer();
 	virtual ~MeshRenderer();
 

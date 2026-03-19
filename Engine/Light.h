@@ -6,9 +6,8 @@ class Camera;
 class Light : public Component
 {
 	using Super = Component;
-
+    DECLARE_COMPONENT(Light)
 public:
-	static constexpr ComponentType StaticType = ComponentType::Light;
 	Light();
 	virtual ~Light();
 

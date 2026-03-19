@@ -762,6 +762,9 @@
     <ClInclude Include="ModelMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentRegistry.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1156,6 +1159,9 @@
     </ClCompile>
     <ClCompile Include="ModelMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentRegistry.cpp">
+      <Filter>04. Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

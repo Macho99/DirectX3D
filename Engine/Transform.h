@@ -5,8 +5,8 @@
 class Transform : public Component
 {
 	using Super = Component;
+	DECLARE_COMPONENT(Transform)
 public:
-	static constexpr ComponentType StaticType = ComponentType::Transform;
 	static Vec3 ToEulerAngles(Quaternion q);
 
 	Transform();

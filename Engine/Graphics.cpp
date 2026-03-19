@@ -233,7 +233,6 @@ void Graphics::DrawSsaoMap(bool clearOnly)
 
 void Graphics::SsaoOnSize(float width, float height, float fovY, float farZ)
 {
-    DBG->LogWarningW(L"Graphics::SsaoOnSize: width=" + to_wstring(width) + L", height=" + to_wstring(height) + L", fovY=" + to_wstring(fovY) + L", farZ=" + to_wstring(farZ));
     _ssao->OnSize(width, height, fovY, farZ);
 	_normalDepthMap.Resolve()->SetSRV(_ssao->GetNormalDepthSRV());
 }

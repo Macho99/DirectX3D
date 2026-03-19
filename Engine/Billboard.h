@@ -13,10 +13,9 @@ struct VertexBillboard
 
 class Billboard : public Renderer
 {
-	using Super = Renderer;
-
+    using Super = Renderer;
+    DECLARE_COMPONENT(Billboard)
 public:
-	static constexpr ComponentType StaticType = ComponentType::Billboard;
 	Billboard();
 	~Billboard();
 

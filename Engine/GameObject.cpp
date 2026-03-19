@@ -154,7 +154,7 @@ ModelRenderer* GameObject::GetModelRenderer()
 
 ModelAnimator* GameObject::GetModelAnimator()
 {
-	Component* component = GetFixedComponent(ComponentType::Animator);
+	Component* component = GetFixedComponent(ComponentType::ModelAnimator);
 	return static_cast<ModelAnimator*>(component);
 }
 
@@ -164,7 +164,7 @@ Renderer* GameObject::GetRenderer()
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::ModelRenderer);
 	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::Animator);
+		renderer = GetFixedComponent(ComponentType::ModelAnimator);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::ParticleSystem);
 	if (renderer == nullptr)

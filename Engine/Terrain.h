@@ -5,8 +5,8 @@
 class Terrain : public Component
 {
 	using Super = Component;
+    DECLARE_COMPONENT(Terrain)
 public:
-	static constexpr ComponentType StaticType = ComponentType::Terrain;
 	Terrain();
 	~Terrain();
 

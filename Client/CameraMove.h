@@ -4,6 +4,7 @@
 class CameraMove : public MonoBehaviour
 {
     using Super = MonoBehaviour;
+	DECLARE_MONO_BEHAVIOUR(CameraMove)
 public:
 	virtual void Start() override;
 	virtual void Update() override;

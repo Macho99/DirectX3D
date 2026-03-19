@@ -4,8 +4,8 @@
 class OBBBoxCollider : public BaseCollider
 {
     using Super = BaseCollider;
+    DECLARE_COMPONENT(OBBBoxCollider)
 public:
-    static constexpr ComponentType StaticType = ComponentType::OBBBoxCollider;
 	OBBBoxCollider();
 	virtual ~OBBBoxCollider();
 

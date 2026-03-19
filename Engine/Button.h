@@ -2,10 +2,9 @@
 #include "Component.h"
 class Button : public Component
 {
-	using Super = Component;
-
+    using Super = Component;
+    DECLARE_COMPONENT(Button)
 public:
-	static constexpr ComponentType StaticType = ComponentType::Button;
 	Button();
 	virtual ~Button();
 

@@ -11,10 +11,9 @@ struct AnimTransform
 
 class ModelAnimator : public Renderer
 {
-	using Super = Renderer;
-
+    using Super = Renderer;
+    DECLARE_COMPONENT(ModelAnimator)
 public:
-	static constexpr ComponentType StaticType = ComponentType::Animator;
 	ModelAnimator();
 	~ModelAnimator();
 

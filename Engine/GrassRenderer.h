@@ -52,8 +52,8 @@ class TessTerrain;
 class GrassRenderer : public Renderer
 {
     using Super = Renderer;
+    DECLARE_COMPONENT(GrassRenderer)
 public:
-    static constexpr ComponentType StaticType = ComponentType::GrassRenderer;
     GrassRenderer();
     GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const AssetRef& uvAsset);
     ~GrassRenderer();

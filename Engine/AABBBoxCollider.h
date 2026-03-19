@@ -2,9 +2,9 @@
 #include "BaseCollider.h"
 class AABBBoxCollider : public BaseCollider
 {
-	using Super = BaseCollider;
+    using Super = BaseCollider;
+    DECLARE_COMPONENT(AABBBoxCollider)
 public:
-    static constexpr ComponentType StaticType = ComponentType::AABBBoxCollider;
 	AABBBoxCollider();
 	virtual ~AABBBoxCollider();
 

@@ -4,9 +4,8 @@
 class FoliageController : public Component
 {
     using Super = Component;
-
+    DECLARE_COMPONENT(FoliageController)
 public:
-    static constexpr ComponentType StaticType = ComponentType::FoliageController;
     FoliageController();
     ~FoliageController();
 

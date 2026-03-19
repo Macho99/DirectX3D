@@ -15,8 +15,8 @@ struct ParticleVertex
 class ParticleSystem : public Renderer
 {
 	using Super = Renderer;
+    DECLARE_COMPONENT(ParticleSystem)
 public:
-	static constexpr ComponentType StaticType = ComponentType::ParticleSystem;
 	ParticleSystem();
 	~ParticleSystem();
 

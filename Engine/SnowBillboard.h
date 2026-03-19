@@ -15,9 +15,8 @@ struct VertexSnow
 class SnowBillboard : public Renderer
 {
 	using Super = Renderer;
-
+    DECLARE_COMPONENT(SnowBillboard)
 public:
-	static constexpr ComponentType StaticType = ComponentType::SnowBillboard;
 	SnowBillboard();
 	~SnowBillboard();
 

@@ -8,9 +8,8 @@ class Material;
 class ModelRenderer : public Renderer
 {
 	using Super = Renderer;
-
+	DECLARE_COMPONENT(ModelRenderer)
 public:
-	static constexpr ComponentType StaticType = ComponentType::ModelRenderer;
 	ModelRenderer();
 	virtual ~ModelRenderer();
 

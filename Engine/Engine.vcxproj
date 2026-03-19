@@ -269,6 +269,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentDrawer.h" />
     <ClInclude Include="ComponentRef.h" />
+    <ClInclude Include="ComponentRegistry.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ContentBrowser.h" />
@@ -408,6 +409,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentDrawer.cpp" />
     <ClCompile Include="ComponentRef.cpp" />
+    <ClCompile Include="ComponentRegistry.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="ContentBrowser.cpp" />

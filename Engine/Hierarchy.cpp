@@ -60,6 +60,14 @@ void Hierarchy::ShowHierarchy()
         }
         ImGui::EndPopup();
     }
+    else if (ImGui::BeginPopup("HierarchyEmptyContext"))
+    {
+        if (ImGui::MenuItem("Create Empty Root"))
+        {
+            curScene->Add("New Object");
+        }
+        ImGui::EndPopup();
+    }
 
     ImGui::TextDisabled("Tip: Drag & drop. Top=before, Middle=child, Bottom=after. Drop on empty area => root.");
 
@@ -113,7 +121,10 @@ void Hierarchy::ShowHierarchy()
             _editorManager->ClickTransform(TransformRef());
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+        {
             _editorManager->ClickTransform(TransformRef());
+            ImGui::OpenPopup("HierarchyEmptyContext");
+        }
     }
 }
 

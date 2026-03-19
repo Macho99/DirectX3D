@@ -2,6 +2,7 @@
 #include "Inspector.h"
 #include "EditorManager.h"
 #include "MonoBehaviour.h"
+#include "ComponentRegistry.h"
 
 Inspector::Inspector()
     :Super("Inspector")
@@ -71,6 +72,15 @@ void Inspector::DrawGameObject(TransformRef& transformRef)
             continue;
 
         DrawComponentCard(*component);
+    }
+
+    const vector<ComponentDesc>& descs = ComponentRegistry::Get().GetDescs();
+    for (const ComponentDesc& desc : descs)
+    {
+        if (ImGui::Button(desc.name))
+        {
+            gameObject->AddComponent(desc.factory());
+        }
     }
 }
 

@@ -2,6 +2,7 @@
 class GameObject;
 class Transform;
 #include "GameObjectRef.h"
+#include "ComponentRegistry.h"
 
 enum class ComponentType : uint8
 {
@@ -9,7 +10,7 @@ enum class ComponentType : uint8
 	MeshRenderer,
 	ModelRenderer,
 	Camera,
-	Animator, 
+	ModelAnimator, 
 	Light,
 	Collider,
 	Terrain,

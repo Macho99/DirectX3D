@@ -3,8 +3,8 @@
 class SphereCollider : public BaseCollider
 {
 	using Super = BaseCollider;
+    DECLARE_COMPONENT(SphereCollider)
 public:
-    static constexpr ComponentType StaticType = ComponentType::SphereCollider;
 	SphereCollider();
 	virtual ~SphereCollider();
 
