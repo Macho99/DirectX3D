@@ -148,40 +148,28 @@ void ContentBrowser::DrawLeftFolderTree()
 
 void ContentBrowser::DrawFolderNodeRecursive(FolderTreeCache::Node* node)
 {
-    ImGuiListClipper clipper;
-    clipper.Begin((int)node->children.size());
-
-    while (clipper.Step())
+    for (FolderTreeCache::Node* child : node->children)
     {
-        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
+        const bool isSelected = SafeEquivalent(child->abs, _currentFolder);
+
+        ImGuiTreeNodeFlags flags =
+            ImGuiTreeNodeFlags_OpenOnArrow |
+            ImGuiTreeNodeFlags_SpanFullWidth |
+            (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
+
+        _tree.EnsureScanned(child);
+        if (child->scanned && !child->hasChildren)
+            flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+        bool open = ImGui::TreeNodeEx((void*)child, flags, "%s", child->displayName.c_str());
+
+        if (ImGui::IsItemClicked())
+            SetCurrentFolder(child->abs);
+
+        if (open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
         {
-            auto* child = node->children[i];
-
-            const bool isSelected = SafeEquivalent(child->abs, _currentFolder);
-
-            ImGuiTreeNodeFlags flags =
-                ImGuiTreeNodeFlags_OpenOnArrow |
-                ImGuiTreeNodeFlags_SpanFullWidth |
-                (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
-
-            _tree.EnsureScanned(child);
-            if (child->scanned && !child->hasChildren)
-                flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-            bool open = ImGui::TreeNodeEx((void*)child, flags, "%s", child->displayName.c_str());
-
-            if (ImGui::IsItemClicked())
-                SetCurrentFolder(child->abs);
-
-            if (open && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
-            {
-                DrawFolderNodeRecursive(child);
-                ImGui::TreePop();
-            }
-            else if (open && (flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
-            {
-                // leaf라서 TreePop 불필요
-            }
+            DrawFolderNodeRecursive(child);
+            ImGui::TreePop();
         }
     }
 }
