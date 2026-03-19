@@ -291,8 +291,17 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
         DBG->LogW(L"Dropped asset " + dropped.ToWString() + L"=>" + _assetId.ToWString());
     }
 
-    if (ImGui::IsItemHovered() &&
-        ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
+    static ImGuiID pressedId = 0;
+    ImGuiID id = ImGui::GetItemID();
+
+    if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+    {
+        pressedId = id;
+    }
+
+    if (pressedId == id &&
+        ImGui::IsItemHovered() &&
+        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
         !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
     {
         EDITOR->ClickAsset(_assetId);
