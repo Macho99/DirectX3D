@@ -19,6 +19,8 @@ protected:
 
 public:
     bool IsOpen = true;
+    bool IsBegin = false;
+
 protected:
     string _windowName;
     bool _enableMenu;

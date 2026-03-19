@@ -23,10 +23,11 @@ public:
         _descs.push_back({ type, name, factory });
     }
 
-    const std::vector<ComponentDesc>& GetDescs() const { return _descs; }
+    void Init();
+    const vector<ComponentDesc>& GetDescs() const { return _descs; }
 
 private:
-    std::vector<ComponentDesc> _descs;
+    vector<ComponentDesc> _descs;
 };
 
 #define DECLARE_COMPONENT(TYPE)                                      \

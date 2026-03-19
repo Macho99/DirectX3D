@@ -36,7 +36,7 @@ void SceneView::OnGUI()
 
     ImGui::Image((ImTextureID)GRAPHICS->GetSceneViewSRV().Get(), avail);
 
-    if(gameDesc.sceneFocused)
+    if(IsBegin)
         DrawSceneViewGizmoOverlay();
 
     // ImGuizmo
@@ -108,17 +108,39 @@ void SceneView::DrawSceneViewGizmoOverlay()
 
     ImGui::Begin("##SceneGizmoOverlay", nullptr, flags);
 
-    // ---- Operation (W/E/R 느낌으로 단축키도 같이 연결하면 좋습니다)
-    if (ImGui::Button("Move"))   
-        g_gizmo.op = ImGuizmo::TRANSLATE;
-    ImGui::SameLine();
+    auto DrawModeButton = [&](const char* label, ImGuizmo::OPERATION op)
+        {
+            bool selected = (g_gizmo.op == op);
 
-    if (ImGui::Button("Rot"))    
-        g_gizmo.op = ImGuizmo::ROTATE;
-    ImGui::SameLine();
+            if (!selected)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            }
 
-    if (ImGui::Button("Scale"))  
-        g_gizmo.op = ImGuizmo::SCALE;
+            if (ImGui::Button(label))
+                g_gizmo.op = op;
+
+            if (!selected)
+                ImGui::PopStyleColor(3);
+        };
+
+    DrawModeButton("Move", ImGuizmo::TRANSLATE);
+    ImGui::SameLine();
+    DrawModeButton("Rot", ImGuizmo::ROTATE);
+    ImGui::SameLine();
+    DrawModeButton("Scale", ImGuizmo::SCALE);
+
+    if (INPUT->GetButton(KEY_TYPE::RBUTTON) == false && INPUT->GetButton(KEY_TYPE::RBUTTON) == false)
+    {
+        if (INPUT->GetButtonDown(KEY_TYPE::Q))
+            g_gizmo.op = ImGuizmo::TRANSLATE;
+        else if (INPUT->GetButtonDown(KEY_TYPE::W))
+            g_gizmo.op = ImGuizmo::ROTATE;
+        else if (INPUT->GetButtonDown(KEY_TYPE::E))
+            g_gizmo.op = ImGuizmo::SCALE;
+    }
 
     // ---- Mode
     ImGui::SameLine();

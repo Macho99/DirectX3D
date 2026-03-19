@@ -14,9 +14,12 @@ void EditorWindow::Init(EditorManager* editorManager)
 void EditorWindow::CheckAndOnGUI()
 {
     if (IsOpen == false)
+    {
+        IsBegin = false;
         return;
+    }
 
-    ImGui::Begin(_windowName.c_str(), &IsOpen);
+    IsBegin = ImGui::Begin(_windowName.c_str(), &IsOpen);
 
     if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
         ImGui::IsMouseClicked(ImGuiMouseButton_Right))

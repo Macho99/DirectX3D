@@ -16,6 +16,7 @@ Inspector::~Inspector()
 void Inspector::Init(EditorManager* editorManager)
 {
     Super::Init(editorManager);
+    ComponentRegistry::Get().Init();
 }
 
 void Inspector::OnGUI()

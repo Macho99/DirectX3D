@@ -12,6 +12,9 @@ void CameraMove::Update()
 {
 	MoveFocusTarget();
 
+	if (INPUT->GetButtonDown(KEY_TYPE::RBUTTON) == false && INPUT->GetButton(KEY_TYPE::RBUTTON) == false)
+		return;
+
 	float dt = TIME->GetDeltaTime();
 
 	Vec3 pos = GetTransform()->GetPosition();
