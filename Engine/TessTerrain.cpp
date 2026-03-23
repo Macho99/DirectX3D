@@ -89,6 +89,104 @@ float TessTerrain::GetHeight(float x, float z) const
 	}
 }
 
+bool TessTerrain::Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& distance)
+{
+	if (TryInitialize() == false)
+		return false;
+
+	TerrainData* terrainData = _terrainData.Resolve();
+	if (terrainData == nullptr || _heightmap.empty())
+		return false;
+
+	Matrix world = GetTransform()->GetWorldMatrix();
+	Matrix view = CUR_SCENE->GetMainCamera()->GetCamera()->GetViewMatrix();
+	Matrix projection = CUR_SCENE->GetMainCamera()->GetCamera()->GetProjectionMatrix();
+
+	Viewport& vp = GRAPHICS->GetViewport();
+	Vec3 nearPos = vp.Unproject(Vec3(screenX, screenY, 0.0f), world, view, projection);
+	Vec3 farPos = vp.Unproject(Vec3(screenX, screenY, 1.0f), world, view, projection);
+
+	Vec3 rayDir = farPos - nearPos;
+	rayDir.Normalize();
+	Ray localRay(nearPos, rayDir);
+
+	const float minHeight = _minHeight;
+    const float maxHeight = _maxHeight;
+    const float width = GetWidth();
+    const float depth = GetDepth();
+
+	BoundingBox localBounds(
+		Vec3(0.0f, (minHeight + maxHeight) * 0.5f, 0.0f),
+		Vec3(width * 0.5f, (maxHeight - minHeight) * 0.5f, depth * 0.5f));
+
+	float entryDistance = 0.0f;
+	if (localRay.Intersects(localBounds, OUT entryDistance) == false)
+		return false;
+
+	float marchStart = max(0.0f, entryDistance);
+	float marchLength = sqrtf(width * width + depth * depth + (maxHeight - minHeight) * (maxHeight - minHeight));
+	float step = max(terrainData->GetCellSpacing() * 0.5f, 0.5f);
+
+	auto SampleDelta = [&](float t)
+		{
+			Vec3 samplePos = localRay.position + localRay.direction * t;
+			const float halfWidth = width * 0.5f;
+			const float halfDepth = depth * 0.5f;
+			const float epsilon = 0.001f;
+			if (samplePos.x < -halfWidth || samplePos.x >= halfWidth - epsilon || samplePos.z <= -halfDepth + epsilon || samplePos.z > halfDepth)
+				return FLT_MAX;
+
+			return samplePos.y - GetHeight(samplePos.x, samplePos.z);
+		};
+
+	float prevT = marchStart;
+	float prevDelta = SampleDelta(prevT);
+	if (prevDelta == FLT_MAX)
+		return false;
+
+	if (prevDelta <= 0.0f)
+	{
+		distance = prevT;
+		pickPos = localRay.position + localRay.direction * distance;
+		return true;
+	}
+
+    int count = 0;
+	float marchEnd = marchStart + marchLength;
+	for (float currentT = marchStart + step; currentT <= marchEnd; currentT += step)
+	{
+		count++;
+		float currentDelta = SampleDelta(currentT);
+		if (currentDelta == FLT_MAX)
+			break;
+
+		if (currentDelta <= 0.0f)
+		{
+			float low = prevT;
+			float high = currentT;
+			for (int32 i = 0; i < 8; ++i)
+			{
+				float mid = (low + high) * 0.5f;
+				float midDelta = SampleDelta(mid);
+				if (midDelta <= 0.0f)
+					high = mid;
+				else
+					low = mid;
+			}
+
+			distance = high;
+			pickPos = localRay.position + localRay.direction * distance;
+            DBG->Log(Utils::Format("March steps: %d, Binary search steps: 8", count));
+			return true;
+		}
+
+		prevT = currentT;
+		prevDelta = currentDelta;
+	}
+
+	return false;
+}
+
 bool TessTerrain::OnGUI()
 {
     bool changed = false;
@@ -115,10 +213,21 @@ bool TessTerrain::OnGUI()
 		}
 		
 		UpdateHeightmapTexture();
-        DBG->Log("Add height UpdateHeightmapTexture");
-
 		UpdateQuadPatchVB();
-		DBG->Log("Add height End");
+	}
+
+	if (INPUT->IsMouseInScene())
+	{
+		POINT mousePos =  INPUT->GetMousePos();
+        Vec3 _pickPos;
+        float _pickDistance;
+        bool picked = Pick(mousePos.x, mousePos.y, OUT _pickPos, OUT _pickDistance);
+
+		if (picked)
+		{
+			ImGui::Text("Pick Pos: (%.2f, %.2f, %.2f)", _pickPos.x, _pickPos.y, _pickPos.z);
+			ImGui::Text("Pick Distance: %.2f", _pickDistance);
+		}
 	}
 
     return changed;
@@ -502,6 +611,9 @@ void TessTerrain::BuildHeightmapSRV()
 	// HALF is defined in xnamath.h, for storing 16-bit float.
 	std::vector<uint16> hmap(_heightmap.size());
 	std::transform(_heightmap.begin(), _heightmap.end(), hmap.begin(), MathUtils::ConvertFloatToHalf);
+	auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
+    _minHeight = *minIt;
+    _maxHeight = *maxIt;
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &hmap[0];
@@ -528,6 +640,9 @@ bool TessTerrain::UpdateHeightmapTexture()
 
     std::vector<uint16> hmap(_heightmap.size());
     std::transform(_heightmap.begin(), _heightmap.end(), hmap.begin(), MathUtils::ConvertFloatToHalf);
+	auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
+	_minHeight = *minIt;
+	_maxHeight = *maxIt;
 
     D3D11_MAPPED_SUBRESOURCE subResource = {};
     HRESULT hr = DC->Map(_heightMapTexture2D.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);

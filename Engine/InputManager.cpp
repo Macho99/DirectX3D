@@ -9,6 +9,8 @@ void InputManager::Init(HWND hwnd)
 
 void InputManager::Update()
 {
+	_mouseInScene = false;
+
 	HWND hwnd = ::GetActiveWindow();
 	if (_hwnd != hwnd)
 	{
@@ -67,18 +69,20 @@ void InputManager::Update()
 	{
 		//DBG->Log(std::format("mousePose: {} {}", _mousePos.x, _mousePos.y));
 		Vec2 scenePos = gameDesc.scenePos;
+        _mousePos.x -= scenePos.x;
+        _mousePos.y -= scenePos.y;
+
 		float width = gameDesc.sceneWidth;
 		float height = gameDesc.sceneHeight;
 
-		bool inScene = false;
-		if (scenePos.x <= _mousePos.x && _mousePos.x <= scenePos.x + width)
+		if (0 <= _mousePos.x && _mousePos.x <= width)
 		{
-			if (scenePos.y <= _mousePos.y && _mousePos.y <= scenePos.y + height)
-				inScene = true;
+			if (0 <= _mousePos.y && _mousePos.y <= height)
+				_mouseInScene = true;
 		}
 
 		//DBG->Log("inScene: " + string(inScene ? "true" : "false"));
-		if (inScene == false)
+		if (_mouseInScene == false)
 		{
 			if (GetButtonDown(KEY_TYPE::LBUTTON))
 				SetState(KEY_TYPE::LBUTTON, KEY_STATE::NONE);

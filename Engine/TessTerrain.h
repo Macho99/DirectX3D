@@ -15,6 +15,7 @@ public:
 	float GetWidth() const;
 	float GetDepth() const;
 	float GetHeight(float x, float z) const;
+	bool Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& distance);
     bool UpdateQuadPatchVB();
     bool UpdateHeightmapTexture();
 
@@ -72,4 +73,7 @@ private:
 
 	vector<XMFLOAT2> _patchBoundsY;
 	vector<float> _heightmap;
+
+    float _minHeight = FLT_MAX;
+    float _maxHeight = -FLT_MAX;
 };
