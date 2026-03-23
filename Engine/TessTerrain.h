@@ -15,6 +15,8 @@ public:
 	float GetWidth() const;
 	float GetDepth() const;
 	float GetHeight(float x, float z) const;
+    bool UpdateQuadPatchVB();
+    bool UpdateHeightmapTexture();
 
 	void InnerRender(RenderTech renderTech) override;
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
@@ -47,16 +49,18 @@ private:
     bool _initialized = false;
 
 	// Divide heightmap into patches such that each patch has CellsPerPatch cells
-	// and CellsPerPatch+1 vertices.  Use 64 so that if we tessellate all the way 
-	// to 64, we use all the data from the heightmap.  
+	// and CellsPerPatch+1 vertices.  Use 64 so that if we tessellate all the way
+	// to 64, we use all the data from the heightmap.
 	static const int CellsPerPatch = 64;
 
 	ComPtr<ID3D11Buffer> _quadPatchVB;
 	ComPtr<ID3D11Buffer> _quadPatchIB;
+    vector<VertexTerrain> _patchVertices;
 
 	ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 	ResourceRef<Texture> _blendMapTexture;
     ResourceRef<Texture> _heightMapTexture;
+    ComPtr<ID3D11Texture2D> _heightMapTexture2D;
 	ComPtr<ID3D11ShaderResourceView> _heightMapSRV;
 
     TerrainDesc _terrainDesc;
@@ -66,6 +70,6 @@ private:
 	uint32 _numPatchVertRows = 0;
 	uint32 _numPatchVertCols = 0;
 
-	std::vector<XMFLOAT2> _patchBoundsY;
-	std::vector<float> _heightmap;
+	vector<XMFLOAT2> _patchBoundsY;
+	vector<float> _heightmap;
 };

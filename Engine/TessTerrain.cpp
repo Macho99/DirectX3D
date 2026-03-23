@@ -95,6 +95,32 @@ bool TessTerrain::OnGUI()
     changed |= Super::OnGUI();
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Terrain Data", _terrainData, false);
+
+	if (ImGui::Button("Add"))
+	{
+        DBG->Log("Add height");
+		TerrainData* terrainData = _terrainData.Resolve();
+		float heightmapHeight = terrainData->GetHeightmapHeight();
+		float heightmapWidth = terrainData->GetHeightmapWidth();
+
+		int radius = 10;
+		for (uint32 i = heightmapHeight / 2 - radius; i < heightmapHeight / 2 + radius; ++i)
+		{
+			for (uint32 j = heightmapWidth / 2 - radius; j < heightmapWidth / 2 + radius; ++j)
+			{
+                float dist = radius - Vec2::Distance(Vec2((float)j, (float)i), Vec2(heightmapWidth / 2.0f, heightmapHeight / 2.0f));
+
+				_heightmap[i * heightmapWidth + j] += dist;
+			}
+		}
+		
+		UpdateHeightmapTexture();
+        DBG->Log("Add height UpdateHeightmapTexture");
+
+		UpdateQuadPatchVB();
+		DBG->Log("Add height End");
+	}
+
     return changed;
 }
 
@@ -102,6 +128,8 @@ bool TessTerrain::TryInitialize()
 {
     if (_initialized)
         return true;
+
+	DBG->LogW(L"초기화 시작");
 
     TerrainData* terrainData = _terrainData.Resolve();
     if (terrainData == nullptr)
@@ -115,12 +143,18 @@ bool TessTerrain::TryInitialize()
 	_numPatchQuadFaces = (_numPatchVertRows - 1) * (_numPatchVertCols - 1);
 
 	LoadHeightmap();
-	Smooth();
+	DBG->LogW(L"LoadHeightmap");
+	//Smooth();
+	//DBG->LogW(L"Smooth");
 	CalcAllPatchBoundsY();
+	DBG->LogW(L"CalcAllPatchBoundsY");
 
 	BuildQuadPatchVB();
+	DBG->LogW(L"BuildQuadPatchVB");
 	BuildQuadPatchIB();
+	DBG->LogW(L"BuildQuadPatchIB");
 	BuildHeightmapSRV();
+	DBG->LogW(L"BuildHeightmapSRV");
 
 	_layerMapArraySRV = terrainData->GetLayerMapArraySRV();
 	_blendMapTexture = terrainData->GetBlendMap();
@@ -347,7 +381,8 @@ void TessTerrain::CalcPatchBoundsY(uint32 i, uint32 j)
 
 void TessTerrain::BuildQuadPatchVB()
 {
-	std::vector<VertexTerrain> patchVertices(_numPatchVertRows * _numPatchVertCols);
+	_patchVertices.clear();
+    _patchVertices.resize(_numPatchVertRows * _numPatchVertCols);
 
 	float halfWidth = 0.5f * GetWidth();
 	float halfDepth = 0.5f * GetDepth();
@@ -364,11 +399,11 @@ void TessTerrain::BuildQuadPatchVB()
 		{
 			float x = -halfWidth + j * patchWidth;
 
-			patchVertices[i * _numPatchVertCols + j].Pos = XMFLOAT3(x, 0.0f, z);
+			_patchVertices[i * _numPatchVertCols + j].Pos = XMFLOAT3(x, 0.0f, z);
 
 			// Stretch texture over grid.
-			patchVertices[i * _numPatchVertCols + j].Tex.x = j * du;
-			patchVertices[i * _numPatchVertCols + j].Tex.y = i * dv;
+			_patchVertices[i * _numPatchVertCols + j].Tex.x = j * du;
+			_patchVertices[i * _numPatchVertCols + j].Tex.y = i * dv;
 		}
 	}
 
@@ -378,21 +413,36 @@ void TessTerrain::BuildQuadPatchVB()
 		for (uint32 j = 0; j < _numPatchVertCols - 1; ++j)
 		{
 			uint32 patchID = i * (_numPatchVertCols - 1) + j;
-			patchVertices[i * _numPatchVertCols + j].BoundsY = _patchBoundsY[patchID];
+			_patchVertices[i * _numPatchVertCols + j].BoundsY = _patchBoundsY[patchID];
 		}
 	}
 
 	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(VertexTerrain) * patchVertices.size();
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.ByteWidth = sizeof(VertexTerrain) * _patchVertices.size();
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = &patchVertices[0];
+	vinitData.pSysMem = _patchVertices.data();
 	DX_CREATE_BUFFER(&vbd, &vinitData, _quadPatchVB);
+}
+
+bool TessTerrain::UpdateQuadPatchVB()
+{
+    if (_quadPatchVB == nullptr || _patchVertices.empty())
+        return false;
+
+    D3D11_MAPPED_SUBRESOURCE subResource = {};
+    HRESULT hr = DC->Map(_quadPatchVB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+    if (FAILED(hr))
+        return false;
+
+    memcpy(subResource.pData, _patchVertices.data(), sizeof(VertexTerrain) * _patchVertices.size());
+    DC->Unmap(_quadPatchVB.Get(), 0);
+    return true;
 }
 
 void TessTerrain::BuildQuadPatchIB()
@@ -444,9 +494,9 @@ void TessTerrain::BuildHeightmapSRV()
 	texDesc.Format = DXGI_FORMAT_R16_FLOAT;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.Usage = D3D11_USAGE_DYNAMIC;
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	texDesc.CPUAccessFlags = 0;
+	texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	texDesc.MiscFlags = 0;
 
 	// HALF is defined in xnamath.h, for storing 16-bit float.
@@ -458,15 +508,41 @@ void TessTerrain::BuildHeightmapSRV()
 	data.SysMemPitch = heightmapWidth * sizeof(uint16);
 	data.SysMemSlicePitch = 0;
 
-	ComPtr<ID3D11Texture2D> hmapTex;
-	DX_CREATE_TEXTURE2D(&texDesc, &data, hmapTex);
+	DX_CREATE_TEXTURE2D(&texDesc, &data, _heightMapTexture2D);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = texDesc.Format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = -1;
-	DX_CREATE_SRV(hmapTex.Get(), &srvDesc, _heightMapSRV);
+	srvDesc.Texture2D.MipLevels = 1;
+	DX_CREATE_SRV(_heightMapTexture2D.Get(), &srvDesc, _heightMapSRV);
 
 	_heightMapTexture.Resolve()->SetSRV(_heightMapSRV);
+}
+
+bool TessTerrain::UpdateHeightmapTexture()
+{
+    TerrainData* terrainData = _terrainData.Resolve();
+    if (terrainData == nullptr || _heightMapTexture2D == nullptr || _heightmap.empty())
+        return false;
+
+    std::vector<uint16> hmap(_heightmap.size());
+    std::transform(_heightmap.begin(), _heightmap.end(), hmap.begin(), MathUtils::ConvertFloatToHalf);
+
+    D3D11_MAPPED_SUBRESOURCE subResource = {};
+    HRESULT hr = DC->Map(_heightMapTexture2D.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
+    if (FAILED(hr))
+        return false;
+
+    const uint32 rowPitch = terrainData->GetHeightmapWidth() * sizeof(uint16);
+    const uint32 rowCount = terrainData->GetHeightmapHeight();
+    for (uint32 row = 0; row < rowCount; ++row)
+    {
+        unsigned char* dstRow = static_cast<unsigned char*>(subResource.pData) + subResource.RowPitch * row;
+        const unsigned char* srcRow = reinterpret_cast<const unsigned char*>(hmap.data()) + rowPitch * row;
+        memcpy(dstRow, srcRow, rowPitch);
+    }
+
+    DC->Unmap(_heightMapTexture2D.Get(), 0);
+    return true;
 }
