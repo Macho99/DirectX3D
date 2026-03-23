@@ -24,9 +24,20 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	for (auto& pair : _gameObjects)
+    for (auto& transformRef : _rootObjects)
+    {
+        Transform* transform = transformRef.Resolve();
+        ASSERT(transform != nullptr);
+        GameObject* gameObject = transform->GetGameObject();
+        ASSERT(gameObject != nullptr);
+
+		gameObject->UpdateActiveInHierarchy(true, true);
+		transform->UpdateTransform();
+    }
+
+	for (auto& gameObject : _gameObjects)
 	{
-        GameObject* obj = pair.Resolve();
+        GameObject* obj = gameObject.Resolve();
 		obj->Start();
 	}
 }

@@ -170,13 +170,15 @@ void AssetSerializeDemo::Init()
         //animShader->SetTechNum(RenderTech::NormalDepth, -1);
         // Animation
         ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Kachujin\\KachujinModel.model");
-
+        auto parentObjRef = CUR_SCENE->Add("Kachujins");
+        auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
         for (int32 i = 0; i < 10; i++)
         {
             auto objRef = CUR_SCENE->Add("Kachujin" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
+            obj->GetTransform()->SetParent(parentTransformRef);
             obj->AddComponent(make_unique<ModelAnimator>());
             {
                 obj->GetModelAnimator()->SetShader(renderShader);
@@ -187,6 +189,9 @@ void AssetSerializeDemo::Init()
     }
 
     {
+        auto parentObjRef = CUR_SCENE->Add("Towers");
+        auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
+
         // Model
         ResourceRef<Model> model = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tower\\Tower.fbx");
         for (int32 i = 0; i < 5; i++)
@@ -195,6 +200,7 @@ void AssetSerializeDemo::Init()
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
+            obj->GetTransform()->SetParent(parentTransformRef);
 
             auto modelRenderer = make_unique<ModelRenderer>();
             modelRenderer->SetShader(renderShader);
@@ -206,6 +212,9 @@ void AssetSerializeDemo::Init()
 
     ResourceRef<Shader> foliageShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
     {
+        auto parentObjRef = CUR_SCENE->Add("Trees");
+        auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
+
         // Model
         //shared_ptr<Model> m2 = make_shared<Model>();
         //m2->ReadModel(L"Tree1/Tree");
@@ -217,6 +226,7 @@ void AssetSerializeDemo::Init()
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(5.f));
+            obj->GetTransform()->SetParent(parentTransformRef);
 
             obj->AddComponent(make_unique<ModelRenderer>());
             {

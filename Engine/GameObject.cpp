@@ -236,6 +236,51 @@ void GameObject::AddComponent(unique_ptr<Component> component)
 	}
 }
 
+void GameObject::SetActive(bool active)
+{
+    if (_localActive == active)
+        return;
+
+	_localActive = active;
+	bool parentActive = true;
+	Transform* parentTransform;
+	if (GetTransform()->TryGetParent(OUT parentTransform))
+	{
+		parentActive = parentTransform->GetGameObject()->IsActive();
+	}
+	UpdateActiveInHierarchy(parentActive, false);
+}
+
+void GameObject::UpdateActiveInHierarchy(bool parentActive, bool forceUpdate)
+{
+	bool newActive = parentActive && _localActive;
+    if (forceUpdate == false && _isActive == newActive)
+        return;
+
+    _isActive = newActive;
+    //for (ComponentRefBase& component : _components)
+    //{
+    //    if (component.IsValid())
+    //        component.Resolve()->SetActive(_isActive);
+    //}
+	//
+    //for (ComponentRef<MonoBehaviour>& script : _scripts)
+    //{
+    //    if (script.IsValid())
+    //        script.Resolve()->SetActive(_isActive);
+    //}
+
+    vector<TransformRef>& children = GetTransform()->GetChildren();
+    for (TransformRef& child : children)
+    {
+        Transform* childTransform = child.Resolve();
+        ASSERT(childTransform != nullptr);
+		GameObject* childGameObject = childTransform->GetGameObject();
+		ASSERT(childGameObject != nullptr);
+		childGameObject->UpdateActiveInHierarchy(_isActive, forceUpdate);
+    }
+}
+
 GameObjectRef GameObject::GetGameObjectRefByGuid(const Guid& guid)
 {
     return GameObjectRef(guid);

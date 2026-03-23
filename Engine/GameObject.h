@@ -64,7 +64,9 @@ public:
 	string GetName() const { return _name; }
 	void SetName(string name) { _name = name; }
 	bool IsActive() const { return _isActive; }
-	void SetActive(bool active) { _isActive = active; }
+    bool IsLocallyActive() const { return _localActive; }
+	void SetActive(bool active);
+    void UpdateActiveInHierarchy(bool parentActive, bool forceUpdate = false);
 
     Guid GetGuid() const { return _guid; }
 	void SetGuid(const Guid& guid) { _guid = guid; }
@@ -76,7 +78,7 @@ public:
     {
         ar(cereal::make_nvp("Guid", _guid));
         ar(cereal::make_nvp("Name", _name));
-        ar(cereal::make_nvp("IsActive", _isActive));
+        ar(cereal::make_nvp("LocalActive", _localActive));
         ar(cereal::make_nvp("LayerIndex", _layerIndex));
         ar(cereal::make_nvp("Components", _components));
         ar(cereal::make_nvp("Scripts", _scripts));
@@ -84,6 +86,7 @@ public:
 
 private:
 	bool _isActive = true;
+	bool _localActive = true;
 	
 	array<ComponentRefBase, FIXED_COMPONENT_COUNT> _components;
 	vector<ComponentRef<MonoBehaviour>> _scripts;

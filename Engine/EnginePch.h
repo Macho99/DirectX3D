@@ -68,6 +68,18 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "Assimp/assimp-vc143-mt.lib")
 #endif
 
+inline void Assert(bool condition, const char* expr, const char* file, int line)
+{
+    if (!condition)
+    {
+        std::cerr << "Assertion Failed!\n";
+        std::cerr << "Expression: " << expr << "\n";
+        std::cerr << "File      : " << file << "\n";
+        std::cerr << "Line      : " << line << "\n";
+        std::abort();
+    }
+}
+
 inline void Assert(bool condition, const char* expr, const char* message,
     const char* file, int line)
 {

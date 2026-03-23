@@ -65,13 +65,9 @@ public:
 			CEREAL_NVP(_localScale),
             CEREAL_NVP(_localRotation),
             CEREAL_NVP(_localPosition),
-            CEREAL_NVP(_parent)
+            CEREAL_NVP(_parent),
+            CEREAL_NVP(_children)
         );
-
-		if constexpr (Archive::is_loading::value)
-		{
-			UpdateTransform();
-		}
     }
 
 private:

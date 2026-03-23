@@ -50,6 +50,10 @@ enum Layer_Mask
 #define ASSERT(cond, msg) \
     Assert((cond), #cond, (msg), __FILE__, __LINE__)
 
+#define ASSERT(cond) \
+    Assert((cond), #cond, __FILE__, __LINE__)
+
 #else
 #define ASSERT(cond, msg) ((void)0)
+#define ASSERT(cond) ((void)0)
 #endif
