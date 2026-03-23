@@ -1,0 +1,16 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ShaderMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 12870828189890760173,
+                    "rightId": 10136593005650758723
+                },
+                "_resourceType": 1
+            }
+        }
+    }
+}

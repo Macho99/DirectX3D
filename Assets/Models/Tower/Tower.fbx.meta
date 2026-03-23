@@ -1,0 +1,34 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 10331437376361273762,
+                    "rightId": 12924529980127412309
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 10164519745592251343,
+                            "rightId": 11602194519058418809
+                        },
+                        "fileName": "watchtower.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 8684433573232578198,
+                            "rightId": 13454335978916378372
+                        },
+                        "fileName": "watchtowerHigh.modelmesh",
+                        "resourceType": 8
+                    }
+                ]
+            }
+        }
+    }
+}

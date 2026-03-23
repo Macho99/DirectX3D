@@ -1,0 +1,16 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "NotSupportMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 11532785339223654881,
+                    "rightId": 6566271675637200899
+                },
+                "_resourceType": 255
+            }
+        }
+    }
+}

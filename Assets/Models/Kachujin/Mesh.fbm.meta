@@ -1,0 +1,16 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "FolderMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 6203418945831043666,
+                    "rightId": 5598530205897151546
+                },
+                "_resourceType": 7
+            }
+        }
+    }
+}

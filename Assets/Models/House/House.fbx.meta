@@ -1,0 +1,34 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 2854732551808506528,
+                    "rightId": 10847247818713089641
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 10140467972159432202,
+                            "rightId": 11194284089910496260
+                        },
+                        "fileName": "cottage_texture.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 10974122446292521812,
+                            "rightId": 14190751774668676460
+                        },
+                        "fileName": "Cube.modelmesh",
+                        "resourceType": 8
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "TextureMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 7794267101039785583,
+                    "rightId": 12079723140135847321
+                },
+                "_resourceType": 2
+            }
+        }
+    }
+}

@@ -1,0 +1,74 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 1254435106288870696,
+                    "rightId": 13583100206248396908
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 15515416026461271239,
+                            "rightId": 13465969755168145288
+                        },
+                        "fileName": "bark_0021.jpg",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 13075936318666663498,
+                            "rightId": 364166569754821307
+                        },
+                        "fileName": "Trank_bark1.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 8120729346061092819,
+                            "rightId": 1858494832188240712
+                        },
+                        "fileName": "DB2X2_L01.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 300394540988466378,
+                            "rightId": 7034104090589249026
+                        },
+                        "fileName": "DB2X2_L01_Spec.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 6579980470633683050,
+                            "rightId": 12233494086598448998
+                        },
+                        "fileName": "DB2X2_L01_Nor.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 18309511007986047151,
+                            "rightId": 565737398012990353
+                        },
+                        "fileName": "DB2X2_L02.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 6858236872016829556,
+                            "rightId": 15108317288543630120
+                        },
+                        "fileName": "polySurface1.modelmesh",
+                        "resourceType": 8
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "MeshMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 12983168330832672137,
+                    "rightId": 4564854222721173415
+                },
+                "_resourceType": 0
+            }
+        }
+    }
+}

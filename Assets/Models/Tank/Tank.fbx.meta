@@ -1,0 +1,42 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 4726558487392059590,
+                    "rightId": 12529613795605479685
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 16652389651672893782,
+                            "rightId": 14075547289358870670
+                        },
+                        "fileName": "turret_phong.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4108996772321228296,
+                            "rightId": 437173068655947683
+                        },
+                        "fileName": "engine_phong.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 6152585357465394868,
+                            "rightId": 12525742123893111627
+                        },
+                        "fileName": "tank.modelmesh",
+                        "resourceType": 8
+                    }
+                ]
+            }
+        }
+    }
+}

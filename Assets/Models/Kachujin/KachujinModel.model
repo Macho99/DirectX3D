@@ -1,0 +1,45 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "Model",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_materials": [
+                    {
+                        "assetId": {
+                            "leftId": 15505313207331564752,
+                            "rightId": 11515452839101257905
+                        }
+                    }
+                ],
+                "_mesh": {
+                    "assetId": {
+                        "leftId": 7917065050278501747,
+                        "rightId": 18347299600630766661
+                    }
+                },
+                "_animations": [
+                    {
+                        "assetId": {
+                            "leftId": 2819613679609574159,
+                            "rightId": 14233971515763468682
+                        }
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7650048303302722203,
+                            "rightId": 5465726726433891966
+                        }
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 15002900821202697098,
+                            "rightId": 4723304874057461211
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

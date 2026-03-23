@@ -1,0 +1,50 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 3730010720983683871,
+                    "rightId": 5845622784656321034
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 9554013526533478780,
+                            "rightId": 10903862961261216550
+                        },
+                        "fileName": "EYES.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 13588390153865089429,
+                            "rightId": 8763402383703589196
+                        },
+                        "fileName": "Game_dragon.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 14423474725091328892,
+                            "rightId": 10449958378585383499
+                        },
+                        "fileName": "Game_dragon.001.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7123914893223562855,
+                            "rightId": 6889896132798836615
+                        },
+                        "fileName": "Cube.modelmesh",
+                        "resourceType": 8
+                    }
+                ]
+            }
+        }
+    }
+}

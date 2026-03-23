@@ -1,0 +1,66 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 11577865580974890632,
+                    "rightId": 5584369580658414863
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 4373766438234444659,
+                            "rightId": 3923572474355775779
+                        },
+                        "fileName": "Kachujin_diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9844627272875827879,
+                            "rightId": 6190690946461379284
+                        },
+                        "fileName": "Kachujin_specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 6941339066173642285,
+                            "rightId": 11494342853494955445
+                        },
+                        "fileName": "Kachujin_normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 15505313207331564752,
+                            "rightId": 11515452839101257905
+                        },
+                        "fileName": "kachujin_MAT.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7917065050278501747,
+                            "rightId": 18347299600630766661
+                        },
+                        "fileName": "Kachujin.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9386747729372452730,
+                            "rightId": 4348670909556999837
+                        },
+                        "fileName": "mixamo.com.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

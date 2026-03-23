@@ -1,0 +1,57 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "TerrainData",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "heightMap": {
+                    "assetId": {
+                        "leftId": 1115768239487903243,
+                        "rightId": 10400216326907106100
+                    }
+                },
+                "layerMap0": {
+                    "assetId": {
+                        "leftId": 595073922378376946,
+                        "rightId": 16004006855823132554
+                    }
+                },
+                "layerMap1": {
+                    "assetId": {
+                        "leftId": 6815029624952871838,
+                        "rightId": 932360084440793394
+                    }
+                },
+                "layerMap2": {
+                    "assetId": {
+                        "leftId": 7366716854236853226,
+                        "rightId": 2072915654403721246
+                    }
+                },
+                "layerMap3": {
+                    "assetId": {
+                        "leftId": 12500149277160273386,
+                        "rightId": 4025755375948973737
+                    }
+                },
+                "layerMap4": {
+                    "assetId": {
+                        "leftId": 7366716854236853226,
+                        "rightId": 2072915654403721246
+                    }
+                },
+                "blendMap": {
+                    "assetId": {
+                        "leftId": 4859083598084269140,
+                        "rightId": 14424253898625829487
+                    }
+                },
+                "heightScale": 50.0,
+                "heightmapWidth": 2049,
+                "heightmapHeight": 2049,
+                "cellSpacing": 0.5
+            }
+        }
+    }
+}
