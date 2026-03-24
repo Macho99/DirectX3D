@@ -62,6 +62,8 @@ private:
 	void BuildQuadPatchIB();
 	void BuildHeightmapSRV();
 
+    float SampleBrush(const DirectX::Image* brushImage, float u, float v);
+
 public:
 	Event<> OnHeightmapChanged;
 

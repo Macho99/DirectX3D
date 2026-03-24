@@ -252,40 +252,6 @@ bool TessTerrain::OnGUI()
             Vec3 pickPos = _terrainDesc.brushPos;
 			if (terrainData != nullptr && brushImage != nullptr)
 			{
-				auto SampleBrushBlue = [&](float u, float v) -> float
-					{
-						if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
-							return 0.0f;
-
-						const uint32 brushWidth = static_cast<uint32>(brushImage->width);
-						const uint32 brushHeight = static_cast<uint32>(brushImage->height);
-						if (brushWidth == 0 || brushHeight == 0)
-							return 0.0f;
-
-						const uint32 x = min<uint32>(static_cast<uint32>(u * (brushWidth - 1)), brushWidth - 1);
-						const uint32 y = min<uint32>(static_cast<uint32>(v * (brushHeight - 1)), brushHeight - 1);
-						const size_t pixelSize = max<size_t>(1, BitsPerPixel(brushImage->format) / 8);
-						const uint8* pixel = brushImage->pixels + y * brushImage->rowPitch + x * pixelSize;
-
-						switch (brushImage->format)
-						{
-						case DXGI_FORMAT_R8_UNORM:
-							return pixel[0] / 255.0f;
-						case DXGI_FORMAT_B8G8R8A8_UNORM:
-						case DXGI_FORMAT_B8G8R8X8_UNORM:
-							return pixel[0] / 255.0f;
-						case DXGI_FORMAT_R8G8B8A8_UNORM:
-						case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-							return pixel[2] / 255.0f;
-						case DXGI_FORMAT_R16_UNORM:
-							return *reinterpret_cast<const uint16*>(pixel) / 65535.0f;
-						case DXGI_FORMAT_R32_FLOAT:
-							return *reinterpret_cast<const float*>(pixel);
-						default:
-							return 0.0f;
-						}
-					};
-
 				const float cellSpacing = terrainData->GetCellSpacing();
 				const uint32 heightmapWidth = terrainData->GetHeightmapWidth();
 				const uint32 heightmapHeight = terrainData->GetHeightmapHeight();
@@ -310,12 +276,20 @@ bool TessTerrain::OnGUI()
 						const float vertexX = -terrainWidth * 0.5f + x * cellSpacing;
 						const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
 						const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
-						const float brushWeight = SampleBrushBlue(brushU, brushV);
+						const float brushWeight = SampleBrush(brushImage, brushU, brushV);
 						if (brushWeight <= 0.0f)
 							continue;
 
+                        float power = DT * brushWeight * _brushStrength;
                         int index = y * heightmapWidth + x;
-						_heightmap[index] += directionY * brushWeight * DT * _brushStrength;
+						if (_editMode == EditMode::RaiseLower)
+						{
+							_heightmap[index] += directionY * power;
+						}
+						else if (_editMode == EditMode::Smooth)
+						{
+                            _heightmap[index] = MathUtils::Lerp(_heightmap[index], Average(y, x), power);
+						}
                         _halfHeightmap[index] = MathUtils::ConvertFloatToHalf(_heightmap[index]);
 					}
 				}
@@ -785,6 +759,40 @@ void TessTerrain::BuildHeightmapSRV()
 	DX_CREATE_SRV(_heightMapTexture2D.Get(), &srvDesc, _heightMapSRV);
 
 	_heightMapTexture.Resolve()->SetSRV(_heightMapSRV);
+}
+
+float TessTerrain::SampleBrush(const DirectX::Image* brushImage, float u, float v)
+{
+	if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
+		return 0.0f;
+
+	const uint32 brushWidth = static_cast<uint32>(brushImage->width);
+	const uint32 brushHeight = static_cast<uint32>(brushImage->height);
+	if (brushWidth == 0 || brushHeight == 0)
+		return 0.0f;
+
+	const uint32 x = min<uint32>(static_cast<uint32>(u * (brushWidth - 1)), brushWidth - 1);
+	const uint32 y = min<uint32>(static_cast<uint32>(v * (brushHeight - 1)), brushHeight - 1);
+	const size_t pixelSize = max<size_t>(1, BitsPerPixel(brushImage->format) / 8);
+	const uint8* pixel = brushImage->pixels + y * brushImage->rowPitch + x * pixelSize;
+
+	switch (brushImage->format)
+	{
+	case DXGI_FORMAT_R8_UNORM:
+		return pixel[0] / 255.0f;
+	case DXGI_FORMAT_B8G8R8A8_UNORM:
+	case DXGI_FORMAT_B8G8R8X8_UNORM:
+		return pixel[0] / 255.0f;
+	case DXGI_FORMAT_R8G8B8A8_UNORM:
+	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		return pixel[2] / 255.0f;
+	case DXGI_FORMAT_R16_UNORM:
+		return *reinterpret_cast<const uint16*>(pixel) / 65535.0f;
+	case DXGI_FORMAT_R32_FLOAT:
+		return *reinterpret_cast<const float*>(pixel);
+	default:
+		return 0.0f;
+	}
 }
 
 bool TessTerrain::UpdateHeightmapTexture()
