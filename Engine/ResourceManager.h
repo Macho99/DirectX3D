@@ -28,6 +28,7 @@ public:
 
 private:
 	void CreateRandomTexture();
+	void CreateDummyTexture();
 
 public:
 	fs::path GetRootPath() const { return _root; }
@@ -73,6 +74,7 @@ public:
 	ResourceRef<Mesh> GetCubeMesh() const;
 	ResourceRef<Mesh> GetSphereMesh() const;
 	Texture* GetRandomTexture();
+    ResourceRef<Texture> GetDummyTexture() const { return _dummyTexture; }
 
 private:
 	static wstring ToStr(FsAction fsAction);
@@ -95,6 +97,7 @@ private:
 	AssetSlot _assetSlot;
 
 	ResourceRef<Texture> _randomTexture;
+    ResourceRef<Texture> _dummyTexture;
 };
 
 template<typename T>

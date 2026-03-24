@@ -91,88 +91,88 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Shaders\00. Global.fx">
+    <FxCompile Include="..\Assets\Shaders\00. Render.fx">
       <Filter>Shaders\Common</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\00. Light.fx">
+    <FxCompile Include="..\Assets\Shaders\00. Global.fx">
       <Filter>Shaders\Common</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\14. ModelDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\15. AnimationDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\16. TweenDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\17. SkyBoxDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\18. InstancingDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\19. RenderDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\00. Render.fx">
+    <FxCompile Include="..\Assets\Shaders\00. GrassCommon.fx">
       <Filter>Shaders\Common</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\20. RawBufferDemo.fx">
-      <Filter>Shaders\Week4</Filter>
+    <FxCompile Include="..\Assets\Shaders\00. Light.fx">
+      <Filter>Shaders\Common</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\21. TextureBufferDemo.fx">
-      <Filter>Shaders\Week4</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx">
-      <Filter>Shaders\Week4</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\23. BillboardDemo.fx">
+    <FxCompile Include="..\Assets\Shaders\23. BillboardDemo.fx">
       <Filter>Shaders\Week5</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\24. SnowDemo.fx">
+    <FxCompile Include="..\Assets\Shaders\24. SnowDemo.fx">
       <Filter>Shaders\Week5</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ParticleSystem.fx">
+    <FxCompile Include="..\Assets\Shaders\22. StructuredBufferDemo.fx">
+      <Filter>Shaders\Week4</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\20. RawBufferDemo.fx">
+      <Filter>Shaders\Week4</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\21. TextureBufferDemo.fx">
+      <Filter>Shaders\Week4</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\19. RenderDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\14. ModelDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\15. AnimationDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\16. TweenDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\17. SkyBoxDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\18. InstancingDemo.fx">
+      <Filter>Shaders\Week3</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\ToneMapping.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Sky.fx">
+    <FxCompile Include="..\Assets\Shaders\Bloom.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\DebugTexture.fx">
+    <FxCompile Include="..\Assets\Shaders\Blur.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Ssao.fx">
+    <FxCompile Include="..\Assets\Shaders\BlurCombine.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Blur.fx">
+    <FxCompile Include="..\Assets\Shaders\DebugTexture.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Bloom.fx">
+    <FxCompile Include="..\Assets\Shaders\DownSample.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ToneMapping.fx">
+    <FxCompile Include="..\Assets\Shaders\Foliage.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\DownSample.fx">
+    <FxCompile Include="..\Assets\Shaders\GrassCompute.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\BlurCombine.fx">
+    <FxCompile Include="..\Assets\Shaders\GrassRender.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Terrain.fx">
+    <FxCompile Include="..\Assets\Shaders\ParticleSystem.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Foliage.fx">
+    <FxCompile Include="..\Assets\Shaders\Sky.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\GrassCompute.fx">
+    <FxCompile Include="..\Assets\Shaders\Ssao.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\00. GrassCommon.fx">
-      <Filter>Shaders\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\GrassRender.fx">
+    <FxCompile Include="..\Assets\Shaders\Terrain.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
   </ItemGroup>

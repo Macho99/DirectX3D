@@ -205,7 +205,9 @@ struct TerrainDesc
 
 	Vec4 gWorldFrustumPlanes[6];
 	Vec2 gTexScale = Vec2(50.0f, 50.0f);
+	float brushRadius;
 	float dummy2;
+	Vec3 brushPos;
 	float dummy3;
 };
 

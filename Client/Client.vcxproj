@@ -44,34 +44,34 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Shaders\00. Global.fx" />
-    <FxCompile Include="..\Shaders\00. GrassCommon.fx" />
-    <FxCompile Include="..\Shaders\00. Light.fx" />
-    <FxCompile Include="..\Shaders\00. Render.fx" />
-    <FxCompile Include="..\Shaders\14. ModelDemo.fx" />
-    <FxCompile Include="..\Shaders\15. AnimationDemo.fx" />
-    <FxCompile Include="..\Shaders\16. TweenDemo.fx" />
-    <FxCompile Include="..\Shaders\17. SkyBoxDemo.fx" />
-    <FxCompile Include="..\Shaders\18. InstancingDemo.fx" />
-    <FxCompile Include="..\Shaders\19. RenderDemo.fx" />
-    <FxCompile Include="..\Shaders\20. RawBufferDemo.fx" />
-    <FxCompile Include="..\Shaders\21. TextureBufferDemo.fx" />
-    <FxCompile Include="..\Shaders\22. StructuredBufferDemo.fx" />
-    <FxCompile Include="..\Shaders\23. BillboardDemo.fx" />
-    <FxCompile Include="..\Shaders\24. SnowDemo.fx" />
-    <FxCompile Include="..\Shaders\Bloom.fx" />
-    <FxCompile Include="..\Shaders\Blur.fx" />
-    <FxCompile Include="..\Shaders\BlurCombine.fx" />
-    <FxCompile Include="..\Shaders\DebugTexture.fx" />
-    <FxCompile Include="..\Shaders\Foliage.fx" />
-    <FxCompile Include="..\Shaders\GrassCompute.fx" />
-    <FxCompile Include="..\Shaders\GrassRender.fx" />
-    <FxCompile Include="..\Shaders\ParticleSystem.fx" />
-    <FxCompile Include="..\Shaders\DownSample.fx" />
-    <FxCompile Include="..\Shaders\Sky.fx" />
-    <FxCompile Include="..\Shaders\Ssao.fx" />
-    <FxCompile Include="..\Shaders\Terrain.fx" />
-    <FxCompile Include="..\Shaders\ToneMapping.fx" />
+    <FxCompile Include="..\Assets\Shaders\00. Global.fx" />
+    <FxCompile Include="..\Assets\Shaders\00. GrassCommon.fx" />
+    <FxCompile Include="..\Assets\Shaders\00. Light.fx" />
+    <FxCompile Include="..\Assets\Shaders\00. Render.fx" />
+    <FxCompile Include="..\Assets\Shaders\14. ModelDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\15. AnimationDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\16. TweenDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\17. SkyBoxDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\18. InstancingDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\19. RenderDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\20. RawBufferDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\21. TextureBufferDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\22. StructuredBufferDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\23. BillboardDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\24. SnowDemo.fx" />
+    <FxCompile Include="..\Assets\Shaders\Bloom.fx" />
+    <FxCompile Include="..\Assets\Shaders\Blur.fx" />
+    <FxCompile Include="..\Assets\Shaders\BlurCombine.fx" />
+    <FxCompile Include="..\Assets\Shaders\DebugTexture.fx" />
+    <FxCompile Include="..\Assets\Shaders\DownSample.fx" />
+    <FxCompile Include="..\Assets\Shaders\Foliage.fx" />
+    <FxCompile Include="..\Assets\Shaders\GrassCompute.fx" />
+    <FxCompile Include="..\Assets\Shaders\GrassRender.fx" />
+    <FxCompile Include="..\Assets\Shaders\ParticleSystem.fx" />
+    <FxCompile Include="..\Assets\Shaders\Sky.fx" />
+    <FxCompile Include="..\Assets\Shaders\Ssao.fx" />
+    <FxCompile Include="..\Assets\Shaders\Terrain.fx" />
+    <FxCompile Include="..\Assets\Shaders\ToneMapping.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

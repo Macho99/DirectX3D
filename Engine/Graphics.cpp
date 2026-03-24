@@ -187,15 +187,15 @@ void Graphics::RenderBegin()
 
 void Graphics::RenderEnd()
 {
-	HRESULT hr = _swapChain->Present(2, 0);
+	HRESULT hr = _swapChain->Present(0, 0);
 	CHECK(hr);
 }
 
 void Graphics::ClearShaderResources()
 {
-    ID3D11ShaderResourceView* nullSRVs[4] = { nullptr, nullptr, nullptr, nullptr };
-    _deviceContext->PSSetShaderResources(0, 4, nullSRVs);
-    _deviceContext->VSSetShaderResources(0, 4, nullSRVs);
+    ID3D11ShaderResourceView* nullSRVs[16] = {};
+    _deviceContext->PSSetShaderResources(0, 16, nullSRVs);
+    _deviceContext->VSSetShaderResources(0, 16, nullSRVs);
 }
 
 void Graphics::ClearDepthStencilView()

@@ -193,42 +193,45 @@ bool TessTerrain::OnGUI()
     changed |= Super::OnGUI();
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Terrain Data", _terrainData, false);
+	changed |= OnGUIUtils::DrawBool("Edit Mode", &_isEditMode, false);
+    changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
+    changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
 
-	if (ImGui::Button("Add"))
-	{
-        DBG->Log("Add height");
-		TerrainData* terrainData = _terrainData.Resolve();
-		float heightmapHeight = terrainData->GetHeightmapHeight();
-		float heightmapWidth = terrainData->GetHeightmapWidth();
+	//if (ImGui::Button("Add"))
+	//{
+    //    DBG->Log("Add height");
+	//	TerrainData* terrainData = _terrainData.Resolve();
+	//	float heightmapHeight = terrainData->GetHeightmapHeight();
+	//	float heightmapWidth = terrainData->GetHeightmapWidth();
+	//
+	//	int radius = 10;
+	//	for (uint32 i = heightmapHeight / 2 - radius; i < heightmapHeight / 2 + radius; ++i)
+	//	{
+	//		for (uint32 j = heightmapWidth / 2 - radius; j < heightmapWidth / 2 + radius; ++j)
+	//		{
+    //            float dist = radius - Vec2::Distance(Vec2((float)j, (float)i), Vec2(heightmapWidth / 2.0f, heightmapHeight / 2.0f));
+	//
+	//			_heightmap[i * heightmapWidth + j] += dist;
+	//		}
+	//	}
+	//	
+	//	UpdateHeightmapTexture();
+	//	UpdateQuadPatchVB();
+	//}
 
-		int radius = 10;
-		for (uint32 i = heightmapHeight / 2 - radius; i < heightmapHeight / 2 + radius; ++i)
-		{
-			for (uint32 j = heightmapWidth / 2 - radius; j < heightmapWidth / 2 + radius; ++j)
-			{
-                float dist = radius - Vec2::Distance(Vec2((float)j, (float)i), Vec2(heightmapWidth / 2.0f, heightmapHeight / 2.0f));
-
-				_heightmap[i * heightmapWidth + j] += dist;
-			}
-		}
-		
-		UpdateHeightmapTexture();
-		UpdateQuadPatchVB();
-	}
-
-	if (INPUT->IsMouseInScene())
-	{
-		POINT mousePos =  INPUT->GetMousePos();
-        Vec3 _pickPos;
-        float _pickDistance;
-        bool picked = Pick(mousePos.x, mousePos.y, OUT _pickPos, OUT _pickDistance);
-
-		if (picked)
-		{
-			ImGui::Text("Pick Pos: (%.2f, %.2f, %.2f)", _pickPos.x, _pickPos.y, _pickPos.z);
-			ImGui::Text("Pick Distance: %.2f", _pickDistance);
-		}
-	}
+	//if (INPUT->IsMouseInScene())
+	//{
+	//	POINT mousePos =  INPUT->GetMousePos();
+    //    Vec3 _pickPos;
+    //    float _pickDistance;
+    //    bool picked = Pick(mousePos.x, mousePos.y, OUT _pickPos, OUT _pickDistance);
+	//
+	//	if (picked)
+	//	{
+	//		ImGui::Text("Pick Pos: (%.2f, %.2f, %.2f)", _pickPos.x, _pickPos.y, _pickPos.z);
+	//		ImGui::Text("Pick Distance: %.2f", _pickDistance);
+	//	}
+	//}
 
     return changed;
 }
@@ -313,6 +316,33 @@ void TessTerrain::InnerRender(RenderTech renderTech)
     _terrainDesc.gTexelCellSpaceU = 1.0f / terrainData->GetHeightmapWidth();
     _terrainDesc.gTexelCellSpaceV = 1.0f / terrainData->GetHeightmapHeight();
     _terrainDesc.gWorldCellSpace = terrainData->GetCellSpacing();
+
+	bool useBrush = false;
+	if (_isEditMode && renderTech == RenderTech::Draw && INPUT->IsMouseInScene())
+	{
+		auto brushTex = _brushTexture.Resolve();
+		if (brushTex != nullptr)
+		{
+			POINT mousePos = INPUT->GetMousePos();
+			float distance;
+			if (Pick(mousePos.x, mousePos.y, OUT _terrainDesc.brushPos, OUT distance))
+			{
+				useBrush = true;
+			}
+		}
+	}
+	
+    if (useBrush == false)
+	{
+		_terrainDesc.brushRadius = 0.f;
+		//material->SetNormalMap(RESOURCES->GetDummyTexture());
+    }
+    else
+    {
+        _terrainDesc.brushRadius = _brushRadius;
+        material->SetNormalMap(_brushTexture);
+    }
+
 	shader->PushTerrainData(_terrainDesc);
 
     material->SetLayerMapArraySRV(_layerMapArraySRV);

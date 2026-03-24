@@ -38,6 +38,7 @@ void ResourceManager::Init()
 void ResourceManager::Start()
 {
 	CreateRandomTexture();
+    CreateDummyTexture();
 }
 
 void ResourceManager::Update()
@@ -149,6 +150,34 @@ void ResourceManager::CreateRandomTexture()
 	DX_CREATE_SRV(randomTex.Get(), &viewDesc, randomTexSRV);
 	texture->SetSRV(randomTexSRV);
     _randomTexture = AllocateTempResource(std::move(texture));
+}
+
+void ResourceManager::CreateDummyTexture()
+{
+	D3D11_TEXTURE2D_DESC desc = {};
+	desc.Width = 1;
+	desc.Height = 1;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.Usage = D3D11_USAGE_IMMUTABLE;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	UINT32 pixel = 0xffffffff;
+
+	D3D11_SUBRESOURCE_DATA initData = {};
+	initData.pSysMem = &pixel;
+	initData.SysMemPitch = sizeof(UINT32);
+
+	ComPtr<ID3D11Texture2D> texture = nullptr;
+	DX_CREATE_TEXTURE2D(&desc, &initData, texture);
+    ComPtr<ID3D11ShaderResourceView> srv = nullptr;
+    DX_CREATE_SRV(texture.Get(), nullptr, srv);
+
+    unique_ptr<Texture> dummyTexture = make_unique<Texture>();
+    dummyTexture->SetSRV(srv);
+    _dummyTexture = AllocateTempResource(std::move(dummyTexture));
 }
 
 void ResourceManager::SaveAsset(const AssetId& assetId)

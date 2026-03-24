@@ -28,7 +28,9 @@ cbuffer TerrainBuffer
     float dummy;
     float4 gWorldFrustumPlanes[6];
     float2 gTexScale = 50.0f;
+    float brushRadius;
     float dummy2;
+    float3 brushPos;
     float dummy3;
 };
 
@@ -37,6 +39,7 @@ Texture2DArray LayerMapArray;
 #define gLayerMapArray LayerMapArray
 #define gHeightMap DiffuseMap
 #define gBlendMap SpecularMap
+#define gBrushMap NormalMap
 
 SamplerState samLinear
 {
@@ -263,7 +266,7 @@ float4 PS(DomainOut pin) : SV_Target
 
 	// The toEye vector is used in lighting.
 	float3 toEye = CamPos - pin.PosW;
-
+	
 	// Cache the distance to the eye from this surface point.
 	float distToEye = length(toEye);
 
@@ -290,7 +293,7 @@ float4 PS(DomainOut pin) : SV_Target
 	texColor = lerp(texColor, c2, t.g);
 	texColor = lerp(texColor, c3, t.b);
 	texColor = lerp(texColor, c4, t.a);
-
+	
 	//
 	// Lighting.
 	//
@@ -298,6 +301,14 @@ float4 PS(DomainOut pin) : SV_Target
 	float4 litColor = texColor;
     float shadow = CalcCascadeShadowFactor(pin.PosW, pin.viewZ);
     litColor = ComputeLight(normalW, litColor, pin.PosW, pin.ssaoPosH, shadow);
+    if (brushRadius > 0.01f)
+    {
+        float2 brushUV;
+        brushUV.x = (pin.PosW.x - brushPos.x) / brushRadius + 0.5f;
+        brushUV.y = (pin.PosW.z - brushPos.z) / brushRadius + 0.5f;
+        float4 brushColor = gBrushMap.SampleLevel(BorderBlackSampler, brushUV, 0);
+        litColor.b += brushColor.b;
+    }
 
 	//
 	// Fogging

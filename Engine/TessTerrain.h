@@ -23,6 +23,7 @@ public:
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
     ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
 	void SetTerrainData(const ResourceRef<TerrainData>& terrainData);
+    void SetBrushTexture(const ResourceRef<Texture>& brushTexture) { _brushTexture = brushTexture; }
 
 	virtual bool TryInitialize() override;
 
@@ -32,6 +33,8 @@ public:
     {
         Super::serialize(ar);
         ar(CEREAL_NVP(_terrainData));
+        ar(CEREAL_NVP(_brushTexture));
+        ar(CEREAL_NVP(_brushRadius));
     }
 
 private:
@@ -63,6 +66,10 @@ private:
     ResourceRef<Texture> _heightMapTexture;
     ComPtr<ID3D11Texture2D> _heightMapTexture2D;
 	ComPtr<ID3D11ShaderResourceView> _heightMapSRV;
+
+    ResourceRef<Texture> _brushTexture;
+	bool _isEditMode = false;
+	float _brushRadius = 10.f;
 
     TerrainDesc _terrainDesc;
 

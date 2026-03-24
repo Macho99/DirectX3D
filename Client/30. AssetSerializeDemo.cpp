@@ -100,6 +100,7 @@ void AssetSerializeDemo::Init()
 
         ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\TerrainMat.mat");
         tessTerrain->SetMaterial(materialRef);
+        tessTerrain->SetBrushTexture(RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\Terrain\\Brush\\circleBrush.png"));
 
         auto objRef = CUR_SCENE->Add("Terrain");
         objRef.Resolve()->GetTransform()->SetPosition(Vec3(0, 0, 0));
