@@ -30,6 +30,9 @@ public:
 	void FixedUpdate();
     void OnDestroy();
 
+	void OnInspectorFocus();
+    void OnInspectorFocusLost();
+
 	Component* GetFixedComponent(ComponentType type);
 
 	template<class T>

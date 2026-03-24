@@ -37,6 +37,9 @@ public:
 
 	virtual bool TryInitialize() override;
 
+    virtual void OnInspectorFocus() override;
+    virtual void OnInspectorFocusLost() override;
+
     virtual bool OnGUI() override;
     template<typename Archive>
     void serialize(Archive& ar)

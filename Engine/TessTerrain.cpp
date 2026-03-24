@@ -328,13 +328,9 @@ bool TessTerrain::OnGUI()
 
     if (curHeightmapEditing == false && _prevHeightmapEditing == true)
     {
-        DBG->LogW(L"Heightmap changed");
 		CalcAllPatchBoundsY();
-        DBG->LogW(L"CalcAllPatchBoundsY");
 		UpdateQuadPatchVB();
-        DBG->LogW(L"UpdateQuadPatchVB");
         OnHeightmapChanged.Invoke();
-        DBG->LogW(L"OnHeightmapChanged.Invoke()");
     }
 
 	_prevHeightmapEditing = curHeightmapEditing;
@@ -379,6 +375,19 @@ bool TessTerrain::TryInitialize()
 
 	_initialized = true;
     return true;
+}
+
+void TessTerrain::OnInspectorFocus()
+{
+	Super::OnInspectorFocus();
+}
+
+void TessTerrain::OnInspectorFocusLost()
+{
+	Super::OnInspectorFocusLost();
+
+    _editMode = EditMode::None;
+    ASSERT(_prevHeightmapEditing == false);
 }
 
 void TessTerrain::InnerRender(RenderTech renderTech)

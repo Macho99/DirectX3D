@@ -47,7 +47,10 @@ public:
 	virtual void Update() { }
 	virtual void LateUpdate() { }
 	virtual void FixedUpdate() { }
-    virtual void OnDestroy() {}
+    virtual void OnDestroy() { }
+
+	virtual void OnInspectorFocus() { }
+	virtual void OnInspectorFocusLost() { }
 
 public:
 	ComponentType GetType() { return _type; }

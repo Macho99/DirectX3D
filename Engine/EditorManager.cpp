@@ -216,7 +216,7 @@ void EditorManager::ClickTransform(const TransformRef& transformRef)
         _inspectorAsset = AssetRef();
         _inspectorSubAsset = -1;
 
-        _inspectorTransform = transformRef;
+        SetInspectorTransform(transformRef);
     }
     _hierarchyTransform = transformRef;
 }
@@ -229,7 +229,7 @@ void EditorManager::ClickAsset(const AssetRef& assetRef)
 
     if (_inspectorLock == false)
     {
-        _inspectorTransform = TransformRef();
+        SetInspectorTransform(TransformRef());
         _inspectorAsset = ownerAssetId;
         _inspectorSubAsset = subAssetIndex;
     }
@@ -263,7 +263,7 @@ void EditorManager::HandleRemove(const TransformRef& transformRef)
         if (_inspectorLock)
             SetInspectorLock(false);
 
-        _inspectorTransform = TransformRef();
+        SetInspectorTransform(TransformRef());
     }
 
     if (_hierarchyTransform == transformRef)
@@ -339,4 +339,24 @@ Texture* EditorManager::GetEditorIconTexture(EditorIcon icon)
 
     ASSERT(false, "EditorManager::GetEditorIconTexture: Unsupported icon type: " + std::to_string((int)icon));
     return nullptr;
+}
+
+void EditorManager::SetInspectorTransform(const TransformRef& transformRef)
+{
+    if (_inspectorTransform != transformRef)
+    {
+        Transform* prevTransform = _inspectorTransform.Resolve();
+        if (prevTransform)
+        {
+            prevTransform->GetGameObject()->OnInspectorFocusLost();
+        }
+
+        Transform* newTransform = transformRef.Resolve();
+        if (newTransform)
+        {
+            newTransform->GetGameObject()->OnInspectorFocus();
+        }
+    }
+
+    _inspectorTransform = transformRef;
 }

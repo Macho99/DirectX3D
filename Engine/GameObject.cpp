@@ -110,6 +110,34 @@ void GameObject::OnDestroy()
 	}
 }
 
+void GameObject::OnInspectorFocus()
+{
+	for (ComponentRefBase& component : _components)
+	{
+		if (component.IsValid())
+			component.Resolve()->OnInspectorFocus();
+	}
+
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
+	{
+		script.Resolve()->OnInspectorFocus();
+	}
+}
+
+void GameObject::OnInspectorFocusLost()
+{
+	for (ComponentRefBase& component : _components)
+	{
+		if (component.IsValid())
+			component.Resolve()->OnInspectorFocusLost();
+	}
+
+	for (ComponentRef<MonoBehaviour>& script : _scripts)
+	{
+		script.Resolve()->OnInspectorFocusLost();
+	}
+}
+
 Component* GameObject::GetFixedComponent(ComponentType type)
 {
 	uint8 index = static_cast<uint8>(type);

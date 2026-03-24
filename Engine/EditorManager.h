@@ -52,6 +52,9 @@ public:
     void SetInspectorLock(bool lock) { _inspectorLock = lock; }
 
 private:
+	void SetInspectorTransform(const TransformRef& transformRef);
+
+private:
 	TransformRef _inspectorTransform;
     AssetRef _inspectorAsset;
     int _inspectorSubAsset = -1;
