@@ -176,7 +176,7 @@ bool TessTerrain::Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& dista
 
 			distance = high;
 			pickPos = localRay.position + localRay.direction * distance;
-            DBG->Log(Utils::Format("March steps: %d, Binary search steps: 8", count));
+            //DBG->Log(Utils::Format("March steps: %d, Binary search steps: 8", count));
 			return true;
 		}
 
@@ -193,9 +193,138 @@ bool TessTerrain::OnGUI()
     changed |= Super::OnGUI();
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Terrain Data", _terrainData, false);
-	changed |= OnGUIUtils::DrawBool("Edit Mode", &_isEditMode, false);
+
+	auto DrawModeButton = [this](const char* label, EditMode editMode)
+		{
+			bool selected = (_editMode == editMode);
+
+			if (!selected)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+			}
+
+			if (ImGui::Button(label))
+			{
+				if (_editMode == editMode)
+					_editMode = EditMode::None;
+				else
+					_editMode = editMode;
+			}
+
+			if (!selected)
+				ImGui::PopStyleColor(3);
+		};
+
+    DrawModeButton("Raise/Lower", EditMode::RaiseLower);
+    ImGui::SameLine();
+    DrawModeButton("Smooth", EditMode::Smooth);
+    ImGui::SameLine();
+    DrawModeButton("Texture", EditMode::Texture);
+
     changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
     changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
+    changed |= OnGUIUtils::DrawFloat("Brush Strength", &_brushStrength, 0.2f, false);
+
+	if (_terrainDesc.brushRadius > 0.01f)
+	{
+		int directionY = 0;
+		if (INPUT->GetButton(KEY_TYPE::LBUTTON))
+		{
+			if (INPUT->GetButton(KEY_TYPE::LSHIFT))
+			{
+                directionY = -1;
+			}
+			else
+			{
+				directionY = 1;
+			}
+		}
+		
+		if (directionY != 0)
+		{
+			TerrainData* terrainData = _terrainData.Resolve();
+            Texture* brushTexture = _brushTexture.Resolve();
+			const DirectX::Image* brushImage = brushTexture->GetInfo().GetImage(0, 0, 0);
+            Vec3 pickPos = _terrainDesc.brushPos;
+			if (terrainData != nullptr && brushImage != nullptr)
+			{
+				auto SampleBrushBlue = [&](float u, float v) -> float
+					{
+						if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
+							return 0.0f;
+
+						const uint32 brushWidth = static_cast<uint32>(brushImage->width);
+						const uint32 brushHeight = static_cast<uint32>(brushImage->height);
+						if (brushWidth == 0 || brushHeight == 0)
+							return 0.0f;
+
+						const uint32 x = min<uint32>(static_cast<uint32>(u * (brushWidth - 1)), brushWidth - 1);
+						const uint32 y = min<uint32>(static_cast<uint32>(v * (brushHeight - 1)), brushHeight - 1);
+						const size_t pixelSize = max<size_t>(1, BitsPerPixel(brushImage->format) / 8);
+						const uint8* pixel = brushImage->pixels + y * brushImage->rowPitch + x * pixelSize;
+
+						switch (brushImage->format)
+						{
+						case DXGI_FORMAT_R8_UNORM:
+							return pixel[0] / 255.0f;
+						case DXGI_FORMAT_B8G8R8A8_UNORM:
+						case DXGI_FORMAT_B8G8R8X8_UNORM:
+							return pixel[0] / 255.0f;
+						case DXGI_FORMAT_R8G8B8A8_UNORM:
+						case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+							return pixel[2] / 255.0f;
+						case DXGI_FORMAT_R16_UNORM:
+							return *reinterpret_cast<const uint16*>(pixel) / 65535.0f;
+						case DXGI_FORMAT_R32_FLOAT:
+							return *reinterpret_cast<const float*>(pixel);
+						default:
+							return 0.0f;
+						}
+					};
+
+				const float cellSpacing = terrainData->GetCellSpacing();
+				const uint32 heightmapWidth = terrainData->GetHeightmapWidth();
+				const uint32 heightmapHeight = terrainData->GetHeightmapHeight();
+				const float terrainWidth = GetWidth();
+				const float terrainDepth = GetDepth();
+
+				const float centerU = (terrainWidth * 0.5f + pickPos.x) / terrainWidth;
+				const float centerV = (terrainDepth * 0.5f - pickPos.z) / terrainDepth;
+				const int32 centerX = static_cast<int32>(centerU * (heightmapWidth - 1));
+				const int32 centerY = static_cast<int32>(centerV * (heightmapHeight - 1));
+				const int32 radiusCells = static_cast<int32>(ceilf(_brushRadius / max(cellSpacing, 0.001f)));
+
+				const int32 startY = max<int32>(0, centerY - radiusCells);
+				const int32 endY = min<int32>(static_cast<int32>(heightmapHeight) - 1, centerY + radiusCells);
+				const int32 startX = max<int32>(0, centerX - radiusCells);
+				const int32 endX = min<int32>(static_cast<int32>(heightmapWidth) - 1, centerX + radiusCells);
+				for (int32 y = startY; y <= endY; ++y)
+				{
+					const float vertexZ = terrainDepth * 0.5f - y * cellSpacing;
+					for (int32 x = startX; x <= endX; ++x)
+					{
+						const float vertexX = -terrainWidth * 0.5f + x * cellSpacing;
+						const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
+						const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
+						const float brushWeight = SampleBrushBlue(brushU, brushV);
+						if (brushWeight <= 0.0f)
+							continue;
+
+                        int index = y * heightmapWidth + x;
+						_heightmap[index] += directionY * brushWeight * DT * _brushStrength;
+                        _halfHeightmap[index] = MathUtils::ConvertFloatToHalf(_heightmap[index]);
+					}
+				}
+
+				//CalcAllPatchBoundsY();
+				UpdateHeightmapTexture();
+				//UpdateQuadPatchVB();
+				//changed = true;
+			}
+		}
+	}
 
 	//if (ImGui::Button("Add"))
 	//{
@@ -209,7 +338,7 @@ bool TessTerrain::OnGUI()
 	//	{
 	//		for (uint32 j = heightmapWidth / 2 - radius; j < heightmapWidth / 2 + radius; ++j)
 	//		{
-    //            float dist = radius - Vec2::Distance(Vec2((float)j, (float)i), Vec2(heightmapWidth / 2.0f, heightmapHeight / 2.0f));
+    //			float dist = radius - Vec2::Distance(Vec2((float)j, (float)i), Vec2(heightmapWidth / 2.0f, heightmapHeight / 2.0f));
 	//
 	//			_heightmap[i * heightmapWidth + j] += dist;
 	//		}
@@ -318,7 +447,7 @@ void TessTerrain::InnerRender(RenderTech renderTech)
     _terrainDesc.gWorldCellSpace = terrainData->GetCellSpacing();
 
 	bool useBrush = false;
-	if (_isEditMode && renderTech == RenderTech::Draw && INPUT->IsMouseInScene())
+	if (_editMode != EditMode::None && renderTech == RenderTech::Draw && INPUT->IsMouseInScene())
 	{
 		auto brushTex = _brushTexture.Resolve();
 		if (brushTex != nullptr)
@@ -639,14 +768,14 @@ void TessTerrain::BuildHeightmapSRV()
 	texDesc.MiscFlags = 0;
 
 	// HALF is defined in xnamath.h, for storing 16-bit float.
-	std::vector<uint16> hmap(_heightmap.size());
-	std::transform(_heightmap.begin(), _heightmap.end(), hmap.begin(), MathUtils::ConvertFloatToHalf);
+	_halfHeightmap.resize(_heightmap.size());
+	std::transform(_heightmap.begin(), _heightmap.end(), _halfHeightmap.begin(), MathUtils::ConvertFloatToHalf);
 	auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
     _minHeight = *minIt;
     _maxHeight = *maxIt;
 
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &hmap[0];
+	data.pSysMem = &_halfHeightmap[0];
 	data.SysMemPitch = heightmapWidth * sizeof(uint16);
 	data.SysMemSlicePitch = 0;
 
@@ -668,11 +797,15 @@ bool TessTerrain::UpdateHeightmapTexture()
     if (terrainData == nullptr || _heightMapTexture2D == nullptr || _heightmap.empty())
         return false;
 
-    std::vector<uint16> hmap(_heightmap.size());
-    std::transform(_heightmap.begin(), _heightmap.end(), hmap.begin(), MathUtils::ConvertFloatToHalf);
-	auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
-	_minHeight = *minIt;
-	_maxHeight = *maxIt;
+	if (_isHeightmapDirty)
+	{
+		_halfHeightmap.resize(_heightmap.size());
+		std::transform(_heightmap.begin(), _heightmap.end(), _halfHeightmap.begin(), MathUtils::ConvertFloatToHalf);
+		auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
+		_minHeight = *minIt;
+		_maxHeight = *maxIt;
+        _isHeightmapDirty = false;
+	}
 
     D3D11_MAPPED_SUBRESOURCE subResource = {};
     HRESULT hr = DC->Map(_heightMapTexture2D.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);
@@ -684,7 +817,7 @@ bool TessTerrain::UpdateHeightmapTexture()
     for (uint32 row = 0; row < rowCount; ++row)
     {
         unsigned char* dstRow = static_cast<unsigned char*>(subResource.pData) + subResource.RowPitch * row;
-        const unsigned char* srcRow = reinterpret_cast<const unsigned char*>(hmap.data()) + rowPitch * row;
+        const unsigned char* srcRow = reinterpret_cast<const unsigned char*>(_halfHeightmap.data()) + rowPitch * row;
         memcpy(dstRow, srcRow, rowPitch);
     }
 

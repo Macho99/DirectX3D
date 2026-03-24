@@ -4,8 +4,17 @@
 class Material;
 class Texture;
 
+
 class TessTerrain : public Renderer
 {
+	enum class EditMode
+	{
+        None,
+        RaiseLower,
+        Smooth,
+		Texture,
+	};
+
     using Super = Renderer;
     DECLARE_COMPONENT(TessTerrain)
 public:
@@ -35,6 +44,7 @@ public:
         ar(CEREAL_NVP(_terrainData));
         ar(CEREAL_NVP(_brushTexture));
         ar(CEREAL_NVP(_brushRadius));
+        ar(CEREAL_NVP(_brushStrength));
     }
 
 private:
@@ -68,8 +78,9 @@ private:
 	ComPtr<ID3D11ShaderResourceView> _heightMapSRV;
 
     ResourceRef<Texture> _brushTexture;
-	bool _isEditMode = false;
-	float _brushRadius = 10.f;
+	EditMode _editMode = EditMode::None;
+	float _brushRadius = 20.f;
+    float _brushStrength = 5.f;
 
     TerrainDesc _terrainDesc;
 
@@ -80,6 +91,8 @@ private:
 
 	vector<XMFLOAT2> _patchBoundsY;
 	vector<float> _heightmap;
+    vector<uint16> _halfHeightmap; // 16-bit heightmap for GPU
+    bool _isHeightmapDirty = false;
 
     float _minHeight = FLT_MAX;
     float _maxHeight = -FLT_MAX;
