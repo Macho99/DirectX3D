@@ -72,34 +72,16 @@ bool GrassRenderer::TryInitialize()
     }
 
     // --- 1. 초기 풀 데이터 CPU에서 생성 ---
-    vector<GrassData> grassData(MAX_GRASS_COUNT);
+    _initGrassData.resize(MAX_GRASS_COUNT);
     for (UINT i = 0; i < MAX_GRASS_COUNT; ++i)
     {
         float x = MathUtils::Random(-500.f, 500.f);
         float z = MathUtils::Random(-500.f, 500.f);
         float y = terrain->GetHeight(x, z);
-        grassData[i].position = Vec3(x, y, z);
+        _initGrassData[i].position = Vec3(x, y, z);
     }
-
-    // --- 2. InitialGrassBuffer 생성 (SRV 전용) ---
-    D3D11_BUFFER_DESC initialDesc = {};
-    initialDesc.ByteWidth = sizeof(GrassData) * MAX_GRASS_COUNT;
-    initialDesc.Usage = D3D11_USAGE_IMMUTABLE; // 한 번 쓰고 바뀌지 않음
-    initialDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    initialDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-    initialDesc.StructureByteStride = sizeof(GrassData);
-
-    D3D11_SUBRESOURCE_DATA initData = {};
-    initData.pSysMem = grassData.data();
-    DX_CREATE_BUFFER(&initialDesc, &initData, _initGrassBuffer);
-
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-    srvDesc.Buffer.FirstElement = 0;
-    srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
-
-    DX_CREATE_SRV(_initGrassBuffer.Get(), &srvDesc, _initGrassSRV);
+    
+    CreateInitGrassBufferFromTerrain(false);
 
     // --- 3. FinalGrassBuffer 생성 (Append Buffer: UAV + SRV) ---
     D3D11_BUFFER_DESC finalDesc = {};
@@ -125,6 +107,12 @@ bool GrassRenderer::TryInitialize()
 
     DX_CREATE_UAV(_nearbyGrassBuffer.Get(), &uavDesc, _nearbyGrassUAV);
     DX_CREATE_UAV(_distantGrassBuffer.Get(), &uavDesc, _distantGrassUAV);
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+    srvDesc.Buffer.FirstElement = 0;
+    srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
 
     // SRV (나중에 렌더링 파이프라인(VS)에서 읽기 위함)
     srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
@@ -168,6 +156,55 @@ bool GrassRenderer::TryInitialize()
     _distantGrassEffectBuffer = grassComputeShader->GetUAV("DistantOutput");
 
     _initialized = true;
+    _onHeightmapChangedListener = terrain->OnHeightmapChanged.AddListener([this]()
+        {
+            CreateInitGrassBufferFromTerrain(true);
+        });
+    return true;
+}
+
+void GrassRenderer::CreateInitGrassBufferFromTerrain(bool needRefresh)
+{
+    if (needRefresh)
+    {
+        TessTerrain* terrain = _terrain.Resolve();
+        if (terrain == nullptr)
+        {
+            DBG->LogError("GrassRenderer::CreateInitGrassBufferFromTerrain() - Terrain is null.");
+            return;
+        }
+        for (UINT i = 0; i < MAX_GRASS_COUNT; ++i)
+        {
+            float x = _initGrassData[i].position.x;
+            float z = _initGrassData[i].position.z;
+            float y = terrain->GetHeight(x, z);
+            _initGrassData[i].position.y = y;
+        }
+    }
+
+    // Dynamic으로 설정할 경우 성능이 저하되어서(약 200fps -> 150fps) Immutable로 설정하고, 데이터가 변경될 때마다 새 버퍼를 생성하는 방식으로 변경합니다.
+    // --- 2. InitialGrassBuffer 생성 (SRV 전용) ---
+    D3D11_BUFFER_DESC initialDesc = {};
+    initialDesc.ByteWidth = sizeof(GrassData) * MAX_GRASS_COUNT;
+    //initialDesc.Usage = D3D11_USAGE_DYNAMIC;
+    initialDesc.Usage = D3D11_USAGE_IMMUTABLE;
+    initialDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    initialDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+    //initialDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    initialDesc.StructureByteStride = sizeof(GrassData);
+
+    D3D11_SUBRESOURCE_DATA initData = {};
+    initData.pSysMem = _initGrassData.data();
+    DX_CREATE_BUFFER(&initialDesc, &initData, _initGrassBuffer);
+    //UploadInitGrassBuffer();
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+    srvDesc.Buffer.FirstElement = 0;
+    srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
+
+    DX_CREATE_SRV(_initGrassBuffer.Get(), &srvDesc, _initGrassSRV);
 }
 
 void GrassRenderer::UpdateGrass()

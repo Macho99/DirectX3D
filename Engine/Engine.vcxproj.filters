@@ -765,6 +765,7 @@
     <ClInclude Include="ComponentRegistry.h">
       <Filter>04. Component</Filter>
     </ClInclude>
+    <ClInclude Include="Event.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1163,6 +1164,7 @@
     <ClCompile Include="ComponentRegistry.cpp">
       <Filter>04. Component</Filter>
     </ClCompile>
+    <ClCompile Include="Event.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

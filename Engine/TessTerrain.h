@@ -1,6 +1,7 @@
 #pragma once
 #include "Renderer.h"
 #include "TerrainData.h"
+#include "Event.h"
 class Material;
 class Texture;
 
@@ -58,6 +59,9 @@ private:
 	void BuildQuadPatchIB();
 	void BuildHeightmapSRV();
 
+public:
+	Event<> OnHeightmapChanged;
+
 private:
 	mutable ResourceRef<TerrainData> _terrainData;
     bool _initialized = false;
@@ -93,6 +97,7 @@ private:
 	vector<float> _heightmap;
     vector<uint16> _halfHeightmap; // 16-bit heightmap for GPU
     bool _isHeightmapDirty = false;
+    bool _prevHeightmapEditing = false;
 
     float _minHeight = FLT_MAX;
     float _maxHeight = -FLT_MAX;

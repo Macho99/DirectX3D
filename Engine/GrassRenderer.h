@@ -1,5 +1,6 @@
 #pragma once
 #include "Renderer.h"
+#include "Event.h"
 
 // --- DX11 리소스 전역 변수 ---
 const UINT MAX_GRASS_COUNT = 1200000;
@@ -61,6 +62,9 @@ public:
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 
+    bool UploadInitGrassBuffer();
+    void CreateInitGrassBufferFromTerrain(bool needRefresh = true);
+
     template<typename Archive>
     void serialize(Archive& ar)
     {
@@ -83,6 +87,7 @@ private:
     ComPtr<ID3D11Buffer> _initGrassBuffer; // (SRV) CPU -> GPU, 모든 풀 위치
     ComPtr<ID3D11ShaderResourceView> _initGrassSRV;
     ComPtr<ID3DX11EffectShaderResourceVariable> _initGrassEffectBuffer;
+    vector<GrassData> _initGrassData;
 
     ComPtr<ID3D11Buffer> _nearbyGrassBuffer;
     ComPtr<ID3D11UnorderedAccessView> _nearbyGrassUAV;
@@ -110,5 +115,7 @@ private:
 
     int prevFrameCount = -1;
     bool _initialized = false;
+
+    Event<>::ScopedListener _onHeightmapChangedListener;
 };
 

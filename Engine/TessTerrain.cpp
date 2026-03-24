@@ -222,11 +222,13 @@ bool TessTerrain::OnGUI()
     DrawModeButton("Smooth", EditMode::Smooth);
     ImGui::SameLine();
     DrawModeButton("Texture", EditMode::Texture);
+	ImGui::Spacing();
 
     changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
     changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
     changed |= OnGUIUtils::DrawFloat("Brush Strength", &_brushStrength, 0.2f, false);
 
+	bool curHeightmapEditing = false;
 	if (_terrainDesc.brushRadius > 0.01f)
 	{
 		int directionY = 0;
@@ -318,49 +320,24 @@ bool TessTerrain::OnGUI()
 					}
 				}
 
-				//CalcAllPatchBoundsY();
+                curHeightmapEditing = true;
 				UpdateHeightmapTexture();
-				//UpdateQuadPatchVB();
-				//changed = true;
 			}
 		}
 	}
 
-	//if (ImGui::Button("Add"))
-	//{
-    //    DBG->Log("Add height");
-	//	TerrainData* terrainData = _terrainData.Resolve();
-	//	float heightmapHeight = terrainData->GetHeightmapHeight();
-	//	float heightmapWidth = terrainData->GetHeightmapWidth();
-	//
-	//	int radius = 10;
-	//	for (uint32 i = heightmapHeight / 2 - radius; i < heightmapHeight / 2 + radius; ++i)
-	//	{
-	//		for (uint32 j = heightmapWidth / 2 - radius; j < heightmapWidth / 2 + radius; ++j)
-	//		{
-    //			float dist = radius - Vec2::Distance(Vec2((float)j, (float)i), Vec2(heightmapWidth / 2.0f, heightmapHeight / 2.0f));
-	//
-	//			_heightmap[i * heightmapWidth + j] += dist;
-	//		}
-	//	}
-	//	
-	//	UpdateHeightmapTexture();
-	//	UpdateQuadPatchVB();
-	//}
+    if (curHeightmapEditing == false && _prevHeightmapEditing == true)
+    {
+        DBG->LogW(L"Heightmap changed");
+		CalcAllPatchBoundsY();
+        DBG->LogW(L"CalcAllPatchBoundsY");
+		UpdateQuadPatchVB();
+        DBG->LogW(L"UpdateQuadPatchVB");
+        OnHeightmapChanged.Invoke();
+        DBG->LogW(L"OnHeightmapChanged.Invoke()");
+    }
 
-	//if (INPUT->IsMouseInScene())
-	//{
-	//	POINT mousePos =  INPUT->GetMousePos();
-    //    Vec3 _pickPos;
-    //    float _pickDistance;
-    //    bool picked = Pick(mousePos.x, mousePos.y, OUT _pickPos, OUT _pickDistance);
-	//
-	//	if (picked)
-	//	{
-	//		ImGui::Text("Pick Pos: (%.2f, %.2f, %.2f)", _pickPos.x, _pickPos.y, _pickPos.z);
-	//		ImGui::Text("Pick Distance: %.2f", _pickDistance);
-	//	}
-	//}
+	_prevHeightmapEditing = curHeightmapEditing;
 
     return changed;
 }
@@ -702,6 +679,16 @@ bool TessTerrain::UpdateQuadPatchVB()
 {
     if (_quadPatchVB == nullptr || _patchVertices.empty())
         return false;
+
+	// Store axis-aligned bounding box y-bounds in upper-left patch corner.
+	for (uint32 i = 0; i < _numPatchVertRows - 1; ++i)
+	{
+		for (uint32 j = 0; j < _numPatchVertCols - 1; ++j)
+		{
+			uint32 patchID = i * (_numPatchVertCols - 1) + j;
+			_patchVertices[i * _numPatchVertCols + j].BoundsY = _patchBoundsY[patchID];
+		}
+	}
 
     D3D11_MAPPED_SUBRESOURCE subResource = {};
     HRESULT hr = DC->Map(_quadPatchVB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);

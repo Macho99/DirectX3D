@@ -281,6 +281,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="DndPayload.h" />
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="EnginePch.h" />
+    <ClInclude Include="Event.h" />
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="FolderMeta.h" />
     <ClInclude Include="FolderTreeCache.h" />
@@ -419,6 +420,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="DirectoryWatcherWin.cpp" />
     <ClCompile Include="DndPayload.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
+    <ClCompile Include="Event.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="FolderMeta.cpp" />
     <ClCompile Include="FolderTreeCache.cpp" />
