@@ -51,7 +51,7 @@ void AssetSerializeDemo::Init()
     {
         GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
         GameObject* camera = cameraRef.Resolve();
-        camera->GetTransform()->SetPosition(Vec3{ 0.f, 2.f, -15.f });
+        camera->GetTransform()->SetPosition(Vec3{ -4.f, 9.f, 65.f });
         camera->AddComponent(make_unique<Camera>());
         camera->AddComponent(make_unique<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);

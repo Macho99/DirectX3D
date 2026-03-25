@@ -227,6 +227,7 @@ bool TessTerrain::OnGUI()
     changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
     changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
     changed |= OnGUIUtils::DrawFloat("Brush Strength", &_brushStrength, 0.2f, false);
+    changed |= OnGUIUtils::DrawEnumCombo("Selected Blend Layer", _selectedBlendLayer, BlendLayerNames, (int) BlendLayer::Max);
 
 	bool curHeightmapEditing = false;
 	if (_terrainDesc.brushRadius > 0.01f)
@@ -268,34 +269,80 @@ bool TessTerrain::OnGUI()
 				const int32 endY = min<int32>(static_cast<int32>(heightmapHeight) - 1, centerY + radiusCells);
 				const int32 startX = max<int32>(0, centerX - radiusCells);
 				const int32 endX = min<int32>(static_cast<int32>(heightmapWidth) - 1, centerX + radiusCells);
-				for (int32 y = startY; y <= endY; ++y)
-				{
-					const float vertexZ = terrainDepth * 0.5f - y * cellSpacing;
-					for (int32 x = startX; x <= endX; ++x)
+                if (_editMode == EditMode::Texture)
+                {
+					Texture* blendMap = terrainData->GetBlendMap().Resolve();
+					Vec2 blendMapSize = blendMap->GetSize();
+					blendMap->SetDynamic();
+
+                    const int32 startPixelX = (float)startX / heightmapWidth * blendMapSize.x;
+                    const int32 endPixelX = (float)endX / heightmapWidth * blendMapSize.x;
+                    const int32 startPixelY = (float)startY / heightmapHeight * blendMapSize.y;
+                    const int32 endPixelY = (float)endY / heightmapHeight * blendMapSize.y;
+
+					for (int32 y = startPixelY; y <= endPixelY; ++y)
 					{
-						const float vertexX = -terrainWidth * 0.5f + x * cellSpacing;
-						const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
-						const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
-						const float brushWeight = SampleBrush(brushImage, brushU, brushV);
-						if (brushWeight <= 0.0f)
-							continue;
+                        const int32 curY = (float)y / blendMapSize.y * heightmapHeight;
+                        const float vertexZ = terrainDepth * 0.5f - curY * cellSpacing;
+                        for (int32 x = startPixelX; x <= endPixelX; ++x)
+                        {
+                            const int32 curX = (float)x / blendMapSize.x * heightmapWidth;
+                            const float vertexX = -terrainWidth * 0.5f + curX * cellSpacing;
+                            const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
+                            const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
+                            const float brushWeight = SampleBrush(brushImage, brushU, brushV);
+                            if (brushWeight <= 0.0f)
+                                continue;
 
-                        float power = DT * brushWeight * _brushStrength;
-                        int index = y * heightmapWidth + x;
-						if (_editMode == EditMode::RaiseLower)
-						{
-							_heightmap[index] += directionY * power;
-						}
-						else if (_editMode == EditMode::Smooth)
-						{
-                            _heightmap[index] = MathUtils::Lerp(_heightmap[index], Average(y, x), power);
-						}
-                        _halfHeightmap[index] = MathUtils::ConvertFloatToHalf(_heightmap[index]);
+                            Color color;
+                            bool getResult = blendMap->TryGetPixel(x, y, OUT color);
+                            ASSERT(getResult);
+							//DBG->Log(Utils::Format("SetPixel x: %d, y: %d, color: (%.2f, %.2f, %.2f, %.2f)", x, y, color.x, color.y, color.z, color.w));
+
+							float power = DT * brushWeight * _brushStrength;
+                            Color targetColor = BlendLayerColors[(int)_selectedBlendLayer];
+                            color = MathUtils::Lerp(color, targetColor, power);
+							
+                            //DBG->Log(Utils::Format("SetPixel x: %d, y: %d, color: (%.2f, %.2f, %.2f, %.2f)", x, y, color.x, color.y, color.z, color.w));
+							
+                            bool setResult = blendMap->TrySetDynamicPixel(x, y, color);
+                            ASSERT(setResult);
+                        }
 					}
-				}
 
-                curHeightmapEditing = true;
-				UpdateHeightmapTexture();
+					blendMap->ApplyDynamicImageToGPU();
+                }
+				else
+				{
+					for (int32 y = startY; y <= endY; ++y)
+					{
+						const float vertexZ = terrainDepth * 0.5f - y * cellSpacing;
+						for (int32 x = startX; x <= endX; ++x)
+						{
+							const float vertexX = -terrainWidth * 0.5f + x * cellSpacing;
+							const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
+							const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
+							const float brushWeight = SampleBrush(brushImage, brushU, brushV);
+							if (brushWeight <= 0.0f)
+								continue;
+
+							float power = DT * brushWeight * _brushStrength;
+							int index = y * heightmapWidth + x;
+							if (_editMode == EditMode::RaiseLower)
+							{
+								_heightmap[index] += directionY * power;
+							}
+							else if (_editMode == EditMode::Smooth)
+							{
+								_heightmap[index] = MathUtils::Lerp(_heightmap[index], Average(y, x), power);
+							}
+							_halfHeightmap[index] = MathUtils::ConvertFloatToHalf(_heightmap[index]);
+						}
+					}
+
+					curHeightmapEditing = true;
+					UpdateHeightmapTexture();
+				}
 			}
 		}
 	}
@@ -317,8 +364,6 @@ bool TessTerrain::TryInitialize()
     if (_initialized)
         return true;
 
-	DBG->LogW(L"초기화 시작");
-
     TerrainData* terrainData = _terrainData.Resolve();
     if (terrainData == nullptr)
         return false;
@@ -331,18 +376,11 @@ bool TessTerrain::TryInitialize()
 	_numPatchQuadFaces = (_numPatchVertRows - 1) * (_numPatchVertCols - 1);
 
 	LoadHeightmap();
-	DBG->LogW(L"LoadHeightmap");
 	//Smooth();
-	//DBG->LogW(L"Smooth");
 	CalcAllPatchBoundsY();
-	DBG->LogW(L"CalcAllPatchBoundsY");
-
 	BuildQuadPatchVB();
-	DBG->LogW(L"BuildQuadPatchVB");
 	BuildQuadPatchIB();
-	DBG->LogW(L"BuildQuadPatchIB");
 	BuildHeightmapSRV();
-	DBG->LogW(L"BuildHeightmapSRV");
 
 	_layerMapArraySRV = terrainData->GetLayerMapArraySRV();
 	_blendMapTexture = terrainData->GetBlendMap();

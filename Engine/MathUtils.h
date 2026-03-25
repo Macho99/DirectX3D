@@ -86,5 +86,22 @@ struct MathUtils
 		t = std::clamp(t, 0.0f, 1.0f);
 		return a + (b - a) * t;
 	}
+
+
+	template<>
+	inline DirectX::XMFLOAT4 Lerp<DirectX::XMFLOAT4>(
+		const DirectX::XMFLOAT4& a,
+		const DirectX::XMFLOAT4& b,
+		float t)
+	{
+		t = std::clamp(t, 0.0f, 1.0f);
+
+		return DirectX::XMFLOAT4(
+			a.x + (b.x - a.x) * t,
+			a.y + (b.y - a.y) * t,
+			a.z + (b.z - a.z) * t,
+			a.w + (b.w - a.w) * t
+		);
+	}
 };
 

@@ -3,26 +3,38 @@
 
 class Texture : public ResourceBase
 {
-	using Super = ResourceBase;
+    using Super = ResourceBase;
 public:
-	static constexpr ResourceType StaticType = ResourceType::Texture;
-	Texture();
-	~Texture();
+    static constexpr ResourceType StaticType = ResourceType::Texture;
+    Texture();
+    ~Texture();
 
-	ComPtr<ID3D11ShaderResourceView> GetComPtr() { return _shaderResourveView; }
+    ComPtr<ID3D11ShaderResourceView> GetComPtr() { return _shaderResourveView; }
 
-	virtual void Load(const wstring& path) override;
+    virtual void Load(const wstring& path) override;
 
-	ComPtr<ID3D11Texture2D> GetTexture2D() const;
-	void SetSRV(ComPtr<ID3D11ShaderResourceView> srv);
+    ComPtr<ID3D11Texture2D> GetTexture2D() const;
+    void SetSRV(ComPtr<ID3D11ShaderResourceView> srv);
+
+    bool SetDynamic();
+    bool SaveAndReload();
+    bool IsDynamic() const { return _isDynamic; }
+    bool TryGetPixel(uint32 x, uint32 y, Color& outColor) const;
+    bool TrySetDynamicPixel(uint32 x, uint32 y, const Color& color);
+    bool ApplyDynamicImageToGPU();
 
     void SetSize(Vec2 size) { _size = size; }
-	Vec2 GetSize() const { return _size; }
+    Vec2 GetSize() const { return _size; }
 
-	const DirectX::ScratchImage& GetInfo() { return _img; }
+    const DirectX::ScratchImage& GetInfo() { return _img; }
 
 private:
-	ComPtr<ID3D11ShaderResourceView> _shaderResourveView;
-	Vec2 _size = {1.f, 1.f};
-	DirectX::ScratchImage _img = {};
+    bool CreateDynamicSRVFromImage();
+    bool SaveScratchImageToFile(const DirectX::ScratchImage& image) const;
+
+    ComPtr<ID3D11ShaderResourceView> _shaderResourveView;
+    Vec2 _size = { 1.f, 1.f };
+    DirectX::ScratchImage _img = {};
+    bool _isDynamic = false;
+    wstring _loadedPath;
 };
