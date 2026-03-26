@@ -158,7 +158,10 @@ bool GrassRenderer::TryInitialize()
     _initialized = true;
     _onHeightmapChangedListener = terrain->OnHeightmapChanged.AddListener([this]()
         {
-            CreateInitGrassBufferFromTerrain(true);
+            if(GetGameObject()->IsActiveInHierarchy())
+                CreateInitGrassBufferFromTerrain(true);
+            else
+                _heightmapChanged = true;
         });
     return true;
 }
@@ -205,6 +208,18 @@ void GrassRenderer::CreateInitGrassBufferFromTerrain(bool needRefresh)
     srvDesc.Buffer.NumElements = MAX_GRASS_COUNT;
 
     DX_CREATE_SRV(_initGrassBuffer.Get(), &srvDesc, _initGrassSRV);
+}
+
+void GrassRenderer::OnEnable()
+{
+    if (_initialized == false)
+        return;
+
+    if (_heightmapChanged)
+    {
+        CreateInitGrassBufferFromTerrain(true);
+        _heightmapChanged = false;
+    }
 }
 
 void GrassRenderer::UpdateGrass()

@@ -69,8 +69,8 @@ public:
 
 	string GetName() const { return _name; }
 	void SetName(string name) { _name = name; }
-	bool IsActive() const { return _isActive; }
-    bool IsLocallyActive() const { return _localActive; }
+	bool IsActiveInHierarchy() const { return _isActive; }
+    bool IsActiveInLocal() const { return _localActive; }
 	void SetActive(bool active);
     void UpdateActiveInHierarchy(bool parentActive, bool forceUpdate = false);
 

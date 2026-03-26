@@ -59,11 +59,13 @@ public:
     GrassRenderer(ResourceRef<Shader> grassComputeShader, ComponentRef<TessTerrain> terrain, const AssetRef& uvAsset);
     ~GrassRenderer();
 
+    void CreateInitGrassBufferFromTerrain(bool needRefresh = true);
+
+    virtual void OnEnable() override;
+
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 
-    bool UploadInitGrassBuffer();
-    void CreateInitGrassBufferFromTerrain(bool needRefresh = true);
 
     template<typename Archive>
     void serialize(Archive& ar)
@@ -117,5 +119,6 @@ private:
     bool _initialized = false;
 
     Event<>::ScopedListener _onHeightmapChangedListener;
+    bool _heightmapChanged = false;
 };
 

@@ -305,7 +305,7 @@ void GameObject::SetActive(bool active)
 	Transform* parentTransform;
 	if (GetTransform()->TryGetParent(OUT parentTransform))
 	{
-		parentActive = parentTransform->GetGameObject()->IsActive();
+		parentActive = parentTransform->GetGameObject()->IsActiveInHierarchy();
 	}
 	UpdateActiveInHierarchy(parentActive, false);
 }

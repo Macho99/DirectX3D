@@ -141,9 +141,9 @@ void Hierarchy::DrawNode(Transform* node)
     string name = gameObject->GetName();
 
     // Active toggle
-    bool active = gameObject->IsActive();
+    bool active = gameObject->IsActiveInHierarchy();
     ImGui::Checkbox("##active", &active);
-    if (active != gameObject->IsActive()) 
+    if (active != gameObject->IsActiveInHierarchy()) 
         gameObject->SetActive(active);
 
     ImGui::SameLine();
@@ -177,7 +177,7 @@ void Hierarchy::DrawNode(Transform* node)
     if (ImGui::BeginPopupContextItem("NodeContext"))
     {
         if (ImGui::MenuItem("Toggle Active"))
-            gameObject->SetActive(!gameObject->IsActive());
+            gameObject->SetActive(!gameObject->IsActiveInHierarchy());
 
         if (ImGui::MenuItem("Delete"))
         {

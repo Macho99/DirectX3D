@@ -224,6 +224,13 @@ void Transform::SetParent(TransformRef& newParentRef)
 	
 	_parent = newParentRef;
     SetWorldMatrix(prevWorld);
+    bool parentActive = true;
+	if (newParent != nullptr)
+	{
+        parentActive = newParent->GetGameObject()->IsActiveInHierarchy();
+	}
+    GameObject* gameObject = GetGameObject();
+    gameObject->UpdateActiveInHierarchy(parentActive, false);
 }
 
 void Transform::SetSiblingIndex(int index)

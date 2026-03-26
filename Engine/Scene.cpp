@@ -46,7 +46,7 @@ void Scene::Start()
 		GameObject* obj = gameObject.Resolve();
 		obj->Start();
 
-        if (obj->IsActive())
+        if (obj->IsActiveInHierarchy())
 			obj->OnEnable();
 	}
 }
@@ -59,7 +59,7 @@ void Scene::OnDestroy()
     for (auto& pair : _gameObjects)
     {
 		GameObject* obj = pair.Resolve();
-        if (obj->IsActive())
+        if (obj->IsActiveInHierarchy())
             obj->OnDisable();
         obj->OnDestroy();
     }
@@ -72,7 +72,7 @@ void Scene::Update()
 	for (auto& pair : _gameObjects)
 	{
 		GameObject* obj = pair.Resolve();
-        if (obj->IsActive())
+        if (obj->IsActiveInHierarchy())
 			obj->Update();
 	}
 
@@ -84,7 +84,7 @@ void Scene::LateUpdate()
 	for (auto& pair : _gameObjects)
 	{
 		GameObject* obj = pair.Resolve();
-		if (obj->IsActive())
+		if (obj->IsActiveInHierarchy())
 			obj->LateUpdate();
 	}
 
@@ -247,7 +247,7 @@ void Scene::Remove(GameObjectRef gameObjectRef)
     GameObject* gameObject = gameObjectRef.Resolve();
     ASSERT(gameObject != nullptr);
 
-    if (gameObject->IsActive())
+    if (gameObject->IsActiveInHierarchy())
 		gameObject->OnDisable();
 
 	gameObject->OnDestroy();
