@@ -10,6 +10,8 @@ void InputManager::Init(HWND hwnd)
 void InputManager::Update()
 {
 	_mouseInScene = false;
+    _prevMouseWheelDelta = _curMouseWheelDelta;
+    _curMouseWheelDelta = 0;
 
 	HWND hwnd = ::GetActiveWindow();
 	if (_hwnd != hwnd)

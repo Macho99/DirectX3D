@@ -169,6 +169,9 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+    case WM_MOUSEWHEEL:
+        INPUT->AddMouseWheelDelta(GET_WHEEL_DELTA_WPARAM(wParam));
+        break;
 	default:
 		return ::DefWindowProc(handle, message, wParam, lParam);
 	}

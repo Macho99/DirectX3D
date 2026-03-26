@@ -229,6 +229,21 @@ bool TessTerrain::OnGUI()
     changed |= OnGUIUtils::DrawFloat("Brush Strength", &_brushStrength, 0.2f, false);
     changed |= OnGUIUtils::DrawEnumCombo("Selected Blend Layer", _selectedBlendLayer, BlendLayerNames, (int) BlendLayer::Max);
 
+    short wheelDelta = INPUT->GetMouseWheelDelta();
+	if (wheelDelta != 0)
+	{
+        if (INPUT->GetButton(KEY_TYPE::LSHIFT))
+        {
+            _brushStrength -= wheelDelta * 0.02f;
+            _brushStrength = max(0.0f, _brushStrength);
+        }
+        else
+        {
+            _brushRadius -= wheelDelta * 0.02f;
+            _brushRadius = max(0.01f, _brushRadius);
+        }
+	}
+
 	bool curHeightmapEditing = false;
 	if (_terrainDesc.brushRadius > 0.01f)
 	{

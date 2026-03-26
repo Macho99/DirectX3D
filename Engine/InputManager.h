@@ -60,7 +60,9 @@ public:
 	bool GetButtonUp(KEY_TYPE key) { return GetState(key) == KEY_STATE::UP; }
 	
 	const POINT& GetMousePos() { return _mousePos; }
-    bool IsMouseInScene() { return _mouseInScene; }
+	bool IsMouseInScene() const { return _mouseInScene; }
+    void AddMouseWheelDelta(short delta) { _curMouseWheelDelta += delta; }
+	short GetMouseWheelDelta() const { return _prevMouseWheelDelta; }
 
 private:
 	inline KEY_STATE GetState(KEY_TYPE key) { return _states[static_cast<uint8>(key)]; }
@@ -69,6 +71,8 @@ private:
 private:
 	HWND _hwnd;
 	vector<KEY_STATE> _states;
+    short _prevMouseWheelDelta = 0;
+    short _curMouseWheelDelta = 0;
 	POINT _mousePos = {};
     bool _mouseInScene = false;
 };
