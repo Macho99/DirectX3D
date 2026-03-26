@@ -110,6 +110,32 @@ void GameObject::OnDestroy()
 	}
 }
 
+void GameObject::OnEnable()
+{
+    for (ComponentRefBase& component : _components)
+    {
+        if (component.IsValid())
+            component.Resolve()->OnEnable();
+    }
+    for (ComponentRef<MonoBehaviour>& script : _scripts)
+    {
+        script.Resolve()->OnEnable();
+    }
+}
+
+void GameObject::OnDisable()
+{
+    for (ComponentRefBase& component : _components)
+    {
+        if (component.IsValid())
+            component.Resolve()->OnDisable();
+    }
+    for (ComponentRef<MonoBehaviour>& script : _scripts)
+    {
+        script.Resolve()->OnDisable();
+    }
+}
+
 void GameObject::OnInspectorFocus()
 {
 	for (ComponentRefBase& component : _components)
@@ -249,6 +275,7 @@ void GameObject::AddComponent(unique_ptr<Component> component)
 	GameObjectRef thisRef(_guid);
 	component->SetGameObject(thisRef);
 	uint8 index = static_cast<uint8>(component->GetType());
+    Component* componentPtr = component.get();
 	GuidRef guidRef = CUR_SCENE->AddComponent(thisRef, std::move(component));
 	if (index < FIXED_COMPONENT_COUNT)
 	{
@@ -262,6 +289,10 @@ void GameObject::AddComponent(unique_ptr<Component> component)
 		_scripts.push_back((scriptRef));
         _scripts.back().Resolve();
 	}
+
+	componentPtr->Awake();
+	componentPtr->Start();
+	componentPtr->OnEnable();
 }
 
 void GameObject::SetActive(bool active)
@@ -284,6 +315,14 @@ void GameObject::UpdateActiveInHierarchy(bool parentActive, bool forceUpdate)
 	bool newActive = parentActive && _localActive;
     if (forceUpdate == false && _isActive == newActive)
         return;
+
+	if (forceUpdate == false && _isActive != newActive)
+	{
+        if (newActive)
+            OnEnable();
+        else
+            OnDisable();
+	}
 
     _isActive = newActive;
     //for (ComponentRefBase& component : _components)

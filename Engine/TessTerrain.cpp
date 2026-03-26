@@ -242,6 +242,7 @@ bool TessTerrain::OnGUI()
             _brushRadius -= wheelDelta * 0.02f;
             _brushRadius = max(0.01f, _brushRadius);
         }
+        changed = true;
 	}
 
 	bool curHeightmapEditing = false;

@@ -37,8 +37,17 @@ void Scene::Start()
 
 	for (auto& gameObject : _gameObjects)
 	{
-        GameObject* obj = gameObject.Resolve();
+		GameObject* obj = gameObject.Resolve();
+		obj->Awake();
+	}
+
+	for (auto& gameObject : _gameObjects)
+	{
+		GameObject* obj = gameObject.Resolve();
 		obj->Start();
+
+        if (obj->IsActive())
+			obj->OnEnable();
 	}
 }
 
@@ -50,6 +59,8 @@ void Scene::OnDestroy()
     for (auto& pair : _gameObjects)
     {
 		GameObject* obj = pair.Resolve();
+        if (obj->IsActive())
+            obj->OnDisable();
         obj->OnDestroy();
     }
 	_gameObjects.clear();
@@ -233,6 +244,14 @@ GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> c
 
 void Scene::Remove(GameObjectRef gameObjectRef)
 {
+    GameObject* gameObject = gameObjectRef.Resolve();
+    ASSERT(gameObject != nullptr);
+
+    if (gameObject->IsActive())
+		gameObject->OnDisable();
+
+	gameObject->OnDestroy();
+
 	_removeLists.push_back(gameObjectRef);
 }
 
@@ -434,5 +453,10 @@ GameObjectRef Scene::Add(GuidRef guidRef)
 		_rootObjects.push_back(gameObject->GetFixedComponentRef<Transform>());
 	}
 	_gameObjects.insert(gameObjectRef);
+
+	gameObject->Awake();
+	gameObject->Start();
+	gameObject->OnEnable();
+
 	return gameObjectRef;
 }

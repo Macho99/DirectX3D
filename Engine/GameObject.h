@@ -30,6 +30,9 @@ public:
 	void FixedUpdate();
     void OnDestroy();
 
+    void OnEnable();
+    void OnDisable();
+
 	void OnInspectorFocus();
     void OnInspectorFocusLost();
 

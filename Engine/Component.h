@@ -49,6 +49,9 @@ public:
 	virtual void FixedUpdate() { }
     virtual void OnDestroy() { }
 
+    virtual void OnEnable() {}
+    virtual void OnDisable() {}
+
 	virtual void OnInspectorFocus() { }
 	virtual void OnInspectorFocusLost() { }
 
