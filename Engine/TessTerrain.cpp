@@ -224,10 +224,44 @@ bool TessTerrain::OnGUI()
     DrawModeButton("Texture", EditMode::Texture);
 	ImGui::Spacing();
 
-    changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
-    changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
-    changed |= OnGUIUtils::DrawFloat("Brush Strength", &_brushStrength, 0.2f, false);
-    changed |= OnGUIUtils::DrawEnumCombo("Selected Blend Layer", _selectedBlendLayer, BlendLayerNames, (int) BlendLayer::Max);
+	TerrainData* terrainData = _terrainData.Resolve();
+	if (_editMode == EditMode::Texture && terrainData != nullptr)
+	{
+		ImGui::Text("Selected Blend Layer:");
+		auto DrawLayerButton = [this](const char* label, ResourceRef<Texture> textureRef, int num)
+			{
+				Texture* texture = textureRef.Resolve();
+                if (texture == nullptr)
+                    return;
+				
+                bool isSelected = (_selectedBlendLayer == (BlendLayer)num);
+				if (isSelected)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.6f, 1.0f, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.6f, 1.0f, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.5f, 0.9f, 1.0f));
+				}
+
+                if (ImGui::ImageButton(label, texture->GetComPtr().Get(), ImVec2(64, 64)))
+                {
+                    _selectedBlendLayer = (BlendLayer)num;
+                }
+
+				if (isSelected)
+					ImGui::PopStyleColor(3);
+
+				ImGui::SameLine();
+			};
+#define X(name, color, num) DrawLayerButton(#name, terrainData->Get##name##(), num);
+		BLEND_LAYER_LIST
+#undef X
+		ImGui::NewLine();
+	}
+
+	changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
+	changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
+	changed |= OnGUIUtils::DrawFloat("Brush Strength", &_brushStrength, 0.2f, false);
+	//changed |= OnGUIUtils::DrawEnumCombo("Selected Blend Layer", _selectedBlendLayer, BlendLayerNames, (int) BlendLayer::Max);
 
     short wheelDelta = INPUT->GetMouseWheelDelta();
 	if (wheelDelta != 0)

@@ -5,35 +5,6 @@
 class Material;
 class Texture;
 
-#define BLEND_LAYER_LIST \
-    X(Layer0, Color(0,0,0,0)) \
-    X(Layer1, Color(1,0,0,0)) \
-    X(Layer2, Color(0,1,0,0)) \
-    X(Layer3, Color(0,0,1,0)) \
-    X(Layer4, Color(0,0,0,1)) \
-
-enum class BlendLayer
-{
-#define X(name, color) name,
-	BLEND_LAYER_LIST
-#undef X
-	Max
-};
-
-static const char* BlendLayerNames[] =
-{
-#define X(name, color) #name,
-	BLEND_LAYER_LIST
-#undef X
-};
-
-static const Color BlendLayerColors[] =
-{
-    #define X(name, color) color,
-    BLEND_LAYER_LIST
-    #undef X
-};
-
 class TessTerrain : public Renderer
 {
 	enum class EditMode

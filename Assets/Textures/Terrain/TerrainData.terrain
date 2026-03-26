@@ -11,31 +11,31 @@
                         "rightId": 10400216326907106100
                     }
                 },
-                "layerMap0": {
+                "Layer0": {
                     "assetId": {
                         "leftId": 595073922378376946,
                         "rightId": 16004006855823132554
                     }
                 },
-                "layerMap1": {
+                "Layer1": {
                     "assetId": {
                         "leftId": 6815029624952871838,
                         "rightId": 932360084440793394
                     }
                 },
-                "layerMap2": {
+                "Layer2": {
                     "assetId": {
                         "leftId": 2497774992225675372,
                         "rightId": 15990128144779285978
                     }
                 },
-                "layerMap3": {
+                "Layer3": {
                     "assetId": {
                         "leftId": 12500149277160273386,
                         "rightId": 4025755375948973737
                     }
                 },
-                "layerMap4": {
+                "Layer4": {
                     "assetId": {
                         "leftId": 7366716854236853226,
                         "rightId": 2072915654403721246

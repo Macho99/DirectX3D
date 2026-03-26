@@ -1,5 +1,35 @@
 #pragma once
 #include "ResourceBase.h"
+
+#define BLEND_LAYER_LIST \
+    X(Layer0, Color(0,0,0,0), 0) \
+    X(Layer1, Color(1,0,0,0), 1) \
+    X(Layer2, Color(0,1,0,0), 2) \
+    X(Layer3, Color(0,0,1,0), 3) \
+    X(Layer4, Color(0,0,0,1), 4) \
+
+enum class BlendLayer
+{
+#define X(name, color, num) name,
+    BLEND_LAYER_LIST
+#undef X
+    Max
+};
+
+static const char* BlendLayerNames[] =
+{
+#define X(name, color, num) #name,
+    BLEND_LAYER_LIST
+#undef X
+};
+
+static const Color BlendLayerColors[] =
+{
+    #define X(name, color, num) color,
+    BLEND_LAYER_LIST
+    #undef X
+};
+
 class TerrainData : public ResourceBase
 {
     using Super = ResourceBase;
@@ -18,7 +48,9 @@ public:
     float GetHeightmapWidth() const { return heightmapWidth; }
     float GetHeightmapHeight() const { return heightmapHeight; }
     float GetCellSpacing() const { return cellSpacing; }
-
+#define X(name, color, num) ResourceRef<Texture> Get##name##() const { return name; }
+    BLEND_LAYER_LIST
+#undef X
     static string GetExtension() { return ".terrain"; }
 
 private:
@@ -28,27 +60,22 @@ public:
 	template<class Archive>
 	void serialize(Archive& ar)
     {
-        ar( CEREAL_NVP(heightMap),
-            CEREAL_NVP(layerMap0),
-            CEREAL_NVP(layerMap1),
-            CEREAL_NVP(layerMap2),
-            CEREAL_NVP(layerMap3),
-            CEREAL_NVP(layerMap4),
-            CEREAL_NVP(blendMap),
-            CEREAL_NVP(heightScale),
-            CEREAL_NVP(heightmapWidth),
-            CEREAL_NVP(heightmapHeight),
-            CEREAL_NVP(cellSpacing)
-        );
+        ar(CEREAL_NVP(heightMap));
+#define X(name, color, num) ar(CEREAL_NVP(name));
+            BLEND_LAYER_LIST
+#undef X
+        ar(CEREAL_NVP(blendMap));
+        ar(CEREAL_NVP(heightScale));
+        ar(CEREAL_NVP(heightmapWidth));
+        ar(CEREAL_NVP(heightmapHeight));
+        ar(CEREAL_NVP(cellSpacing));
 	}
 
 private:
 	AssetRef heightMap;
-	ResourceRef<Texture> layerMap0;
-	ResourceRef<Texture> layerMap1;
-	ResourceRef<Texture> layerMap2;
-	ResourceRef<Texture> layerMap3;
-	ResourceRef<Texture> layerMap4;
+#define X(name, color, num) ResourceRef<Texture> name;
+    BLEND_LAYER_LIST
+#undef X
 	ResourceRef<Texture> blendMap;
 	float heightScale = 50.0f;
 	uint32 heightmapWidth = 2049;
