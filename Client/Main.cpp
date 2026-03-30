@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "Main.h"
 #include "Engine/Game.h"
+#include "CerealRegister.h"
 #include "29. SceneSerializeDemo.h"
 #include "27. BillboardDemo.h"
 #include "30. AssetSerializeDemo.h"
@@ -11,6 +12,8 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+	RegisterClientComponents();
+
 	//_CrtSetBreakAlloc(3029);
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	GameDesc desc;

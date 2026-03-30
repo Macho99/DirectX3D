@@ -5,3 +5,8 @@
 
 CEREAL_REGISTER_TYPE(CameraMove);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, CameraMove);
+
+void RegisterClientComponents()
+{
+    CameraMove::EnsureAutoRegister();
+}

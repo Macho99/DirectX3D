@@ -36,6 +36,7 @@ public:                                                              \
     static const char* StaticName() { return #TYPE; }                \
     static std::unique_ptr<Component> CreateInstance()              \
     { return std::make_unique<TYPE>(); }                            \
+    static void EnsureAutoRegister() { (void)_autoRegister; }       \
 private:                                                             \
     struct AutoRegister                                             \
     {                                                               \

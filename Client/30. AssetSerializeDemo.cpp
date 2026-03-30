@@ -40,7 +40,6 @@
 #include "Sky.h"
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
-#include "NavMesh.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -57,7 +56,6 @@ void AssetSerializeDemo::Init()
         camera->AddComponent(make_unique<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
         camera->GetCamera()->SetFar(500.f);
-        camera->AddComponent(make_unique<NavMesh>());
     }
 
     {
