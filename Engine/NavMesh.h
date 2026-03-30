@@ -7,5 +7,7 @@ class NavMesh : public Component
 public:
     NavMesh();
     ~NavMesh();
+
+    virtual bool OnGUI() override;
 };
 

@@ -23,6 +23,7 @@ public:
 
     virtual bool OnGUI() override;
 	virtual bool TryInitialize() override;
+    virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
 
     template<typename Archive>
     void serialize(Archive& ar)

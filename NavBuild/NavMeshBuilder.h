@@ -1,28 +1,5 @@
 #pragma once
-
-struct InputTri
-{
-    Vec3 v0;
-    Vec3 v1;
-    Vec3 v2;
-};
-
-struct Bounds
-{
-    Vec3 bmin = { FLT_MAX, FLT_MAX, FLT_MAX };
-    Vec3 bmax = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
-
-    void Encapsulate(const Vec3& p)
-    {
-        bmin.x = std::min(bmin.x, p.x);
-        bmin.y = std::min(bmin.y, p.y);
-        bmin.z = std::min(bmin.z, p.z);
-
-        bmax.x = std::max(bmax.x, p.x);
-        bmax.y = std::max(bmax.y, p.y);
-        bmax.z = std::max(bmax.z, p.z);
-    }
-};
+#include "Types.h"
 
 struct NavBuildSettings
 {
@@ -37,15 +14,14 @@ struct NavBuildSettings
 
 struct NavBuildInput
 {
-    std::vector<InputTri> triangles;
-    Bounds bounds;
+    vector<InputTri> triangles;
     NavBuildSettings settings;
 };
 
 class NavMeshBuilder
 {
 public:
-    int Build(const NavBuildInput& input);
+    bool Build(const NavBuildInput& input, const fs::path& savePath);
 
 private:
     bool MarkWalkableTriangles();

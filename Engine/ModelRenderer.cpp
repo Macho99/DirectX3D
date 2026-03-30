@@ -129,3 +129,40 @@ bool ModelRenderer::TryInitialize()
     _initialized = true;
     return true;
 }
+
+void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)
+{
+    Model* model = _model.Resolve();
+    if (model == nullptr)
+        return;
+    ModelMeshResource* mesh = model->GetMesh();
+    if (mesh == nullptr)
+        return;
+
+    Transform* transform = GetGameObject()->GetTransform();
+    Matrix worldMat = transform->GetWorldMatrix();
+
+    const auto& meshes = mesh->GetMeshes();
+    for (auto& mesh : meshes)
+    {
+		const auto& bone = mesh->bone;
+		Matrix boneMat = bone->transform;
+        Matrix finalMat = boneMat * worldMat;
+
+        const auto& vertices = mesh->geometry->GetVertices();
+        const auto& indices = mesh->geometry->GetIndices();
+        for (size_t i = 0; i < indices.size(); i += 3)
+        {
+            InputTri tri;
+            tri.v0 = vertices[indices[i + 0]].position;
+            tri.v0 = Vec3::Transform(tri.v0, finalMat);
+            tri.v1 = vertices[indices[i + 1]].position;
+            tri.v1 = Vec3::Transform(tri.v1, finalMat);
+            tri.v2 = vertices[indices[i + 2]].position;
+            tri.v2 = Vec3::Transform(tri.v2, finalMat);
+
+			if(explicitBounds.IsInside(tri))
+				tris.push_back(tri);
+        }
+    }
+}

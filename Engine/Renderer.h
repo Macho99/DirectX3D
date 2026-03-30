@@ -1,5 +1,7 @@
 #pragma once
 #include "Component.h"
+#include "../NavBuild/Types.h"
+
 enum class RenderTech;
 
 class Renderer : public Component
@@ -17,6 +19,7 @@ public:
     void SetBeforeRender(function<void(Material*)> func) { _beforeRender = func; }
     virtual bool OnGUI() override;
 	virtual bool TryInitialize() { return true; }
+    virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) {}
 
     template<typename Archive>
     void serialize(Archive& ar)
@@ -24,6 +27,7 @@ public:
         Super::serialize(ar);
         ar(CEREAL_NVP(_material), CEREAL_NVP(_pass));
     }
+
 
 protected:
 	virtual void InnerRender(RenderTech renderTech);

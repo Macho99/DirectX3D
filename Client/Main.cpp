@@ -12,8 +12,6 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-	RegisterClientComponents();
-
 	//_CrtSetBreakAlloc(3029);
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	GameDesc desc;
@@ -27,6 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.app = make_shared<AssetSerializeDemo>();
 	//desc.app = make_shared<SceneDemo>();
 
+	RegisterClientComponents();
 	GAME->Run(desc);
 
 	//_CrtDumpMemoryLeaks();

@@ -12,8 +12,12 @@
 #define NOMINMAX
 #include "Windows.h"
 
-#include "vector"
+#include <vector>
+#include <filesystem>
+using namespace std;
+namespace fs = std::filesystem;
 
 #include "Math.h"
+#include "Types.h"
 
 #endif //PCH_H

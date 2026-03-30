@@ -18,6 +18,7 @@ public:
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
     InstanceID GetInstanceID();
     virtual bool OnGUI() override;
+    virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
 
     template<typename Archive>
     void serialize(Archive& ar)
