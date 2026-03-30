@@ -121,8 +121,8 @@ void Bloom::OnSize(UINT width, UINT height)
     
     for (int i = 0; i < _sampleSize.size(); i++)
     {
-        UINT curWidth = max(1, prevWidth / _sampleSize[i]);
-        UINT curHeight = max(1, prevHeight / _sampleSize[i]);
+        UINT curWidth = std::max((UINT)1, prevWidth / _sampleSize[i]);
+        UINT curHeight = std::max((UINT)1, prevHeight / _sampleSize[i]);
 
         prevWidth = curWidth;
         prevHeight = curHeight;

@@ -94,6 +94,9 @@
     <Filter Include="50. Editor\InspectorDrawer\MetaFileDrawer">
       <UniqueIdentifier>{f90e9f54-e922-4c6e-b0d1-a65a1a457136}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Component\Navigation">
+      <UniqueIdentifier>{183c3868-6a9a-4e57-922f-415e87a3924b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -765,7 +768,12 @@
     <ClInclude Include="ComponentRegistry.h">
       <Filter>04. Component</Filter>
     </ClInclude>
-    <ClInclude Include="Event.h" />
+    <ClInclude Include="Event.h">
+      <Filter>98. Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="NavMesh.h">
+      <Filter>04. Component\Navigation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1164,7 +1172,12 @@
     <ClCompile Include="ComponentRegistry.cpp">
       <Filter>04. Component</Filter>
     </ClCompile>
-    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Event.cpp">
+      <Filter>98. Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="NavMesh.cpp">
+      <Filter>04. Component\Navigation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

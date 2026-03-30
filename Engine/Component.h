@@ -24,6 +24,7 @@ enum class ComponentType : uint8
 	AABBBoxCollider,
     OBBBoxCollider,
     SphereCollider,
+    NavMesh,
 	// ...
 	Script,
 
