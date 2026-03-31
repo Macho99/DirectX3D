@@ -40,11 +40,7 @@ public:
     virtual void OnLoad(unordered_map<AssetId, MetaFile*, AssetIdHash>& subAssetContainer) override;
     virtual void OnDestroy(unordered_map<AssetId, MetaFile*, AssetIdHash>& subAssetContainer) override;
 
-    virtual fs::path GetImportedAssetPath() const override
-    {
-        assert(false && "SubAssetMetaFile has no single resource path");
-        return L"";
-    }
+    virtual fs::path GetImportedAssetPath(const AssetId& assetId) const override;
 
     wstring GetSubResourcePath(int index) const;
 

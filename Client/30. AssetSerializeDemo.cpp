@@ -220,7 +220,7 @@ void AssetSerializeDemo::Init()
         //shared_ptr<Model> m2 = make_shared<Model>();
         //m2->ReadModel(L"Tree1/Tree");
         //m2->ReadMaterial(L"Tree1/Tree");
-        ResourceRef<Model> m2(RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tree1\\Tree.fbx"));
+        ResourceRef<Model> m2(RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tree1\\TreeModel.model"));
         for (int32 i = 0; i < 10; i++)
         {
             auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));

@@ -260,6 +260,31 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
             ImGui::EndMenu();
         }
 
+        const char* clipboadText = ImGui::GetClipboardText();
+        AssetId pastedId;
+        bool canPaste = false;
+        fs::path pastedPath;
+        if (clipboadText != nullptr) // 유효한 AssetId 길이
+        {
+            if (AssetId::TryParse(clipboadText, OUT pastedId))
+            {
+                MetaFile* metaFile = nullptr;
+                if (RESOURCES->TryGetMetaByAssetId(pastedId, OUT metaFile))
+                {
+                    canPaste = true;
+                     pastedPath = metaFile->GetImportedAssetPath(pastedId);
+                }
+            }
+        }
+
+        if (ImGui::MenuItem("Paste", nullptr, false, canPaste))
+        {
+            fs::path newPath;
+            if (TryGetNewFilePath(_currentFolder, pastedPath.stem().string(), pastedPath.extension().string(), OUT newPath))
+            {
+                fs::copy(pastedPath, newPath);
+            }
+        }
 
         ImGui::EndPopup();
     }

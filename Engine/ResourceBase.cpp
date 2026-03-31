@@ -23,11 +23,6 @@ ResourceBase::~ResourceBase()
 
 bool ResourceBase::OnGUI(bool isReadOnly)
 {
-	if (ImGui::Button("Save"))
-	{
-        DBG->Log("ResourceBase::OnGUI: Save button clicked for resource: " + _assetId.ToString());
-	}
-
 	return false;
 }
 

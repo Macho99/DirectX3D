@@ -24,6 +24,22 @@ void SubAssetMetaFile::OnDestroy(unordered_map<AssetId,MetaFile*, AssetIdHash>& 
     }
 }
 
+fs::path SubAssetMetaFile::GetImportedAssetPath(const AssetId& assetId) const
+{
+    for (int i = 0; i < _subAssets.size(); i++)
+    {
+        if (_subAssets[i].assetId == assetId)
+            return GetSubResourcePath(i);
+    }
+    if(assetId == _assetId)
+    {
+        ASSERT(false, "SubAssetMetaFile has no single resource path");
+        return L"";
+    }
+    ASSERT(false, "SubAssetMetaFile::GetImportedAssetPath: assetId not found in subAssets: " + assetId.ToString());
+    return L"";
+}
+
 wstring SubAssetMetaFile::GetSubResourcePath(int index) const
 {
     if (index < 0 || index >= (int)_subAssets.size())
@@ -68,6 +84,15 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thu
         // 2. 상호작용 영역 (클릭/호버 감지용 투명 버튼)
         ImGui::InvisibleButton("##tile", ImVec2(tileW, tileH));
         bool hovered = ImGui::IsItemHovered();
+        if (ImGui::BeginPopupContextItem("Context"))
+        {
+            if (ImGui::MenuItem("Copy"))
+            {
+                ImGui::SetClipboardText(sub.assetId.ToString().c_str());
+            }
+            ImGui::EndPopup();
+        }
+
         bool selected = (selectedSubAssetIndex == i);
 
         ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, GetSubResourcePath(i))->GetComPtr().Get();

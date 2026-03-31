@@ -44,6 +44,11 @@ MetaFile::~MetaFile()
 
 fs::path MetaFile::GetImportedAssetPath() const
 {
+    return GetImportedAssetPath(GetAssetId());
+}
+
+fs::path MetaFile::GetImportedAssetPath(const AssetId& assetId) const
+{
     // TODO: 빌드 환경 대응
     return GetAssetPath();
 }
@@ -97,16 +102,15 @@ void MetaFile::ForceReimport()
 
 bool MetaFile::OnGUI()
 {
-    if (ImGui::Button("Reimport"))
-    {
-        ForceReimport();
-    }
     return false;
 }
 
 void MetaFile::OnMenu()
 {
-
+    if (ImGui::MenuItem("Reimport"))
+    {
+        ForceReimport();
+    }
 }
 
 void MetaFile::Import()
@@ -264,6 +268,10 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
 
     if (ImGui::BeginPopupContextItem("Context"))
     {
+        if (isFolder == false && ImGui::MenuItem("Copy"))
+        {
+            ImGui::SetClipboardText(_assetId.ToString().c_str());
+        }
         if (ImGui::MenuItem("Delete"))
         {
             fs::remove(assetPath);
