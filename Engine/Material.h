@@ -59,9 +59,21 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+        Super::serialize(ar);
+
+        if (Archive::is_saving::value)
+            _version = CurrentVersion;
+
+        ar(CEREAL_NVP(_version));
 		ar(CEREAL_NVP(_desc));
         ar(CEREAL_NVP(_renderQueue));
         ar(CEREAL_NVP(_castShadow));
+
+		if (Archive::is_saving::value || _version >= 2)
+		{
+			ar(CEREAL_NVP(_includeInNavMesh));
+		}
+
         ar(CEREAL_NVP(_shader));
         ar(CEREAL_NVP(_diffuseMap));
         ar(CEREAL_NVP(_normalMap));
@@ -75,9 +87,12 @@ private:
 private:
 	friend class MeshRenderer;
 
+    const int CurrentVersion = 2;
+    int _version = CurrentVersion;
 	MaterialDesc _desc;
 	RenderQueue _renderQueue = RenderQueue::Opaque;
 	bool _castShadow = true;
+	bool _includeInNavMesh = true;
 
 	ResourceRef<Shader> _shader;
 	ResourceRef<Texture> _diffuseMap;

@@ -102,6 +102,7 @@ bool Material::OnGUI(bool isReadOnly)
 	//ar(CEREAL_NVP(_randomTex));
 	//ar(CEREAL_NVP(_cubeMap));
 	bool changed = false;
+    changed |= OnGUIUtils::DrawInt32("Version", &_version, 1.f, true);
 	changed |= OnGUIUtils::DrawColor("Ambient", &_desc.ambient, isReadOnly);
 	changed |= OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse, isReadOnly);
 	changed |= OnGUIUtils::DrawColor("Specular", &_desc.specular, isReadOnly);
@@ -114,6 +115,7 @@ bool Material::OnGUI(bool isReadOnly)
 	changed |= OnGUIUtils::DrawResourceRef("CubeMap", _cubeMap, isReadOnly);
 	changed |= OnGUIUtils::DrawBool("UseRandomTexture", &_useRandomTexture, isReadOnly);
     changed |= OnGUIUtils::DrawBool("CastShadow", &_castShadow, isReadOnly);
+    changed |= OnGUIUtils::DrawBool("IncludeInNavMesh", &_includeInNavMesh, isReadOnly);
 
 	return changed;
 }
