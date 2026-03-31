@@ -60,6 +60,7 @@ public:
 	template<class Archive>
 	void serialize(Archive& ar)
     {
+        Super::serialize(ar);
         ar(CEREAL_NVP(heightMap));
 #define X(name, color, num) ar(CEREAL_NVP(name));
             BLEND_LAYER_LIST

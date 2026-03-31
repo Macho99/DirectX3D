@@ -34,6 +34,7 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+        Super::serialize(ar);
         ar(CEREAL_NVP(_materials));
         ar(CEREAL_NVP(_mesh));
         ar(CEREAL_NVP(_animations));

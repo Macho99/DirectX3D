@@ -5,6 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
+                "_version": 0,
                 "heightMap": {
                     "assetId": {
                         "leftId": 1115768239487903243,

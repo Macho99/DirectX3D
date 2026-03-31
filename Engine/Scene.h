@@ -60,6 +60,7 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+        Super::serialize(ar);
         ar(
 			cereal::make_nvp("RootObjects", _rootObjects),
             cereal::make_nvp("GameObjects", _gameObjects),

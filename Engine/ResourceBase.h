@@ -16,6 +16,7 @@ public:
 	virtual ~ResourceBase();
 
 	ResourceType GetType() { return _type; }
+    virtual int GetVersion() const { return 0; }
 
 	void SetName(const wstring& name) { _name = name; }
 	const wstring& GetName() { return _name; }
@@ -27,6 +28,10 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+		if (Archive::is_saving::value)
+			_version = GetVersion();
+
+		ar(CEREAL_NVP(_version));
     }
 
 protected:
@@ -34,6 +39,7 @@ protected:
 	virtual void Save(const wstring& path) { }
 
 protected:
+	int _version = 0;
 	ResourceType _type = ResourceType::None;
 	wstring _name;
 	wstring _path;

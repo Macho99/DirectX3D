@@ -26,6 +26,7 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+        Super::serialize(ar);
         ar(CEREAL_NVP(_geometry));
 
         if (Archive::is_loading::value)

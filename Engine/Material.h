@@ -29,6 +29,8 @@ public:
 	Material();
 	~Material();
 
+    virtual int GetVersion() const override { return 2; }
+
 	Shader* GetShader() { return _shader.Resolve(); }
 
 	MaterialDesc& GetMaterialDesc() { return _desc; }
@@ -61,10 +63,6 @@ public:
     {
         Super::serialize(ar);
 
-        if (Archive::is_saving::value)
-            _version = CurrentVersion;
-
-        ar(CEREAL_NVP(_version));
 		ar(CEREAL_NVP(_desc));
         ar(CEREAL_NVP(_renderQueue));
         ar(CEREAL_NVP(_castShadow));
@@ -87,8 +85,6 @@ private:
 private:
 	friend class MeshRenderer;
 
-    const int CurrentVersion = 2;
-    int _version = CurrentVersion;
 	MaterialDesc _desc;
 	RenderQueue _renderQueue = RenderQueue::Opaque;
 	bool _castShadow = true;

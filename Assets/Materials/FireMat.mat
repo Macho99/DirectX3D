@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 1,
+                "_version": 2,
                 "_desc": {
                     "ambient": {
                         "value.x": 1.0,
@@ -34,6 +34,7 @@
                 },
                 "_renderQueue": 2,
                 "_castShadow": true,
+                "_includeInNavMesh": true,
                 "_shader": {
                     "assetId": {
                         "leftId": 1280896745409630759,

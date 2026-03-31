@@ -5,6 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
+                "_version": 0,
                 "_materials": [
                     {
                         "assetId": {

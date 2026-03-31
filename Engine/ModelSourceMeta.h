@@ -15,6 +15,6 @@ protected:
     void Import() override;
 
 private:
-    virtual int GetVersion() const override { return 6; }
+    virtual int GetVersion() const override { return 7; }
 };
 
