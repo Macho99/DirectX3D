@@ -56,6 +56,8 @@ public:
 	virtual void OnInspectorFocus() { }
 	virtual void OnInspectorFocusLost() { }
 
+    virtual int GetVersion() const { return 0; }
+
 public:
 	ComponentType GetType() { return _type; }
 
@@ -76,11 +78,16 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+		if (Archive::is_saving::value)
+			_version = GetVersion();
+
+		ar(CEREAL_NVP(_version));
         ar(cereal::make_nvp("GameObject", _gameObject));
         ar(cereal::make_nvp("Guid", _guid));
     }
 
 protected:
+	int _version;
 	ComponentType _type;
 	GameObjectRef _gameObject;
     Guid _guid;
