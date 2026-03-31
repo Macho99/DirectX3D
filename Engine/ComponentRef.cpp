@@ -11,6 +11,7 @@
 #include "TessTerrain.h"
 #include "MonoBehaviour.h"
 #include "ModelAnimator.h"
+#include "MeshRenderer.h"
 
 template<class T>
 T* ComponentRef<T>::Resolve() const
@@ -44,3 +45,4 @@ template struct ComponentRef<Light>;
 template struct ComponentRef<TessTerrain>;
 template struct ComponentRef<MonoBehaviour>;
 template struct ComponentRef<ModelAnimator>;
+template struct ComponentRef<MeshRenderer>;

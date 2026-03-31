@@ -40,6 +40,12 @@ void Mesh::CreateSphere()
 	CreateBuffers();
 }
 
+void Mesh::CreateFromGeometry(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry)
+{
+    _geometry = geometry;
+    CreateBuffers();
+}
+
 void Mesh::CreateBuffers()
 {
 	_vertexBuffer = make_shared<VertexBuffer>();

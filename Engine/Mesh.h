@@ -16,6 +16,7 @@ public:
 	void CreateCube();
 	void CreateGrid(int32 sizeX, int32 sizeZ);
 	void CreateSphere();
+    void CreateFromGeometry(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry);
 
 	shared_ptr<VertexBuffer> GetVertexBuffer() { return _vertexBuffer; }
 	shared_ptr<IndexBuffer> GetIndexBuffer() { return _indexBuffer; }
@@ -30,7 +31,7 @@ public:
         if (Archive::is_loading::value)
 			CreateBuffers();
     }
-
+	
 private:
 	void CreateBuffers();
 

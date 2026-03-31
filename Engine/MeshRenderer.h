@@ -14,6 +14,7 @@ public:
 	virtual ~MeshRenderer();
 
 	void SetMesh(ResourceRef<Mesh> mesh) { _mesh = mesh; }
+    ResourceRef<Mesh> GetMesh() { return _mesh; }
 	bool Render(RenderTech renderTech) override;
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
     InstanceID GetInstanceID();

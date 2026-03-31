@@ -21,10 +21,12 @@ struct NavBuildInput
 class NavMeshBuilder
 {
 public:
-    bool Build(const NavBuildInput& input, const fs::path& savePath);
+    bool Build(NavBuildInput input, const fs::path& savePath);
+
+    void SetDebugOnMarkWalkableTriangles(function<void(const vector<InputTri>&)> callback) { _onMarkWalkableTriangles = callback; }
 
 private:
-    bool MarkWalkableTriangles();
+    bool MarkWalkableTriangles(NavBuildInput& input);
     bool BuildHeightfield();
     bool FilterWalkable();
     bool BuildCompactHeightfield();
@@ -32,5 +34,11 @@ private:
     bool BuildContours();
     bool BuildPolyMesh();
     bool BuildDetailMesh();
+
+private:
+    Vec3 GetTriangleNormal(const InputTri& tri);
+
+private:
+    function<void(const vector<InputTri>&)> _onMarkWalkableTriangles;
 };
 
