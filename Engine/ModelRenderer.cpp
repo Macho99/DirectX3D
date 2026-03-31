@@ -135,6 +135,7 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
     Model* model = _model.Resolve();
     if (model == nullptr)
         return;
+
     ModelMeshResource* mesh = model->GetMesh();
     if (mesh == nullptr)
         return;
@@ -142,9 +143,13 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
     Transform* transform = GetGameObject()->GetTransform();
     Matrix worldMat = transform->GetWorldMatrix();
 
-    const auto& meshes = mesh->GetMeshes();
-    for (auto& mesh : meshes)
+    auto& meshes = mesh->GetMeshes();
+    for (shared_ptr<ModelMesh>& mesh : meshes)
     {
+		Material* material = mesh->material.Resolve();
+		if (material == nullptr || material->IsIncludeInNavMesh() == false)
+			return;
+
 		const auto& bone = mesh->bone;
 		Matrix boneMat = bone->transform;
         Matrix finalMat = boneMat * worldMat;

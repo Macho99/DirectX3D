@@ -85,6 +85,10 @@ void MeshRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri
 	if (mesh == nullptr)
 		return;
 
+	Material* material = GetMaterial().Resolve();
+	if (material == nullptr || material->IsIncludeInNavMesh() == false)
+		return;
+
 	shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry = mesh->GetGeometry();
 	const vector<VertexTextureNormalTangentData>& vertices = geometry->GetVertices();
     const vector<uint32>& indices = geometry->GetIndices();

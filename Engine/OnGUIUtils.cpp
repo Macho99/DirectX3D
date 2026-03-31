@@ -49,6 +49,15 @@ bool OnGUIUtils::DrawFloat3(const char* label, float* value, float dragSpeed, bo
     return changed;
 }
 
+bool OnGUIUtils::DrawVec2(const char* label, Vec2* value, float dragSpeed, bool isReadOnly)
+{
+    Begin(label, isReadOnly);
+    bool changed = ImGui::DragFloat2(_valueLabel, &(*value).x, dragSpeed);
+    End(isReadOnly);
+
+    return changed;
+}
+
 bool OnGUIUtils::DrawVec3(const char* label, Vec3* value, float dragSpeed, bool isReadOnly)
 {
     Begin(label, isReadOnly);

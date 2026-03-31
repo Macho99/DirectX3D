@@ -13,6 +13,9 @@ public:
     virtual bool OnGUI() override;
 
 private:
+    Vec2 _walkableUV;
+    Vec2 _unwalkableUV;
+
     NavMeshBuilder _builder;
     ComponentRef<MeshRenderer> _walkableMeshRenderer;
 };

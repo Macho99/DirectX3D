@@ -175,5 +175,8 @@
     <FxCompile Include="..\Assets\Shaders\Terrain.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\DebugShader.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

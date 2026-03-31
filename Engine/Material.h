@@ -49,10 +49,12 @@ public:
 	void SetRandomTex(bool useRandomTexture) { _useRandomTexture = useRandomTexture; }
 
 	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
-	RenderQueue GetRenderQueue() { return _renderQueue; }
+	RenderQueue GetRenderQueue() const { return _renderQueue; }
 
 	void SetCastShadow(bool castShadow) { _castShadow = castShadow; }
-	bool GetCastShadow() { return _castShadow; }
+	bool GetCastShadow() const { return _castShadow; }
+
+    bool IsIncludeInNavMesh() const { return _includeInNavMesh; }
 
 	void Update();
     virtual bool OnGUI(bool isReadOnly) override;

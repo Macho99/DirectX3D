@@ -13,6 +13,7 @@ public:
     static bool DrawInt32(const char* label, int* value, float dragSpeed, bool isReadOnly = false);
     static bool DrawFloat(const char* label, float* value, float dragSpeed = FLOAT_DRAG_SPEED, bool isReadOnly = false);
     static bool DrawFloat3(const char* label, float* value, float dragSpeed = FLOAT_DRAG_SPEED, bool isReadOnly = false);
+    static bool DrawVec2(const char* label, Vec2* value, float dragSpeed = FLOAT_DRAG_SPEED, bool isReadOnly = false);
     static bool DrawVec3(const char* label, Vec3* value, float dragSpeed = FLOAT_DRAG_SPEED, bool isReadOnly = false);
     static bool DrawColor(const char* label, Color* color, bool isReadOnly = false);
     static bool DrawRect(const char* label, RECT* rect, float dragSpeed = 1.0f, bool isReadOnly = false);
