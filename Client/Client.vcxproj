@@ -69,6 +69,7 @@
     <FxCompile Include="..\Assets\Shaders\Foliage.fx" />
     <FxCompile Include="..\Assets\Shaders\GrassCompute.fx" />
     <FxCompile Include="..\Assets\Shaders\GrassRender.fx" />
+    <FxCompile Include="..\Assets\Shaders\Line.fx" />
     <FxCompile Include="..\Assets\Shaders\ParticleSystem.fx" />
     <FxCompile Include="..\Assets\Shaders\Sky.fx" />
     <FxCompile Include="..\Assets\Shaders\Ssao.fx" />

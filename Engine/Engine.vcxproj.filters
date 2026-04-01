@@ -774,6 +774,9 @@
     <ClInclude Include="NavMesh.h">
       <Filter>04. Component\Navigation</Filter>
     </ClInclude>
+    <ClInclude Include="LineRenderer.h">
+      <Filter>04. Component\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1177,6 +1180,9 @@
     </ClCompile>
     <ClCompile Include="NavMesh.cpp">
       <Filter>04. Component\Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="LineRenderer.cpp">
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

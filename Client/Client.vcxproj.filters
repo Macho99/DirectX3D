@@ -181,5 +181,8 @@
     <FxCompile Include="..\Assets\Shaders\DebugWireFrameShader.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\Line.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

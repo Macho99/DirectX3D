@@ -10,6 +10,7 @@
 #include "Material.h"
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
+#include "LineRenderer.h"
 
 void RenderManager::OnDestroy()
 {
@@ -48,6 +49,10 @@ void RenderManager::Render(vector<GameObject*>& gameObjects, RenderTech renderTe
         GrassRenderer* grassRenderer = gameObject->GetFixedComponent<GrassRenderer>(ComponentType::GrassRenderer);
         if (grassRenderer != nullptr)
             grassRenderer->Render(_renderTech);
+
+		LineRenderer* lineRenderer = gameObject->GetFixedComponent<LineRenderer>(ComponentType::LineRenderer);
+		if (lineRenderer != nullptr)
+			lineRenderer->Render(_renderTech);
 	}
 }
 

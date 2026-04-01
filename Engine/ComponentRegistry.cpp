@@ -19,6 +19,7 @@
 #include "Transform.h"
 #include "NavMesh.h"
 #include "MonoBehaviour.h"
+#include "LineRenderer.h"
 
 static void ForceRegisterEngineComponents()
 {
@@ -40,6 +41,7 @@ static void ForceRegisterEngineComponents()
     Terrain::EnsureAutoRegister();
     Transform::EnsureAutoRegister();
     NavMesh::EnsureAutoRegister();
+    LineRenderer::EnsureAutoRegister();
 }
 
 void ComponentRegistry::Init()
@@ -112,3 +114,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, MonoBehaviour);
 
 CEREAL_REGISTER_TYPE(NavMesh);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, NavMesh);
+
+CEREAL_REGISTER_TYPE(LineRenderer);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, LineRenderer);

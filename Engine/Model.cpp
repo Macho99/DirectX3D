@@ -93,12 +93,12 @@ bool Model::OnGUI(bool isReadOnly)
         }
     }
 
-    ImGui::Separator();
     for (int i = 0; i < _materials.size(); i++)
     {
         string label = "Material " + to_string(i);
         changed |= OnGUIUtils::DrawResourceRef(label.c_str(), _materials[i], isReadOnly);
     }
+    ImGui::Separator();
 
     if (isReadOnly == false)
     {

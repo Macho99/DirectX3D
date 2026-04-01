@@ -322,6 +322,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="InspectorDrawer.h" />
     <ClInclude Include="InstancingBuffer.h" />
     <ClInclude Include="LightDrawer.h" />
+    <ClInclude Include="LineRenderer.h" />
     <ClInclude Include="MaterialDrawer.h" />
     <ClInclude Include="MaterialMeta.h" />
     <ClInclude Include="MeshMeta.h" />
@@ -518,6 +519,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="InspectorDrawer.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
     <ClCompile Include="LightDrawer.cpp" />
+    <ClCompile Include="LineRenderer.cpp" />
     <ClCompile Include="MaterialDrawer.cpp" />
     <ClCompile Include="MaterialMeta.cpp" />
     <ClCompile Include="MeshMeta.cpp" />

@@ -8,6 +8,7 @@
 #include "MeshRenderer.h"
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
+#include "LineRenderer.h"
 #include "Terrain.h"
 #include "Button.h"
 #include "Billboard.h"
@@ -229,6 +230,8 @@ Renderer* GameObject::GetRenderer()
 		renderer = GetFixedComponent(ComponentType::TessTerrain);
     if (renderer == nullptr)
         renderer = GetFixedComponent(ComponentType::GrassRenderer);
+    if (renderer == nullptr)
+		renderer = GetFixedComponent(ComponentType::LineRenderer);;
 
 	return static_cast<Renderer*>(renderer);
 }
