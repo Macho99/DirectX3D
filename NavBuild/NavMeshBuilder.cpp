@@ -22,6 +22,9 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     heightfield.FilterWalkable(input.settings.agentHeight, input.settings.agentMaxClimb);
     _onFilterHeightField(heightfield);
 
+    CompactHeightField compactHeightField(heightfield, input.settings.agentHeight, input.settings.agentMaxClimb);
+    _onCompactHeightField(compactHeightField);
+
     return true;
 }
 

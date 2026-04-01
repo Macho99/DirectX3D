@@ -28,6 +28,7 @@ NavMesh::NavMesh() : Super(StaticType)
             if (meshRenderer == nullptr)
                 return;
             meshRenderer->GetGameObject()->SetActive(true);
+
             Mesh* mesh = meshRenderer->GetMesh().Resolve();
             ASSERT(mesh != nullptr);
             auto geometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
@@ -99,23 +100,7 @@ NavMesh::NavMesh() : Super(StaticType)
                         const auto& srcVertices = srcGeometry->GetVertices();
                         for (VertexTextureNormalTangentData v : srcVertices)
                         {
-                            Vec3 normalAsColor;
-                            switch (span.area)
-                            {
-                            case 0:
-                                normalAsColor = Vec3(1.f, 0.f, 0.f);
-                                break;
-                            case 1:
-                                normalAsColor = Vec3(0.f, 1.f, 0.f);
-                                break;
-                            case 2:
-                                normalAsColor = Vec3(0.f, 0.f, 0.5f);
-                                break;
-                            case 3:
-                                normalAsColor = Vec3(0.f, 0.f, 1.f);
-                                break;
-                            }
-
+                            Vec3 normalAsColor = GetDebugColor(span.area);
                             v.normal = normalAsColor;
                             vertices.push_back(v);
                         }
@@ -146,6 +131,74 @@ NavMesh::NavMesh() : Super(StaticType)
             if (_debugOption != NavDebugOption::FilterHeightField)
                 return;
             _heightFieldDebugFunc(heightField);
+        });
+
+    _builder.SetDebugOnCompactHeightField([this](const CompactHeightField& heightField)
+        {
+            if (_debugOption != NavDebugOption::CompactHeightField)
+                return;
+
+            MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
+            if (meshRenderer == nullptr)
+                return;
+            meshRenderer->GetGameObject()->SetActive(true);
+
+            const int width = heightField.GetWidth();
+            const int depth = heightField.GetDepth();
+            const float cellSize = heightField.GetCellSize();
+            const float halfCellSize = cellSize * 0.5f;
+            const float cellHeight = heightField.GetCellHeight();
+            const vector<CompactCell>& cells = heightField.GetCells();
+            const vector<CompactSpan>& spans = heightField.GetSpans();
+
+            Mesh* mesh = meshRenderer->GetMesh().Resolve();
+            ASSERT(mesh != nullptr);
+            auto srcGeometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
+            vector<VertexTextureNormalTangentData> vertices;
+            vector<uint32> indices;
+
+            for (int cx = 0; cx < width; cx++)
+            {
+                for (int cz = 0; cz < depth; cz++)
+                {
+                    CompactCell cell = cells[heightField.GetColumnIndex(cx, cz)];
+                    if (cell.count == 0)
+                        continue;
+
+                    for (int i = 0; i < cell.count; ++i)
+                    {
+                        const int spanIdx = cell.index + i;
+                        const CompactSpan& span = spans[spanIdx];
+
+                        Vec3 origin;
+                        heightField.GetWorldPos(cx, cz, origin.x, origin.z);
+                        uint16 ceiling = std::min<uint16>(span.h, span.y + 3);
+                        origin.y = (span.y + ceiling) * 0.5f * cellHeight + heightField.GetBoundMin().y;
+
+                        float worldHeight = (ceiling - span.y) * cellHeight;
+
+                        GeometryHelper::CreateCube(srcGeometry, halfCellSize, worldHeight * 0.5f, halfCellSize, origin);
+                        uint32 baseIndex = static_cast<uint32>(vertices.size());
+                        const auto& srcVertices = srcGeometry->GetVertices();
+                        for (VertexTextureNormalTangentData v : srcVertices)
+                        {
+                            Vec3 normalAsColor = GetDebugColor(span.region);
+                            v.normal = normalAsColor;
+                            vertices.push_back(v);
+                        }
+                        const auto& srcIndices = srcGeometry->GetIndices();
+                        for (const auto& idx : srcIndices)
+                        {
+                            indices.push_back(baseIndex + idx);
+                        }
+                    }
+                }
+            }
+
+            auto dstGeometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
+            dstGeometry->SetVertices(vertices);
+            dstGeometry->SetIndices(indices);
+            mesh->CreateFromGeometry(dstGeometry);
         });
 }
 
@@ -201,4 +254,22 @@ bool NavMesh::OnGUI()
     }
 
     return false;
+}
+
+Vec3 NavMesh::GetDebugColor(int id)
+{
+    switch (id)
+    {
+    case 0: return Vec3(1.0f, 0.0f, 0.0f); // Red
+    case 1: return Vec3(0.0f, 1.0f, 0.0f); // Green
+    case 2: return Vec3(0.0f, 0.0f, 1.0f); // Blue
+    case 3: return Vec3(1.0f, 1.0f, 0.0f); // Yellow
+    case 4: return Vec3(1.0f, 0.0f, 1.0f); // Magenta
+    case 5: return Vec3(0.0f, 1.0f, 1.0f); // Cyan
+    case 6: return Vec3(1.0f, 0.5f, 0.0f); // Orange
+    case 7: return Vec3(0.5f, 0.0f, 1.0f); // Purple
+    case 8: return Vec3(0.5f, 1.0f, 0.5f); // Light Green
+    case 9: return Vec3(1.0f, 0.5f, 0.5f); // Light Red
+    default: return Vec3(0.3f, 0.3f, 0.3f); // Default Gray
+    }
 }

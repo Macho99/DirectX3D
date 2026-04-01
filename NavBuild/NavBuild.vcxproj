@@ -160,6 +160,7 @@
     <ClInclude Include="CompactHeightField.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HeightField.h" />
+    <ClInclude Include="HeightFieldBase.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="NavMeshBuilder.h" />
     <ClInclude Include="pch.h" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="CompactHeightField.cpp" />
     <ClCompile Include="HeightField.cpp" />
+    <ClCompile Include="HeightFieldBase.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="NavMeshBuilder.cpp" />
     <ClCompile Include="pch.cpp">

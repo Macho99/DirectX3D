@@ -1,6 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "HeightField.h"
+#include "CompactHeightField.h"
 
 struct NavBuildSettings
 {
@@ -27,6 +28,7 @@ public:
     void SetDebugOnMarkWalkableTriangles(function<void(const vector<InputTri>&)> callback) { _onMarkWalkableTriangles = callback; }
     void SetDebugOnBuildHeightField(function<void(const HeightField&)> callback) { _onBuildHeightField = callback; }
     void SetDebugOnFilterHeightField(function<void(const HeightField&)> callback) { _onFilterHeightField = callback; }
+    void SetDebugOnCompactHeightField(function<void(const CompactHeightField&)> callback) { _onCompactHeightField = callback; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
@@ -46,5 +48,6 @@ private:
     function<void(const vector<InputTri>&)> _onMarkWalkableTriangles;
     function<void(const HeightField&)> _onBuildHeightField;
     function<void(const HeightField&)> _onFilterHeightField;
+    function<void(const CompactHeightField&)> _onCompactHeightField;
 };
 

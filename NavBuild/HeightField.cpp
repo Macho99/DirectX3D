@@ -2,11 +2,8 @@
 #include "HeightField.h"
 
 HeightField::HeightField(const Bounds& bound, float cellSize, float cellHeight)
-    :_bmin(bound.bmin), _bmax(bound.bmax), _cs(cellSize), _ch(cellHeight)
+    :HeightFieldBase(bound, cellSize, cellHeight)
 {
-    _width = (int)std::floor((_bmax.x - _bmin.x) / _cs + 0.5f);
-    _depth = (int)std::floor((_bmax.z - _bmin.z) / _cs + 0.5f);
-
     columns.resize(_width * _depth);
 }
 
@@ -163,26 +160,4 @@ void HeightField::AddSpan(int cx, int cz, uint16 cminY, uint16 cmaxY, uint8 area
 
     // 3. 병합 완료된 span 삽입
     column.insert(it, newSpan);
-}
-
-void HeightField::GetCellIndex(float wx, float wz, OUT int& cx, OUT int& cz) const
-{
-    cx = (int)((wx - _bmin.x) / _cs);
-    cz = (int)((wz - _bmin.z) / _cs);
-}
-
-int HeightField::GetCellHeight(float wy) const
-{
-    return (int)((wy - _bmin.y) / _ch);
-}
-
-void HeightField::GetWorldPos(int cx, int cz, OUT float& wx, OUT float& wz) const
-{
-    wx = _bmin.x + (cx + 0.5f) * _cs;
-    wz = _bmin.z + (cz + 0.5f) * _cs;
-}
-
-void HeightField::GetWorldHeight(int cy, OUT float& wy) const
-{
-    wy = _bmin.y + cy * _ch;
 }

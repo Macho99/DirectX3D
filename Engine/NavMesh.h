@@ -6,6 +6,7 @@
     X(MarkWalkable) \
     X(BuildHeightField) \
     X(FilterHeightField) \
+    X(CompactHeightField) \
 
 enum class NavDebugOption
 {
@@ -34,6 +35,9 @@ public:
     ~NavMesh();
 
     virtual bool OnGUI() override;
+
+private:
+    Vec3 GetDebugColor(int id);
 
 private:
     NavMeshBuilder _builder;
