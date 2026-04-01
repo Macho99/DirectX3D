@@ -18,6 +18,7 @@ public:
 
 	static void CreateQuad(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry);
 	static void CreateCube(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry);
+	static void CreateCube(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry, float w2, float h2, float d2, Vec3 origin);
 	static void CreateGrid(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry, int32 sizeX, int32 sizeZ);
 	static void CreateSphere(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry);
 };

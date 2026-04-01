@@ -64,6 +64,7 @@
     <FxCompile Include="..\Assets\Shaders\BlurCombine.fx" />
     <FxCompile Include="..\Assets\Shaders\DebugShader.fx" />
     <FxCompile Include="..\Assets\Shaders\DebugTexture.fx" />
+    <FxCompile Include="..\Assets\Shaders\DebugWireFrameShader.fx" />
     <FxCompile Include="..\Assets\Shaders\DownSample.fx" />
     <FxCompile Include="..\Assets\Shaders\Foliage.fx" />
     <FxCompile Include="..\Assets\Shaders\GrassCompute.fx" />

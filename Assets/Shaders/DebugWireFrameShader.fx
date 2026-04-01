@@ -17,7 +17,7 @@ float4 NormalDepthPS(MeshOutput input) : SV_TARGET
 
 technique11 Draw
 {
-	PASS_VP(P0, VS_Mesh, PS)
+	PASS_RS_VP(P0, FillModeWireFrame, VS_Mesh, PS)
 };
 
 technique11 Shadow

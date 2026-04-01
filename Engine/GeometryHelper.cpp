@@ -513,7 +513,11 @@ void GeometryHelper::CreateCube(shared_ptr<Geometry<VertexTextureNormalTangentDa
 	float w2 = 0.5f;
 	float h2 = 0.5f;
 	float d2 = 0.5f;
+    CreateCube(geometry, w2, h2, d2, Vec3(0.f ,0.f ,0.f));
+}
 
+void GeometryHelper::CreateCube(shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry, float w2, float h2, float d2, Vec3 origin)
+{
 	vector<VertexTextureNormalTangentData> vtx(24);
 
 	// ¾Õ¸é
@@ -546,6 +550,11 @@ void GeometryHelper::CreateCube(shared_ptr<Geometry<VertexTextureNormalTangentDa
 	vtx[21] = VertexTextureNormalTangentData(Vec3(+w2, +h2, -d2), Vec2(0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 	vtx[22] = VertexTextureNormalTangentData(Vec3(+w2, +h2, +d2), Vec2(1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 	vtx[23] = VertexTextureNormalTangentData(Vec3(+w2, -h2, +d2), Vec2(1.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+
+    for (int i = 0; i < vtx.size(); ++i)
+    {
+        vtx[i].position += origin;
+    }
 
 	geometry->SetVertices(vtx);
 

@@ -409,6 +409,67 @@ bool TessTerrain::OnGUI()
     return changed;
 }
 
+void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)
+{
+	if (GetGameObject()->IsActiveInHierarchy() == false)
+		return;
+
+    TerrainData* terrainData = _terrainData.Resolve();
+    if (terrainData == nullptr)
+        return;
+
+    float minX = explicitBounds.bmin.x;
+    float maxX = explicitBounds.bmax.x;
+    float minZ = explicitBounds.bmin.z;
+    float maxZ = explicitBounds.bmax.z;
+
+    const float cellSpacing = terrainData->GetCellSpacing();
+    const float heightmapWidth = terrainData->GetHeightmapWidth();
+    const float heightmapHeight = terrainData->GetHeightmapHeight();
+    const float terrainWidth = GetWidth();
+    const float terrainDepth = GetDepth();
+
+	// Transform from terrain local space to "cell" space.
+	const int mincX = std::ceil((minX + 0.5f * terrainWidth) / cellSpacing);
+	const int maxcX = std::floor((maxX + 0.5f * terrainWidth) / cellSpacing);
+
+	const int mincZ = std::ceil((maxZ - 0.5f * terrainDepth) / -cellSpacing);
+	const int maxcZ = std::floor((minZ - 0.5f * terrainDepth) / -cellSpacing);
+
+	for (int cx = mincX; cx <= maxcX; ++cx)
+	{
+		for (int cz = mincZ; cz <= maxcZ; ++cz)
+		{
+			// A*--*B
+			//  | /|
+			//  |/ |
+			// C*--*D
+			float x0z0 = _heightmap[cz * heightmapWidth + cx];
+			float x1z0 = _heightmap[cz * heightmapWidth + cx + 1];
+			float x0z1 = _heightmap[(cz + 1) * heightmapWidth + cx];
+			float x1z1 = _heightmap[(cz + 1) * heightmapWidth + cx + 1];
+
+            float wx = -terrainWidth * 0.5f + cx * cellSpacing;
+            float wz = terrainDepth * 0.5f - cz * cellSpacing;
+
+			{
+                InputTri tri;
+                tri.v0 = Vec3(wx, x0z0, wz);
+                tri.v1 = Vec3(wx + cellSpacing, x1z0, wz);
+                tri.v2 = Vec3(wx, x0z1, wz - cellSpacing);
+                tris.push_back(tri);
+			}
+			{
+                InputTri tri;
+                tri.v0 = Vec3(wx + cellSpacing, x1z0, wz);
+                tri.v1 = Vec3(wx + cellSpacing, x1z1, wz - cellSpacing);
+                tri.v2 = Vec3(wx, x0z1, wz - cellSpacing);
+                tris.push_back(tri);
+			}
+		}
+	}
+}
+
 bool TessTerrain::TryInitialize()
 {
     if (_initialized)

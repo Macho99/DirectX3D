@@ -81,6 +81,9 @@ bool MeshRenderer::OnGUI()
 
 void MeshRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)
 {
+	if (GetGameObject()->IsActiveInHierarchy() == false)
+		return;
+
 	Mesh* mesh = _mesh.Resolve();
 	if (mesh == nullptr)
 		return;

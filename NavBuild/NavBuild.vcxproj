@@ -158,12 +158,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="HeightField.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="NavMeshBuilder.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="NavMeshBuilder.cpp" />
     <ClCompile Include="pch.cpp">

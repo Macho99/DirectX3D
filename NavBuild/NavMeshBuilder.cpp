@@ -15,6 +15,10 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     if (MarkWalkableTriangles(input) == false)
         return false;
 
+    HeightField heightfield(bounds, input.settings.cellSize, input.settings.cellHeight);
+    heightfield.HandleTriangles(input.triangles);
+    _onBuildHeightField(heightfield);
+
     return true;
 }
 
@@ -37,6 +41,8 @@ bool NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
         tri.walkable = Vec3::Dot(n, Vec3(0.f, 1.f, 0.f)) >= walkableThreshold;
     }
 
-    _onMarkWalkableTriangles(input.triangles);
+    if(_onMarkWalkableTriangles)
+        _onMarkWalkableTriangles(input.triangles);
+
     return true;
 }

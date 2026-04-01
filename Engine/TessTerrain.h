@@ -32,8 +32,10 @@ public:
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
     ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
 	void SetTerrainData(const ResourceRef<TerrainData>& terrainData);
+	ResourceRef<TerrainData> GetTerrainData() const { return _terrainData; }
     void SetBrushTexture(const ResourceRef<Texture>& brushTexture) { _brushTexture = brushTexture; }
 
+	virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris);
 	virtual bool TryInitialize() override;
 
     virtual void OnInspectorFocus() override;

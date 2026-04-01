@@ -2,6 +2,28 @@
 #include "Component.h"
 #include "../NavBuild/NavMeshBuilder.h"
 
+#define NAV_DEBUG_LIST \
+    X(MarkWalkable) \
+    X(BuildHeightField) \
+
+enum class NavDebugOption
+{
+    None,
+#define X(name, func) name,
+    NAV_DEBUG_LIST
+#undef X
+    Max
+};
+
+static const char* NavDebugNames[] =
+{
+    "None",
+#define X(name, func) #name,
+    NAV_DEBUG_LIST
+#undef X
+};
+
+
 class NavMesh : public Component
 {
     using Super = Component;
@@ -13,10 +35,9 @@ public:
     virtual bool OnGUI() override;
 
 private:
-    Vec2 _walkableUV;
-    Vec2 _unwalkableUV;
-
     NavMeshBuilder _builder;
-    ComponentRef<MeshRenderer> _walkableMeshRenderer;
+    ComponentRef<MeshRenderer> _debugMeshRenderer;
+
+    NavDebugOption _debugOption = NavDebugOption::None;
 };
 

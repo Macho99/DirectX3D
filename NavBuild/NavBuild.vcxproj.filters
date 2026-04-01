@@ -26,6 +26,9 @@
     <ClInclude Include="Types.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="HeightField.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -38,6 +41,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Types.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="HeightField.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

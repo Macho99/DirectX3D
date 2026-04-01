@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include "HeightField.h"
 
 struct NavBuildSettings
 {
@@ -24,11 +25,12 @@ public:
     bool Build(NavBuildInput input, const fs::path& savePath);
 
     void SetDebugOnMarkWalkableTriangles(function<void(const vector<InputTri>&)> callback) { _onMarkWalkableTriangles = callback; }
+    void SetDebugOnBuildHeightField(function<void(const HeightField&)> callback) { _onBuildHeightField = callback; }
 
 private:
     bool MarkWalkableTriangles(NavBuildInput& input);
-    bool BuildHeightfield();
-    bool FilterWalkable();
+    //bool BuildHeightfield(const Bounds& bound, const NavBuildSettings & setting);
+    //bool FilterWalkable();
     bool BuildCompactHeightfield();
     bool BuildRegions();
     bool BuildContours();
@@ -37,8 +39,10 @@ private:
 
 private:
     Vec3 GetTriangleNormal(const InputTri& tri);
+    
 
 private:
     function<void(const vector<InputTri>&)> _onMarkWalkableTriangles;
+    function<void(const HeightField&)> _onBuildHeightField;
 };
 

@@ -132,6 +132,9 @@ bool ModelRenderer::TryInitialize()
 
 void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)
 {
+	if (GetGameObject()->IsActiveInHierarchy() == false)
+		return;
+
     Model* model = _model.Resolve();
     if (model == nullptr)
         return;
