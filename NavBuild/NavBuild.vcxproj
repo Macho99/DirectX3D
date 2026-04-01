@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CompactHeightField.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HeightField.h" />
     <ClInclude Include="Math.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CompactHeightField.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="NavMeshBuilder.cpp" />

@@ -56,11 +56,8 @@ NavMesh::NavMesh() : Super(StaticType)
             mesh->CreateFromGeometry(geometry);
         });
 
-    _builder.SetDebugOnBuildHeightField([this](const HeightField& heightField)
+    _heightFieldDebugFunc = ([this](const HeightField& heightField)
         {
-            if (_debugOption != NavDebugOption::BuildHeightField)
-                return;
-
             MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
             meshRenderer->GetGameObject()->SetActive(true);
             if (meshRenderer == nullptr)
@@ -103,10 +100,21 @@ NavMesh::NavMesh() : Super(StaticType)
                         for (VertexTextureNormalTangentData v : srcVertices)
                         {
                             Vec3 normalAsColor;
-                            if (span.area > 0)
-                                normalAsColor = Vec3(0.f, 1.f, 0.f);
-                            else
+                            switch (span.area)
+                            {
+                            case 0:
                                 normalAsColor = Vec3(1.f, 0.f, 0.f);
+                                break;
+                            case 1:
+                                normalAsColor = Vec3(0.f, 1.f, 0.f);
+                                break;
+                            case 2:
+                                normalAsColor = Vec3(0.f, 0.f, 0.5f);
+                                break;
+                            case 3:
+                                normalAsColor = Vec3(0.f, 0.f, 1.f);
+                                break;
+                            }
 
                             v.normal = normalAsColor;
                             vertices.push_back(v);
@@ -125,6 +133,20 @@ NavMesh::NavMesh() : Super(StaticType)
             dstGeometry->SetIndices(indices);
             mesh->CreateFromGeometry(dstGeometry);
         });
+
+    _builder.SetDebugOnBuildHeightField([this](const HeightField& heightField)
+        {
+            if (_debugOption != NavDebugOption::BuildHeightField)
+                return;
+            _heightFieldDebugFunc(heightField);
+        });
+
+    _builder.SetDebugOnFilterHeightField([this](const HeightField& heightField)
+        {
+            if (_debugOption != NavDebugOption::FilterHeightField)
+                return;
+            _heightFieldDebugFunc(heightField);
+        });
 }
 
 NavMesh::~NavMesh()
@@ -139,6 +161,7 @@ bool NavMesh::OnGUI()
     bool buildNavMesh = false;
     {
         bool showWalkableChanged = OnGUIUtils::DrawEnumCombo("DebugOption", _debugOption, NavDebugNames, (int)NavDebugOption::Max);
+        changed |= showWalkableChanged;
         if (showWalkableChanged)
         {
             MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
@@ -151,11 +174,12 @@ bool NavMesh::OnGUI()
                 buildNavMesh = true;
         }
     }
+    changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
         Vec3 curPos = GetTransform()->GetPosition();
-        Bounds bounds{ Vec3(-10, -10, -10), Vec3(10, 10, 10) };
+        Bounds bounds{ -_buildExtent, _buildExtent };
         bounds.bmin += curPos;
         bounds.bmax += curPos;
 

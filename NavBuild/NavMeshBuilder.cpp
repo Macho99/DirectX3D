@@ -12,12 +12,15 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
         bounds.Encapsulate(tri.v2);
     }
 
-    if (MarkWalkableTriangles(input) == false)
-        return false;
+    MarkWalkableTriangles(input);
+    _onMarkWalkableTriangles(input.triangles);
 
     HeightField heightfield(bounds, input.settings.cellSize, input.settings.cellHeight);
     heightfield.HandleTriangles(input.triangles);
     _onBuildHeightField(heightfield);
+
+    heightfield.FilterWalkable(input.settings.agentHeight, input.settings.agentMaxClimb);
+    _onFilterHeightField(heightfield);
 
     return true;
 }
@@ -31,7 +34,7 @@ Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)
     return n;
 }
 
-bool NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
+void NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
 {
     float walkableThreshold = std::cos(input.settings.agentMaxSlopeDeg * 3.14159265f / 180.f);
 
@@ -40,9 +43,4 @@ bool NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
         Vec3 n = GetTriangleNormal(tri);
         tri.walkable = Vec3::Dot(n, Vec3(0.f, 1.f, 0.f)) >= walkableThreshold;
     }
-
-    if(_onMarkWalkableTriangles)
-        _onMarkWalkableTriangles(input.triangles);
-
-    return true;
 }

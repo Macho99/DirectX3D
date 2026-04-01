@@ -5,6 +5,7 @@
 #define NAV_DEBUG_LIST \
     X(MarkWalkable) \
     X(BuildHeightField) \
+    X(FilterHeightField) \
 
 enum class NavDebugOption
 {
@@ -39,5 +40,8 @@ private:
     ComponentRef<MeshRenderer> _debugMeshRenderer;
 
     NavDebugOption _debugOption = NavDebugOption::None;
+    Vec3 _buildExtent = Vec3(10.f, 10.f, 10.f);
+
+    function<void(const HeightField&)> _heightFieldDebugFunc;
 };
 

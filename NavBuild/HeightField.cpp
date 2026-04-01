@@ -62,6 +62,76 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
     }
 }
 
+void HeightField::FilterWalkable(float agentHeight, float agentMaxClimb)
+{
+    int spanHeight = (int)std::ceil(agentHeight / _ch);
+    int spanMaxClimb = (int)std::ceil(agentMaxClimb / _ch);
+
+    // Height Filter
+    for (vector<Span>& column : columns)
+    {
+        auto it = column.begin();
+        while (it != column.end())
+        {
+            int ceiling = it + 1 != column.end() ? (it + 1)->cminY : INT_MAX;
+            if (ceiling - it->cmaxY < spanHeight)
+            {
+                it->area = 0;
+            }
+            ++it;
+        }
+    }
+
+    // Climb Filter
+    // 해당 필터링 되는 조건이 드물고, 괜히 성능만 저하시키는 경우가 많아서 일단 스킵
+    /*for (int columnIdx = 0; columnIdx < columns.size(); columnIdx++)
+    {
+        int cx = columnIdx % _width;
+        int cz = columnIdx / _width;
+        vector<Span>& column = columns[columnIdx];
+        int dx[] = {-1, 0, 1, 0};
+        int dz[] = { 0, 1, 0, -1 };
+
+        for (Span& span : column)
+        {
+            if (span.area == 0)
+                continue;
+
+            bool hasWalkableNeighbor = false;
+            for (int d = 0; d < 4; d++)
+            {
+                int ncx = cx + dx[d];
+                int ncz = cz + dz[d];
+                if (ncx < 0 || ncx >= _width || ncz < 0 || ncz >= _depth)
+                    continue;
+
+                vector<Span>& neighborColumn = columns[GetColumnIndex(ncx, ncz)];
+                for (const Span& neighborSpan : column)
+                {
+                    if (neighborSpan.area == 0)
+                        continue;
+
+                    if (std::abs(span.cmaxY - neighborSpan.cmaxY) <= spanMaxClimb)
+                    {
+                        hasWalkableNeighbor = true;
+                        break;
+                    }
+                }
+                if (hasWalkableNeighbor)
+                    break;
+            }
+
+            if (hasWalkableNeighbor == false)
+            {
+                span.area = 0;
+            }
+        }
+    }*/
+
+    // Ledge Filter
+    // Skip
+}
+
 void HeightField::AddSpan(int cx, int cz, uint16 cminY, uint16 cmaxY, uint8 area)
 {
     int columnIndex = GetColumnIndex(cx, cz);

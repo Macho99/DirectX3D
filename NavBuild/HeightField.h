@@ -1,4 +1,5 @@
 #pragma once
+#include "CompactHeightField.h"
 
 struct Span
 {
@@ -15,6 +16,7 @@ public:
 
 public:
     void HandleTriangles(const vector<InputTri>& tris);
+    void FilterWalkable(float agentHeight, float agentMaxClimb);
 
 public:
     int GetWidth() const { return _width; }
