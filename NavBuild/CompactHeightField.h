@@ -12,7 +12,7 @@ struct CompactSpan
 {
     uint16 y;       // 바닥 높이
     uint16 h;       // 높이 (천장까지)
-    uint16 connections[4]; // 4방향 neighbor
+    uint32 connections[4]; // 4방향 neighbor
 
     uint16 region = 0;
 };

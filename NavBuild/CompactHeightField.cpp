@@ -42,10 +42,10 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, float age
         for (int i = 0; i < cell.count; ++i)
         {
             CompactSpan& span = _spans[cell.index + i];
-            span.connections[0] = UINT16_MAX;
-            span.connections[1] = UINT16_MAX;
-            span.connections[2] = UINT16_MAX;
-            span.connections[3] = UINT16_MAX;
+            span.connections[0] = UINT32_MAX;
+            span.connections[1] = UINT32_MAX;
+            span.connections[2] = UINT32_MAX;
+            span.connections[3] = UINT32_MAX;
 
             for (int d = 0; d < 4; d++)
             {
@@ -58,7 +58,7 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, float age
                 CompactCell& neighborCell = _cells[neighborCellIdx];
                 for (int j = 0; j < neighborCell.count; ++j)
                 {
-                    uint16 neighborSpanIdx = neighborCell.index + j;
+                    uint32 neighborSpanIdx = neighborCell.index + j;
                     CompactSpan& neighborSpan = _spans[neighborSpanIdx];
                     int bot = max(span.y, neighborSpan.y);
                     int top = min(span.h, neighborSpan.h);
@@ -67,7 +67,7 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, float age
 
                     if (std::abs(span.y - neighborSpan.y) <= agentMaxClimbCell)
                     {
-                        span.connections[d] = static_cast<uint16>(neighborSpanIdx);
+                        span.connections[d] = static_cast<uint32>(neighborSpanIdx);
                         break;
                     }
                 }
@@ -108,7 +108,7 @@ void CompactHeightField::FloodFillRegion(int startIndex, int regionId)
         for (int dir = 0; dir < 4; ++dir)
         {
             int nei = _spans[cur].connections[dir];
-            if (nei == UINT16_MAX)
+            if (nei == UINT32_MAX)
                 continue;
 
             CompactSpan& neighborSpan = _spans[nei];
