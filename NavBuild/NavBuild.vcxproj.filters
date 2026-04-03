@@ -9,11 +9,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\Builder">
+      <UniqueIdentifier>{9ba8509f-b141-47ea-99e5-ae757c762035}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NavMeshBuilder.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
@@ -26,14 +26,17 @@
     <ClInclude Include="Types.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="HeightField.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CompactHeightField.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="HeightField.h">
+      <Filter>소스 파일\Builder</Filter>
     </ClInclude>
     <ClInclude Include="HeightFieldBase.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="NavMeshBuilder.h">
+      <Filter>소스 파일\Builder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -43,20 +46,20 @@
     <ClCompile Include="Math.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="NavMeshBuilder.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Types.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="HeightField.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CompactHeightField.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="HeightField.cpp">
+      <Filter>소스 파일\Builder</Filter>
     </ClCompile>
     <ClCompile Include="HeightFieldBase.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="NavMeshBuilder.cpp">
+      <Filter>소스 파일\Builder</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

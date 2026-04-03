@@ -25,6 +25,9 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     CompactHeightField compactHeightField(heightfield, input.settings.agentHeight, input.settings.agentMaxClimb);
     _onCompactHeightField(compactHeightField);
 
+    auto contours = compactHeightField.BuildContours(input.settings.agentMaxClimb);
+    _onBuildContours(contours, compactHeightField);
+
     return true;
 }
 

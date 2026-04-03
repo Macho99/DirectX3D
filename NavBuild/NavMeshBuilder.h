@@ -29,14 +29,15 @@ public:
     void SetDebugOnBuildHeightField(function<void(const HeightField&)> callback) { _onBuildHeightField = callback; }
     void SetDebugOnFilterHeightField(function<void(const HeightField&)> callback) { _onFilterHeightField = callback; }
     void SetDebugOnCompactHeightField(function<void(const CompactHeightField&)> callback) { _onCompactHeightField = callback; }
+    void SetDebugOnBuildContours(function<void(const vector<vector<vector<ContourVertex>>>&, const CompactHeightField&)> callback) { _onBuildContours = callback; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
     //bool BuildHeightfield(const Bounds& bound, const NavBuildSettings & setting);
     //bool FilterWalkable();
-    bool BuildCompactHeightfield();
-    bool BuildRegions();
-    bool BuildContours();
+    //bool BuildCompactHeightfield();
+    //bool BuildRegions();
+    //bool BuildContours();
     bool BuildPolyMesh();
     bool BuildDetailMesh();
 
@@ -49,5 +50,6 @@ private:
     function<void(const HeightField&)> _onBuildHeightField;
     function<void(const HeightField&)> _onFilterHeightField;
     function<void(const CompactHeightField&)> _onCompactHeightField;
+    function<void(const vector<vector<vector<ContourVertex>>>&, const CompactHeightField&)> _onBuildContours;
 };
 

@@ -43,5 +43,5 @@ private:
 
     bool _loop = false;
     bool _dirty = true;
-    Color _color = { 1, 1, 1, 1 };
+    Color _color = { 1, 0, 0, 1 };
 };

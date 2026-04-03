@@ -7,6 +7,7 @@
     X(BuildHeightField) \
     X(FilterHeightField) \
     X(CompactHeightField) \
+    X(BuildContours) \
 
 enum class NavDebugOption
 {
@@ -38,11 +39,14 @@ public:
 
 private:
     Vec3 GetDebugColor(int id);
+    bool TryInitializeDebugMesh(NavDebugOption option, bool useMeshRenderer = true);
+    void EnsureLineRendererCount(int totalCount);
 
 private:
     NavMeshBuilder _builder;
     ComponentRef<MeshRenderer> _debugMeshRenderer;
-
+    GameObjectRef _debugLineRendererParent;
+    vector<ComponentRef<class LineRenderer>> _debugLineRenderers;
     NavDebugOption _debugOption = NavDebugOption::None;
     Vec3 _buildExtent = Vec3(10.f, 10.f, 10.f);
 

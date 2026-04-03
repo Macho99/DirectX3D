@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "HeightFieldBase.h"
 
-const int HeightFieldBase::_dx[4] = {-1, 0, 1, 0};
-const int HeightFieldBase::_dz[4] = { 0, 1, 0, -1 };
+const int HeightFieldBase::_dx[4] = { 0 , 1, 0, -1 };
+const int HeightFieldBase::_dz[4] = { 1, 0, -1, 0 };
 
 HeightFieldBase::HeightFieldBase(const Bounds& bound, float cellSize, float cellHeight)
     :_bmin(bound.bmin), _bmax(bound.bmax), _cs(cellSize), _ch(cellHeight)

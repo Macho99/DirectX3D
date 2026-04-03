@@ -2,32 +2,37 @@
 #include "NavMesh.h"
 #include "Renderer.h"
 #include "MeshRenderer.h"
+#include "LineRenderer.h"
 #include "OnGUIUtils.h"
 #include "GeometryHelper.h"
 
 NavMesh::NavMesh() : Super(StaticType)
 {
-    GameObjectRef objRef = CUR_SCENE->Add("WalkableMesh");
-    GameObject* obj = objRef.Resolve();
-    obj->AddComponent(make_unique<MeshRenderer>());
-    _debugMeshRenderer = obj->GetFixedComponentRef<MeshRenderer>();
-    MeshRenderer* walkableMeshRenderer = _debugMeshRenderer.Resolve();
+    {
+        GameObjectRef objRef = CUR_SCENE->Add("NavDebug MeshRenderer");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<MeshRenderer>());
+        _debugMeshRenderer = obj->GetFixedComponentRef<MeshRenderer>();
+        MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
 
-    walkableMeshRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\DebugMat.mat"));
-    ResourceRef<Mesh> meshRef = RESOURCES->AllocateTempResource<Mesh>();
-    walkableMeshRenderer->SetMesh(meshRef);
-    obj->SetActive(false);
+        meshRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\DebugMat.mat"));
+        ResourceRef<Mesh> meshRef = RESOURCES->AllocateTempResource<Mesh>();
+        meshRenderer->SetMesh(meshRef);
+        obj->SetActive(false);
+    }
+
+    {
+        _debugLineRendererParent = CUR_SCENE->Add("NavDebug LineRenderer Parent"); 
+        GameObject* parentObj = _debugLineRendererParent.Resolve();
+        parentObj->SetActive(false);
+    }
 
     
     _builder.SetDebugOnMarkWalkableTriangles([this](const vector<InputTri>& tris)
         {
-            if (_debugOption != NavDebugOption::MarkWalkable)
+            if (TryInitializeDebugMesh(NavDebugOption::MarkWalkable) == false)
                 return;
-
             MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
-            if (meshRenderer == nullptr)
-                return;
-            meshRenderer->GetGameObject()->SetActive(true);
 
             Mesh* mesh = meshRenderer->GetMesh().Resolve();
             ASSERT(mesh != nullptr);
@@ -121,27 +126,23 @@ NavMesh::NavMesh() : Super(StaticType)
 
     _builder.SetDebugOnBuildHeightField([this](const HeightField& heightField)
         {
-            if (_debugOption != NavDebugOption::BuildHeightField)
+            if (TryInitializeDebugMesh(NavDebugOption::BuildHeightField) == false)
                 return;
             _heightFieldDebugFunc(heightField);
         });
 
     _builder.SetDebugOnFilterHeightField([this](const HeightField& heightField)
         {
-            if (_debugOption != NavDebugOption::FilterHeightField)
+            if (TryInitializeDebugMesh(NavDebugOption::FilterHeightField) == false)
                 return;
             _heightFieldDebugFunc(heightField);
         });
 
     _builder.SetDebugOnCompactHeightField([this](const CompactHeightField& heightField)
         {
-            if (_debugOption != NavDebugOption::CompactHeightField)
+            if (TryInitializeDebugMesh(NavDebugOption::CompactHeightField) == false)
                 return;
-
             MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
-            if (meshRenderer == nullptr)
-                return;
-            meshRenderer->GetGameObject()->SetActive(true);
 
             const int width = heightField.GetWidth();
             const int depth = heightField.GetDepth();
@@ -199,6 +200,32 @@ NavMesh::NavMesh() : Super(StaticType)
             dstGeometry->SetVertices(vertices);
             dstGeometry->SetIndices(indices);
             mesh->CreateFromGeometry(dstGeometry);
+        });
+
+    _builder.SetDebugOnBuildContours([this](const vector<vector<vector<ContourVertex>>>& contours, const CompactHeightField& heightField)
+        {
+            if (TryInitializeDebugMesh(NavDebugOption::BuildContours, false) == false)
+                return;
+
+            int count = 0;
+            for (const auto& contour : contours)
+            {
+                for (const auto& loop : contour)
+                {
+                    count++;
+                    EnsureLineRendererCount(count);
+                    LineRenderer* lineRenderer = _debugLineRenderers[count - 1].Resolve();
+                    lineRenderer->ClearPoints();
+                    for (const auto& vertex : loop)
+                    {
+                        Vec3 worldPos;
+                        heightField.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                        heightField.GetWorldHeight(vertex.y, worldPos.y);
+
+                        lineRenderer->AddPoint(worldPos);
+                    }
+                }
+            }
         });
 }
 
@@ -271,5 +298,32 @@ Vec3 NavMesh::GetDebugColor(int id)
     case 8: return Vec3(0.5f, 1.0f, 0.5f); // Light Green
     case 9: return Vec3(1.0f, 0.5f, 0.5f); // Light Red
     default: return Vec3(0.3f, 0.3f, 0.3f); // Default Gray
+    }
+}
+
+bool NavMesh::TryInitializeDebugMesh(NavDebugOption option, bool useMeshRenderer)
+{
+    if (_debugOption != option)
+        return false;
+
+    MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
+    if (meshRenderer == nullptr)
+        return false;
+    meshRenderer->GetGameObject()->SetActive(useMeshRenderer);
+
+    GameObject* parentObj = _debugLineRendererParent.Resolve();
+    parentObj->SetActive(!useMeshRenderer);
+}
+
+void NavMesh::EnsureLineRendererCount(int totalCount)
+{
+    while (totalCount > _debugLineRenderers.size())
+    {
+        GameObjectRef objRef = CUR_SCENE->Add("NavDebug LineRenderer");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<LineRenderer>());
+        TransformRef lineParent = _debugLineRendererParent.Resolve()->GetFixedComponentRef<Transform>();
+        obj->GetTransform()->SetParent(lineParent);
+        _debugLineRenderers.push_back(obj->GetFixedComponentRef<LineRenderer>());
     }
 }
