@@ -3,17 +3,6 @@
 #include "HeightField.h"
 #include "CompactHeightField.h"
 
-struct NavBuildSettings
-{
-    float cellSize = 0.3f;
-    float cellHeight = 0.2f;
-
-    float agentHeight = 1.8f;
-    float agentRadius = 0.4f;
-    float agentMaxClimb = 0.4f;
-    float agentMaxSlopeDeg = 45.0f;
-};
-
 struct NavBuildInput
 {
     vector<InputTri> triangles;

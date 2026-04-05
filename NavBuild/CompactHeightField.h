@@ -78,7 +78,7 @@ class CompactHeightField : public HeightFieldBase
 {
 public:
     CompactHeightField() = delete;
-    CompactHeightField(const HeightField& heightField, float agentHeight, float agentMaxClimb);
+    CompactHeightField(const HeightField& heightField, const NavBuildSettings& setting);
 
     const vector<CompactCell>& GetCells() const { return _cells; }
     const vector<CompactSpan>& GetSpans() const { return _spans; }

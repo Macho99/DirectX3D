@@ -4,7 +4,7 @@
 bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 {
     Bounds bounds;
-
+    NavBuildSettings& settings = input.settings;
     for (auto& tri : input.triangles)
     {
         bounds.Encapsulate(tri.v0);
@@ -22,7 +22,7 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     heightfield.FilterWalkable(input.settings.agentHeight, input.settings.agentMaxClimb);
     _onFilterHeightField(heightfield);
 
-    CompactHeightField compactHeightField(heightfield, input.settings.agentHeight, input.settings.agentMaxClimb);
+    CompactHeightField compactHeightField(heightfield, settings);
     _onCompactHeightField(compactHeightField);
 
     auto contours = compactHeightField.BuildContours(input.settings.agentMaxClimb);
@@ -44,9 +44,11 @@ void NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
 {
     float walkableThreshold = std::cos(input.settings.agentMaxSlopeDeg * 3.14159265f / 180.f);
 
-    for (auto& tri : input.triangles)
+    for (int i = 0; i < input.triangles.size(); i++)
     {
+        InputTri& tri = input.triangles[i];
         Vec3 n = GetTriangleNormal(tri);
-        tri.walkable = Vec3::Dot(n, Vec3(0.f, 1.f, 0.f)) >= walkableThreshold;
+        float dot = Vec3::Dot(n, Vec3(0.f, 1.f, 0.f));
+        tri.walkable = dot >= walkableThreshold;
     }
 }

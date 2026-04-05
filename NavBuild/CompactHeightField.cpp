@@ -1,9 +1,12 @@
 #include "pch.h"
 #include "CompactHeightField.h"
 
-CompactHeightField::CompactHeightField(const HeightField& heightField, float agentHeight, float agentMaxClimb)
+CompactHeightField::CompactHeightField(const HeightField& heightField, const NavBuildSettings& setting)
     : HeightFieldBase(heightField)
 {
+    const float agentHeight = setting.agentHeight;
+    const float agentMaxClimb = setting.agentMaxClimb;
+    const int minRegionCount = setting.minRegionCount;
     _cells.resize(_width * _depth);
 
     const int agentCellHeight = (int)std::ceil(agentHeight / _ch);
@@ -76,7 +79,7 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, float age
     }
 
     BuildRegions();
-    FilterRegions(0);
+    FilterRegions(minRegionCount);
 }
 
 void CompactHeightField::BuildRegions()
@@ -258,9 +261,9 @@ vector<ContourVertex> CompactHeightField::BuildOneLoop(const vector<ContourEdge>
                 continue;
             if (edges[idx]._region != start._region)
                 continue;
-            //int yDiff = std::abs(edges[idx]._y - start._y);
-            //if (yDiff > maxStepCHeight)
-            //    continue;
+            int yDiff = std::abs(edges[idx]._y - start._y);
+            if (yDiff > maxStepCHeight)
+                continue;
 
             nextIdx = idx;
             break;

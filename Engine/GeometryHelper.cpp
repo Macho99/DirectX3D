@@ -690,10 +690,10 @@ void GeometryHelper::CreateSphere(shared_ptr<Geometry<VertexTextureNormalTangent
 
 	geometry->SetVertices(vtx);
 
-	vector<uint32> idx(36);
+	vector<uint32> idx;
 
 	// ∫œ±ÿ ¿Œµ¶Ω∫
-	for (uint32 i = 0; i <= sliceCount; ++i)
+	for (uint32 i = 0; i < sliceCount; ++i)
 	{
 		//  [0]
 		//   |  \

@@ -9,8 +9,9 @@ HeightField::HeightField(const Bounds& bound, float cellSize, float cellHeight)
 
 void HeightField::HandleTriangles(const vector<InputTri>& tris)
 {
-    for (const InputTri& tri : tris)
+    for (int triIdx = 0; triIdx < tris.size(); triIdx++)
     {
+        const InputTri& tri = tris[triIdx];
         const Vec3 v0 = tri.v0;
         const Vec3 v1 = tri.v1;
         const Vec3 v2 = tri.v2;

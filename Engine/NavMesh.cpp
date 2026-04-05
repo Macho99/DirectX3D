@@ -173,7 +173,7 @@ NavMesh::NavMesh() : Super(StaticType)
 
                         Vec3 origin;
                         heightField.GetWorldPos(cx, cz, origin.x, origin.z);
-                        uint16 ceiling = std::min<uint16>(span.h, span.y + 3);
+                        uint16 ceiling = std::min<uint16>(span.h, span.y + 1);
                         origin.y = (span.y + ceiling) * 0.5f * cellHeight + heightField.GetBoundMin().y;
 
                         float worldHeight = (ceiling - span.y) * cellHeight;
