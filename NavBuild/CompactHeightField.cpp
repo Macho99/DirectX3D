@@ -248,25 +248,28 @@ vector<ContourVertex> CompactHeightField::BuildOneLoop(const vector<ContourEdge>
     current.y = start._y;
     current.z = start._b.z;
 
-    while (!(current.x == startPoint.x && current.z == startPoint.z && (std::abs(startPoint.y - current.y) < maxStepCHeight)))
+    while (true)
     {
         int nextIdx = -1;
 
         Int2 currentInt2{ current.x, current.z };
         auto range = edgeMap.equal_range(currentInt2);
+        int minYDiff = INT_MAX;
         for (auto& it = range.first; it != range.second; ++it)
         {
             int idx = it->second;
             if (used[idx])
                 continue;
-            if (edges[idx]._region != start._region)
-                continue;
-            int yDiff = std::abs(edges[idx]._y - current.y);
-            if (yDiff > maxStepCHeight)
+            const ContourEdge& edge = edges[idx];
+            if (edge._region != start._region)
                 continue;
 
-            nextIdx = idx;
-            break;
+            int yDiff = std::abs(edge._y - current.y);
+            if (yDiff < minYDiff)
+            {
+                minYDiff = yDiff;
+                nextIdx = idx;
+            }
         }
 
         if (nextIdx < 0)
@@ -278,12 +281,29 @@ vector<ContourVertex> CompactHeightField::BuildOneLoop(const vector<ContourEdge>
         used[nextIdx] = true;
         const ContourEdge& e = edges[nextIdx];
 
-        ContourVertex newCurrent;
-        newCurrent.x = e._b.x;
-        newCurrent.y = e._y;
-        newCurrent.z = e._b.z;
-        current = newCurrent;
+        ContourVertex next;
+        next.x = e._b.x;
+        next.y = e._y;
+        next.z = e._b.z;
+        
+        {
+            ContourVertex& prev = loop[loop.size() - 2];
+            if (prev.y == current.y && current.y == next.y)
+            {
+                int abx = current.x - prev.x;
+                int abz = current.z - prev.z;
+                int bcx = next.x - current.x;
+                int bcz = next.z - current.z;
 
+                if (abx * bcz - abz * bcx == 0)
+                {
+                    // 일직선 상에 있으면 current는 빼도 됨
+                    loop.pop_back();
+                }
+            }
+        }
+        
+        current = next;
         loop.push_back(current);
     }
 

@@ -13,6 +13,7 @@ public:
     const vector<Vec3>& GetPoints() const { return _points; }
     void AddPoint(const Vec3& point);
     void ClearPoints();
+    void SetColor(const Color& color) { _color = color; }
 
     void SetLoop(bool loop);
     bool IsLoop() const { return _loop; }
