@@ -51,42 +51,43 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
                 int minCellY = INT_MAX;
                 int maxCellY = INT_MIN;
 
+                int dx[] = { 0, 0, 1, 1 };
+                int dz[] = { 0, 1, 0, 1 };
+
                 bool overlaps = false;
-                if (cellMinZ == cellMaxZ || cellMinX == cellMaxX)
+                for (int i = 0; i < 4; i++)
                 {
-                    minCellY = GetCellHeight(triMin.y);
-                    maxCellY = GetCellHeight(triMax.y);
+                    int testCx = cx + dx[i];
+                    int testCz = cz + dz[i];
+
+                    float wx = _bmin.x + testCx * _cs;
+                    float wz = _bmin.z + testCz * _cs;
+
+                    if (PointInTriangleXZ(wx, wz, tri) == false)
+                        continue;
+
                     overlaps = true;
+                    // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
+                    float wy = -(A * wx + C * wz + D) / B;
+                    wy = std::clamp(wy, triMin.y, triMax.y);
+
+                    int cellY = GetCellHeight(wy);
+                    minCellY = std::min(minCellY, cellY);
+                    maxCellY = std::max(maxCellY, cellY);
                 }
+
                 if (overlaps == false)
                 {
-                    int dx[] = { 0, 0, 1, 1 };
-                    int dz[] = { 0, 1, 0, 1 };
-
-                    for (int i = 0; i < 4; i++)
+                    if (std::abs(n.y) < 0.1f && TriangleOverlapsCell(tri, cx, cz))
                     {
-                        int testCx = cx + dx[i];
-                        int testCz = cz + dz[i];
-
-                        float wx = _bmin.x + testCx * _cs;
-                        float wz = _bmin.z + testCz * _cs;
-
-                        if (PointInTriangleXZ(wx, wz, tri) == false)
-                            continue;
-
-                        overlaps = true;
-                        // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
-                        float wy = -(A * wx + C * wz + D) / B;
-                        wy = std::clamp(wy, triMin.y, triMax.y);
-
-                        int cellY = GetCellHeight(wy);
-                        minCellY = std::min(minCellY, cellY);
-                        maxCellY = std::max(maxCellY, cellY);
+                        minCellY = GetCellHeight(triMin.y);
+                        maxCellY = GetCellHeight(triMax.y);
+                    }
+                    else
+                    {
+                        continue;
                     }
                 }
-
-                if (overlaps == false)
-                    continue;
 
                 maxCellY = std::max(maxCellY, minCellY + 1);
                 AddSpan(cx, cz, minCellY, maxCellY, tri.walkable ? 1 : 0);
@@ -198,21 +199,27 @@ void HeightField::AddSpan(int cx, int cz, uint16 cminY, uint16 cmaxY, uint8 area
     column.insert(it, newSpan);
 }
 
-bool HeightField::TriangleOverlapsCell(const InputTri& tri, float cellMinX, float cellMaxX, float cellMinZ, float cellMaxZ)
+bool HeightField::TriangleOverlapsCell(const InputTri& tri, int cx, int cz)
 {
+    const float cellMinX = _bmin.x + cx * _cs;
+    const float cellMaxX = _bmin.x + (cx + 1) * _cs;
+    const float cellMinZ = _bmin.z + cz * _cs;
+    const float cellMaxZ = _bmin.z + (cz + 1) * _cs;
+
     const Vec3 v0 = tri.v0;
     const Vec3 v1 = tri.v1;
     const Vec3 v2 = tri.v2;
+
     // 셀 중심과 반너비
-    float cx = (cellMinX + cellMaxX) * 0.5f;
-    float cz = (cellMinZ + cellMaxZ) * 0.5f;
+    float centerX = (cellMinX + cellMaxX) * 0.5f;
+    float centerZ = (cellMinZ + cellMaxZ) * 0.5f;
     float hx = (cellMaxX - cellMinX) * 0.5f;
     float hz = (cellMaxZ - cellMinZ) * 0.5f;
 
     // 삼각형 꼭짓점을 셀 중심 기준으로 이동
-    float t0x = v0.x - cx, t0z = v0.z - cz;
-    float t1x = v1.x - cx, t1z = v1.z - cz;
-    float t2x = v2.x - cx, t2z = v2.z - cz;
+    float t0x = v0.x - centerX, t0z = v0.z - centerZ;
+    float t1x = v1.x - centerX, t1z = v1.z - centerZ;
+    float t2x = v2.x - centerX, t2z = v2.z - centerZ;
 
     // ── 검사 1: AABB 축 (X, Z) ──────────────────────────────
     // X축
