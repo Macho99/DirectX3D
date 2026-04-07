@@ -51,29 +51,38 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
                 int minCellY = INT_MAX;
                 int maxCellY = INT_MIN;
 
-                int dx[] = { 0, 0, 1, 1 };
-                int dz[] = { 0, 1, 0, 1 };
-
                 bool overlaps = false;
-                for (int i = 0; i < 4; i++)
+                if (cellMinZ == cellMaxZ || cellMinX == cellMaxX)
                 {
-                    int testCx = cx + dx[i];
-                    int testCz = cz + dz[i];
-
-                    float wx = _bmin.x + testCx * _cs;
-                    float wz = _bmin.z + testCz * _cs;
-
-                    if (PointInTriangleXZ(wx, wz, tri) == false)
-                        continue;
-
+                    minCellY = GetCellHeight(triMin.y);
+                    maxCellY = GetCellHeight(triMax.y);
                     overlaps = true;
-                    // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
-                    float wy = -(A * wx + C * wz + D) / B;
-                    wy = std::clamp(wy, triMin.y, triMax.y);
+                }
+                if (overlaps == false)
+                {
+                    int dx[] = { 0, 0, 1, 1 };
+                    int dz[] = { 0, 1, 0, 1 };
 
-                    int cellY = GetCellHeight(wy);
-                    minCellY = std::min(minCellY, cellY);
-                    maxCellY = std::max(maxCellY, cellY);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        int testCx = cx + dx[i];
+                        int testCz = cz + dz[i];
+
+                        float wx = _bmin.x + testCx * _cs;
+                        float wz = _bmin.z + testCz * _cs;
+
+                        if (PointInTriangleXZ(wx, wz, tri) == false)
+                            continue;
+
+                        overlaps = true;
+                        // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
+                        float wy = -(A * wx + C * wz + D) / B;
+                        wy = std::clamp(wy, triMin.y, triMax.y);
+
+                        int cellY = GetCellHeight(wy);
+                        minCellY = std::min(minCellY, cellY);
+                        maxCellY = std::max(maxCellY, cellY);
+                    }
                 }
 
                 if (overlaps == false)

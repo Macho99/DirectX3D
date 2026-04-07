@@ -11,6 +11,7 @@ struct NavBuildSettings
     float agentMaxSlopeDeg = 45.0f;
 
     int minRegionCount = 50;
+    float contourMaxError = 1.0f;
 };
 
 struct InputTri

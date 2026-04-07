@@ -23,6 +23,11 @@ struct Int2Hash
 struct ContourVertex
 {
     int x, y, z;
+
+    bool operator==(const ContourVertex& other) const
+    {
+        return x == other.x && y == other.y && z == other.z;
+    }
 };
 
 struct ContourEdge
@@ -64,11 +69,16 @@ public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
     const vector<vector<vector<ContourVertex>>>& GetContours() const { return _contours; }
+    void Simplify(float maxError);
 
 private:
     using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
     vector<ContourEdge> CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion);
     vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx, int maxStepCHeight);
+
+private:
+    float PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
+    bool NeedsPoint(const vector<ContourVertex>& contour, int start, int end, float maxError);
 
 private:
     vector<vector<vector<ContourVertex>>> _contours;

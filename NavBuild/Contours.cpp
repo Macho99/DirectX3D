@@ -35,6 +35,54 @@ Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings
     }
 }
 
+void Contours::Simplify(float maxError)
+{
+    for (auto& contour : _contours)
+    {
+        for (int i = 0; i < contour.size(); i++)
+        {
+            if (contour[i].size() <= 3)
+                continue;
+
+            const vector<ContourVertex>& loop = contour[i];
+            vector<ContourVertex> simplified;
+            simplified.push_back(loop.front());
+            simplified.push_back(loop.back());
+
+            // 반복적으로 최대 편차 초과 점 삽입
+            bool changed = true;
+            while (changed)
+            {
+                changed = false;
+                for (int i = 0; i + 1 < (int)simplified.size(); ++i)
+                {
+                    // raw에서 simplified[i] ~ simplified[i+1] 구간 찾기
+                    int si = find(loop.begin(), loop.end(), simplified[i]) - loop.begin();
+                    int ei = find(loop.begin(), loop.end(), simplified[i + 1]) - loop.begin();
+
+                    if (ei <= si + 1) continue;
+
+                    if (NeedsPoint(loop, si, ei, maxError))
+                    {
+                        // 최대 편차 점 삽입
+                        float maxD = 0; int maxI = si;
+                        for (int j = si + 1; j < ei; ++j)
+                        {
+                            float d = PerpendicularDist(loop[j], loop[si], loop[ei]);
+                            if (d > maxD) { maxD = d; maxI = j; }
+                        }
+                        simplified.insert(simplified.begin() + i + 1, loop[maxI]);
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            contour[i] = std::move(simplified);
+        }
+    }
+}
+
 vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion)
 {
     vector<ContourEdge> edges;
@@ -148,7 +196,49 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, c
         current = next;
         loop.push_back(current);
     }
-
-    loop.push_back(startPoint);
+    loop.pop_back(); // 마지막은 시작과 같으므로 제거
     return loop;
+}
+
+float Contours::PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd)
+{
+    float dx = lineEnd.x - lineStart.x;
+    float dy = lineEnd.y - lineStart.y;
+    float dz = lineEnd.z - lineStart.z;
+
+    float lenSq = dx * dx + dy * dy + dz * dz;
+    if (lenSq == 0.0f)
+    {
+        dx = p.x - lineStart.x;
+        dy = p.y - lineStart.y;
+        dz = p.z - lineStart.z;
+        return sqrtf(dx * dx + dy * dy + dz * dz);
+    }
+
+    float t = ((p.x - lineStart.x) * dx +
+        (p.y - lineStart.y) * dy +
+        (p.z - lineStart.z) * dz) / lenSq;
+    t = max(0.0f, min(1.0f, t));
+
+    float projX = lineStart.x + t * dx;
+    float projY = lineStart.y + t * dy;
+    float projZ = lineStart.z + t * dz;
+
+    dx = p.x - projX;
+    dy = p.y - projY;
+    dz = p.z - projZ;
+    return sqrtf(dx * dx + dy * dy + dz * dz);
+}
+
+bool Contours::NeedsPoint(const vector<ContourVertex>& loop, int start, int end, float maxError)
+{
+    float maxDist = 0.0f;
+
+    for (int i = start + 1; i < end; ++i)
+    {
+        float d = PerpendicularDist(loop[i], loop[start], loop[end]);
+        maxDist = max(maxDist, d);
+    }
+
+    return maxDist > maxError;
 }

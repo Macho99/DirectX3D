@@ -258,22 +258,22 @@ NavMesh::NavMesh() : Super(StaticType)
             mesh->CreateFromGeometry(dstGeometry);
         });
 
-    _builder.SetDebugOnBuildContours([this](const Contours& contours)
+    _contoursDebugFunc = [this](const Contours& contours)
         {
-            if (TryInitializeDebugMesh(NavDebugOption::BuildContours, false) == false)
-                return;
 
             int count = 0;
+            int colorId = 0;
             const auto& contoursData = contours.GetContours();
             for (const auto& contour : contoursData)
             {
+                colorId++;
                 for (const auto& loop : contour)
                 {
                     count++;
                     EnsureLineRendererCount(count);
                     LineRenderer* lineRenderer = _debugLineRenderers[count - 1].Resolve();
                     lineRenderer->ClearPoints();
-                    Vec3 color = GetDebugColor(count - 1);
+                    Vec3 color = GetDebugColor(colorId);
                     lineRenderer->SetColor(Color(color.x, color.y, color.z, 1.0f));
                     for (const auto& vertex : loop)
                     {
@@ -283,6 +283,7 @@ NavMesh::NavMesh() : Super(StaticType)
 
                         lineRenderer->AddPoint(worldPos);
                     }
+                    lineRenderer->SetLoop(true);
                 }
             }
             for (int i = 0; i < _debugLineRenderers.size(); i++)
@@ -299,6 +300,22 @@ NavMesh::NavMesh() : Super(StaticType)
                     lineRenderer->GetGameObject()->SetActive(false);
                 }
             }
+        };
+
+    _builder.SetDebugOnBuildContours([this](const Contours& contours)
+        {
+            if (TryInitializeDebugMesh(NavDebugOption::BuildContours, false) == false)
+                return;
+
+            _contoursDebugFunc(contours);
+        });
+
+    _builder.SetDebugOnSimplifyContours([this](const Contours& contours)
+        {
+            if (TryInitializeDebugMesh(NavDebugOption::SimplifyContours, false) == false)
+                return;
+
+            _contoursDebugFunc(contours);
         });
 }
 
@@ -328,6 +345,7 @@ bool NavMesh::OnGUI()
         }
     }
     changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Contour Simplify Max Error", &_contourSimplifyMaxError, 0.1f);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
@@ -337,6 +355,7 @@ bool NavMesh::OnGUI()
         bounds.bmax += curPos;
 
         NavBuildInput input;
+        input.settings.contourMaxError = _contourSimplifyMaxError;
 
         const auto& objs = CUR_SCENE->GetObjects();
         for (auto& gameObjectRef : objs)

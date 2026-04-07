@@ -8,6 +8,7 @@
     X(FilterHeightField) \
     X(CompactHeightField) \
     X(BuildContours) \
+    X(SimplifyContours) \
 
 enum class NavDebugOption
 {
@@ -48,8 +49,10 @@ private:
     GameObjectRef _debugLineRendererParent;
     vector<ComponentRef<class LineRenderer>> _debugLineRenderers;
     NavDebugOption _debugOption = NavDebugOption::None;
-    Vec3 _buildExtent = Vec3(10.f, 10.f, 10.f);
+    Vec3 _buildExtent = Vec3(11.f, 20.f, 11.f);
+    float _contourSimplifyMaxError = 1.5f;
 
     function<void(const HeightField&)> _heightFieldDebugFunc;
+    function<void(const Contours&)> _contoursDebugFunc;
 };
 

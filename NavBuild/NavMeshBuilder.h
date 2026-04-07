@@ -19,6 +19,7 @@ public:
     void SetDebugOnFilterHeightField(function<void(const HeightField&)> callback) { _onFilterHeightField = callback; }
     void SetDebugOnCompactHeightField(function<void(const CompactHeightField&)> callback) { _onCompactHeightField = callback; }
     void SetDebugOnBuildContours(function<void(const class Contours&)> callback) { _onBuildContours = callback; }
+    void SetDebugOnSimplifyContours(function<void(const class Contours&)> callback) { _onSimplifyContours = callback; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
@@ -40,5 +41,6 @@ private:
     function<void(const HeightField&)> _onFilterHeightField;
     function<void(const CompactHeightField&)> _onCompactHeightField;
     function<void(const class Contours&)> _onBuildContours;
+    function<void(const class Contours&)> _onSimplifyContours;
 };
 
