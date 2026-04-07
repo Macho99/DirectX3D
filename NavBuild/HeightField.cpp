@@ -48,12 +48,23 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
         {
             for (int cx = cellMinX; cx <= cellMaxX; cx++)
             {
+                if (TriangleOverlapsCell(tri, 
+                    _bmin.x + cx * _cs, 
+                    _bmin.x + (cx + 1) * _cs, 
+                    _bmin.z + cz * _cs, 
+                    _bmin.z + (cz + 1) * _cs) == false)
+                    continue;
+
                 int minCellY = INT_MAX;
                 int maxCellY = INT_MIN;
+
+                int dx[] = { 0, 0, 1, 1 };
+                int dz[] = { 0, 1, 0, 1 };
+
                 for (int i = 0; i < 4; i++)
                 {
-                    int testCx = cx + _dx[i];
-                    int testCz = cz + _dz[i];
+                    int testCx = cx + dx[i];
+                    int testCz = cz + dz[i];
 
                     float wx = _bmin.x + testCx * _cs;
                     float wz = _bmin.z + testCz * _cs;
@@ -67,7 +78,7 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
                 }
                 maxCellY = std::max(maxCellY, minCellY + 1);
 
-                AddSpan(cx, cz, minCellY, maxCellY + 1, tri.walkable ? 1 : 0);
+                AddSpan(cx, cz, minCellY, maxCellY, tri.walkable ? 1 : 0);
             }
         }
     }
@@ -174,4 +185,60 @@ void HeightField::AddSpan(int cx, int cz, uint16 cminY, uint16 cmaxY, uint8 area
 
     // 3. 병합 완료된 span 삽입
     column.insert(it, newSpan);
+}
+
+bool HeightField::TriangleOverlapsCell(const InputTri& tri, float cellMinX, float cellMaxX, float cellMinZ, float cellMaxZ)
+{
+    const Vec3 v0 = tri.v0;
+    const Vec3 v1 = tri.v1;
+    const Vec3 v2 = tri.v2;
+    // 셀 중심과 반너비
+    float cx = (cellMinX + cellMaxX) * 0.5f;
+    float cz = (cellMinZ + cellMaxZ) * 0.5f;
+    float hx = (cellMaxX - cellMinX) * 0.5f;
+    float hz = (cellMaxZ - cellMinZ) * 0.5f;
+
+    // 삼각형 꼭짓점을 셀 중심 기준으로 이동
+    float t0x = v0.x - cx, t0z = v0.z - cz;
+    float t1x = v1.x - cx, t1z = v1.z - cz;
+    float t2x = v2.x - cx, t2z = v2.z - cz;
+
+    // ── 검사 1: AABB 축 (X, Z) ──────────────────────────────
+    // X축
+    if (min({ t0x, t1x, t2x }) > hx) return false;
+    if (max({ t0x, t1x, t2x }) < -hx) return false;
+    // Z축
+    if (min({ t0z, t1z, t2z }) > hz) return false;
+    if (max({ t0z, t1z, t2z }) < -hz) return false;
+
+    // ── 검사 2: 삼각형 엣지 법선 축 (3개) ──────────────────
+    // 각 엣지에 수직인 축으로 투영해서 분리 가능한지 확인
+    auto testEdge = [&](float ex, float ez) -> bool
+        {
+            // 삼각형 투영
+            float p0 = t0x * ex + t0z * ez;
+            float p1 = t1x * ex + t1z * ez;
+            float p2 = t2x * ex + t2z * ez;
+            float triMin = min({ p0, p1, p2 });
+            float triMax = max({ p0, p1, p2 });
+
+            // AABB 투영 (중심이 원점이므로 반너비만으로 계산)
+            float boxR = hx * fabsf(ex) + hz * fabsf(ez);
+
+            return triMax < -boxR || triMin > boxR; // true면 분리됨 → 겹치지 않음
+        };
+
+    // 엣지 0: v0 → v1
+    float e0x = t1x - t0x, e0z = t1z - t0z;
+    if (testEdge(-e0z, e0x)) return false;
+
+    // 엣지 1: v1 → v2
+    float e1x = t2x - t1x, e1z = t2z - t1z;
+    if (testEdge(-e1z, e1x)) return false;
+
+    // 엣지 2: v2 → v0
+    float e2x = t0x - t2x, e2z = t0z - t2z;
+    if (testEdge(-e2z, e2x)) return false;
+
+    return true; // 분리축 없음 → 겹침
 }

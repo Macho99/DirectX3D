@@ -108,4 +108,5 @@ private:
 
     float _minHeight = FLT_MAX;
     float _maxHeight = -FLT_MAX;
+	uint32 _triCellSize = 3;
 };

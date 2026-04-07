@@ -406,6 +406,8 @@ bool TessTerrain::OnGUI()
 
 	_prevHeightmapEditing = curHeightmapEditing;
 
+    changed |= OnGUIUtils::DrawUInt32("Triangle Cell Size", &_triCellSize, 1.f);
+
     return changed;
 }
 
@@ -436,34 +438,40 @@ void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>
 	const int mincZ = std::ceil((maxZ - 0.5f * terrainDepth) / -cellSpacing);
 	const int maxcZ = std::floor((minZ - 0.5f * terrainDepth) / -cellSpacing);
 
-	for (int cx = mincX; cx <= maxcX; ++cx)
+	const int cellSize = _triCellSize;
+
+	for (int cx = mincX; cx <= maxcX; cx += cellSize)
 	{
-		for (int cz = mincZ; cz <= maxcZ; ++cz)
+		for (int cz = mincZ; cz <= maxcZ; cz += cellSize)
 		{
 			// A*--*B
 			//  | /|
 			//  |/ |
 			// C*--*D
-			float x0z0 = _heightmap[cz * heightmapWidth + cx];
-			float x1z0 = _heightmap[cz * heightmapWidth + cx + 1];
-			float x0z1 = _heightmap[(cz + 1) * heightmapWidth + cx];
-			float x1z1 = _heightmap[(cz + 1) * heightmapWidth + cx + 1];
+            if (cx < 0 || cx + cellSize >= heightmapWidth || cz < 0 || cz + cellSize >= heightmapHeight)
+                continue;
 
-            float wx = -terrainWidth * 0.5f + cx * cellSpacing;
-            float wz = terrainDepth * 0.5f - cz * cellSpacing;
+			const float x0z0 = _heightmap[cz * heightmapWidth + cx];
+			const float x1z0 = _heightmap[cz * heightmapWidth + cx + cellSize];
+			const float x0z1 = _heightmap[(cz + cellSize) * heightmapWidth + cx];
+			const float x1z1 = _heightmap[(cz + cellSize) * heightmapWidth + cx + cellSize];
+
+            const float wx = -terrainWidth * 0.5f + cx * cellSpacing;
+            const float wz = terrainDepth * 0.5f - cz * cellSpacing;
+            const float worldCellSpacing = cellSpacing * cellSize;
 
 			{
                 InputTri tri;
                 tri.v0 = Vec3(wx, x0z0, wz);
-                tri.v1 = Vec3(wx + cellSpacing, x1z0, wz);
-                tri.v2 = Vec3(wx, x0z1, wz - cellSpacing);
+                tri.v1 = Vec3(wx + worldCellSpacing, x1z0, wz);
+                tri.v2 = Vec3(wx, x0z1, wz - worldCellSpacing);
                 tris.push_back(tri);
 			}
 			{
                 InputTri tri;
-                tri.v0 = Vec3(wx + cellSpacing, x1z0, wz);
-                tri.v1 = Vec3(wx + cellSpacing, x1z1, wz - cellSpacing);
-                tri.v2 = Vec3(wx, x0z1, wz - cellSpacing);
+                tri.v0 = Vec3(wx + worldCellSpacing, x1z0, wz);
+                tri.v1 = Vec3(wx + worldCellSpacing, x1z1, wz - worldCellSpacing);
+                tri.v2 = Vec3(wx, x0z1, wz - worldCellSpacing);
                 tris.push_back(tri);
 			}
 		}
