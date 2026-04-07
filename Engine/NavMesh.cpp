@@ -41,18 +41,18 @@ NavMesh::NavMesh() : Super(StaticType)
             vector<uint32> indices;
             for (const auto& tri : tris)
             {
-                Vec3 normalAsColor;
+                Vec3 tangentAsColor;
                 if (tri.walkable)
-                    normalAsColor = Vec3(0.f, 1.f, 0.f);
+                    tangentAsColor = Vec3(0.f, 1.f, 0.f);
                 else
-                    normalAsColor = Vec3(1.f, 0.f, 0.f);
+                    tangentAsColor = Vec3(1.f, 0.f, 0.f);
 
                 //Vec2 uv = tri.walkable ? _walkableUV : _unwalkableUV;
 
                 uint32 baseIndex = static_cast<uint32>(vertices.size());
-                vertices.push_back(VertexTextureNormalTangentData{ tri.v0, Vec2(0.f), normalAsColor, Vec3(0.f) });
-                vertices.push_back(VertexTextureNormalTangentData{ tri.v1, Vec2(0.f), normalAsColor, Vec3(0.f) });
-                vertices.push_back(VertexTextureNormalTangentData{ tri.v2, Vec2(0.f), normalAsColor, Vec3(0.f) });
+                vertices.push_back(VertexTextureNormalTangentData{ tri.v0, Vec2(0.f), Vec3(0.f), tangentAsColor});
+                vertices.push_back(VertexTextureNormalTangentData{ tri.v1, Vec2(0.f), Vec3(0.f), tangentAsColor});
+                vertices.push_back(VertexTextureNormalTangentData{ tri.v2, Vec2(0.f), Vec3(0.f), tangentAsColor});
                 indices.push_back(baseIndex);
                 indices.push_back(baseIndex + 1);
                 indices.push_back(baseIndex + 2);
@@ -105,8 +105,8 @@ NavMesh::NavMesh() : Super(StaticType)
                         const auto& srcVertices = srcGeometry->GetVertices();
                         for (VertexTextureNormalTangentData v : srcVertices)
                         {
-                            Vec3 normalAsColor = GetDebugColor(span.area);
-                            v.normal = normalAsColor;
+                            Vec3 tangentAsColor = GetDebugColor(span.area);
+                            v.tangent = tangentAsColor;
                             vertices.push_back(v);
                         }
                         const auto& srcIndices = srcGeometry->GetIndices();
@@ -151,6 +151,19 @@ NavMesh::NavMesh() : Super(StaticType)
             const float cellHeight = heightField.GetCellHeight();
             const vector<CompactCell>& cells = heightField.GetCells();
             const vector<CompactSpan>& spans = heightField.GetSpans();
+            vector<Int2> spanCoords(spans.size(), Int2{ -1, -1 });
+
+            for (int cx = 0; cx < width; ++cx)
+            {
+                for (int cz = 0; cz < depth; ++cz)
+                {
+                    const CompactCell& cell = cells[heightField.GetColumnIndex(cx, cz)];
+                    for (int i = 0; i < cell.count; ++i)
+                    {
+                        spanCoords[cell.index + i] = Int2{ cx, cz };
+                    }
+                }
+            }
 
             Mesh* mesh = meshRenderer->GetMesh().Resolve();
             ASSERT(mesh != nullptr);
@@ -183,14 +196,56 @@ NavMesh::NavMesh() : Super(StaticType)
                         const auto& srcVertices = srcGeometry->GetVertices();
                         for (VertexTextureNormalTangentData v : srcVertices)
                         {
-                            Vec3 normalAsColor = GetDebugColor(span.region);
-                            v.normal = normalAsColor;
+                            Vec3 tangentAsColor = GetDebugColor(span.region);
+                            v.tangent = tangentAsColor;
                             vertices.push_back(v);
                         }
                         const auto& srcIndices = srcGeometry->GetIndices();
                         for (const auto& idx : srcIndices)
                         {
                             indices.push_back(baseIndex + idx);
+                        }
+                        const float linkThickness = std::max(halfCellSize * 0.12f, 0.01f);
+                        const float linkHalfLength = halfCellSize * 0.45f;
+                        for (int dir = 0; dir < 4; ++dir)
+                        {
+                            const uint32 neighborSpanIdx = span.connections[dir];
+                            if (neighborSpanIdx == NOT_CONNECTED)
+                                continue;
+
+                            const Int2& neighborCoord = spanCoords[neighborSpanIdx];
+                            if (neighborCoord.x < 0 || neighborCoord.z < 0)
+                                continue;
+
+                            Vec3 neighborOrigin;
+                            heightField.GetWorldPos(neighborCoord.x, neighborCoord.z, neighborOrigin.x, neighborOrigin.z);
+                            const CompactSpan& neighborSpan = spans[neighborSpanIdx];
+                            uint16 neighborCeiling = std::min<uint16>(neighborSpan.h, neighborSpan.y + 1);
+                            neighborOrigin.y = (neighborSpan.y + neighborCeiling) * 0.5f * cellHeight + heightField.GetBoundMin().y;
+
+                            Vec3 direction = neighborOrigin - origin;
+                            if (direction.LengthSquared() <= 0.00001f)
+                                continue;
+                            direction.Normalize();
+
+                            Vec3 linkCenter = origin + direction * (halfCellSize * 0.5f);
+                            linkCenter.y = origin.y + worldHeight * 0.5f;
+
+                            const bool alongX = std::abs(direction.x) > std::abs(direction.z);
+                            const float halfX = alongX ? linkHalfLength : linkThickness;
+                            const float halfZ = alongX ? linkThickness : linkHalfLength;
+
+                            GeometryHelper::CreateCube(srcGeometry, halfX, linkThickness, halfZ, linkCenter);
+                            baseIndex = static_cast<uint32>(vertices.size());
+                            for (VertexTextureNormalTangentData v : srcGeometry->GetVertices())
+                            {
+                                v.tangent = Vec3(1.0f, 1.0f, 1.0f);
+                                vertices.push_back(v);
+                            }
+                            for (const auto& idx : srcGeometry->GetIndices())
+                            {
+                                indices.push_back(baseIndex + idx);
+                            }
                         }
                     }
                 }
@@ -224,6 +279,20 @@ NavMesh::NavMesh() : Super(StaticType)
 
                         lineRenderer->AddPoint(worldPos);
                     }
+                }
+            }
+            for (int i = 0; i < _debugLineRenderers.size(); i++)
+            {
+                ComponentRef<LineRenderer>& lineRendererRef = _debugLineRenderers[i];
+                if (i < count)
+                {
+                    LineRenderer* lineRenderer = lineRendererRef.Resolve();
+                    lineRenderer->GetGameObject()->SetActive(true);
+                }
+                else
+                {
+                    LineRenderer* lineRenderer = lineRendererRef.Resolve();
+                    lineRenderer->GetGameObject()->SetActive(false);
                 }
             }
         });

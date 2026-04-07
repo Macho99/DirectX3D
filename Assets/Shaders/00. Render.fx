@@ -37,6 +37,8 @@ MeshOutput VS_Mesh(VertexMesh input)
     output.viewZ = output.positionV.z;
     output.ssaoPosH = mul(worldPos, VPT);
 	
+    output.tangent = input.tangent; //mul(input.tangent, (float3x3) W);
+	
 	return output;
 }
 
