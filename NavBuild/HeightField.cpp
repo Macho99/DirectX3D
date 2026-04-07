@@ -48,19 +48,13 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
         {
             for (int cx = cellMinX; cx <= cellMaxX; cx++)
             {
-                if (TriangleOverlapsCell(tri, 
-                    _bmin.x + cx * _cs, 
-                    _bmin.x + (cx + 1) * _cs, 
-                    _bmin.z + cz * _cs, 
-                    _bmin.z + (cz + 1) * _cs) == false)
-                    continue;
-
                 int minCellY = INT_MAX;
                 int maxCellY = INT_MIN;
 
                 int dx[] = { 0, 0, 1, 1 };
                 int dz[] = { 0, 1, 0, 1 };
 
+                bool overlaps = false;
                 for (int i = 0; i < 4; i++)
                 {
                     int testCx = cx + dx[i];
@@ -68,6 +62,11 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
 
                     float wx = _bmin.x + testCx * _cs;
                     float wz = _bmin.z + testCz * _cs;
+
+                    if (PointInTriangleXZ(wx, wz, tri) == false)
+                        continue;
+
+                    overlaps = true;
                     // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
                     float wy = -(A * wx + C * wz + D) / B;
                     wy = std::clamp(wy, triMin.y, triMax.y);
@@ -76,8 +75,11 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
                     minCellY = std::min(minCellY, cellY);
                     maxCellY = std::max(maxCellY, cellY);
                 }
-                maxCellY = std::max(maxCellY, minCellY + 1);
 
+                if (overlaps == false)
+                    continue;
+
+                maxCellY = std::max(maxCellY, minCellY + 1);
                 AddSpan(cx, cz, minCellY, maxCellY, tri.walkable ? 1 : 0);
             }
         }
@@ -241,4 +243,27 @@ bool HeightField::TriangleOverlapsCell(const InputTri& tri, float cellMinX, floa
     if (testEdge(-e2z, e2x)) return false;
 
     return true; // 분리축 없음 → 겹침
+}
+
+bool HeightField::PointInTriangleXZ(float wx, float wz, const InputTri& tri)
+{
+    const Vec3 v0 = tri.v0;
+    const Vec3 v1 = tri.v1;
+    const Vec3 v2 = tri.v2;
+
+    // 각 엣지에 대해 외적의 Z 성분 부호 확인
+    auto cross2D = [](float ax, float az, float bx, float bz)
+        {
+            return ax * bz - az * bx;
+        };
+
+    float d0 = cross2D(v1.x - v0.x, v1.z - v0.z, wx - v0.x, wz - v0.z);
+    float d1 = cross2D(v2.x - v1.x, v2.z - v1.z, wx - v1.x, wz - v1.z);
+    float d2 = cross2D(v0.x - v2.x, v0.z - v2.z, wx - v2.x, wz - v2.z);
+
+    bool hasNeg = (d0 < 0) || (d1 < 0) || (d2 < 0);
+    bool hasPos = (d0 > 0) || (d1 > 0) || (d2 > 0);
+
+    // 부호가 섞이면 외부, 전부 같으면 내부
+    return !(hasNeg && hasPos);
 }

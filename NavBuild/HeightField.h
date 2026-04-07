@@ -23,7 +23,8 @@ public:
 private:
     void AddSpan(int cx, int cz, uint16 cminY, uint16 cmaxY, uint8 area);
     // XZ 평면에서 2D 투영으로 검사 (Y는 무시)
-    bool TriangleOverlapsCell(const InputTri& tri, float cellMinX, float cellMaxX, float cellMinZ, float cellMaxZ);
+    bool TriangleOverlapsCell(const InputTri& tri, float cellMinX, float cellMaxX, float cellMinZ, float cellMaxZ); 
+    bool PointInTriangleXZ(float px, float pz, const InputTri& tri);
 
 private:
     vector<vector<Span>> columns; // width * depth
