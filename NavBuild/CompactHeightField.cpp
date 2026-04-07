@@ -261,7 +261,7 @@ vector<ContourVertex> CompactHeightField::BuildOneLoop(const vector<ContourEdge>
                 continue;
             if (edges[idx]._region != start._region)
                 continue;
-            int yDiff = std::abs(edges[idx]._y - start._y);
+            int yDiff = std::abs(edges[idx]._y - current.y);
             if (yDiff > maxStepCHeight)
                 continue;
 

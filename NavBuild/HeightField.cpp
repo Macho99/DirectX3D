@@ -37,6 +37,7 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
         Vec3 e0 = v1 - v0;
         Vec3 e1 = v2 - v0;
         Vec3 n = Vec3::Cross(e0, e1);
+        n.y += 0.00001f; // 수직선과의 교차점 계산 시 y값이 0이 되는 경우를 방지하기 위해 아주 작은 값을 더해줌
 
         float A = n.x;
         float B = n.y;
@@ -47,14 +48,26 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
         {
             for (int cx = cellMinX; cx <= cellMaxX; cx++)
             {
-                float wx = _bmin.x + cx * _cs + _cs * 0.5f;
-                float wz = _bmin.z + cz * _cs + _cs * 0.5f;
-                // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
-                float wy = -(A * wx + C * wz + D) / B;
-                wy = std::clamp(wy, triMin.y, triMax.y);
-                int cellY = GetCellHeight(wy);
+                int minCellY = INT_MAX;
+                int maxCellY = INT_MIN;
+                for (int i = 0; i < 4; i++)
+                {
+                    int testCx = cx + _dx[i];
+                    int testCz = cz + _dz[i];
 
-                AddSpan(cx, cz, cellY, cellY + 1, tri.walkable ? 1 : 0);
+                    float wx = _bmin.x + testCx * _cs;
+                    float wz = _bmin.z + testCz * _cs;
+                    // 삼각형과 수직선(cx, 0, cz)의 교차점 계산
+                    float wy = -(A * wx + C * wz + D) / B;
+                    wy = std::clamp(wy, triMin.y, triMax.y);
+
+                    int cellY = GetCellHeight(wy);
+                    minCellY = std::min(minCellY, cellY);
+                    maxCellY = std::max(maxCellY, cellY);
+                }
+                maxCellY = std::max(maxCellY, minCellY + 1);
+
+                AddSpan(cx, cz, minCellY, maxCellY + 1, tri.walkable ? 1 : 0);
             }
         }
     }
