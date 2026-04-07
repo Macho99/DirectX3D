@@ -5,6 +5,7 @@
 #include "LineRenderer.h"
 #include "OnGUIUtils.h"
 #include "GeometryHelper.h"
+#include "../NavBuild/Contours.h"
 
 NavMesh::NavMesh() : Super(StaticType)
 {
@@ -257,13 +258,14 @@ NavMesh::NavMesh() : Super(StaticType)
             mesh->CreateFromGeometry(dstGeometry);
         });
 
-    _builder.SetDebugOnBuildContours([this](const vector<vector<vector<ContourVertex>>>& contours, const CompactHeightField& heightField)
+    _builder.SetDebugOnBuildContours([this](const Contours& contours)
         {
             if (TryInitializeDebugMesh(NavDebugOption::BuildContours, false) == false)
                 return;
 
             int count = 0;
-            for (const auto& contour : contours)
+            const auto& contoursData = contours.GetContours();
+            for (const auto& contour : contoursData)
             {
                 for (const auto& loop : contour)
                 {
@@ -276,8 +278,8 @@ NavMesh::NavMesh() : Super(StaticType)
                     for (const auto& vertex : loop)
                     {
                         Vec3 worldPos;
-                        heightField.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                        heightField.GetWorldHeight(vertex.y, worldPos.y);
+                        contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                        contours.GetWorldHeight(vertex.y, worldPos.y);
 
                         lineRenderer->AddPoint(worldPos);
                     }

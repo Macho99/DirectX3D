@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "NavMeshBuilder.h"
+#include "Contours.h"
 
 bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 {
@@ -25,8 +26,8 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     CompactHeightField compactHeightField(heightfield, settings);
     _onCompactHeightField(compactHeightField);
 
-    auto contours = compactHeightField.BuildContours(input.settings.agentMaxClimb);
-    _onBuildContours(contours, compactHeightField);
+    Contours contours(compactHeightField, input.settings);
+    _onBuildContours(contours);
 
     return true;
 }

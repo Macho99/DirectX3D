@@ -25,7 +25,6 @@ public:
 
     const vector<CompactCell>& GetCells() const { return _cells; }
     const vector<CompactSpan>& GetSpans() const { return _spans; }
-
     const vector<int>& GetRegions() const { return _regions; }
 
 private:

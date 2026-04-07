@@ -158,7 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CompactHeightField.h" />
-    <ClInclude Include="Contour.h" />
+    <ClInclude Include="Contours.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HeightField.h" />
     <ClInclude Include="HeightFieldBase.h" />
@@ -169,7 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CompactHeightField.cpp" />
-    <ClCompile Include="Contour.cpp" />
+    <ClCompile Include="Contours.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="HeightFieldBase.cpp" />
     <ClCompile Include="Math.cpp" />

@@ -1,16 +1,16 @@
 #include "pch.h"
-#include "Contour.h"
+#include "Contours.h"
 #include "CompactHeightField.h"
 
 
-Contour::Contour(const CompactHeightField& heightField, const NavBuildSettings& settings)
+Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings& settings)
     : HeightFieldBase(heightField)
 {
-    vector<vector<vector<ContourVertex>>> contours;
-    int maxStepCHeight = (int)std::ceil(maxStepHeight / _ch);
-    for (int i = 1; i < heightField.getre.size(); ++i)
+    int maxStepCHeight = (int)std::ceil(settings.agentMaxClimb / _ch);
+    const vector<int>& regions = heightField.GetRegions();
+    for (int i = 1; i < regions.size(); ++i)
     {
-        vector<ContourEdge> edges = CollectRegionEdges(i);
+        vector<ContourEdge> edges = CollectRegionEdges(heightField, i);
         vector<bool> visited(edges.size(), false);
 
         EdgeMap edgeMap;
@@ -31,24 +31,26 @@ Contour::Contour(const CompactHeightField& heightField, const NavBuildSettings& 
             if (loop.size() >= 3)
                 loops.push_back(std::move(loop));
         }
-        contours.push_back(std::move(loops));
+        _contours.push_back(std::move(loops));
     }
-    return contours;
 }
 
-vector<ContourEdge> CompactHeightField::CollectRegionEdges(uint16 targetRegion)
+vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion)
 {
     vector<ContourEdge> edges;
+
+    const vector<CompactCell>& cells = heightField.GetCells();
+    const vector<CompactSpan>& spans = heightField.GetSpans();
 
     for (int cz = 0; cz < _depth; cz++)
     {
         for (int cx = 0; cx < _width; cx++)
         {
-            const CompactCell& cell = _cells[GetColumnIndex(cx, cz)];
+            const CompactCell& cell = cells[GetColumnIndex(cx, cz)];
             for (int i = 0; i < cell.count; ++i)
             {
                 int spanIdx = cell.index + i;
-                const CompactSpan& s = _spans[spanIdx];
+                const CompactSpan& s = spans[spanIdx];
                 if (s.region != targetRegion)
                     continue;
 
@@ -68,7 +70,7 @@ vector<ContourEdge> CompactHeightField::CollectRegionEdges(uint16 targetRegion)
     return edges;
 }
 
-vector<ContourVertex> CompactHeightField::BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used,
+vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used,
     int startEdgeIdx, int maxStepCHeight)
 {
     vector<ContourVertex> loop;

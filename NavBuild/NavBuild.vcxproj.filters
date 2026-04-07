@@ -38,7 +38,9 @@
     <ClInclude Include="NavMeshBuilder.h">
       <Filter>소스 파일\Builder</Filter>
     </ClInclude>
-    <ClInclude Include="Contour.h" />
+    <ClInclude Include="Contours.h">
+      <Filter>소스 파일\Builder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -62,8 +64,8 @@
     <ClCompile Include="NavMeshBuilder.cpp">
       <Filter>소스 파일\Builder</Filter>
     </ClCompile>
-    <ClCompile Include="Contour.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Contours.cpp">
+      <Filter>소스 파일\Builder</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

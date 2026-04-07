@@ -58,14 +58,19 @@ struct ContourEdge
 };
 
 
-class Contour : public HeightFieldBase
+class Contours : public HeightFieldBase
 {
 public:
-    Contour(const class CompactHeightField& heightField, const NavBuildSettings& settings);
+    Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
+
+    const vector<vector<vector<ContourVertex>>>& GetContours() const { return _contours; }
 
 private:
     using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
-    vector<ContourEdge> CollectRegionEdges(uint16 targetRegion);
+    vector<ContourEdge> CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion);
     vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx, int maxStepCHeight);
+
+private:
+    vector<vector<vector<ContourVertex>>> _contours;
 };
 
