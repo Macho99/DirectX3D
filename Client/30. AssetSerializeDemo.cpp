@@ -45,7 +45,7 @@ void AssetSerializeDemo::Init()
 {
     auto sky = make_shared<Sky>();
     sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SnowSkyMat.mat"));
-    CUR_SCENE->SetSky(sky);
+    //CUR_SCENE->SetSky(sky);
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
     {

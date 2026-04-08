@@ -62,6 +62,10 @@ struct ContourEdge
     int _dir;
 };
 
+struct Triangle
+{
+    int i0, i1, i2;
+};
 
 class Contours : public HeightFieldBase
 {
@@ -80,7 +84,17 @@ private:
     float PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
     bool NeedsPoint(const vector<ContourVertex>& contour, int start, int end, float maxError);
 
+public:
+    void BuildPolyMesh();
+    const vector<vector<vector<Triangle>>>& GetPolyMeshs() const { return _polyMeshs; }
+private:
+    int Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    bool IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    bool PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    vector<Triangle> TriangulateEarClipping(const vector<ContourVertex>& verts);
+
 private:
     vector<vector<vector<ContourVertex>>> _contours;
+    vector<vector<vector<Triangle>>> _polyMeshs;
+    const CompactHeightField& _heightField;
 };
-

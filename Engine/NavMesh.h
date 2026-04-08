@@ -9,6 +9,7 @@
     X(CompactHeightField) \
     X(BuildContours) \
     X(SimplifyContours) \
+    X(BuildPolyMesh) \
 
 enum class NavDebugOption
 {

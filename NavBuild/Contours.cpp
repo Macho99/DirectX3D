@@ -4,7 +4,7 @@
 
 
 Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings& settings)
-    : HeightFieldBase(heightField)
+    : HeightFieldBase(heightField), _heightField(heightField)
 {
     int maxStepCHeight = (int)std::ceil(settings.agentMaxClimb / _ch);
     const vector<int>& regions = heightField.GetRegions();
@@ -241,4 +241,117 @@ bool Contours::NeedsPoint(const vector<ContourVertex>& loop, int start, int end,
     }
 
     return maxDist > maxError;
+}
+
+void Contours::BuildPolyMesh()
+{
+    _polyMeshs.clear();
+    for (const auto& contour : _contours)
+    {
+        vector<vector<Triangle>> contourTris;
+        for (const auto& loop : contour)
+        {
+            contourTris.push_back(TriangulateEarClipping(loop));
+        }
+        _polyMeshs.push_back(std::move(contourTris));
+    }
+}
+
+int Contours::Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+{
+    int abx = b.x - a.x;
+    int abz = b.z - a.z;
+    int acx = c.x - a.x;
+    int acz = c.z - a.z;
+    return abx * acz - abz * acx;
+}
+
+bool Contours::IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+{
+    return Cross2D(a, b, c) > 0;
+}
+
+bool Contours::PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+{
+    int c1 = Cross2D(a, b, p);
+    int c2 = Cross2D(b, c, p);
+    int c3 = Cross2D(c, a, p);
+
+    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
+    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
+
+    return !(hasNeg && hasPos);
+}
+
+vector<Triangle> Contours::TriangulateEarClipping(const vector<ContourVertex>& verts)
+{
+    vector<Triangle> tris;
+    if (verts.size() < 3)
+        return tris;
+
+    vector<int> indices;
+    indices.reserve(verts.size());
+    for (int i = 0; i < (int)verts.size(); ++i)
+        indices.push_back(i);
+
+    int adder = 0;
+    while (indices.size() > 3)
+    {
+        bool foundEar = false;
+
+        adder++;
+        for (int idx = 0; idx < (int)indices.size(); ++idx)
+        {
+            //int i = (idx + adder) % indices.size();
+            int i = idx;
+
+            int i0 = indices[(i - 1 + indices.size()) % indices.size()];
+            int i1 = indices[i];
+            int i2 = indices[(i + 1) % indices.size()];
+
+            const ContourVertex& a = verts[i0];
+            const ContourVertex& b = verts[i1];
+            const ContourVertex& c = verts[i2];
+
+            if (!IsConvex(a, b, c))
+                continue;
+
+            bool hasPointInside = false;
+            for (int j = 0; j < (int)indices.size(); ++j)
+            {
+                int k = indices[j];
+                if (k == i0 || k == i1 || k == i2)
+                    continue;
+
+                ContourVertex p = verts[k];
+                if (PointInTri2D(p, a, b, c))
+                {
+                    int distMinY = std::min(abs(p.y - a.y), std::min(abs(p.y - b.y), abs(p.y - c.y)));
+                    if (distMinY < 10)
+                    {
+                        hasPointInside = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasPointInside)
+                continue;
+
+            tris.push_back({ i0, i1, i2 });
+            indices.erase(indices.begin() + i);
+            foundEar = true;
+            break;
+        }
+
+        if (!foundEar)
+        {
+            break;
+        }
+    }
+
+    if (indices.size() == 3)
+        tris.push_back({ indices[0], indices[1], indices[2] });
+
+    return tris;
 }

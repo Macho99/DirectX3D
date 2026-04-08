@@ -129,6 +129,12 @@ RasterizerState FillModeWireFrame
 	FillMode = WireFrame;
 };
 
+RasterizerState NoCullWireFrame
+{
+    FillMode = WireFrame;
+    CullMode = NONE;
+};
+
 RasterizerState NoCull
 {
     CullMode = NONE; // 앞, 뒤 컬링 안 함

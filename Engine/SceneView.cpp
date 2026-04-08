@@ -134,11 +134,11 @@ void SceneView::DrawSceneViewGizmoOverlay()
 
     if (INPUT->GetButton(KEY_TYPE::RBUTTON) == false && INPUT->GetButton(KEY_TYPE::RBUTTON) == false)
     {
-        if (INPUT->GetButtonDown(KEY_TYPE::Q))
+        if (INPUT->GetButtonDown(KEY_TYPE::W))
             g_gizmo.op = ImGuizmo::TRANSLATE;
-        else if (INPUT->GetButtonDown(KEY_TYPE::W))
-            g_gizmo.op = ImGuizmo::ROTATE;
         else if (INPUT->GetButtonDown(KEY_TYPE::E))
+            g_gizmo.op = ImGuizmo::ROTATE;
+        else if (INPUT->GetButtonDown(KEY_TYPE::R))
             g_gizmo.op = ImGuizmo::SCALE;
     }
 

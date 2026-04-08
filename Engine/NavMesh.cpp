@@ -317,6 +317,49 @@ NavMesh::NavMesh() : Super(StaticType)
 
             _contoursDebugFunc(contours);
         });
+
+    _builder.SetDebugOnBuildPolyMesh([this](const Contours& contours)
+        {
+            if (TryInitializeDebugMesh(NavDebugOption::BuildPolyMesh, true) == false)
+                return;
+
+            MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
+            Mesh* mesh = meshRenderer->GetMesh().Resolve();
+            ASSERT(mesh != nullptr);
+            auto geometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
+            vector<VertexTextureNormalTangentData> vertices;
+            vector<uint32> indices;
+
+            const auto& polyMeshs = contours.GetPolyMeshs();
+            const auto& contoursData = contours.GetContours();
+            for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
+            {
+                int indicesBase = static_cast<int>(vertices.size());
+
+                const auto& tris = polyMeshs[regionIdx].front();
+                const auto& contour = contoursData[regionIdx].front();
+                Vec3 tangentAsColor = GetDebugColor(regionIdx + 1);
+                for (const ContourVertex& vertex : contour)
+                {
+                    Vec3 worldPos;
+                    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    contours.GetWorldHeight(vertex.y, worldPos.y);
+                    vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
+                }
+
+                for (int i = 0; i < tris.size(); ++i)
+                {
+                    const Triangle& tri = tris[i];
+                    indices.push_back(indicesBase + tri.i0);
+                    indices.push_back(indicesBase + tri.i2);
+                    indices.push_back(indicesBase + tri.i1);
+                }
+            }
+
+            geometry->SetVertices(vertices);
+            geometry->SetIndices(indices);
+            mesh->CreateFromGeometry(geometry);
+        });
 }
 
 NavMesh::~NavMesh()

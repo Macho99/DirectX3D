@@ -20,6 +20,7 @@ public:
     void SetDebugOnCompactHeightField(function<void(const CompactHeightField&)> callback) { _onCompactHeightField = callback; }
     void SetDebugOnBuildContours(function<void(const class Contours&)> callback) { _onBuildContours = callback; }
     void SetDebugOnSimplifyContours(function<void(const class Contours&)> callback) { _onSimplifyContours = callback; }
+    void SetDebugOnBuildPolyMesh(function<void(const class Contours&)> callback) { _onBuildPolyMesh = callback; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
@@ -28,13 +29,12 @@ private:
     //bool BuildCompactHeightfield();
     //bool BuildRegions();
     //bool BuildContours();
-    bool BuildPolyMesh();
+    //bool BuildPolyMesh();
     bool BuildDetailMesh();
 
 private:
     Vec3 GetTriangleNormal(const InputTri& tri);
     
-
 private:
     function<void(const vector<InputTri>&)> _onMarkWalkableTriangles;
     function<void(const HeightField&)> _onBuildHeightField;
@@ -42,5 +42,6 @@ private:
     function<void(const CompactHeightField&)> _onCompactHeightField;
     function<void(const class Contours&)> _onBuildContours;
     function<void(const class Contours&)> _onSimplifyContours;
+    function<void(const class Contours&)> _onBuildPolyMesh;
 };
 

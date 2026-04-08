@@ -32,6 +32,9 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     contours.Simplify(input.settings.contourMaxError);
     _onSimplifyContours(contours);
 
+    contours.BuildPolyMesh();
+    _onBuildPolyMesh(contours);
+
     return true;
 }
 
