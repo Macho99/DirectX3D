@@ -65,10 +65,12 @@ struct ContourEdge
 struct Triangle
 {
     int i0, i1, i2;
+    bool isValid = true;
 };
 
 class Contours : public HeightFieldBase
 {
+    using PolyMesh = pair<vector<Triangle>, vector<ContourVertex>>;
 public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
@@ -86,15 +88,17 @@ private:
 
 public:
     void BuildPolyMesh();
-    const vector<vector<vector<Triangle>>>& GetPolyMeshs() const { return _polyMeshs; }
+    const vector<vector<PolyMesh>>& GetPolyMeshs() const { return _polyMeshs; }
 private:
     int Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     bool IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     bool PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
-    vector<Triangle> TriangulateEarClipping(const vector<ContourVertex>& verts);
+    PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);
+
+    float SampledAverageY(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
 
 private:
     vector<vector<vector<ContourVertex>>> _contours;
-    vector<vector<vector<Triangle>>> _polyMeshs;
+    vector<vector<PolyMesh>> _polyMeshs;
     const CompactHeightField& _heightField;
 };

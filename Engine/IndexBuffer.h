@@ -11,7 +11,7 @@ public:
 	uint32 GetOffset() { return _offset; }
 	uint32 GetCount() { return _count; }
 
-	void Create(const vector<uint32>& indices);
+	void Create(const vector<uint32>& indices, int indexCount = -1);
 
 	void PushData()
 	{

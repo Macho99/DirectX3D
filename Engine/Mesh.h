@@ -32,9 +32,8 @@ public:
         if (Archive::is_loading::value)
 			CreateBuffers();
     }
-	
-private:
-	void CreateBuffers();
+
+	void CreateBuffers(const int indexCount = -1);
 
 private:
 	// Mesh

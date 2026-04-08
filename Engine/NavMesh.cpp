@@ -334,7 +334,7 @@ NavMesh::NavMesh() : Super(StaticType)
             const auto& contoursData = contours.GetContours();
             for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
             {
-                int indicesBase = static_cast<int>(vertices.size());
+                const int indicesBase = static_cast<int>(vertices.size());
 
                 const auto& tris = polyMeshs[regionIdx].front();
                 const auto& contour = contoursData[regionIdx].front();
@@ -346,13 +346,37 @@ NavMesh::NavMesh() : Super(StaticType)
                     contours.GetWorldHeight(vertex.y, worldPos.y);
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
                 }
-
-                for (int i = 0; i < tris.size(); ++i)
+                const int invalidBase = static_cast<int>(vertices.size());
+                for (const ContourVertex& vertex : contour)
                 {
-                    const Triangle& tri = tris[i];
-                    indices.push_back(indicesBase + tri.i0);
-                    indices.push_back(indicesBase + tri.i2);
-                    indices.push_back(indicesBase + tri.i1);
+                    Vec3 worldPos;
+                    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    contours.GetWorldHeight(vertex.y, worldPos.y);
+                    vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), Vec3(1,0,0)});
+                }
+
+                for (int i = 0; i < tris.first.size(); ++i)
+                {
+                    const Triangle& tri = tris.first[i];
+                    if (_debugInvalidTriangle == false && tri.isValid == false)
+                        continue;
+
+                    const int base = tri.isValid ? indicesBase : invalidBase;
+                    indices.push_back(base + tri.i0);
+                    indices.push_back(base + tri.i2);
+                    indices.push_back(base + tri.i1);
+                }
+
+                GameObject* parentObj = _debugLineRendererParent.Resolve();
+                parentObj->SetActive(true);
+                EnsureLineRendererCount(2);
+                for (int i = 0; i < tris.second.size(); ++i)
+                {
+                    const ContourVertex& vertex = tris.second[i];
+                    Vec3 worldPos;
+                    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    contours.GetWorldHeight(vertex.y, worldPos.y);
+                    _debugLineRenderers[1].Resolve()->AddPoint(worldPos);
                 }
             }
 
@@ -389,6 +413,7 @@ bool NavMesh::OnGUI()
     }
     changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
     changed |= OnGUIUtils::DrawFloat("Contour Simplify Max Error", &_contourSimplifyMaxError, 0.1f);
+    changed |= OnGUIUtils::DrawBool("Debug Invalid Triangle", &_debugInvalidTriangle);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
@@ -415,7 +440,7 @@ bool NavMesh::OnGUI()
         bool result = _builder.Build(input, "InvalidPath");
     }
 
-    return false;
+    return changed;
 }
 
 Vec3 NavMesh::GetDebugColor(int id)

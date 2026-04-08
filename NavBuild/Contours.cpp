@@ -78,6 +78,32 @@ void Contours::Simplify(float maxError)
                 }
             }
 
+            // 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
+            for (int j = 0; j < simplified.size() - 1; j++)
+            {
+                ContourVertex& current = simplified[j];
+                const ContourVertex& next = simplified[j + 1];
+                if (current.x == next.x && current.z == next.z)
+                {
+                    current.y = (current.y + next.y) / 2;
+                    simplified.erase(simplified.begin() + j + 1);
+                }
+            }
+
+            // 세 점이 일직선 상에 있으면 가운데 점 제거
+            for (int j = 0; j < simplified.size() - 2; j++)
+            {
+                ContourVertex& prev = simplified[j];
+                ContourVertex& current = simplified[j + 1];
+                const ContourVertex& next = simplified[j + 2];
+
+                if (Cross2D(prev, current, next) == 0)
+                {
+                    simplified.erase(simplified.begin() + j + 1);
+                    j--;
+                }
+            }
+
             contour[i] = std::move(simplified);
         }
     }
@@ -248,7 +274,7 @@ void Contours::BuildPolyMesh()
     _polyMeshs.clear();
     for (const auto& contour : _contours)
     {
-        vector<vector<Triangle>> contourTris;
+        vector<PolyMesh> contourTris;
         for (const auto& loop : contour)
         {
             contourTris.push_back(TriangulateEarClipping(loop));
@@ -283,11 +309,11 @@ bool Contours::PointInTri2D(const ContourVertex& p, const ContourVertex& a, cons
     return !(hasNeg && hasPos);
 }
 
-vector<Triangle> Contours::TriangulateEarClipping(const vector<ContourVertex>& verts)
+Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>& verts)
 {
-    vector<Triangle> tris;
+    pair<vector<Triangle>, vector<ContourVertex>> result;
     if (verts.size() < 3)
-        return tris;
+        return result;
 
     vector<int> indices;
     indices.reserve(verts.size());
@@ -295,11 +321,15 @@ vector<Triangle> Contours::TriangulateEarClipping(const vector<ContourVertex>& v
         indices.push_back(i);
 
     int adder = 0;
+
+    bool debug = true;
     while (indices.size() > 3)
     {
         bool foundEar = false;
 
         adder++;
+        float minSampledY = FLT_MAX;
+        int minSampledYIdx = -1;
         for (int idx = 0; idx < (int)indices.size(); ++idx)
         {
             //int i = (idx + adder) % indices.size();
@@ -326,32 +356,124 @@ vector<Triangle> Contours::TriangulateEarClipping(const vector<ContourVertex>& v
                 ContourVertex p = verts[k];
                 if (PointInTri2D(p, a, b, c))
                 {
-                    int distMinY = std::min(abs(p.y - a.y), std::min(abs(p.y - b.y), abs(p.y - c.y)));
+                    int distMinY = std::min({ abs(p.y - a.y), abs(p.y - b.y), abs(p.y - c.y) });
                     if (distMinY < 10)
                     {
+                        Triangle invalidTri{ i0, i1, i2, false };
+                        result.first.push_back(invalidTri);
                         hasPointInside = true;
                         break;
                     }
+                    //hasPointInside = true;
+                    //Triangle invalidTri{ i0, i1, i2, false };
+                    //result.first.push_back(invalidTri);
+                    //break;
                 }
             }
 
             if (hasPointInside)
                 continue;
 
-            tris.push_back({ i0, i1, i2 });
-            indices.erase(indices.begin() + i);
-            foundEar = true;
-            break;
+            float sampledY = SampledAverageY(a, b, c);
+            if (minSampledY >= sampledY)
+            {
+                minSampledY = sampledY;
+                minSampledYIdx = i;
+            }
+            //inSampledYIdx = i;
         }
 
-        if (!foundEar)
+        if (minSampledYIdx < 0)
         {
             break;
         }
+
+        int i = minSampledYIdx;
+        int i0 = indices[(i - 1 + indices.size()) % indices.size()];
+        int i1 = indices[i];
+        int i2 = indices[(i + 1) % indices.size()];
+        result.first.push_back({ i0, i1, i2 });
+        indices.erase(indices.begin() + i);
     }
 
     if (indices.size() == 3)
-        tris.push_back({ indices[0], indices[1], indices[2] });
+        result.first.push_back({ indices[0], indices[1], indices[2] });
+    else
+    {
+        for (int i = 0; i < (int)indices.size(); ++i)
+        {
+            result.second.push_back(verts[indices[i]]);
+        }
+    }
 
-    return tris;
+    return result;
+}
+
+float Contours::SampledAverageY(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+{
+    const vector<CompactCell>& cells = _heightField.GetCells();
+    const vector<CompactSpan>& spans = _heightField.GetSpans();
+
+    ContourVertex minBound;
+    minBound.x = min({ a.x, b.x, c.x });
+    minBound.y = min({ a.y, b.y, c.y });
+    minBound.z = min({ a.z, b.z, c.z });
+
+    ContourVertex maxBound;
+    maxBound.x = max({ a.x, b.x, c.x });
+    maxBound.y = max({ a.y, b.y, c.y });
+    maxBound.z = max({ a.z, b.z, c.z });
+
+    Vec3 v0{ (float)a.x, (float)a.y, (float)a.z };
+    Vec3 v1{ (float)b.x, (float)b.y, (float)b.z };
+    Vec3 v2{ (float)c.x, (float)c.y, (float)c.z };
+
+    Vec3 e0 = v1 - v0;
+    Vec3 e1 = v2 - v0;
+    Vec3 n = Vec3::Cross(e0, e1);
+    n.y += 0.00001f;
+
+    float A = n.x;
+    float B = n.y;
+    float C = n.z;
+    float D = -(A * v0.x + B * v0.y + C * v0.z);
+
+    float yDiffSum = 0;
+    int yDiffCount = 0;
+
+    for (int cx = minBound.x; cx < maxBound.x; cx++)
+    {
+        for (int cz = minBound.z; cz < maxBound.z; cz++)
+        {
+            if (PointInTri2D({ cx, 0, cz }, a, b, c) == false)
+                continue;
+
+            float cy = -(A * cx + C * cz + D) / B;
+            cy = std::clamp(cy, (float)minBound.y, (float)maxBound.y);
+
+            float minYDiff = INT_MAX;
+            int closestCellIdx = -1;
+            int columnIdx = GetColumnIndex(cx, cz);
+            const CompactCell cell = cells[columnIdx];
+            for (int cellIdx = 0; cellIdx < cell.count; ++cellIdx)
+            {
+                const CompactSpan span = spans[cell.index + cellIdx];
+
+                float yDiff = abs(span.y - cy);
+                if (minYDiff > yDiff)
+                {
+                    minYDiff = yDiff;
+                    closestCellIdx = cell.index + cellIdx;
+                }
+            }
+
+            if (closestCellIdx < 0)
+                continue;
+
+            yDiffSum += minYDiff;
+            yDiffCount++;
+        }
+    }
+
+    return yDiffCount > 0 ? yDiffSum / yDiffCount : 0;
 }

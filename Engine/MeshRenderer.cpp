@@ -76,6 +76,19 @@ bool MeshRenderer::OnGUI()
     changed |= Super::OnGUI();
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh);
+    bool debugTriChanged = OnGUIUtils::DrawInt32("Triangle Count", &_debugTriangleCount, 0.25f);
+	if (debugTriChanged)
+	{
+        Mesh* mesh = _mesh.Resolve();
+        const auto& geometry = mesh->GetGeometry();
+		_debugTriangleCount = std::clamp(_debugTriangleCount, -1, static_cast<int>(geometry->GetIndexCount() / 3));
+        if (mesh != nullptr)
+        {
+            mesh->CreateBuffers(_debugTriangleCount * 3);
+        }
+	}
+
+    changed |= debugTriChanged;
     return changed;
 }
 

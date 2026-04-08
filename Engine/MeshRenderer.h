@@ -30,5 +30,6 @@ public:
 
 private:
 	ResourceRef<Mesh> _mesh;
+    int _debugTriangleCount = -1;
 };
 

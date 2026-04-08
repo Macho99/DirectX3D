@@ -11,10 +11,14 @@ IndexBuffer::~IndexBuffer()
 
 }
 
-void IndexBuffer::Create(const vector<uint32>& indices)
+void IndexBuffer::Create(const vector<uint32>& indices, int indexCount)
 {
 	_stride = sizeof(uint32);
 	_count = static_cast<uint32>(indices.size());
+    if (indexCount > 0)
+    {
+        _count = std::min(static_cast<uint32>(indexCount), _count);
+    }
 
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));

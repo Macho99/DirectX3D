@@ -30,6 +30,15 @@ void LineRenderer::ClearPoints()
     _dirty = true;
 }
 
+void LineRenderer::SetVisualizeDirection(bool visualizeDirection)
+{
+    if (_visualizeDirection == visualizeDirection)
+        return;
+
+    _visualizeDirection = visualizeDirection;
+    _dirty = true;
+}
+
 void LineRenderer::SetLoop(bool loop)
 {
     if (_loop == loop)
@@ -59,6 +68,12 @@ bool LineRenderer::OnGUI()
     changed |= OnGUIUtils::DrawBool("Loop", &loop);
     if (loop != _loop)
         SetLoop(loop);
+
+    bool visualizeDirection = _visualizeDirection;
+    changed |= OnGUIUtils::DrawBool("Visualize Direction", &visualizeDirection);
+    if (visualizeDirection != _visualizeDirection)
+        SetVisualizeDirection(visualizeDirection);
+    changed |= OnGUIUtils::DrawFloat("Arrow Size Ratio", &_arrowSizeRatio, 0.01f);
 
     ImGui::Separator();
     uint32 pointCount = _points.size();
@@ -127,6 +142,7 @@ void LineRenderer::InnerRender(RenderTech renderTech)
 void LineRenderer::RebuildBuffers()
 {
     _dirty = false;
+    _vertices.clear();
     _indices.clear();
 
     if (_points.size() < 2)
@@ -136,7 +152,6 @@ void LineRenderer::RebuildBuffers()
         return;
     }
 
-    _vertices.clear();
     for (const Vec3& point : _points)
     {
         VertexColorData vertex;
@@ -157,8 +172,60 @@ void LineRenderer::RebuildBuffers()
         _indices.push_back(0);
     }
 
+    if (_visualizeDirection)
+    {
+        auto appendArrowHead = [&](uint32 fromIndex, uint32 toIndex)
+            {
+                const Vec3& from = _points[fromIndex];
+                const Vec3& to = _points[toIndex];
+                Vec3 direction = to - from;
+                const float length = direction.Length();
+                if (length < 0.0001f)
+                    return;
+
+                direction /= length;
+
+                const float arrowLength = _arrowSizeRatio;
+                Vec3 normal = direction.Cross(Vec3::Up);
+                if (normal.LengthSquared() < 0.0001f)
+                    normal = direction.Cross(Vec3::Right);
+                normal.Normalize();
+
+                Vec3 wingDirection = (direction * -1.0f) + (normal * 0.5f);
+                wingDirection.Normalize();
+                Vec3 leftWing = to + (wingDirection * arrowLength);
+
+                wingDirection = (direction * -1.0f) - (normal * 0.5f);
+                wingDirection.Normalize();
+                Vec3 rightWing = to + (wingDirection * arrowLength);
+
+                VertexColorData leftVertex;
+                leftVertex.position = leftWing;
+                leftVertex.color = _color;
+                uint32 leftIndex = static_cast<uint32>(_vertices.size());
+                _vertices.push_back(leftVertex);
+
+                VertexColorData rightVertex;
+                rightVertex.position = rightWing;
+                rightVertex.color = _color;
+                uint32 rightIndex = static_cast<uint32>(_vertices.size());
+                _vertices.push_back(rightVertex);
+
+                _indices.push_back(toIndex);
+                _indices.push_back(leftIndex);
+                _indices.push_back(toIndex);
+                _indices.push_back(rightIndex);
+            };
+
+        for (uint32 i = 0; i + 1 < _points.size(); ++i)
+            appendArrowHead(i, i + 1);
+
+        if (_loop)
+            appendArrowHead(static_cast<uint32>(_points.size() - 1), 0);
+    }
+
     _vertexBuffer = make_shared<VertexBuffer>();
     _vertexBuffer->Create(_vertices, "LineRendererVB");
     _indexBuffer = make_shared<IndexBuffer>();
-    _indexBuffer->Create(_indices);
+    _indexBuffer->Create(_indices, -1);
 }
