@@ -367,17 +367,17 @@ NavMesh::NavMesh() : Super(StaticType)
                     indices.push_back(base + tri.i1);
                 }
 
-                GameObject* parentObj = _debugLineRendererParent.Resolve();
-                parentObj->SetActive(true);
-                EnsureLineRendererCount(2);
-                for (int i = 0; i < tris.second.size(); ++i)
-                {
-                    const ContourVertex& vertex = tris.second[i];
-                    Vec3 worldPos;
-                    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                    contours.GetWorldHeight(vertex.y, worldPos.y);
-                    _debugLineRenderers[1].Resolve()->AddPoint(worldPos);
-                }
+                //GameObject* parentObj = _debugLineRendererParent.Resolve();
+                //parentObj->SetActive(true);
+                //EnsureLineRendererCount(2);
+                //for (int i = 0; i < tris.second.size(); ++i)
+                //{
+                //    const ContourVertex& vertex = tris.second[i];
+                //    Vec3 worldPos;
+                //    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                //    contours.GetWorldHeight(vertex.y, worldPos.y);
+                //    _debugLineRenderers[1].Resolve()->AddPoint(worldPos);
+                //}
             }
 
             geometry->SetVertices(vertices);

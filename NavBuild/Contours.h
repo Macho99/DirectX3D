@@ -91,6 +91,7 @@ public:
     const vector<vector<PolyMesh>>& GetPolyMeshs() const { return _polyMeshs; }
 private:
     int Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    int Dot2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     bool IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     bool PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);

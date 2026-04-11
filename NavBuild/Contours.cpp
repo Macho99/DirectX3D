@@ -76,6 +76,13 @@ void Contours::Simplify(float maxError)
                         break;
                     }
                 }
+
+                if (simplified.size() > loop.size())
+                {
+                    // maxError가 너무 작은 경우
+                    simplified = loop;
+                    break;
+                }
             }
 
             // 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
@@ -99,8 +106,11 @@ void Contours::Simplify(float maxError)
 
                 if (Cross2D(prev, current, next) == 0)
                 {
-                    simplified.erase(simplified.begin() + j + 1);
-                    j--;
+                    if (Dot2D(prev, current, next) > 0)
+                    {
+                        simplified.erase(simplified.begin() + j + 1);
+                        j--;
+                    }
                 }
             }
 
@@ -290,6 +300,15 @@ int Contours::Cross2D(const ContourVertex& a, const ContourVertex& b, const Cont
     int acx = c.x - a.x;
     int acz = c.z - a.z;
     return abx * acz - abz * acx;
+}
+
+int Contours::Dot2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+{
+    int bax = a.x - b.x;
+    int baz = a.z - b.z;
+    int bcx = c.x - b.x;
+    int bcz = c.z - b.z;
+    return bax * bcx + baz * bcz;
 }
 
 bool Contours::IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
