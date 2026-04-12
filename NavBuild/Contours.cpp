@@ -21,12 +21,12 @@ Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings
 
         vector<vector<ContourVertex>> loops;
 
-        for (int i = 0; i < (int)edges.size(); ++i)
+        for (int edgeIdx = 0; edgeIdx < (int)edges.size(); ++edgeIdx)
         {
-            if (visited[i])
+            if (visited[edgeIdx])
                 continue;
 
-            auto loop = BuildOneLoop(edges, edgeMap, visited, i, maxStepCHeight);
+            auto loop = BuildOneLoop(edges, edgeMap, visited, edgeIdx, maxStepCHeight);
 
             if (loop.size() >= 3)
                 loops.push_back(std::move(loop));
@@ -156,8 +156,11 @@ vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heigh
                 for (int dir = 0; dir < 4; dir++)
                 {
                     int nei = s.connections[dir];
-                    if (s.connections[dir] != NOT_CONNECTED)
-                        continue;
+                    if (nei != NOT_CONNECTED)
+                    {
+                        if (spans[nei].region == targetRegion)
+                            continue;
+                    }
 
                     ContourEdge edge(cx, cz, s.y, targetRegion, spanIdx, dir);
                     edges.push_back(edge);

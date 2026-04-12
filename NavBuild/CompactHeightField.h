@@ -26,8 +26,15 @@ public:
     const vector<CompactCell>& GetCells() const { return _cells; }
     const vector<CompactSpan>& GetSpans() const { return _spans; }
     const vector<int>& GetRegions() const { return _regions; }
+    const vector<int>& GetDistances() const { return _dists; }
+    int GetMaxDist() const { return _maxDist; }
 
 private:
+    void BuildDistances();
+    void WatershedRegion(int debugCount);
+    int GetExtraConnection(int spanIdx, int dirFirst, int dirSecond);
+
+    // FloodFill 알고리즘으로 span에 region id 할당
     void BuildRegions();
     void FloodFillRegion(int startIndex, int regionId);
     void FilterRegions(int minRegionSize);
@@ -36,5 +43,7 @@ private:
     vector<CompactCell> _cells; // width * depth
     vector<CompactSpan> _spans; // 모든 column의 span을 순서대로 저장
     vector<int> _regions;
+    vector<int> _dists; // region 내부에서 각 span이 가장 가까운 경계까지의 거리
+    int _maxDist = 0;
 };
 

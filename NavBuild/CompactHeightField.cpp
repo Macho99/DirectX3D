@@ -78,9 +78,201 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, const Nav
             }
         }
     }
+    _dists.resize(_spans.size(), INT_MAX);
+    BuildDistances();
+    WatershedRegion(setting.debugSeedCount);
 
-    BuildRegions();
-    FilterRegions(minRegionCount);
+    //BuildRegions();
+    //FilterRegions(minRegionCount);
+}
+
+void CompactHeightField::BuildDistances()
+{
+    for (int cellIdx = 0; cellIdx < _cells.size(); cellIdx++)
+    {
+        int cx = cellIdx % _width;
+        int cz = cellIdx / _width;
+
+        CompactCell& cell = _cells[cellIdx];
+        for (int i = 0; i < cell.count; ++i)
+        {
+            int spanIdx = cell.index + i;
+            CompactSpan& span = _spans[spanIdx];
+
+            if (span.connections[0] == NOT_CONNECTED ||
+                span.connections[1] == NOT_CONNECTED ||
+                span.connections[2] == NOT_CONNECTED ||
+                span.connections[3] == NOT_CONNECTED)
+            {
+                _dists[spanIdx] = 0;
+                continue;
+            }
+
+            int upIdx = span.connections[2];
+            if (upIdx != NOT_CONNECTED)
+                _dists[spanIdx] = std::min(_dists[spanIdx], _dists[upIdx] + 1);
+
+            int leftIdx = span.connections[3];
+            if (leftIdx != NOT_CONNECTED)
+                _dists[spanIdx] = std::min(_dists[spanIdx], _dists[leftIdx] + 1);
+        }
+    }
+
+    for (int cellIdx = _cells.size() - 1; cellIdx >= 0; cellIdx--)
+    {
+        int cx = cellIdx % _width;
+        int cz = cellIdx / _width;
+        CompactCell& cell = _cells[cellIdx];
+        for (int i = cell.count - 1; i >= 0; --i)
+        {
+            int spanIdx = cell.index + i;
+            CompactSpan& span = _spans[spanIdx];
+
+            int downIdx = span.connections[0];
+            if (downIdx != NOT_CONNECTED)
+                _dists[spanIdx] = std::min(_dists[spanIdx], _dists[downIdx] + 1);
+
+            int rightIdx = span.connections[1];
+            if (rightIdx != NOT_CONNECTED)
+                _dists[spanIdx] = std::min(_dists[spanIdx], _dists[rightIdx] + 1);
+        }
+    }
+
+    for (int dist : _dists)
+    {
+        _maxDist = std::max(_maxDist, dist);
+    }
+}
+
+void CompactHeightField::WatershedRegion(int debugSeedDist)
+{
+    _regions.clear();
+    _regions.push_back(0); // 0번은 버림
+
+    struct BFSNode
+    {
+        int spanIdx;
+        int region;
+    };
+
+    queue<int> floodFillQueue;
+    queue<BFSNode> curQueue;
+    queue<BFSNode> nextQueue;
+
+    for (int seedDist = _maxDist; seedDist > 0; seedDist--)
+    {
+        if (debugSeedDist > 0 && seedDist < debugSeedDist)
+        {
+            break;
+        }
+
+        // seed 찾기
+        for (int i = 0; i < _spans.size(); ++i)
+        {
+            CompactSpan& span = _spans[i];
+            if (span.region != 0)
+                continue;
+            const int spanDist = _dists[i];
+            if (spanDist != seedDist)
+                continue;
+            _regions.push_back(0);
+            int regionId = (int)_regions.size() - 1;
+            span.region = regionId;
+            
+            floodFillQueue.push(i);
+            while (!floodFillQueue.empty())
+            {
+                int curIdx = floodFillQueue.front();
+                floodFillQueue.pop();
+                _regions[regionId]++;
+                curQueue.push({ curIdx, regionId });
+
+                auto CheckNeibor = [&](int nei)
+                    {
+                        if (nei == NOT_CONNECTED)
+                            return;
+                        CompactSpan& neighborSpan = _spans[nei];
+                        if (neighborSpan.region != 0)
+                            return;
+                        const int neiDist = _dists[nei];
+                        if (neiDist != seedDist)
+                            return;
+                        neighborSpan.region = regionId;
+                        floodFillQueue.push(nei);
+                    };
+
+                for (int dir = 0; dir < 4; ++dir)
+                {
+                    int nei = _spans[curIdx].connections[dir];
+                    CheckNeibor(nei);
+                }
+                //하, 우, 상, 좌
+                CheckNeibor(GetExtraConnection(curIdx, 2, 3));
+                CheckNeibor(GetExtraConnection(curIdx, 2, 1));
+                CheckNeibor(GetExtraConnection(curIdx, 0, 3));
+                CheckNeibor(GetExtraConnection(curIdx, 0, 1));
+            }
+        }
+
+        const int fillDist = seedDist - 1;
+        while (!curQueue.empty())
+        {
+            BFSNode node = curQueue.front();
+            curQueue.pop();
+            _regions[node.region]++;
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                int nei = _spans[node.spanIdx].connections[dir];
+                if (nei == NOT_CONNECTED)
+                    continue;
+
+                CompactSpan& neighborSpan = _spans[nei];
+                if (neighborSpan.region != 0)
+                    continue;
+
+                if (_dists[nei] == fillDist)
+                {
+                    neighborSpan.region = node.region;
+                    curQueue.push({ nei, node.region });
+                }
+                else if (_dists[nei] == fillDist - 1)
+                {
+                    neighborSpan.region = node.region;
+                    nextQueue.push({ nei, node.region });
+                }
+            }
+        }
+
+        std::swap(curQueue, nextQueue);
+    }
+}
+
+int CompactHeightField::GetExtraConnection(int spanIdx, int dirFirst, int dirSecond)
+{
+    CompactSpan& span = _spans[spanIdx];
+    int neiFirst = span.connections[dirFirst];
+    if (neiFirst != NOT_CONNECTED)
+    {
+        CompactSpan& neighborSpanFirst = _spans[neiFirst];
+        int neiSecond = neighborSpanFirst.connections[dirSecond];
+        if (neiSecond != NOT_CONNECTED)
+        {
+            return neiSecond;
+        }
+    }
+
+    int neiSubFirst = span.connections[dirSecond];
+    if (neiSubFirst != NOT_CONNECTED)
+    {
+        CompactSpan& neighborSpanSubFirst = _spans[neiSubFirst];
+        int neiSubSecond = neighborSpanSubFirst.connections[dirFirst];
+        if (neiSubSecond != NOT_CONNECTED)
+        {
+            return neiSubSecond;
+        }
+    }
+
+    return NOT_CONNECTED;
 }
 
 void CompactHeightField::BuildRegions()

@@ -12,6 +12,8 @@ struct NavBuildSettings
 
     int minRegionCount = 50;
     float contourMaxError = 1.0f;
+
+    int debugSeedCount = 0;
 };
 
 struct InputTri

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "HeightFieldBase.h"
-
+                                    //го, ©Л, ╩С, аб
 const int HeightFieldBase::_dx[4] = { 0 , 1, 0, -1 };
 const int HeightFieldBase::_dz[4] = { 1, 0, -1, 0 };
 

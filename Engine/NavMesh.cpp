@@ -152,6 +152,8 @@ NavMesh::NavMesh() : Super(StaticType)
             const float cellHeight = heightField.GetCellHeight();
             const vector<CompactCell>& cells = heightField.GetCells();
             const vector<CompactSpan>& spans = heightField.GetSpans();
+            const vector<int>& dists = heightField.GetDistances();
+            const int maxDist = heightField.GetMaxDist();
             vector<Int2> spanCoords(spans.size(), Int2{ -1, -1 });
 
             for (int cx = 0; cx < width; ++cx)
@@ -184,6 +186,7 @@ NavMesh::NavMesh() : Super(StaticType)
                     {
                         const int spanIdx = cell.index + i;
                         const CompactSpan& span = spans[spanIdx];
+                        const int dist = dists[spanIdx];
 
                         Vec3 origin;
                         heightField.GetWorldPos(cx, cz, origin.x, origin.z);
@@ -198,6 +201,8 @@ NavMesh::NavMesh() : Super(StaticType)
                         for (VertexTextureNormalTangentData v : srcVertices)
                         {
                             Vec3 tangentAsColor = GetDebugColor(span.region);
+                            //float normalizedDist = maxDist > 0 ? (float)dist / maxDist : 0.0f;
+                            //Vec3 tangentAsColor = Vec3(normalizedDist);
                             v.tangent = tangentAsColor;
                             vertices.push_back(v);
                         }
@@ -417,6 +422,7 @@ bool NavMesh::OnGUI()
     changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
     changed |= OnGUIUtils::DrawFloat("Contour Simplify Max Error", &_contourSimplifyMaxError, 0.1f);
     changed |= OnGUIUtils::DrawBool("Debug Invalid Triangle", &_debugInvalidTriangle);
+    changed |= OnGUIUtils::DrawInt32("Debug Count", &_debugSeedCount, 1.f);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
@@ -427,6 +433,7 @@ bool NavMesh::OnGUI()
 
         NavBuildInput input;
         input.settings.contourMaxError = _contourSimplifyMaxError;
+        input.settings.debugSeedCount = _debugSeedCount;
 
         const auto& objs = CUR_SCENE->GetObjects();
         for (auto& gameObjectRef : objs)
@@ -448,6 +455,7 @@ bool NavMesh::OnGUI()
 
 Vec3 NavMesh::GetDebugColor(int id)
 {
+    id = id % 10; // Limit to 10 different colors for better visualization
     switch (id)
     {
     case 0: return Vec3(1.0f, 0.0f, 0.0f); // Red
@@ -478,6 +486,8 @@ bool NavMesh::TryInitializeDebugMesh(NavDebugOption option, bool useMeshRenderer
 
     GameObject* parentObj = _debugLineRendererParent.Resolve();
     parentObj->SetActive(!useMeshRenderer);
+
+    return true;
 }
 
 void NavMesh::EnsureLineRendererCount(int totalCount)
