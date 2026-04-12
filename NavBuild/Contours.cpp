@@ -85,15 +85,30 @@ void Contours::Simplify(float maxError)
                 }
             }
 
-            // 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
-            for (int j = 0; j < simplified.size() - 1; j++)
+            struct PairHash
             {
-                ContourVertex& current = simplified[j];
-                const ContourVertex& next = simplified[j + 1];
-                if (current.x == next.x && current.z == next.z)
+                size_t operator()(const std::pair<int, int>& p) const noexcept
                 {
-                    current.y = (current.y + next.y) / 2;
-                    simplified.erase(simplified.begin() + j + 1);
+                    return (static_cast<size_t>(p.first) << 32) ^ static_cast<size_t>(p.second);
+                }
+            };
+
+            unordered_set<pair<int, int>, PairHash> uniqueXZ;
+            uniqueXZ.reserve(simplified.size());
+
+            // 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
+            for (int j = 0; j < simplified.size(); j++)
+            {
+                ContourVertex& vertex = simplified[j];
+                pair<int, int> xz{ vertex.x, vertex.z };
+                if (uniqueXZ.count(xz) > 0)
+                {
+                    simplified.erase(simplified.begin() + j);
+                    j--;
+                }
+                else
+                {
+                    uniqueXZ.insert(xz);
                 }
             }
 
@@ -375,34 +390,34 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
                 ContourVertex p = verts[k];
                 if (PointInTri2D(p, a, b, c))
                 {
-                    int distMinY = std::min({ abs(p.y - a.y), abs(p.y - b.y), abs(p.y - c.y) });
-                    if (distMinY < 10)
-                    {
-                        Triangle invalidTri{ i0, i1, i2, false };
-                        result.first.push_back(invalidTri);
-                        hasPointInside = true;
-                        break;
-                    }
-                    //hasPointInside = true;
-                    //Triangle invalidTri{ i0, i1, i2, false };
-                    //result.first.push_back(invalidTri);
-                    //break;
+                    //int distMinY = std::min({ abs(p.y - a.y), abs(p.y - b.y), abs(p.y - c.y) });
+                    //if (distMinY < 10)
+                    //{
+                    //    Triangle invalidTri{ i0, i1, i2, false };
+                    //    result.first.push_back(invalidTri);
+                    //    hasPointInside = true;
+                    //    break;
+                    //}
+                    hasPointInside = true;
+                    Triangle invalidTri{ i0, i1, i2, false };
+                    result.first.push_back(invalidTri);
+                    break;
                 }
             }
 
             if (hasPointInside)
                 continue;
 
-            float sampledY = SampledAverageY(a, b, c);
-            if (minSampledY >= sampledY)
-            {
-                minSampledY = sampledY;
-                minSampledYIdx = i;
-            }
-            //inSampledYIdx = i;
+            //float sampledY = SampledAverageY(a, b, c);
+            //if (minSampledY >= sampledY)
+            //{
+            //    minSampledY = sampledY;
+            //    minSampledYIdx = i;
+            //}
+            minSampledYIdx = i;
         }
 
-        if (minSampledYIdx < 0)
+        if (minSampledYIdx < 0) 
         {
             break;
         }
