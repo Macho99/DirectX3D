@@ -113,6 +113,7 @@ void AssetSerializeDemo::Init()
         ResourceRef<Shader> grassComputeShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\GrassCompute.fx");
         auto objRef = CUR_SCENE->Add("GrassRenderer");
         GameObject* obj = objRef.Resolve();
+        obj->SetActive(false);
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
         AssetId uvAssetId;
         RESOURCES->TryGetAssetIdByPath(L"Textures\\Grass\\Grass_A_BaseColor_Split.txt", OUT uvAssetId);

@@ -33,7 +33,7 @@ struct ContourVertex
 struct ContourEdge
 {
     ContourEdge() = delete;
-    ContourEdge(int x, int z, int y, uint16 region, int spanIdx, int dir)
+    ContourEdge(int x, int z, int y, uint16 region, int spanIdx, int dir, bool isRegionBorder)
     {
         Int2 p0{ x,     z };
         Int2 p1{ x + 1, z };
@@ -44,6 +44,7 @@ struct ContourEdge
         _region = region;
         _spanIndex = spanIdx;
         _dir = dir;
+        _isRegionBorder = isRegionBorder;
 
         switch (dir)
         {
@@ -60,6 +61,7 @@ struct ContourEdge
     uint16 _region;
     int _spanIndex;
     int _dir;
+    bool _isRegionBorder = false;
 };
 
 struct Triangle

@@ -455,7 +455,9 @@ bool NavMesh::OnGUI()
 
 Vec3 NavMesh::GetDebugColor(int id)
 {
-    id = id % 10; // Limit to 10 different colors for better visualization
+    // Limit to 10 different colors for better visualization
+    if(id != 0)
+        id = id % 10 + 1;
     switch (id)
     {
     case 0: return Vec3(1.0f, 0.0f, 0.0f); // Red

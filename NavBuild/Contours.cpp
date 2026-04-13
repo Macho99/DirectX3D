@@ -95,7 +95,7 @@ void Contours::Simplify(float maxError)
 
             unordered_set<pair<int, int>, PairHash> uniqueXZ;
             uniqueXZ.reserve(simplified.size());
-
+            
             // 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
             for (int j = 0; j < simplified.size(); j++)
             {
@@ -111,23 +111,23 @@ void Contours::Simplify(float maxError)
                     uniqueXZ.insert(xz);
                 }
             }
-
-            // 세 점이 일직선 상에 있으면 가운데 점 제거
-            for (int j = 0; j < simplified.size() - 2; j++)
-            {
-                ContourVertex& prev = simplified[j];
-                ContourVertex& current = simplified[j + 1];
-                const ContourVertex& next = simplified[j + 2];
-
-                if (Cross2D(prev, current, next) == 0)
-                {
-                    if (Dot2D(prev, current, next) > 0)
-                    {
-                        simplified.erase(simplified.begin() + j + 1);
-                        j--;
-                    }
-                }
-            }
+            //
+            //// 세 점이 일직선 상에 있으면 가운데 점 제거
+            //for (int j = 0; j < simplified.size() - 2; j++)
+            //{
+            //    ContourVertex& prev = simplified[j];
+            //    ContourVertex& current = simplified[j + 1];
+            //    const ContourVertex& next = simplified[j + 2];
+            //
+            //    if (Cross2D(prev, current, next) == 0)
+            //    {
+            //        if (Dot2D(prev, current, next) > 0)
+            //        {
+            //            simplified.erase(simplified.begin() + j + 1);
+            //            j--;
+            //        }
+            //    }
+            //}
 
             contour[i] = std::move(simplified);
         }
@@ -156,13 +156,17 @@ vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heigh
                 for (int dir = 0; dir < 4; dir++)
                 {
                     int nei = s.connections[dir];
+                    uint16 edgeY = s.y;
+                    bool isRegionBorder = false;
                     if (nei != NOT_CONNECTED)
                     {
                         if (spans[nei].region == targetRegion)
                             continue;
+                        edgeY = (s.y + spans[nei].y) / 2;
+                        isRegionBorder = true;
                     }
 
-                    ContourEdge edge(cx, cz, s.y, targetRegion, spanIdx, dir);
+                    ContourEdge edge(cx, cz, edgeY, targetRegion, spanIdx, dir, isRegionBorder);
                     edges.push_back(edge);
                 }
             }
@@ -180,24 +184,23 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, c
     const ContourEdge& start = edges[startEdgeIdx];
     used[startEdgeIdx] = true;
 
-    loop.push_back({ start._a.x, start._y, start._a.z });
-    loop.push_back({ start._b.x, start._y, start._b.z });
-
-    ContourVertex startPoint;
-    startPoint.x = start._a.x;
-    startPoint.y = start._y;
-    startPoint.z = start._a.z;
     ContourVertex current;
-    current.x = start._b.x;
+    current.x = start._a.x;
     current.y = start._y;
-    current.z = start._b.z;
+    current.z = start._a.z;
+
+    loop.push_back(current);
+
+    int currentY = start._y;
+    Int2 nextInt2{ start._b.x, start._b.z };
+
+    vector<ContourVertex> debugBorder;
 
     while (true)
     {
         int nextIdx = -1;
 
-        Int2 currentInt2{ current.x, current.z };
-        auto range = edgeMap.equal_range(currentInt2);
+        auto range = edgeMap.equal_range(nextInt2);
         int minYDiff = INT_MAX;
         for (auto& it = range.first; it != range.second; ++it)
         {
@@ -226,31 +229,34 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, c
         const ContourEdge& e = edges[nextIdx];
 
         ContourVertex next;
-        next.x = e._b.x;
-        next.y = e._y;
-        next.z = e._b.z;
+        next.x = e._a.x;
+        next.y = (currentY + e._y) / 2;
+        next.z = e._a.z;
+        nextInt2 = Int2{ e._b.x, e._b.z };
+        currentY = e._y;
 
-        {
-            ContourVertex& prev = loop[loop.size() - 2];
-            if (prev.y == current.y && current.y == next.y)
-            {
-                int abx = current.x - prev.x;
-                int abz = current.z - prev.z;
-                int bcx = next.x - current.x;
-                int bcz = next.z - current.z;
-
-                if (abx * bcz - abz * bcx == 0)
-                {
-                    // 일직선 상에 있으면 current는 빼도 됨
-                    loop.pop_back();
-                }
-            }
-        }
+        //{
+        //    ContourVertex& prev = loop[loop.size() - 2];
+        //    if (prev.y == current.y && current.y == next.y)
+        //    {
+        //        int abx = current.x - prev.x;
+        //        int abz = current.z - prev.z;
+        //        int bcx = next.x - current.x;
+        //        int bcz = next.z - current.z;
+        //
+        //        if (abx * bcz - abz * bcx == 0)
+        //        {
+        //            // 일직선 상에 있으면 current는 빼도 됨
+        //            loop.pop_back();
+        //        }
+        //    }
+        //}
 
         current = next;
         loop.push_back(current);
+        if (e._isRegionBorder)
+            debugBorder.push_back(current);
     }
-    loop.pop_back(); // 마지막은 시작과 같으므로 제거
     return loop;
 }
 
