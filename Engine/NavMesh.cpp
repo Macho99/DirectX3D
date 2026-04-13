@@ -283,7 +283,7 @@ NavMesh::NavMesh() : Super(StaticType)
                     for (const auto& vertex : loop)
                     {
                         Vec3 worldPos;
-                        contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                        contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
                         contours.GetWorldHeight(vertex.y, worldPos.y);
 
                         lineRenderer->AddPoint(worldPos);
@@ -347,7 +347,7 @@ NavMesh::NavMesh() : Super(StaticType)
                 for (const ContourVertex& vertex : contour)
                 {
                     Vec3 worldPos;
-                    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
                     contours.GetWorldHeight(vertex.y, worldPos.y);
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
                 }
@@ -355,7 +355,7 @@ NavMesh::NavMesh() : Super(StaticType)
                 for (const ContourVertex& vertex : contour)
                 {
                     Vec3 worldPos;
-                    contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
                     contours.GetWorldHeight(vertex.y, worldPos.y);
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), Vec3(1,0,0)});
                 }
@@ -381,7 +381,7 @@ NavMesh::NavMesh() : Super(StaticType)
                     {
                         const ContourVertex& vertex = tris.second[i];
                         Vec3 worldPos;
-                        contours.GetWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                        contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
                         contours.GetWorldHeight(vertex.y, worldPos.y);
                         _debugLineRenderers[1].Resolve()->AddPoint(worldPos);
                     }

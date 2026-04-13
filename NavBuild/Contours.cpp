@@ -134,6 +134,12 @@ void Contours::Simplify(float maxError)
     }
 }
 
+void Contours::GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const
+{
+    worldX = _bmin.x + x * _cs;
+    worldZ = _bmin.z + z * _cs;
+}
+
 vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion)
 {
     vector<ContourEdge> edges;

@@ -78,6 +78,7 @@ public:
 
     const vector<vector<vector<ContourVertex>>>& GetContours() const { return _contours; }
     void Simplify(float maxError);
+    void GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const;
 
 private:
     using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
