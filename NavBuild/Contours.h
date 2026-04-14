@@ -9,6 +9,11 @@ struct Int2
     {
         return x == other.x && z == other.z;
     }
+
+    bool operator!=(const Int2& other) const
+    {
+        return !(*this == other);
+    }
 };
 
 struct Int2Hash
@@ -33,35 +38,40 @@ struct ContourVertex
 struct ContourEdge
 {
     ContourEdge() = delete;
-    ContourEdge(int x, int z, int y, uint16 region, int spanIdx, int dir, bool isRegionBorder)
+    ContourEdge(int x, int z, int y, int dir)
+        :_y(y)
     {
         Int2 p0{ x,     z };
         Int2 p1{ x + 1, z };
         Int2 p2{ x + 1, z + 1 };
         Int2 p3{ x,     z + 1 };
 
-        _y = y;
-        _region = region;
-        _spanIndex = spanIdx;
-        _dir = dir;
-        _isRegionBorder = isRegionBorder;
-
         switch (dir)
         {
         case 0: _a = p2; _b = p3; break;
         case 1: _a = p1; _b = p2; break;
         case 2: _a = p0; _b = p1; break;
-        case 3: _a = p3; _b = p0; break;
+        case 3:
+        default:_a = p3; _b = p0; break;
         }
     }
 
     Int2 _a;
     Int2 _b;
     int _y;
-    uint16 _region;
-    int _spanIndex;
-    int _dir;
-    bool _isRegionBorder = false;
+};
+
+struct ContourShareEdge : public ContourEdge
+{
+    ContourShareEdge() = delete;
+    ContourShareEdge(int x, int z, int y, int dir, int rhsRegion, int lhsRegion)
+        : ContourEdge(x, z, y, dir), _rhsRegion(rhsRegion), _lhsRegion(lhsRegion)
+    {
+    }
+
+    int _rhsRegion;
+    // 왼쪽 region일 경우, 방향을 뒤집어서 봐야함
+    int _lhsRegion;
 };
 
 struct Triangle
@@ -80,10 +90,13 @@ public:
     void Simplify(float maxError);
     void GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const;
 
+
 private:
     using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
-    vector<ContourEdge> CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion);
-    vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx, int maxStepCHeight);
+    void CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges);
+    vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx);
+    vector<ContourVertex> BuildOneLoop(const vector<ContourShareEdge>& sharedEdges, const EdgeMap& sharedEdgeMap, vector<bool>& sharedVisited, 
+        const vector<ContourEdge>& regionEdges, const EdgeMap& regionEdgeMap, vector<bool>& regionVisited, int curRegion, Int2 startPos);
 
 private:
     float PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);

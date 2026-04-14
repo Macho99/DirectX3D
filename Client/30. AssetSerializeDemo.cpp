@@ -139,6 +139,7 @@ void AssetSerializeDemo::Init()
         auto particleShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\ParticleSystem.fx");
         auto objRef = CUR_SCENE->Add("Fire");
         GameObject* obj = objRef.Resolve();
+        obj->SetActive(false);
         obj->GetTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
         obj->AddComponent(make_unique<ParticleSystem>());
         ParticleSystem* particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
@@ -154,6 +155,7 @@ void AssetSerializeDemo::Init()
             //auto snowShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\24. SnowDemo.fx");
             auto objRef = CUR_SCENE->Add("Snow");
             GameObject* obj = objRef.Resolve();
+            obj->SetActive(false);
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
             obj->AddComponent(make_unique<SnowBillboard>());
             {

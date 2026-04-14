@@ -190,12 +190,9 @@ NavMesh::NavMesh() : Super(StaticType)
 
                         Vec3 origin;
                         heightField.GetWorldPos(cx, cz, origin.x, origin.z);
-                        uint16 ceiling = std::min<uint16>(span.h, span.y + 1);
-                        origin.y = (span.y + ceiling) * 0.5f * cellHeight + heightField.GetBoundMin().y;
+                        origin.y = (span.y - 0.5f) * cellHeight + heightField.GetBoundMin().y;
 
-                        float worldHeight = (ceiling - span.y) * cellHeight;
-
-                        GeometryHelper::CreateCube(srcGeometry, halfCellSize, worldHeight * 0.5f, halfCellSize, origin);
+                        GeometryHelper::CreateCube(srcGeometry, halfCellSize, cellHeight * 0.5f, halfCellSize, origin);
                         uint32 baseIndex = static_cast<uint32>(vertices.size());
                         const auto& srcVertices = srcGeometry->GetVertices();
                         for (VertexTextureNormalTangentData v : srcVertices)
@@ -235,7 +232,7 @@ NavMesh::NavMesh() : Super(StaticType)
                             direction.Normalize();
 
                             Vec3 linkCenter = origin + direction * (halfCellSize * 0.5f);
-                            linkCenter.y = origin.y + worldHeight * 0.5f;
+                            linkCenter.y = origin.y + cellHeight * 0.5f;
 
                             const bool alongX = std::abs(direction.x) > std::abs(direction.z);
                             const float halfX = alongX ? linkHalfLength : linkThickness;
@@ -406,6 +403,21 @@ bool NavMesh::OnGUI()
     bool buildNavMesh = false;
     {
         bool showWalkableChanged = OnGUIUtils::DrawEnumCombo("DebugOption", _debugOption, NavDebugNames, (int)NavDebugOption::Max);
+        for (int key = (int)KEY_TYPE::KEY_0; key <= (int)KEY_TYPE::KEY_9; key++)
+        {
+            KEY_TYPE k = static_cast<KEY_TYPE>(key);
+
+            if (INPUT->GetButtonDown(k))
+            {
+                int optionIndex = key - (int)KEY_TYPE::KEY_0;
+                if (optionIndex < (int)NavDebugOption::Max)
+                {
+                    _debugOption = static_cast<NavDebugOption>(optionIndex);
+                    showWalkableChanged = true;
+                }
+            }
+        }
+
         changed |= showWalkableChanged;
         if (showWalkableChanged)
         {

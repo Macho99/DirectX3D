@@ -268,12 +268,12 @@ bool TessTerrain::OnGUI()
 	{
         if (INPUT->GetButton(KEY_TYPE::LSHIFT))
         {
-            _brushStrength -= wheelDelta * 0.02f;
+            _brushStrength += wheelDelta * 0.02f;
             _brushStrength = max(0.0f, _brushStrength);
         }
         else
         {
-            _brushRadius -= wheelDelta * 0.02f;
+            _brushRadius += wheelDelta * 0.02f;
             _brushRadius = max(0.01f, _brushRadius);
         }
         changed = true;
@@ -413,8 +413,8 @@ bool TessTerrain::OnGUI()
 
 void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)
 {
-	if (GetGameObject()->IsActiveInHierarchy() == false)
-		return;
+	//if (GetGameObject()->IsActiveInHierarchy() == false)
+	//	return;
 
     TerrainData* terrainData = _terrainData.Resolve();
     if (terrainData == nullptr)

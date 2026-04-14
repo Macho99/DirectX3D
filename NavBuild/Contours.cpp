@@ -2,31 +2,52 @@
 #include "Contours.h"
 #include "CompactHeightField.h"
 
-
 Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings& settings)
     : HeightFieldBase(heightField), _heightField(heightField)
 {
     int maxStepCHeight = (int)std::ceil(settings.agentMaxClimb / _ch);
     const vector<int>& regions = heightField.GetRegions();
-    for (int i = 1; i < regions.size(); ++i)
-    {
-        vector<ContourEdge> edges = CollectRegionEdges(heightField, i);
-        vector<bool> visited(edges.size(), false);
+    vector<ContourShareEdge> sharedEdges;
+    vector<vector<ContourEdge>> regionEdges(regions.size());
 
-        EdgeMap edgeMap;
+    CollectRegionEdges(heightField, OUT sharedEdges, OUT regionEdges);
+    EdgeMap sharedEdgeMap;
+    for (int i = 0; i < sharedEdges.size(); i++)
+    {
+        sharedEdgeMap.emplace(sharedEdges[i]._a, i);
+        sharedEdgeMap.emplace(sharedEdges[i]._b, i);
+    }
+
+    for (int regionIdx = 1; regionIdx < regions.size(); ++regionIdx)
+    {
+        const vector<ContourEdge>& edges = regionEdges[regionIdx];
+
+        EdgeMap regionEdgeMap;
         for (int edgeIdx = 0; edgeIdx < edges.size(); edgeIdx++)
         {
-            edgeMap.emplace(edges[edgeIdx]._a, edgeIdx);
+            regionEdgeMap.emplace(edges[edgeIdx]._a, edgeIdx);
+        }
+
+        vector<bool> regionVisited(edges.size(), false);
+        vector<bool> sharedVisited(sharedEdges.size(), false);
+        for (int sharedEdgeIdx = 0; sharedEdgeIdx < sharedEdges.size(); sharedEdgeIdx++)
+        {
+            const ContourShareEdge& sharedEdge = sharedEdges[sharedEdgeIdx];
+
+            // 현재 region과 해당없는 공유 엣지는 방문 처리
+            if (sharedEdge._rhsRegion != regionIdx && sharedEdge._lhsRegion != regionIdx)
+                sharedVisited[sharedEdgeIdx] = true;
         }
 
         vector<vector<ContourVertex>> loops;
 
         for (int edgeIdx = 0; edgeIdx < (int)edges.size(); ++edgeIdx)
         {
-            if (visited[edgeIdx])
+            if (regionVisited[edgeIdx])
                 continue;
 
-            auto loop = BuildOneLoop(edges, edgeMap, visited, edgeIdx, maxStepCHeight);
+            Int2 startPos = edges[edgeIdx]._a;
+            auto loop = BuildOneLoop(sharedEdges, sharedEdgeMap, sharedVisited, edges, regionEdgeMap, regionVisited, regionIdx, startPos);
 
             if (loop.size() >= 3)
                 loops.push_back(std::move(loop));
@@ -44,7 +65,9 @@ void Contours::Simplify(float maxError)
             if (contour[i].size() <= 3)
                 continue;
 
-            const vector<ContourVertex>& loop = contour[i];
+            vector<ContourVertex>& loop = contour[i];
+            
+            continue;
             vector<ContourVertex> simplified;
             simplified.push_back(loop.front());
             simplified.push_back(loop.back());
@@ -85,32 +108,32 @@ void Contours::Simplify(float maxError)
                 }
             }
 
-            struct PairHash
-            {
-                size_t operator()(const std::pair<int, int>& p) const noexcept
-                {
-                    return (static_cast<size_t>(p.first) << 32) ^ static_cast<size_t>(p.second);
-                }
-            };
-
-            unordered_set<pair<int, int>, PairHash> uniqueXZ;
-            uniqueXZ.reserve(simplified.size());
-            
-            // 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
-            for (int j = 0; j < simplified.size(); j++)
-            {
-                ContourVertex& vertex = simplified[j];
-                pair<int, int> xz{ vertex.x, vertex.z };
-                if (uniqueXZ.count(xz) > 0)
-                {
-                    simplified.erase(simplified.begin() + j);
-                    j--;
-                }
-                else
-                {
-                    uniqueXZ.insert(xz);
-                }
-            }
+            //struct PairHash
+            //{
+            //    size_t operator()(const std::pair<int, int>& p) const noexcept
+            //    {
+            //        return (static_cast<size_t>(p.first) << 32) ^ static_cast<size_t>(p.second);
+            //    }
+            //};
+            //
+            //unordered_set<pair<int, int>, PairHash> uniqueXZ;
+            //uniqueXZ.reserve(simplified.size());
+            //
+            //// 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
+            //for (int j = 0; j < simplified.size(); j++)
+            //{
+            //    ContourVertex& vertex = simplified[j];
+            //    pair<int, int> xz{ vertex.x, vertex.z };
+            //    if (uniqueXZ.count(xz) > 0)
+            //    {
+            //        simplified.erase(simplified.begin() + j);
+            //        j--;
+            //    }
+            //    else
+            //    {
+            //        uniqueXZ.insert(xz);
+            //    }
+            //}
             //
             //// 세 점이 일직선 상에 있으면 가운데 점 제거
             //for (int j = 0; j < simplified.size() - 2; j++)
@@ -140,10 +163,8 @@ void Contours::GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) con
     worldZ = _bmin.z + z * _cs;
 }
 
-vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heightField, uint16 targetRegion)
+void Contours::CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges)
 {
-    vector<ContourEdge> edges;
-
     const vector<CompactCell>& cells = heightField.GetCells();
     const vector<CompactSpan>& spans = heightField.GetSpans();
 
@@ -156,34 +177,37 @@ vector<ContourEdge> Contours::CollectRegionEdges(const CompactHeightField& heigh
             {
                 int spanIdx = cell.index + i;
                 const CompactSpan& s = spans[spanIdx];
-                if (s.region != targetRegion)
-                    continue;
 
                 for (int dir = 0; dir < 4; dir++)
                 {
                     int nei = s.connections[dir];
-                    uint16 edgeY = s.y;
-                    bool isRegionBorder = false;
                     if (nei != NOT_CONNECTED)
                     {
-                        if (spans[nei].region == targetRegion)
+                        const CompactSpan& neighborSpan = spans[nei];
+                        if (neighborSpan.region == s.region)
                             continue;
-                        edgeY = (s.y + spans[nei].y) / 2;
-                        isRegionBorder = true;
+
+                        uint16 edgeY = (s.y + neighborSpan.y) / 2;
+                        //하, 우, 상, 좌
+                        //공유 엣지일 경우 각 셀의 우측과 하단만 처리(중복 방지)
+                        if (dir == 0 || dir == 1)
+                        {
+                            ContourShareEdge sharedEdge(cx, cz, edgeY, dir, s.region, neighborSpan.region);
+                            sharedEdges.push_back(sharedEdge);
+                        }
+                        continue;
                     }
 
-                    ContourEdge edge(cx, cz, edgeY, targetRegion, spanIdx, dir, isRegionBorder);
-                    edges.push_back(edge);
+                    ContourEdge edge(cx, cz, s.y, dir);
+                    regionEdges[s.region].push_back(edge);
                 }
             }
         }
     }
-
-    return edges;
 }
 
 vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used,
-    int startEdgeIdx, int maxStepCHeight)
+    int startEdgeIdx)
 {
     vector<ContourVertex> loop;
 
@@ -200,8 +224,6 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, c
     int currentY = start._y;
     Int2 nextInt2{ start._b.x, start._b.z };
 
-    vector<ContourVertex> debugBorder;
-
     while (true)
     {
         int nextIdx = -1;
@@ -214,8 +236,6 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, c
             if (used[idx])
                 continue;
             const ContourEdge& edge = edges[idx];
-            if (edge._region != start._region)
-                continue;
 
             int yDiff = std::abs(edge._y - current.y);
             if (yDiff < minYDiff)
@@ -234,34 +254,105 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, c
         used[nextIdx] = true;
         const ContourEdge& e = edges[nextIdx];
 
-        ContourVertex next;
-        next.x = e._a.x;
-        next.y = (currentY + e._y) / 2;
-        next.z = e._a.z;
-        nextInt2 = Int2{ e._b.x, e._b.z };
+        if (current.x < e._a.x || current.z < e._a.z)
+        {
+            current.y = e._y;
+        }
+        else
+        {
+            current.y = currentY;
+        }
+
+        //current.y = (currentY + e._y) / 2;
+        current.x = e._a.x;
+        current.z = e._a.z;
+
         currentY = e._y;
-
-        //{
-        //    ContourVertex& prev = loop[loop.size() - 2];
-        //    if (prev.y == current.y && current.y == next.y)
-        //    {
-        //        int abx = current.x - prev.x;
-        //        int abz = current.z - prev.z;
-        //        int bcx = next.x - current.x;
-        //        int bcz = next.z - current.z;
-        //
-        //        if (abx * bcz - abz * bcx == 0)
-        //        {
-        //            // 일직선 상에 있으면 current는 빼도 됨
-        //            loop.pop_back();
-        //        }
-        //    }
-        //}
-
-        current = next;
         loop.push_back(current);
-        if (e._isRegionBorder)
-            debugBorder.push_back(current);
+
+        nextInt2 = Int2{ e._b.x, e._b.z };
+    }
+    return loop;
+}
+
+vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourShareEdge>& sharedEdges, const EdgeMap& sharedEdgeMap, vector<bool>& sharedVisited, 
+    const vector<ContourEdge>& regionEdges, const EdgeMap& regionEdgeMap, vector<bool>& regionVisited, int curRegion, Int2 startPos)
+{
+    vector<ContourVertex> loop;
+
+    Int2 currentInt2 = startPos;
+    while (true)
+    {
+        bool findEdge = false;
+        int currentY = 0;
+        Int2 nextInt2;
+        {
+            auto range = sharedEdgeMap.equal_range(currentInt2);
+            for (auto& it = range.first; it != range.second; ++it)
+            {
+                int idx = it->second;
+                if (sharedVisited[idx])
+                    continue;
+
+                const ContourShareEdge& shareEdge = sharedEdges[idx];
+                Int2 edgeStart;
+                Int2 edgeEnd;
+                if (shareEdge._rhsRegion == curRegion)
+                {
+                    edgeStart = shareEdge._a;
+                    edgeEnd = shareEdge._b;
+                }
+                else
+                {
+                    edgeStart = shareEdge._b;
+                    edgeEnd = shareEdge._a;
+                }
+
+                if (edgeStart != currentInt2)
+                    continue;
+
+                currentY = shareEdge._y;
+                nextInt2 = edgeEnd;
+                findEdge = true;
+                sharedVisited[idx] = true;
+            }
+        }
+
+        // 공유 엣지에서 찾기 실패, Region 엣지에서 찾기 시도
+        if (findEdge == false)
+        {
+            auto range = regionEdgeMap.equal_range(currentInt2);
+            for (auto& it = range.first; it != range.second; ++it)
+            {
+                int idx = it->second;
+                if (regionVisited[idx])
+                    continue;
+
+                const ContourEdge& regionEdge = regionEdges[idx];
+
+                if (regionEdge._a != currentInt2)
+                    continue;
+
+                currentY = regionEdge._y;
+                nextInt2 = regionEdge._b;
+                findEdge = true;
+                regionVisited[idx] = true;
+            }
+        }
+
+        if (findEdge == false)
+        {
+            break;
+        }
+
+        ContourVertex current;
+        current.x = currentInt2.x;
+        current.z = currentInt2.z;
+        current.y = currentY;
+
+        loop.push_back(current);
+
+        currentInt2 = nextInt2;
     }
     return loop;
 }

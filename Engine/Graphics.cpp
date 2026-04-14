@@ -260,10 +260,10 @@ void Graphics::SetBackBufferRenderTarget()
 
 void Graphics::DrawPostProcesses()
 {
-	if (INPUT->GetButtonDown(KEY_TYPE::KEY_1) && !INPUT->GetButton(KEY_TYPE::LSHIFT))
-	{
-        _postProcesses[0]->SetEnabled(!_postProcesses[0]->IsEnabled());
-	}
+	//if (INPUT->GetButtonDown(KEY_TYPE::KEY_1) && !INPUT->GetButton(KEY_TYPE::LSHIFT))
+	//{
+    //    _postProcesses[0]->SetEnabled(!_postProcesses[0]->IsEnabled());
+	//}
 
 	for (int i = 0; i < _postProcesses.size() - 1; i++)
 	{
