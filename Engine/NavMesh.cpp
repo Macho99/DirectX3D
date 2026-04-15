@@ -264,29 +264,24 @@ NavMesh::NavMesh() : Super(StaticType)
         {
 
             int count = 0;
-            int colorId = 0;
             const auto& contoursData = contours.GetContours();
-            for (const auto& contour : contoursData)
+            for (const auto& loop : contoursData)
             {
-                colorId++;
-                for (const auto& loop : contour)
+                count++;
+                EnsureLineRendererCount(count);
+                LineRenderer* lineRenderer = _debugLineRenderers[count - 1].Resolve();
+                lineRenderer->ClearPoints();
+                Vec3 color = GetDebugColor(count);
+                lineRenderer->SetColor(Color(color.x, color.y, color.z, 1.0f));
+                for (const auto& vertex : loop)
                 {
-                    count++;
-                    EnsureLineRendererCount(count);
-                    LineRenderer* lineRenderer = _debugLineRenderers[count - 1].Resolve();
-                    lineRenderer->ClearPoints();
-                    Vec3 color = GetDebugColor(colorId);
-                    lineRenderer->SetColor(Color(color.x, color.y, color.z, 1.0f));
-                    for (const auto& vertex : loop)
-                    {
-                        Vec3 worldPos;
-                        contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                        contours.GetWorldHeight(vertex.y, worldPos.y);
+                    Vec3 worldPos;
+                    contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    contours.GetWorldHeight(vertex.y, worldPos.y);
 
-                        lineRenderer->AddPoint(worldPos);
-                    }
-                    lineRenderer->SetLoop(true);
+                    lineRenderer->AddPoint(worldPos);
                 }
+                lineRenderer->SetLoop(true);
             }
             for (int i = 0; i < _debugLineRenderers.size(); i++)
             {
@@ -338,10 +333,10 @@ NavMesh::NavMesh() : Super(StaticType)
             {
                 const int indicesBase = static_cast<int>(vertices.size());
 
-                const auto& tris = polyMeshs[regionIdx].front();
-                const auto& contour = contoursData[regionIdx].front();
+                const auto& tris = polyMeshs[regionIdx];
+                const auto& loop = contoursData[regionIdx];
                 Vec3 tangentAsColor = GetDebugColor(regionIdx + 1);
-                for (const ContourVertex& vertex : contour)
+                for (const ContourVertex& vertex : loop)
                 {
                     Vec3 worldPos;
                     contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
@@ -349,7 +344,7 @@ NavMesh::NavMesh() : Super(StaticType)
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
                 }
                 const int invalidBase = static_cast<int>(vertices.size());
-                for (const ContourVertex& vertex : contour)
+                for (const ContourVertex& vertex : loop)
                 {
                     Vec3 worldPos;
                     contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);

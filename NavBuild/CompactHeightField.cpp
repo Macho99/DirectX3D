@@ -247,13 +247,13 @@ void CompactHeightField::WatershedRegion(int debugSeedDist)
     }
 }
 
-int CompactHeightField::GetExtraConnection(int spanIdx, int dirFirst, int dirSecond)
+int CompactHeightField::GetExtraConnection(int spanIdx, int dirFirst, int dirSecond) const
 {
-    CompactSpan& span = _spans[spanIdx];
+    const CompactSpan& span = _spans[spanIdx];
     int neiFirst = span.connections[dirFirst];
     if (neiFirst != NOT_CONNECTED)
     {
-        CompactSpan& neighborSpanFirst = _spans[neiFirst];
+        const CompactSpan& neighborSpanFirst = _spans[neiFirst];
         int neiSecond = neighborSpanFirst.connections[dirSecond];
         if (neiSecond != NOT_CONNECTED)
         {
@@ -264,7 +264,7 @@ int CompactHeightField::GetExtraConnection(int spanIdx, int dirFirst, int dirSec
     int neiSubFirst = span.connections[dirSecond];
     if (neiSubFirst != NOT_CONNECTED)
     {
-        CompactSpan& neighborSpanSubFirst = _spans[neiSubFirst];
+        const CompactSpan& neighborSpanSubFirst = _spans[neiSubFirst];
         int neiSubSecond = neighborSpanSubFirst.connections[dirFirst];
         if (neiSubSecond != NOT_CONNECTED)
         {

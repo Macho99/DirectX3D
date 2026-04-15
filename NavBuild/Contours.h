@@ -86,13 +86,17 @@ class Contours : public HeightFieldBase
 public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
-    const vector<vector<vector<ContourVertex>>>& GetContours() const { return _contours; }
+    const vector<vector<ContourVertex>>& GetContours() const { return _contours; }
     void Simplify(float maxError);
     void GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const;
 
-
 private:
     using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
+    bool FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int & findSpanIdx, int & findDir);
+    vector<ContourVertex> BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir);
+    int GetNeighborRegion(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir);
+    ContourVertex GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir);
+
     void CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges);
     vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx);
     vector<ContourVertex> BuildOneLoop(const vector<ContourShareEdge>& sharedEdges, const EdgeMap& sharedEdgeMap, vector<bool>& sharedVisited, 
@@ -104,7 +108,7 @@ private:
 
 public:
     void BuildPolyMesh();
-    const vector<vector<PolyMesh>>& GetPolyMeshs() const { return _polyMeshs; }
+    const vector<PolyMesh>& GetPolyMeshs() const { return _polyMeshs; }
 private:
     int Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     int Dot2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
@@ -115,7 +119,7 @@ private:
     float SampledAverageY(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
 
 private:
-    vector<vector<vector<ContourVertex>>> _contours;
-    vector<vector<PolyMesh>> _polyMeshs;
+    vector<vector<ContourVertex>> _contours;
+    vector<PolyMesh> _polyMeshs;
     const CompactHeightField& _heightField;
 };

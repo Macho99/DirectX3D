@@ -7,74 +7,38 @@ Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings
 {
     int maxStepCHeight = (int)std::ceil(settings.agentMaxClimb / _ch);
     const vector<int>& regions = heightField.GetRegions();
-    vector<ContourShareEdge> sharedEdges;
-    vector<vector<ContourEdge>> regionEdges(regions.size());
 
-    CollectRegionEdges(heightField, OUT sharedEdges, OUT regionEdges);
-    EdgeMap sharedEdgeMap;
-    for (int i = 0; i < sharedEdges.size(); i++)
-    {
-        sharedEdgeMap.emplace(sharedEdges[i]._a, i);
-        sharedEdgeMap.emplace(sharedEdges[i]._b, i);
-    }
-
+    _contours.resize(regions.size());
     for (int regionIdx = 1; regionIdx < regions.size(); ++regionIdx)
     {
-        const vector<ContourEdge>& edges = regionEdges[regionIdx];
+        int startX, startZ, spanIdx, dir;
+        bool findResult = FindWalkStartPos(heightField, regionIdx, OUT startX, OUT startZ, OUT spanIdx, OUT dir);
 
-        EdgeMap regionEdgeMap;
-        for (int edgeIdx = 0; edgeIdx < edges.size(); edgeIdx++)
+        if (findResult == false)
         {
-            regionEdgeMap.emplace(edges[edgeIdx]._a, edgeIdx);
+            continue;
         }
 
-        vector<bool> regionVisited(edges.size(), false);
-        vector<bool> sharedVisited(sharedEdges.size(), false);
-        for (int sharedEdgeIdx = 0; sharedEdgeIdx < sharedEdges.size(); sharedEdgeIdx++)
-        {
-            const ContourShareEdge& sharedEdge = sharedEdges[sharedEdgeIdx];
-
-            // 현재 region과 해당없는 공유 엣지는 방문 처리
-            if (sharedEdge._rhsRegion != regionIdx && sharedEdge._lhsRegion != regionIdx)
-                sharedVisited[sharedEdgeIdx] = true;
-        }
-
-        vector<vector<ContourVertex>> loops;
-
-        for (int edgeIdx = 0; edgeIdx < (int)edges.size(); ++edgeIdx)
-        {
-            if (regionVisited[edgeIdx])
-                continue;
-
-            Int2 startPos = edges[edgeIdx]._a;
-            auto loop = BuildOneLoop(sharedEdges, sharedEdgeMap, sharedVisited, edges, regionEdgeMap, regionVisited, regionIdx, startPos);
-
-            if (loop.size() >= 3)
-                loops.push_back(std::move(loop));
-        }
-        _contours.push_back(std::move(loops));
+        vector<ContourVertex> loop = BuildOneLoopByWalking(heightField, startX, startZ, spanIdx, dir);
+        _contours[regionIdx] = std::move(loop);
     }
 }
 
 void Contours::Simplify(float maxError)
 {
-    for (auto& contour : _contours)
+    for (int regionIdx = 0; regionIdx < _contours.size(); regionIdx++)
     {
-        for (int i = 0; i < contour.size(); i++)
-        {
-            if (contour[i].size() <= 3)
-                continue;
-
-            vector<ContourVertex>& loop = contour[i];
-            
+        vector<ContourVertex> loop = _contours[regionIdx];
+        if (loop.size() <= 3)
             continue;
-            vector<ContourVertex> simplified;
-            simplified.push_back(loop.front());
-            simplified.push_back(loop.back());
 
-            // 반복적으로 최대 편차 초과 점 삽입
-            bool changed = true;
-            while (changed)
+        vector<ContourVertex> simplified;
+        simplified.push_back(loop.front());
+        simplified.push_back(loop.back());
+
+        // 반복적으로 최대 편차 초과 점 삽입
+        bool changed = true;
+        while (changed)
             {
                 changed = false;
                 for (int i = 0; i + 1 < (int)simplified.size(); ++i)
@@ -108,52 +72,50 @@ void Contours::Simplify(float maxError)
                 }
             }
 
-            //struct PairHash
-            //{
-            //    size_t operator()(const std::pair<int, int>& p) const noexcept
-            //    {
-            //        return (static_cast<size_t>(p.first) << 32) ^ static_cast<size_t>(p.second);
-            //    }
-            //};
-            //
-            //unordered_set<pair<int, int>, PairHash> uniqueXZ;
-            //uniqueXZ.reserve(simplified.size());
-            //
-            //// 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
-            //for (int j = 0; j < simplified.size(); j++)
-            //{
-            //    ContourVertex& vertex = simplified[j];
-            //    pair<int, int> xz{ vertex.x, vertex.z };
-            //    if (uniqueXZ.count(xz) > 0)
-            //    {
-            //        simplified.erase(simplified.begin() + j);
-            //        j--;
-            //    }
-            //    else
-            //    {
-            //        uniqueXZ.insert(xz);
-            //    }
-            //}
-            //
-            //// 세 점이 일직선 상에 있으면 가운데 점 제거
-            //for (int j = 0; j < simplified.size() - 2; j++)
-            //{
-            //    ContourVertex& prev = simplified[j];
-            //    ContourVertex& current = simplified[j + 1];
-            //    const ContourVertex& next = simplified[j + 2];
-            //
-            //    if (Cross2D(prev, current, next) == 0)
-            //    {
-            //        if (Dot2D(prev, current, next) > 0)
-            //        {
-            //            simplified.erase(simplified.begin() + j + 1);
-            //            j--;
-            //        }
-            //    }
-            //}
-
-            contour[i] = std::move(simplified);
-        }
+        //struct PairHash
+        //{
+        //    size_t operator()(const std::pair<int, int>& p) const noexcept
+        //    {
+        //        return (static_cast<size_t>(p.first) << 32) ^ static_cast<size_t>(p.second);
+        //    }
+        //};
+        //
+        //unordered_set<pair<int, int>, PairHash> uniqueXZ;
+        //uniqueXZ.reserve(simplified.size());
+        //
+        //// 중복 점 제거 (같은 xz 좌표에 y만 다른 경우)
+        //for (int j = 0; j < simplified.size(); j++)
+        //{
+        //    ContourVertex& vertex = simplified[j];
+        //    pair<int, int> xz{ vertex.x, vertex.z };
+        //    if (uniqueXZ.count(xz) > 0)
+        //    {
+        //        simplified.erase(simplified.begin() + j);
+        //        j--;
+        //    }
+        //    else
+        //    {
+        //        uniqueXZ.insert(xz);
+        //    }
+        //}
+        //
+        //// 세 점이 일직선 상에 있으면 가운데 점 제거
+        //for (int j = 0; j < simplified.size() - 2; j++)
+        //{
+        //    ContourVertex& prev = simplified[j];
+        //    ContourVertex& current = simplified[j + 1];
+        //    const ContourVertex& next = simplified[j + 2];
+        //
+        //    if (Cross2D(prev, current, next) == 0)
+        //    {
+        //        if (Dot2D(prev, current, next) > 0)
+        //        {
+        //            simplified.erase(simplified.begin() + j + 1);
+        //            j--;
+        //        }
+        //    }
+        //}
+        _contours[regionIdx] = std::move(simplified);
     }
 }
 
@@ -204,6 +166,138 @@ void Contours::CollectRegionEdges(const CompactHeightField& heightField, vector<
             }
         }
     }
+}
+
+bool Contours::FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int& findSpanIdx, int& findDir)
+{
+    const vector<CompactCell>& cells = heightField.GetCells();
+    const vector<CompactSpan>& spans = heightField.GetSpans();
+    for (int cz = 0; cz < _depth; cz++)
+    {
+        for (int cx = 0; cx < _width; cx++)
+        {
+            const CompactCell& cell = cells[GetColumnIndex(cx, cz)];
+            for (int i = 0; i < cell.count; ++i)
+            {
+                int spanIdx = cell.index + i;
+                const CompactSpan& s = spans[spanIdx];
+                if (s.region != region)
+                    continue;
+
+                for (int dir = 0; dir < 4; dir++)
+                {
+                    int nei = s.connections[dir];
+                    if (nei != NOT_CONNECTED)
+                    {
+                        const CompactSpan& neighborSpan = spans[nei];
+                        if (neighborSpan.region == s.region)
+                            continue;
+                    }
+
+                    startX = cx;
+                    startZ = cz;
+                    findDir = dir;
+                    findSpanIdx = spanIdx;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir)
+{
+    vector<ContourVertex> loop;
+    const vector<CompactSpan>& spans = heightField.GetSpans();
+
+    //하, 우, 상, 좌
+    int x = startX;
+    int z = startZ;
+    int spanIdx = startSpan;
+    int dir = startDir;
+    do
+    {
+
+        const CompactSpan& span = spans[spanIdx];
+
+        int neighborRegion = GetNeighborRegion(heightField, x, z, spanIdx, dir);
+        if (neighborRegion != span.region)
+        {
+            ContourVertex vertex = GetCornerVertex(heightField, x, z, spanIdx, dir);
+            loop.push_back(vertex);
+            dir = (dir + 3) % 4;
+        }
+        else
+        {
+            spanIdx = spans[spanIdx].connections[dir];
+            int nx = x + _dx[dir];
+            int nz = z + _dz[dir];
+            x = nx;
+            z = nz;
+            dir = (dir + 1) % 4;
+        }
+
+    } while (x != startX || z != startZ || dir != startDir);
+
+    return loop;
+}
+
+int Contours::GetNeighborRegion(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir)
+{
+    const vector<CompactSpan>& spans = heightField.GetSpans();
+    int nei = spans[spanIdx].connections[dir];
+    if (nei == NOT_CONNECTED)
+        return -1;
+    return spans[nei].region;
+}
+
+ContourVertex Contours::GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir)
+{
+    Int2 vertexInt2;
+    int dirFirst = dir;
+    int dirSecond = (dir + 1) % 4;
+
+    switch (dir)
+    {
+    case 0:
+        vertexInt2 = { cx + 1, cz + 1 };
+        break;
+    case 1:
+        vertexInt2 = { cx + 1, cz };
+        break;
+    case 2: 
+        vertexInt2 = { cx,     cz };
+        break;
+    case 3:
+    default:
+        vertexInt2 = { cx,     cz + 1 };
+        break;
+    }
+    const vector<CompactSpan>& spans = heightField.GetSpans();
+
+    int ySum = spans[spanIdx].y;
+    int yCount = 1;
+
+    auto CheckNeighbor = [&](int neighborSpanIdx)
+        {
+            if (neighborSpanIdx != NOT_CONNECTED)
+            {
+                ySum += spans[neighborSpanIdx].y;
+                yCount++;
+            }
+        };
+
+    CheckNeighbor(spans[spanIdx].connections[dirFirst]);
+    CheckNeighbor(spans[spanIdx].connections[dirSecond]);
+    int diagonalConnection = heightField.GetExtraConnection(spanIdx, dirFirst, dirSecond);
+    CheckNeighbor(diagonalConnection);
+
+    ContourVertex vertex;
+    vertex.x = vertexInt2.x;
+    vertex.y = ySum / yCount;
+    vertex.z = vertexInt2.z;
+    return vertex;
 }
 
 vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used,
@@ -405,12 +499,7 @@ void Contours::BuildPolyMesh()
     _polyMeshs.clear();
     for (const auto& contour : _contours)
     {
-        vector<PolyMesh> contourTris;
-        for (const auto& loop : contour)
-        {
-            contourTris.push_back(TriangulateEarClipping(loop));
-        }
-        _polyMeshs.push_back(std::move(contourTris));
+        _polyMeshs.push_back(TriangulateEarClipping(contour));
     }
 }
 

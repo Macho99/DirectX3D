@@ -28,11 +28,11 @@ public:
     const vector<int>& GetRegions() const { return _regions; }
     const vector<int>& GetDistances() const { return _dists; }
     int GetMaxDist() const { return _maxDist; }
+    int GetExtraConnection(int spanIdx, int dirFirst, int dirSecond) const;
 
 private:
     void BuildDistances();
     void WatershedRegion(int debugCount);
-    int GetExtraConnection(int spanIdx, int dirFirst, int dirSecond);
 
     // FloodFill 알고리즘으로 span에 region id 할당
     void BuildRegions();
