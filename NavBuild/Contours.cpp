@@ -24,53 +24,91 @@ Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings
     }
 }
 
+/*
 void Contours::Simplify(float maxError)
 {
     for (int regionIdx = 0; regionIdx < _contours.size(); regionIdx++)
     {
-        vector<ContourVertex> loop = _contours[regionIdx];
-        if (loop.size() <= 3)
+        const vector<ContourVertex>& originLoop = _contours[regionIdx];
+        if (originLoop.size() <= 3)
             continue;
 
+        vector<ContourVertex> loop;
         vector<ContourVertex> simplified;
-        simplified.push_back(loop.front());
-        simplified.push_back(loop.back());
+
+        for (int i = 0; i < originLoop.size(); i++)
+        {
+            int prevIdx = (i - 1 + originLoop.size()) % originLoop.size();
+            int prevRegion = originLoop[prevIdx].neighborRegion;
+
+            const ContourVertex& vertex = originLoop[i];
+            const int neiborRegion = vertex.neighborRegion;
+            if (neiborRegion != prevRegion)
+            {
+                loop.push_back(vertex);
+                simplified.push_back(vertex);
+                prevRegion = neiborRegion;
+            }
+            else if (neiborRegion == -1)
+            {
+                loop.push_back(vertex);
+            }
+            else
+            {
+                // neiborRegion이 존재하면서, 같은 경우는 둘다 넣지 않음
+            }
+        }
+        if(simplified.empty())
+            simplified.push_back(originLoop.front());
+        //simplified.push_back(originLoop.back());
 
         // 반복적으로 최대 편차 초과 점 삽입
         bool changed = true;
         while (changed)
+        {
+            changed = false;
+            for (int i = 0; i < simplified.size(); ++i)
             {
-                changed = false;
-                for (int i = 0; i + 1 < (int)simplified.size(); ++i)
+                // raw에서 simplified[i] ~ simplified[i+1] 구간 찾기
+                int si = find(loop.begin(), loop.end(), simplified[i]) - loop.begin();
+                int ei;
+                if (i + 1 == simplified.size())
+                    ei = (si - 1 + loop.size()) % loop.size();
+                else
+                    ei = find(loop.begin(), loop.end(), simplified[i + 1]) - loop.begin();
+
+                // 최대 편차 점 삽입
+                float maxD = 0;
+                int maxI = si;
+                int j = (si + 1) % loop.size();
+                while (j != ei)
                 {
-                    // raw에서 simplified[i] ~ simplified[i+1] 구간 찾기
-                    int si = find(loop.begin(), loop.end(), simplified[i]) - loop.begin();
-                    int ei = find(loop.begin(), loop.end(), simplified[i + 1]) - loop.begin();
-
-                    if (ei <= si + 1) continue;
-
-                    if (NeedsPoint(loop, si, ei, maxError))
-                    {
-                        // 최대 편차 점 삽입
-                        float maxD = 0; int maxI = si;
-                        for (int j = si + 1; j < ei; ++j)
-                        {
-                            float d = PerpendicularDist(loop[j], loop[si], loop[ei]);
-                            if (d > maxD) { maxD = d; maxI = j; }
-                        }
-                        simplified.insert(simplified.begin() + i + 1, loop[maxI]);
-                        changed = true;
-                        break;
+                    float d = PerpendicularDist(loop[j], loop[si], loop[ei]);
+                    if (d > maxD) 
+                    { 
+                        maxD = d; 
+                        maxI = j; 
                     }
+                    j = (j + 1) % loop.size();
                 }
 
-                if (simplified.size() > loop.size())
+                if (maxD > maxError)
                 {
-                    // maxError가 너무 작은 경우
-                    simplified = loop;
+                    simplified.insert(simplified.begin() + i + 1, loop[maxI]);
+                    changed = true;
                     break;
                 }
             }
+
+            if (simplified.size() > loop.size())
+            {
+                // maxError가 너무 작은 경우
+                simplified = loop;
+                break;
+            }
+        }
+        _contours[regionIdx] = std::move(simplified);
+    }
 
         //struct PairHash
         //{
@@ -115,7 +153,61 @@ void Contours::Simplify(float maxError)
         //        }
         //    }
         //}
-        _contours[regionIdx] = std::move(simplified);
+}*/
+
+void Contours::Simplify(float maxError)
+{
+    for (int regionIdx = 0; regionIdx < _contours.size(); regionIdx++)
+    {
+        const vector<ContourVertex>& loop = _contours[regionIdx];
+
+        vector<pair<ContourVertex, int>> simplified;
+        simplified.reserve(loop.size());
+        for (int i = 0; i < loop.size(); i++)
+        {
+            const ContourVertex& vertex = loop[i];
+            simplified.push_back({ vertex, i });
+        }
+
+        for (int i = 0; i < simplified.size(); )
+        {
+            const int n = simplified.size();
+            int prev = (i - 1 + n) % n;
+            int next = (i + 1) % n;
+
+            const ContourVertex& vPrev = loop[simplified[prev].second];
+            const ContourVertex& vCurr = loop[simplified[i].second];
+            const ContourVertex& vNext = loop[simplified[next].second];
+
+            // 이웃 region이 바뀌는 지점 = 두 region의 공유 경계 끝점
+            if (vPrev.neighborRegion != vCurr.neighborRegion)
+            {
+                ++i;
+                continue;  // 유지
+            }
+            // 바뀌지 않는 공유 경계는 제거
+            else if (vCurr.neighborRegion != -1)
+            {
+                simplified.erase(i + simplified.begin());
+                continue;
+            }
+
+            float dist = PointToSegmentDist(vCurr, vPrev, vNext);
+            if (dist > maxError)
+            {
+                ++i;
+                continue;  // 오차 커서 유지
+            }
+            // 제거 가능
+            simplified.erase(i + simplified.begin());
+            // n 갱신 후 i는 그대로 (다음 정점이 당겨옴)
+        }
+
+        _contours[regionIdx].clear();
+        for (const auto& pair : simplified)
+        {
+            _contours[regionIdx].push_back(pair.first);
+        }
     }
 }
 
@@ -211,6 +303,8 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
     vector<ContourVertex> loop;
     const vector<CompactSpan>& spans = heightField.GetSpans();
 
+    //unordered_set<Int2, Int2Hash> visited;
+
     //하, 우, 상, 좌
     int x = startX;
     int z = startZ;
@@ -218,21 +312,36 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
     int dir = startDir;
     do
     {
-
         const CompactSpan& span = spans[spanIdx];
+        int nx = x + _dx[dir];
+        int nz = z + _dz[dir];
 
-        int neighborRegion = GetNeighborRegion(heightField, x, z, spanIdx, dir);
+        int neiIdx = GetNeighborSpanIdx(heightField, nx, nz, span.y);
+        int neighborRegion = (neiIdx != -1) ? spans[neiIdx].region : -1;
+        // 경계일 경우 기록 후 우회전
         if (neighborRegion != span.region)
         {
-            ContourVertex vertex = GetCornerVertex(heightField, x, z, spanIdx, dir);
-            loop.push_back(vertex);
+            ContourVertex vertex = GetCornerVertex(heightField, x, z, spanIdx, dir, neighborRegion);
+
+            //if (visited.count(Int2{ vertex.x, vertex.z }) > 0)
+            //{
+            //    while (loop.back().x != vertex.x || loop.back().z != vertex.z)
+            //    {
+            //        loop.pop_back();
+            //    }
+            //}
+            //else
+            {
+                //visited.insert(Int2{ vertex.x, vertex.z });
+                loop.push_back(vertex);
+            }
+
             dir = (dir + 3) % 4;
         }
+        // 접근 가능할 경우 직진 및 좌회전
         else
         {
-            spanIdx = spans[spanIdx].connections[dir];
-            int nx = x + _dx[dir];
-            int nz = z + _dz[dir];
+            spanIdx = neiIdx;
             x = nx;
             z = nz;
             dir = (dir + 1) % 4;
@@ -243,16 +352,29 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
     return loop;
 }
 
-int Contours::GetNeighborRegion(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir)
+int Contours::GetNeighborSpanIdx(const CompactHeightField& heightField, int cx, int cz, int targetY)
 {
     const vector<CompactSpan>& spans = heightField.GetSpans();
-    int nei = spans[spanIdx].connections[dir];
-    if (nei == NOT_CONNECTED)
+    const vector<CompactCell>& cells = heightField.GetCells();
+    const int maxClimbCell = heightField.GetAgentMaxClimbCell();
+
+    if (cx < 0 || cx >= _width || cz < 0 || cz >= _depth)
         return -1;
-    return spans[nei].region;
+
+    const CompactCell& neighborCell = cells[heightField.GetColumnIndex(cx, cz)];
+    for (int i = 0; i < neighborCell.count; i++)
+    {
+        int neighborSpanIdx = neighborCell.index + i;
+        const CompactSpan& neighborSpan = spans[neighborSpanIdx];
+        if (neighborSpan.region != 0 && std::abs(targetY - neighborSpan.y) <= maxClimbCell * 2)
+        {
+            return neighborSpanIdx;
+        }
+    }
+    return -1;
 }
 
-ContourVertex Contours::GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir)
+ContourVertex Contours::GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir, int neighborRegion)
 {
     Int2 vertexInt2;
     int dirFirst = dir;
@@ -275,28 +397,30 @@ ContourVertex Contours::GetCornerVertex(const CompactHeightField& heightField, i
         break;
     }
     const vector<CompactSpan>& spans = heightField.GetSpans();
+    const int targetY = spans[spanIdx].y;
 
-    int ySum = spans[spanIdx].y;
+    int ySum = targetY;
     int yCount = 1;
 
     auto CheckNeighbor = [&](int neighborSpanIdx)
         {
             if (neighborSpanIdx != NOT_CONNECTED)
             {
-                ySum += spans[neighborSpanIdx].y;
+                const CompactSpan& neighborSpan = spans[neighborSpanIdx];
+                ySum += neighborSpan.y;
                 yCount++;
             }
         };
 
-    CheckNeighbor(spans[spanIdx].connections[dirFirst]);
-    CheckNeighbor(spans[spanIdx].connections[dirSecond]);
-    int diagonalConnection = heightField.GetExtraConnection(spanIdx, dirFirst, dirSecond);
-    CheckNeighbor(diagonalConnection);
+    CheckNeighbor(GetNeighborSpanIdx(heightField, cx + _dx[dirFirst], cz + _dz[dirFirst], targetY));
+    CheckNeighbor(GetNeighborSpanIdx(heightField, cx + _dx[dirSecond], cz + _dz[dirSecond], targetY));
+    CheckNeighbor(GetNeighborSpanIdx(heightField, cx + _dx[dirFirst] + _dx[dirSecond], cz + _dz[dirFirst] + _dz[dirSecond], targetY));
 
     ContourVertex vertex;
     vertex.x = vertexInt2.x;
     vertex.y = ySum / yCount;
     vertex.z = vertexInt2.z;
+    vertex.neighborRegion = neighborRegion;
     return vertex;
 }
 
@@ -449,6 +573,30 @@ vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourShareEdge>& sha
         currentInt2 = nextInt2;
     }
     return loop;
+}
+
+float Contours::PointToSegmentDist(ContourVertex p, ContourVertex a, ContourVertex b)
+{
+    float abx = (float)(b.x - a.x);
+    float aby = (float)(b.y - a.y);
+    float abz = (float)(b.z - a.z);
+    float apx = (float)(p.x - a.x);
+    float apy = (float)(p.y - a.y);
+    float apz = (float)(p.z - a.z);
+
+    float ab2 = abx * abx + aby * aby + abz * abz;
+
+    if (ab2 < 1e-6f)
+        return apx * apx + apy * apy + apz * apz;
+
+    float t = (apx * abx + apy * aby + apz * abz) / ab2;
+    t = std::clamp(t, 0.0f, 1.0f);
+
+    float dx = apx - t * abx;
+    float dy = apy - t * aby;
+    float dz = apz - t * abz;
+
+    return dx * dx + dy * dy + dz * dz;
 }
 
 float Contours::PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd)

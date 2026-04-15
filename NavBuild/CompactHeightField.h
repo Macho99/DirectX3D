@@ -29,6 +29,7 @@ public:
     const vector<int>& GetDistances() const { return _dists; }
     int GetMaxDist() const { return _maxDist; }
     int GetExtraConnection(int spanIdx, int dirFirst, int dirSecond) const;
+    int GetAgentMaxClimbCell() const { return _agentMaxClimbCell; }
 
 private:
     void BuildDistances();
@@ -45,5 +46,6 @@ private:
     vector<int> _regions;
     vector<int> _dists; // region 내부에서 각 span이 가장 가까운 경계까지의 거리
     int _maxDist = 0;
+    int _agentMaxClimbCell = 0;
 };
 

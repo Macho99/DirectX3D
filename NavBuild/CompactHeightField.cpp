@@ -11,7 +11,7 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, const Nav
     _cells.resize(_width * _depth);
 
     const int agentCellHeight = (int)std::ceil(agentHeight / _ch);
-    const int agentMaxClimbCell = (int)std::ceil(agentMaxClimb / _ch);
+    _agentMaxClimbCell = (int)std::ceil(agentMaxClimb / _ch);
     const vector<vector<Span>>& columns = heightField.GetColumns();
     for (int columnIdx = 0; columnIdx < columns.size(); columnIdx++)
     {
@@ -69,7 +69,7 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, const Nav
                     if (top - bot <= agentCellHeight)
                         continue;
 
-                    if (std::abs(span.y - neighborSpan.y) <= agentMaxClimbCell)
+                    if (std::abs(span.y - neighborSpan.y) <= _agentMaxClimbCell)
                     {
                         span.connections[d] = neighborSpanIdx;
                         break;
@@ -81,6 +81,7 @@ CompactHeightField::CompactHeightField(const HeightField& heightField, const Nav
     _dists.resize(_spans.size(), INT_MAX);
     BuildDistances();
     WatershedRegion(setting.debugSeedCount);
+
 
     //BuildRegions();
     //FilterRegions(minRegionCount);

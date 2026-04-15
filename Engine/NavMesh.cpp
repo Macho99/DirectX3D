@@ -271,7 +271,7 @@ NavMesh::NavMesh() : Super(StaticType)
                 EnsureLineRendererCount(count);
                 LineRenderer* lineRenderer = _debugLineRenderers[count - 1].Resolve();
                 lineRenderer->ClearPoints();
-                Vec3 color = GetDebugColor(count);
+                Vec3 color = GetDebugColor(count - 1);
                 lineRenderer->SetColor(Color(color.x, color.y, color.z, 1.0f));
                 for (const auto& vertex : loop)
                 {

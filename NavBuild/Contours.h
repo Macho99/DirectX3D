@@ -28,6 +28,7 @@ struct Int2Hash
 struct ContourVertex
 {
     int x, y, z;
+    int neighborRegion;
 
     bool operator==(const ContourVertex& other) const
     {
@@ -94,8 +95,8 @@ private:
     using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
     bool FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int & findSpanIdx, int & findDir);
     vector<ContourVertex> BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir);
-    int GetNeighborRegion(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir);
-    ContourVertex GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir);
+    int GetNeighborSpanIdx(const CompactHeightField& heightField, int cx, int cz, int targetY);
+    ContourVertex GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir, int neighborRegion);
 
     void CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges);
     vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx);
@@ -103,6 +104,7 @@ private:
         const vector<ContourEdge>& regionEdges, const EdgeMap& regionEdgeMap, vector<bool>& regionVisited, int curRegion, Int2 startPos);
 
 private:
+    float PointToSegmentDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
     float PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
     bool NeedsPoint(const vector<ContourVertex>& contour, int start, int end, float maxError);
 
