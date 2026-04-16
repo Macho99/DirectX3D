@@ -407,14 +407,15 @@ bool TessTerrain::OnGUI()
 	_prevHeightmapEditing = curHeightmapEditing;
 
     changed |= OnGUIUtils::DrawUInt32("Triangle Cell Size", &_triCellSize, 1.f);
+    changed |= OnGUIUtils::DrawBool("Submit Triangles Always", &_submitTrianglesAlways);
 
     return changed;
 }
 
 void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)
 {
-	//if (GetGameObject()->IsActiveInHierarchy() == false)
-	//	return;
+	if (_submitTrianglesAlways == false && GetGameObject()->IsActiveInHierarchy() == false)
+		return;
 
     TerrainData* terrainData = _terrainData.Resolve();
     if (terrainData == nullptr)

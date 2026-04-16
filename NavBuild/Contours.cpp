@@ -155,7 +155,7 @@ void Contours::Simplify(float maxError)
         //}
 }*/
 
-void Contours::Simplify(float maxError)
+void Contours::GreedySimplify(float maxError)
 {
     for (int regionIdx = 0; regionIdx < _contours.size(); regionIdx++)
     {
@@ -208,6 +208,56 @@ void Contours::Simplify(float maxError)
         {
             _contours[regionIdx].push_back(pair.first);
         }
+    }
+}
+
+void Contours::RDPSimplify(float maxError)
+{
+    for (auto& loop : _contours)
+    {
+        if (loop.size() <= 3)
+            continue;
+
+        const int loopSize = (int)loop.size();
+        vector<bool> keep(loopSize, false);
+
+        // 1단계: 무조건 유지할 정점 마킹 (neighborRegion 전환점)
+        for (int i = 0; i < loopSize; i++)
+        {
+            int prev = (i - 1 + loopSize) % loopSize;
+            if (loop[prev].neighborRegion != loop[i].neighborRegion)
+                keep[i] = true;
+        }
+
+        // 2단계: keep 정점들 사이 구간마다 RDP 적용
+        // keep 인덱스 목록 수집
+        vector<int> anchors;
+        for (int i = 0; i < loopSize; i++)
+            if (keep[i]) anchors.push_back(i);
+
+        // keep이 하나도 없으면 임의로 하나 고정
+        if (anchors.empty())
+        {
+            keep[0] = true;
+            anchors.push_back(0);
+        }
+
+        // 각 구간 [anchor[k] → anchor[k+1]) 에 RDP
+        const int anchorSize = (int)anchors.size();
+        for (int k = 0; k < anchorSize; k++)
+        {
+            int si = anchors[k];
+            int ei = anchors[(k + 1) % anchorSize];
+            RDP(loop, keep, si, ei, maxError);
+        }
+
+        // 3단계: keep된 정점만 남기기
+        vector<ContourVertex> result;
+        result.reserve(loopSize);
+        for (int i = 0; i < loopSize; i++)
+            if (keep[i]) result.push_back(loop[i]);
+
+        loop = move(result);
     }
 }
 
@@ -303,7 +353,7 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
     vector<ContourVertex> loop;
     const vector<CompactSpan>& spans = heightField.GetSpans();
 
-    //unordered_set<Int2, Int2Hash> visited;
+    unordered_set<ContourVertex, ContourVertexHash> visited;
 
     //하, 우, 상, 좌
     int x = startX;
@@ -323,16 +373,17 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
         {
             ContourVertex vertex = GetCornerVertex(heightField, x, z, spanIdx, dir, neighborRegion);
 
-            //if (visited.count(Int2{ vertex.x, vertex.z }) > 0)
-            //{
-            //    while (loop.back().x != vertex.x || loop.back().z != vertex.z)
-            //    {
-            //        loop.pop_back();
-            //    }
-            //}
-            //else
+            int visitedCount = visited.count(vertex);
+            if (visitedCount > 0)
             {
-                //visited.insert(Int2{ vertex.x, vertex.z });
+                while (loop.back() != vertex)
+                {
+                    loop.pop_back();
+                }
+            }
+            else
+            {
+                visited.insert(vertex);
                 loop.push_back(vertex);
             }
 
@@ -422,6 +473,59 @@ ContourVertex Contours::GetCornerVertex(const CompactHeightField& heightField, i
     vertex.z = vertexInt2.z;
     vertex.neighborRegion = neighborRegion;
     return vertex;
+}
+
+void Contours::RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si, int ei, float maxError)
+{
+    const int loopSize = (int)loop.size();
+
+    // si와 ei가 인접하면 중간 구간 없음
+    if ((si + 1) % loopSize == ei) return;
+
+    const ContourVertex& va = loop[si];
+    const ContourVertex& vb = loop[ei];
+
+    // si~ei 사이에서 최대 편차 점 탐색
+    float maxD = 0.0f;
+    int   maxI = -1;
+
+    int j = (si + 1) % loopSize;
+    while (j != ei)
+    {
+        constexpr float kEps = 1e-6f;
+        float d = PointToSegmentDist(loop[j], va, vb);
+
+        if (d > maxD + kEps)
+        {
+            maxD = d; 
+            maxI = j; 
+        }
+        else if (maxI != -1 && d > maxD - kEps)
+        {
+            const ContourVertex& curVertex = loop[j];
+            const ContourVertex& maxVertex = loop[maxI];
+            const int curX = curVertex.x;
+            const int curZ = curVertex.z;
+            const int maxX = maxVertex.x;
+            const int maxZ = maxVertex.z;
+            if (curX < maxX || (curX == maxX && curZ < maxZ))
+            {
+                maxD = d;
+                maxI = j;
+            }
+        }
+
+        j = (j + 1) % loopSize;
+    }
+
+    if (maxD > maxError && maxI != -1)
+    {
+        // 최대 편차 점 유지 후 재귀
+        keep[maxI] = true;
+        RDP(loop, keep, si, maxI, maxError);
+        RDP(loop, keep, maxI, ei, maxError);
+    }
+    // maxD <= maxError면 구간 내 모든 점 제거 (keep 안 함)
 }
 
 vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used,

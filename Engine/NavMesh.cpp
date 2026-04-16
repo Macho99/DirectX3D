@@ -197,9 +197,28 @@ NavMesh::NavMesh() : Super(StaticType)
                         const auto& srcVertices = srcGeometry->GetVertices();
                         for (VertexTextureNormalTangentData v : srcVertices)
                         {
-                            Vec3 tangentAsColor = GetDebugColor(span.region);
-                            //float normalizedDist = maxDist > 0 ? (float)dist / maxDist : 0.0f;
-                            //Vec3 tangentAsColor = Vec3(normalizedDist);
+                            Vec3 tangentAsColor;
+                            bool useDistanceColor = false;
+                            if (_showDistanceField)
+                            {
+                                if (_debugSeedCount == 0)
+                                {
+                                    useDistanceColor = true;
+                                }
+                                else if(span.region == 0)
+                                {
+                                    useDistanceColor = true;
+                                }
+                            }
+
+                            if (useDistanceColor)
+                            {
+                                float normalizedDist = maxDist > 0 ? (float)dist / maxDist : 0.0f;
+                                tangentAsColor = Vec3(normalizedDist);
+                            }
+                            else
+                                tangentAsColor = GetDebugColor(span.region);
+
                             v.tangent = tangentAsColor;
                             vertices.push_back(v);
                         }
@@ -329,6 +348,7 @@ NavMesh::NavMesh() : Super(StaticType)
 
             const auto& polyMeshs = contours.GetPolyMeshs();
             const auto& contoursData = contours.GetContours();
+            int debugLineRendererCount = 0;
             for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
             {
                 const int indicesBase = static_cast<int>(vertices.size());
@@ -368,15 +388,33 @@ NavMesh::NavMesh() : Super(StaticType)
                 {
                     GameObject* parentObj = _debugLineRendererParent.Resolve();
                     parentObj->SetActive(true);
-                    EnsureLineRendererCount(2);
+                    EnsureLineRendererCount(++debugLineRendererCount);
+                    LineRenderer* lineRenderer = _debugLineRenderers[debugLineRendererCount - 1].Resolve();
+                    lineRenderer->ClearPoints();
                     for (int i = 0; i < tris.second.size(); ++i)
                     {
                         const ContourVertex& vertex = tris.second[i];
                         Vec3 worldPos;
                         contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
                         contours.GetWorldHeight(vertex.y, worldPos.y);
-                        _debugLineRenderers[1].Resolve()->AddPoint(worldPos);
+                        lineRenderer->AddPoint(worldPos);
                     }
+                    DBG->LogError(Utils::Format("Invalid contour with %d vertices", tris.second.size()));
+                }
+            }
+
+            for (int i = 0; i < _debugLineRenderers.size(); i++)
+            {
+                ComponentRef<LineRenderer>& lineRendererRef = _debugLineRenderers[i];
+                if (i < debugLineRendererCount)
+                {
+                    LineRenderer* lineRenderer = lineRendererRef.Resolve();
+                    lineRenderer->GetGameObject()->SetActive(true);
+                }
+                else
+                {
+                    LineRenderer* lineRenderer = lineRendererRef.Resolve();
+                    lineRenderer->GetGameObject()->SetActive(false);
                 }
             }
 
@@ -427,9 +465,10 @@ bool NavMesh::OnGUI()
         }
     }
     changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
-    changed |= OnGUIUtils::DrawFloat("Contour Simplify Max Error", &_contourSimplifyMaxError, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Contour GreedySimplify Max Error", &_contourSimplifyMaxError, 0.1f);
     changed |= OnGUIUtils::DrawBool("Debug Invalid Triangle", &_debugInvalidTriangle);
     changed |= OnGUIUtils::DrawInt32("Debug Count", &_debugSeedCount, 1.f);
+    changed |= OnGUIUtils::DrawBool("Show Distance Field", &_showDistanceField);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {

@@ -34,6 +34,21 @@ struct ContourVertex
     {
         return x == other.x && y == other.y && z == other.z;
     }
+
+    bool operator!=(const ContourVertex& other) const
+    {
+        return !(*this == other);
+    }
+};
+
+struct ContourVertexHash
+{
+    size_t operator()(const ContourVertex& v) const
+    {
+        return (static_cast<size_t>(v.x) * 73856093u) ^
+            (static_cast<size_t>(v.y) * 19349663u) ^
+            (static_cast<size_t>(v.z) * 83492791u);
+    }
 };
 
 struct ContourEdge
@@ -88,7 +103,8 @@ public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
     const vector<vector<ContourVertex>>& GetContours() const { return _contours; }
-    void Simplify(float maxError);
+    void GreedySimplify(float maxError);
+    void RDPSimplify(float maxError);
     void GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const;
 
 private:
@@ -97,6 +113,8 @@ private:
     vector<ContourVertex> BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir);
     int GetNeighborSpanIdx(const CompactHeightField& heightField, int cx, int cz, int targetY);
     ContourVertex GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir, int neighborRegion);
+
+    void RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si, int ei, float maxError);
 
     void CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges);
     vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx);

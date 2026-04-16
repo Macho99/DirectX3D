@@ -29,7 +29,7 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     Contours contours(compactHeightField, input.settings);
     _onBuildContours(contours);
 
-    contours.Simplify(input.settings.contourMaxError);
+    contours.RDPSimplify(input.settings.contourMaxError);
     _onSimplifyContours(contours);
 
     contours.BuildPolyMesh();

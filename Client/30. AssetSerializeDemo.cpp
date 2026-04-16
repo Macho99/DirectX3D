@@ -195,6 +195,7 @@ void AssetSerializeDemo::Init()
     {
         auto parentObjRef = CUR_SCENE->Add("Towers");
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
+        parentTransformRef.Resolve()->SetScale(Vec3(1.5f, 1.f, 1.5f));
 
         // Model
         ResourceRef<Model> model = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tower\\Tower.fbx");
