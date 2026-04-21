@@ -790,6 +790,52 @@ bool Contours::PointInTri2D(const ContourVertex& p, const ContourVertex& a, cons
     return !(hasNeg && hasPos);
 }
 
+/*bool Contours::PointInTri2D(const ContourVertex& prevP, const ContourVertex& p, const ContourVertex& nextP, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+{
+    int c1 = Cross2D(a, b, p);
+    int c2 = Cross2D(b, c, p);
+    int c3 = Cross2D(c, a, p);
+
+    if (c1 == 0 || c2 == 0 || c3 == 0)
+    {
+        Int2 pVec{ p.x - prevP.x, p.z - prevP.z };
+        Int2 nextPVec{ nextP.x - p.x, nextP.z - p.z }; 
+    
+        Int2 edgeVec;
+        if (c1 == 0)
+        {
+            edgeVec = Int2{ b.x - a.x, b.z - a.z };
+        }
+        else if (c2 == 0)
+        {
+            edgeVec = Int2{ c.x - b.x, c.z - b.z };
+        }
+        else if (c3 == 0)
+        {
+            edgeVec = Int2{ a.x - c.x, a.z - c.z };
+        }
+    
+        int dot = edgeVec.Dot(pVec);
+        int lenSq1 = edgeVec.Dot(edgeVec);
+        int lenSq2 = pVec.Dot(pVec);
+        if (dot * dot == lenSq1 * lenSq2 && dot < 0)
+        {
+            return false;
+        }
+        dot = edgeVec.Dot(nextPVec);
+        lenSq2 = nextPVec.Dot(nextPVec);
+        if (dot * dot == lenSq1 * lenSq2 && dot < 0)
+        {
+            return false;
+        }
+    }
+
+    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
+    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
+
+    return !(hasNeg && hasPos);
+}*/
+
 Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>& verts)
 {
     pair<vector<Triangle>, vector<ContourVertex>> result;
@@ -813,8 +859,8 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
         int minSampledYIdx = -1;
         for (int idx = 0; idx < (int)indices.size(); ++idx)
         {
-            //int i = (idx + adder) % indices.size();
-            int i = idx;
+            int i = (idx + adder) % indices.size();
+            //int i = idx;
 
             int i0 = indices[(i - 1 + indices.size()) % indices.size()];
             int i1 = indices[i];
@@ -834,6 +880,10 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
                 if (k == i0 || k == i1 || k == i2)
                     continue;
 
+                //int prevK = indices[(j - 1 + indices.size()) % indices.size()];
+                //int nextK = indices[(j + 1) % indices.size()];
+                //ContourVertex prevP = verts[prevK];
+                //ContourVertex nextP = verts[nextK];
                 ContourVertex p = verts[k];
                 if (PointInTri2D(p, a, b, c))
                 {

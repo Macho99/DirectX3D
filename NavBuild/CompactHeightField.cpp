@@ -156,9 +156,74 @@ void CompactHeightField::WatershedRegion(int debugSeedDist)
         int region;
     };
 
+    struct VisitInfo
+    {
+        int x;
+        int z;
+        int region;
+
+        bool operator==(const VisitInfo& other) const
+        {
+            return x == other.x && z == other.z && region == other.region;
+        }
+    };
+
+    struct VisitInfoHasher
+    {
+        size_t operator()(const VisitInfo& info) const
+        {
+            size_t hx = std::hash<int>()(info.x);
+            size_t hz = std::hash<int>()(info.z);
+            size_t hr = std::hash<int>()(info.region);
+            return hx ^ (hz << 1) ^ (hr << 2);
+        }
+    };
+
     queue<int> floodFillQueue;
     queue<BFSNode> curQueue;
-    queue<BFSNode> nextQueue;
+    queue<BFSNode> nextQueue;    
+    unordered_set<VisitInfo, VisitInfoHasher> queuedVisits;
+
+    vector<int> spanToCellIndex(_spans.size(), -1);
+    for (int cellIdx = 0; cellIdx < static_cast<int>(_cells.size()); ++cellIdx)
+    {
+        const CompactCell& cell = _cells[cellIdx];
+        for (int i = 0; i < cell.count; ++i)
+        {
+            spanToCellIndex[cell.index + i] = cellIdx;
+        }
+    }
+
+    auto CanVisitQueue = [&](int spanIdx, int region, int dir = -1)
+        {
+            const int cellIdx = spanToCellIndex[spanIdx];
+            const int x = cellIdx % _width;
+            const int z = cellIdx / _width;
+            if (dir != -1)
+            {
+                int nx = x + _dx[dir] * 2;
+                int nz = z + _dz[dir] * 2;
+                if (nx < 0 || nx >= _width || nz < 0 || nz >= _depth)
+                {
+                    //맵 밖이므로 생략
+                }
+                else
+                {
+                    const VisitInfo neighborVisitInfo{ nx, nz, region };
+                    if (queuedVisits.count(neighborVisitInfo) > 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            const VisitInfo visitInfo{ x, z, region };
+            if (queuedVisits.insert(visitInfo).second == false)
+            {
+                return false;
+            }
+            return true;
+        };
 
     for (int seedDist = _maxDist; seedDist > 0; seedDist--)
     {
@@ -198,6 +263,8 @@ void CompactHeightField::WatershedRegion(int debugSeedDist)
                         const int neiDist = _dists[nei];
                         if (neiDist != seedDist)
                             return;
+                        if (!CanVisitQueue(nei, regionId))
+                            return;
                         neighborSpan.region = regionId;
                         floodFillQueue.push(nei);
                     };
@@ -231,12 +298,18 @@ void CompactHeightField::WatershedRegion(int debugSeedDist)
                 if (neighborSpan.region != 0)
                     continue;
 
+                if (_dists[nei] < fillDist - 1)
+                    continue;
+
+                if (!CanVisitQueue(nei, node.region, dir))
+                    continue;
+
                 if (_dists[nei] == fillDist)
                 {
                     neighborSpan.region = node.region;
                     curQueue.push({ nei, node.region });
                 }
-                else if (_dists[nei] == fillDist - 1)
+                else // _dists[nei] == fillDist - 1
                 {
                     neighborSpan.region = node.region;
                     nextQueue.push({ nei, node.region });

@@ -14,6 +14,16 @@ struct Int2
     {
         return !(*this == other);
     }
+
+    int Dot(const Int2& other) const
+    {
+        return x * other.x + z * other.z;
+    }
+
+    int LengthSq() const
+    {
+        return x * x + z * z;
+    }
 };
 
 struct Int2Hash
