@@ -855,12 +855,12 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
         bool foundEar = false;
 
         adder++;
-        float minSampledY = FLT_MAX;
-        int minSampledYIdx = -1;
+        float minLen = FLT_MAX;
+        int minLenIdx = -1;
         for (int idx = 0; idx < (int)indices.size(); ++idx)
         {
-            int i = (idx + adder) % indices.size();
-            //int i = idx;
+            //int i = (idx + adder) % indices.size();
+            int i = idx;
 
             int i0 = indices[(i - 1 + indices.size()) % indices.size()];
             int i1 = indices[i];
@@ -896,8 +896,8 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
                     //    break;
                     //}
                     hasPointInside = true;
-                    Triangle invalidTri{ i0, i1, i2, false };
-                    result.first.push_back(invalidTri);
+                    //Triangle invalidTri{ i0, i1, i2, false };
+                    //result.first.push_back(invalidTri);
                     break;
                 }
             }
@@ -911,15 +911,21 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
             //    minSampledY = sampledY;
             //    minSampledYIdx = i;
             //}
-            minSampledYIdx = i;
+            Int2 ac{ c.x - a.x, c.z - a.z };
+            int len = ac.LengthSq();
+            if (minLen >= len)
+            {
+                minLen = len;
+                minLenIdx = i;
+            }
         }
 
-        if (minSampledYIdx < 0) 
+        if (minLenIdx < 0) 
         {
             break;
         }
 
-        int i = minSampledYIdx;
+        int i = minLenIdx;
         int i0 = indices[(i - 1 + indices.size()) % indices.size()];
         int i1 = indices[i];
         int i2 = indices[(i + 1) % indices.size()];
