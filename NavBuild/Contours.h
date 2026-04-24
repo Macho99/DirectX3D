@@ -100,15 +100,25 @@ struct ContourShareEdge : public ContourEdge
     int _lhsRegion;
 };
 
-struct Triangle
+struct Poly
 {
-    int i0, i1, i2;
+    static constexpr int MAX_VERTS = 6;
+    int indices[MAX_VERTS] = {};
+    int vertCount = 0;
     bool isValid = true;
+
+    Poly(const vector<int>& srcIndices, bool isValid = true)
+        : isValid(isValid)
+    {
+        vertCount = static_cast<int>(std::min(srcIndices.size(), static_cast<size_t>(Poly::MAX_VERTS)));
+        for (int i = 0; i < vertCount; ++i)
+            indices[i] = srcIndices[i];
+    }
 };
 
 class Contours : public HeightFieldBase
 {
-    using PolyMesh = pair<vector<Triangle>, vector<ContourVertex>>;
+    using PolyMesh = pair<vector<Poly>, vector<ContourVertex>>;
 public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
@@ -143,10 +153,15 @@ private:
     int Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     int Dot2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     bool IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    bool IsConvex(const vector<int>& poly, const vector<ContourVertex>& verts);
     bool PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
     PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);
-
     float SampledAverageY(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+
+    pair<int, int> FindSharedEdge(const Poly& a, const Poly& b);
+    vector<int> BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB);
+    vector<Poly> MergeToConvexPolys(const vector<Poly>& triangles, const vector<ContourVertex>& positions);
+
 
 private:
     vector<vector<ContourVertex>> _contours;

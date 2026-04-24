@@ -751,7 +751,12 @@ void Contours::BuildPolyMesh()
     _polyMeshs.clear();
     for (const auto& contour : _contours)
     {
-        _polyMeshs.push_back(TriangulateEarClipping(contour));
+        PolyMesh polyMesh = TriangulateEarClipping(contour);
+        for (int i = 0; i < polyMesh.first.size(); i++)
+        {
+            polyMesh.first = MergeToConvexPolys(polyMesh.first, contour);
+        }
+        _polyMeshs.push_back(std::move(polyMesh));
     }
 }
 
@@ -776,6 +781,24 @@ int Contours::Dot2D(const ContourVertex& a, const ContourVertex& b, const Contou
 bool Contours::IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
 {
     return Cross2D(a, b, c) > 0;
+}
+
+bool Contours::IsConvex(const vector<int>& poly, const vector<ContourVertex>& verts)
+{
+    const int polySize = (int)poly.size();
+    if (polySize < 3)
+        return false;
+
+    for (int i = 0; i < polySize; ++i)
+    {
+        const ContourVertex& a = verts[poly[(i - 1 + polySize) % polySize]];
+        const ContourVertex& b = verts[poly[i]];
+        const ContourVertex& c = verts[poly[(i + 1) % polySize]];
+        if (Cross2D(a, b, c) <= 0)
+            return false;
+    }
+
+    return true;
 }
 
 bool Contours::PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
@@ -838,7 +861,7 @@ bool Contours::PointInTri2D(const ContourVertex& p, const ContourVertex& a, cons
 
 Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>& verts)
 {
-    pair<vector<Triangle>, vector<ContourVertex>> result;
+    PolyMesh result;
     if (verts.size() < 3)
         return result;
 
@@ -884,7 +907,7 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
                 //int nextK = indices[(j + 1) % indices.size()];
                 //ContourVertex prevP = verts[prevK];
                 //ContourVertex nextP = verts[nextK];
-                ContourVertex p = verts[k];
+                const ContourVertex p = verts[k];
                 if (PointInTri2D(p, a, b, c))
                 {
                     //int distMinY = std::min({ abs(p.y - a.y), abs(p.y - b.y), abs(p.y - c.y) });
@@ -929,12 +952,12 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
         int i0 = indices[(i - 1 + indices.size()) % indices.size()];
         int i1 = indices[i];
         int i2 = indices[(i + 1) % indices.size()];
-        result.first.push_back({ i0, i1, i2 });
+        result.first.push_back(Poly({ i0, i1, i2 }));
         indices.erase(indices.begin() + i);
     }
 
     if (indices.size() == 3)
-        result.first.push_back({ indices[0], indices[1], indices[2] });
+        result.first.push_back(Poly({ indices[0], indices[1], indices[2] }));
     else
     {
         for (int i = 0; i < (int)indices.size(); ++i)
@@ -1013,4 +1036,92 @@ float Contours::SampledAverageY(const ContourVertex& a, const ContourVertex& b, 
     }
 
     return yDiffCount > 0 ? yDiffSum / yDiffCount : 0;
+}
+
+pair<int, int> Contours::FindSharedEdge(const Poly& a, const Poly& b)
+{
+    for (int i = 0; i < a.vertCount; ++i)
+    {
+        int a0 = a.indices[i];
+        int a1 = a.indices[(i + 1) % a.vertCount];
+
+        for (int j = 0; j < b.vertCount; ++j)
+        {
+            int b0 = b.indices[j];
+            int b1 = b.indices[(j + 1) % b.vertCount];
+
+            // 반대 방향으로 공유되어야 함 (winding 일치)
+            if (a0 == b1 && a1 == b0)
+                return { i, j };
+        }
+    }
+    return { -1, -1 };
+}
+
+vector<int> Contours::BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB)
+{
+    vector<int> verts;
+    verts.reserve(a.vertCount + b.vertCount - 2);
+
+    // a에서 shared edge의 끝점(i+1)을 제외하고 순회
+    for (int k = 0; k < a.vertCount - 1; ++k)
+        verts.push_back(a.indices[(edgeA + 1 + k) % a.vertCount]);
+
+    // b에서 shared edge의 끝점(j+1)을 제외하고 순회
+    for (int k = 0; k < b.vertCount - 1; ++k)
+        verts.push_back(b.indices[(edgeB + 1 + k) % b.vertCount]);
+
+    return verts;
+}
+
+vector<Poly> Contours::MergeToConvexPolys(const vector<Poly>& triangles, const vector<ContourVertex>& positions)
+{
+    int n = static_cast<int>(triangles.size());
+    vector<Poly> polys = triangles;   // 작업용 복사본
+    vector<bool> merged(n, false);
+
+    bool anyMerged = true;
+
+    // 더 이상 병합이 없을 때까지 반복
+    while (anyMerged)
+    {
+        anyMerged = false;
+        vector<Poly> next;
+        vector<bool> used(polys.size(), false);
+
+        for (int i = 0; i < (int)polys.size(); ++i)
+        {
+            if (used[i]) continue;
+
+            Poly current = polys[i];
+
+            for (int j = i + 1; j < (int)polys.size(); ++j)
+            {
+                if (used[j]) continue;
+
+                // MAX_VERTS 초과 방지
+                if (current.vertCount + polys[j].vertCount - 2 > Poly::MAX_VERTS)
+                    continue;
+
+                auto [edgeA, edgeB] = FindSharedEdge(current, polys[j]);
+                if (edgeA == -1) continue;
+
+                vector<int> merged = BuildMergedVerts(current, edgeA, polys[j], edgeB);
+
+                if (!IsConvex(merged, positions))
+                    continue;
+
+                current = Poly(merged);
+                used[j] = true;
+                anyMerged = true;
+            }
+
+            used[i] = true;
+            next.push_back(current);
+        }
+
+        polys = move(next);
+    }
+
+    return polys;
 }
