@@ -55,6 +55,7 @@ private:
     bool _debugInvalidTriangle = false;
     int _debugSeedCount = 0;
     bool _showDistanceField = false;
+    int _debugPolyIndexCount = 0;
 
     function<void(const HeightField&)> _heightFieldDebugFunc;
     function<void(const Contours&)> _contoursDebugFunc;

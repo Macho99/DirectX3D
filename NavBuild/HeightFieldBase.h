@@ -25,6 +25,10 @@ protected:
     void GetCellIndex(float wx, float wz, OUT int& cx, OUT int& cz) const;
     int GetCellHeight(float wy) const;
 
+    int Cross2D(const Vertex& a, const Vertex& b, const Vertex& c);
+    int Dot2D(const Vertex& a, const Vertex& b, const Vertex& c);
+    bool IsConvex(const Vertex& a, const Vertex& b, const Vertex& c);
+
 protected:
     int _width = 0;   // x 방향 cell 개수
     int _depth = 0;   // z 방향 cell 개수

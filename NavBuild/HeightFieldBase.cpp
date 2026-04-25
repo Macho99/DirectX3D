@@ -46,3 +46,27 @@ void HeightFieldBase::GetWorldHeight(int cy, OUT float& wy) const
 {
     wy = _bmin.y + cy * _ch;
 }
+
+
+int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c)
+{
+    int abx = b.x - a.x;
+    int abz = b.z - a.z;
+    int acx = c.x - a.x;
+    int acz = c.z - a.z;
+    return abx * acz - abz * acx;
+}
+
+int HeightFieldBase::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c)
+{
+    int bax = a.x - b.x;
+    int baz = a.z - b.z;
+    int bcx = c.x - b.x;
+    int bcz = c.z - b.z;
+    return bax * bcx + baz * bcz;
+}
+
+bool HeightFieldBase::IsConvex(const Vertex& a, const Vertex& b, const Vertex& c)
+{
+    return Cross2D(a, b, c) > 0;
+}

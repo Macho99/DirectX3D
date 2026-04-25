@@ -6,6 +6,7 @@
 #include "OnGUIUtils.h"
 #include "GeometryHelper.h"
 #include "../NavBuild/Contours.h"
+#include "../NavBuild/PolyMeshField.h"
 
 NavMesh::NavMesh() : Super(StaticType)
 {
@@ -334,7 +335,7 @@ NavMesh::NavMesh() : Super(StaticType)
             _contoursDebugFunc(contours);
         });
 
-    _builder.SetDebugOnBuildPolyMesh([this](const Contours& contours)
+    _builder.SetDebugOnBuildPolyMesh([this](const PolyMeshField& polyMeshField)
         {
             if (TryInitializeDebugMesh(NavDebugOption::BuildPolyMesh, true) == false)
                 return;
@@ -346,37 +347,38 @@ NavMesh::NavMesh() : Super(StaticType)
             vector<VertexTextureNormalTangentData> vertices;
             vector<uint32> indices;
 
-            const auto& polyMeshs = contours.GetPolyMeshs();
-            const auto& contoursData = contours.GetContours();
+            const vector<PolyMesh>& polyMeshs = polyMeshField.GetPolyMeshs();
             int debugLineRendererCount = 0;
             for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
             {
                 const int indicesBase = static_cast<int>(vertices.size());
 
-                const auto& polys = polyMeshs[regionIdx];
-                const auto& loop = contoursData[regionIdx];
+                const PolyMesh& polyMesh = polyMeshs[regionIdx];
                 Vec3 tangentAsColor = GetDebugColor(regionIdx + 1);
-                for (const ContourVertex& vertex : loop)
+                for (const Vertex& vertex : polyMesh.vertices)
                 {
                     Vec3 worldPos;
-                    contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                    contours.GetWorldHeight(vertex.y, worldPos.y);
+                    polyMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    polyMeshField.GetWorldHeight(vertex.y, worldPos.y);
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
                 }
                 const int invalidBase = static_cast<int>(vertices.size());
-                for (const ContourVertex& vertex : loop)
+                for (const Vertex& vertex : polyMesh.vertices)
                 {
                     Vec3 worldPos;
-                    contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                    contours.GetWorldHeight(vertex.y, worldPos.y);
+                    polyMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    polyMeshField.GetWorldHeight(vertex.y, worldPos.y);
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), Vec3(1,0,0) });
                 }
 
-                for (int i = 0; i < polys.first.size(); ++i)
+                for (int i = 0; i < polyMesh.polys.size(); ++i)
                 {
-                    const Poly& poly = polys.first[i];
+                    const Poly& poly = polyMesh.polys[i];
 
                     if (_debugInvalidTriangle == false && poly.isValid == false)
+                        continue;
+
+                    if (_debugPolyIndexCount >= 3 && poly.vertCount != _debugPolyIndexCount)
                         continue;
 
                     const int base = poly.isValid ? indicesBase : invalidBase;
@@ -388,22 +390,23 @@ NavMesh::NavMesh() : Super(StaticType)
                     }
                 }
 
-                if (polys.second.empty() == false)
+                if (polyMesh.failIndices.empty() == false)
                 {
                     GameObject* parentObj = _debugLineRendererParent.Resolve();
                     parentObj->SetActive(true);
                     EnsureLineRendererCount(++debugLineRendererCount);
                     LineRenderer* lineRenderer = _debugLineRenderers[debugLineRendererCount - 1].Resolve();
                     lineRenderer->ClearPoints();
-                    for (int i = 0; i < polys.second.size(); ++i)
+                    for (int i = 0; i < polyMesh.failIndices.size(); ++i)
                     {
-                        const ContourVertex& vertex = polys.second[i];
+                        int failIndex = polyMesh.failIndices[i];
+                        const Vertex& vertex = polyMesh.vertices[failIndex];
                         Vec3 worldPos;
-                        contours.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                        contours.GetWorldHeight(vertex.y, worldPos.y);
+                        polyMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                        polyMeshField.GetWorldHeight(vertex.y, worldPos.y);
                         lineRenderer->AddPoint(worldPos);
                     }
-                    DBG->LogError(Utils::Format("Invalid contour with %d vertices", polys.second.size()));
+                    DBG->LogError(Utils::Format("Invalid contour with %d vertices", polyMesh.failIndices.size()));
                 }
             }
             for (int i = 0; i < _debugLineRenderers.size(); i++)
@@ -472,6 +475,7 @@ bool NavMesh::OnGUI()
     changed |= OnGUIUtils::DrawBool("Debug Invalid Triangle", &_debugInvalidTriangle);
     changed |= OnGUIUtils::DrawInt32("Debug Count", &_debugSeedCount, 1.f);
     changed |= OnGUIUtils::DrawBool("Show Distance Field", &_showDistanceField);
+    changed |= OnGUIUtils::DrawInt32("Debug Poly Index Count", &_debugPolyIndexCount, 1.f);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {

@@ -20,7 +20,7 @@ public:
     void SetDebugOnCompactHeightField(function<void(const CompactHeightField&)> callback) { _onCompactHeightField = callback; }
     void SetDebugOnBuildContours(function<void(const class Contours&)> callback) { _onBuildContours = callback; }
     void SetDebugOnSimplifyContours(function<void(const class Contours&)> callback) { _onSimplifyContours = callback; }
-    void SetDebugOnBuildPolyMesh(function<void(const class Contours&)> callback) { _onBuildPolyMesh = callback; }
+    void SetDebugOnBuildPolyMesh(function<void(const class PolyMeshField&)> callback) { _onBuildPolyMesh = callback; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
@@ -42,6 +42,6 @@ private:
     function<void(const CompactHeightField&)> _onCompactHeightField;
     function<void(const class Contours&)> _onBuildContours;
     function<void(const class Contours&)> _onSimplifyContours;
-    function<void(const class Contours&)> _onBuildPolyMesh;
+    function<void(const class PolyMeshField&)> _onBuildPolyMesh;
 };
 

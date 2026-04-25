@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "NavMeshBuilder.h"
 #include "Contours.h"
+#include "PolyMeshField.h"
 
 bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 {
@@ -32,8 +33,8 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     contours.RDPSimplify(input.settings.contourMaxError);
     _onSimplifyContours(contours);
 
-    contours.BuildPolyMesh();
-    _onBuildPolyMesh(contours);
+    PolyMeshField polyMeshField(contours);
+    _onBuildPolyMesh(polyMeshField);
 
     return true;
 }
