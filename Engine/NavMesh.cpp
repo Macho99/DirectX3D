@@ -154,7 +154,7 @@ NavMesh::NavMesh() : Super(StaticType)
             const vector<CompactSpan>& spans = heightField.GetSpans();
             const vector<int>& dists = heightField.GetDistances();
             const int maxDist = heightField.GetMaxDist();
-            vector<Int2> spanCoords(spans.size(), Int2{ -1, -1 });
+            vector<Vertex2D> spanCoords(spans.size(), Vertex2D{ -1, -1 });
 
             for (int cx = 0; cx < width; ++cx)
             {
@@ -163,7 +163,7 @@ NavMesh::NavMesh() : Super(StaticType)
                     const CompactCell& cell = cells[heightField.GetColumnIndex(cx, cz)];
                     for (int i = 0; i < cell.count; ++i)
                     {
-                        spanCoords[cell.index + i] = Int2{ cx, cz };
+                        spanCoords[cell.index + i] = Vertex2D{ cx, cz };
                     }
                 }
             }
@@ -235,7 +235,7 @@ NavMesh::NavMesh() : Super(StaticType)
                             if (neighborSpanIdx == NOT_CONNECTED)
                                 continue;
 
-                            const Int2& neighborCoord = spanCoords[neighborSpanIdx];
+                            const Vertex2D& neighborCoord = spanCoords[neighborSpanIdx];
                             if (neighborCoord.x < 0 || neighborCoord.z < 0)
                                 continue;
 
@@ -424,7 +424,7 @@ NavMesh::NavMesh() : Super(StaticType)
             geometry->SetVertices(vertices);
             geometry->SetIndices(indices);
             mesh->CreateFromGeometry(geometry);
-        });
+        });                             
 }
 
 NavMesh::~NavMesh()

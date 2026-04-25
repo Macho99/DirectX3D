@@ -155,6 +155,7 @@ void Contours::Simplify(float maxError)
         //}
 }*/
 
+/*
 void Contours::GreedySimplify(float maxError)
 {
     for (int regionIdx = 0; regionIdx < _contours.size(); regionIdx++)
@@ -210,6 +211,7 @@ void Contours::GreedySimplify(float maxError)
         }
     }
 }
+*/
 
 void Contours::RDPSimplify(float maxError)
 {
@@ -267,49 +269,6 @@ void Contours::GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) con
     worldZ = _bmin.z + z * _cs;
 }
 
-void Contours::CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges)
-{
-    const vector<CompactCell>& cells = heightField.GetCells();
-    const vector<CompactSpan>& spans = heightField.GetSpans();
-
-    for (int cz = 0; cz < _depth; cz++)
-    {
-        for (int cx = 0; cx < _width; cx++)
-        {
-            const CompactCell& cell = cells[GetColumnIndex(cx, cz)];
-            for (int i = 0; i < cell.count; ++i)
-            {
-                int spanIdx = cell.index + i;
-                const CompactSpan& s = spans[spanIdx];
-
-                for (int dir = 0; dir < 4; dir++)
-                {
-                    int nei = s.connections[dir];
-                    if (nei != NOT_CONNECTED)
-                    {
-                        const CompactSpan& neighborSpan = spans[nei];
-                        if (neighborSpan.region == s.region)
-                            continue;
-
-                        uint16 edgeY = (s.y + neighborSpan.y) / 2;
-                        //하, 우, 상, 좌
-                        //공유 엣지일 경우 각 셀의 우측과 하단만 처리(중복 방지)
-                        if (dir == 0 || dir == 1)
-                        {
-                            ContourShareEdge sharedEdge(cx, cz, edgeY, dir, s.region, neighborSpan.region);
-                            sharedEdges.push_back(sharedEdge);
-                        }
-                        continue;
-                    }
-
-                    ContourEdge edge(cx, cz, s.y, dir);
-                    regionEdges[s.region].push_back(edge);
-                }
-            }
-        }
-    }
-}
-
 bool Contours::FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int& findSpanIdx, int& findDir)
 {
     const vector<CompactCell>& cells = heightField.GetCells();
@@ -353,7 +312,7 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
     vector<ContourVertex> loop;
     const vector<CompactSpan>& spans = heightField.GetSpans();
 
-    unordered_set<ContourVertex, ContourVertexHash> visited;
+    unordered_set<ContourVertex, VertexHash> visited;
 
     //하, 우, 상, 좌
     int x = startX;
@@ -427,7 +386,7 @@ int Contours::GetNeighborSpanIdx(const CompactHeightField& heightField, int cx, 
 
 ContourVertex Contours::GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir, int neighborRegion)
 {
-    Int2 vertexInt2;
+    Vertex2D vertexInt2;
     int dirFirst = dir;
     int dirSecond = (dir + 1) % 4;
 
@@ -528,157 +487,6 @@ void Contours::RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si
     // maxD <= maxError면 구간 내 모든 점 제거 (keep 안 함)
 }
 
-vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used,
-    int startEdgeIdx)
-{
-    vector<ContourVertex> loop;
-
-    const ContourEdge& start = edges[startEdgeIdx];
-    used[startEdgeIdx] = true;
-
-    ContourVertex current;
-    current.x = start._a.x;
-    current.y = start._y;
-    current.z = start._a.z;
-
-    loop.push_back(current);
-
-    int currentY = start._y;
-    Int2 nextInt2{ start._b.x, start._b.z };
-
-    while (true)
-    {
-        int nextIdx = -1;
-
-        auto range = edgeMap.equal_range(nextInt2);
-        int minYDiff = INT_MAX;
-        for (auto& it = range.first; it != range.second; ++it)
-        {
-            int idx = it->second;
-            if (used[idx])
-                continue;
-            const ContourEdge& edge = edges[idx];
-
-            int yDiff = std::abs(edge._y - current.y);
-            if (yDiff < minYDiff)
-            {
-                minYDiff = yDiff;
-                nextIdx = idx;
-            }
-        }
-
-        if (nextIdx < 0)
-        {
-            // loop가 안 닫힘: 에러 또는 데이터 이상
-            break;
-        }
-
-        used[nextIdx] = true;
-        const ContourEdge& e = edges[nextIdx];
-
-        if (current.x < e._a.x || current.z < e._a.z)
-        {
-            current.y = e._y;
-        }
-        else
-        {
-            current.y = currentY;
-        }
-
-        //current.y = (currentY + e._y) / 2;
-        current.x = e._a.x;
-        current.z = e._a.z;
-
-        currentY = e._y;
-        loop.push_back(current);
-
-        nextInt2 = Int2{ e._b.x, e._b.z };
-    }
-    return loop;
-}
-
-vector<ContourVertex> Contours::BuildOneLoop(const vector<ContourShareEdge>& sharedEdges, const EdgeMap& sharedEdgeMap, vector<bool>& sharedVisited, 
-    const vector<ContourEdge>& regionEdges, const EdgeMap& regionEdgeMap, vector<bool>& regionVisited, int curRegion, Int2 startPos)
-{
-    vector<ContourVertex> loop;
-
-    Int2 currentInt2 = startPos;
-    while (true)
-    {
-        bool findEdge = false;
-        int currentY = 0;
-        Int2 nextInt2;
-        {
-            auto range = sharedEdgeMap.equal_range(currentInt2);
-            for (auto& it = range.first; it != range.second; ++it)
-            {
-                int idx = it->second;
-                if (sharedVisited[idx])
-                    continue;
-
-                const ContourShareEdge& shareEdge = sharedEdges[idx];
-                Int2 edgeStart;
-                Int2 edgeEnd;
-                if (shareEdge._rhsRegion == curRegion)
-                {
-                    edgeStart = shareEdge._a;
-                    edgeEnd = shareEdge._b;
-                }
-                else
-                {
-                    edgeStart = shareEdge._b;
-                    edgeEnd = shareEdge._a;
-                }
-
-                if (edgeStart != currentInt2)
-                    continue;
-
-                currentY = shareEdge._y;
-                nextInt2 = edgeEnd;
-                findEdge = true;
-                sharedVisited[idx] = true;
-            }
-        }
-
-        // 공유 엣지에서 찾기 실패, Region 엣지에서 찾기 시도
-        if (findEdge == false)
-        {
-            auto range = regionEdgeMap.equal_range(currentInt2);
-            for (auto& it = range.first; it != range.second; ++it)
-            {
-                int idx = it->second;
-                if (regionVisited[idx])
-                    continue;
-
-                const ContourEdge& regionEdge = regionEdges[idx];
-
-                if (regionEdge._a != currentInt2)
-                    continue;
-
-                currentY = regionEdge._y;
-                nextInt2 = regionEdge._b;
-                findEdge = true;
-                regionVisited[idx] = true;
-            }
-        }
-
-        if (findEdge == false)
-        {
-            break;
-        }
-
-        ContourVertex current;
-        current.x = currentInt2.x;
-        current.z = currentInt2.z;
-        current.y = currentY;
-
-        loop.push_back(current);
-
-        currentInt2 = nextInt2;
-    }
-    return loop;
-}
-
 float Contours::PointToSegmentDist(ContourVertex p, ContourVertex a, ContourVertex b)
 {
     float abx = (float)(b.x - a.x);
@@ -731,19 +539,6 @@ float Contours::PerpendicularDist(ContourVertex p, ContourVertex lineStart, Cont
     dy = p.y - projY;
     dz = p.z - projZ;
     return sqrtf(dx * dx + dy * dy + dz * dz);
-}
-
-bool Contours::NeedsPoint(const vector<ContourVertex>& loop, int start, int end, float maxError)
-{
-    float maxDist = 0.0f;
-
-    for (int i = start + 1; i < end; ++i)
-    {
-        float d = PerpendicularDist(loop[i], loop[start], loop[end]);
-        maxDist = max(maxDist, d);
-    }
-
-    return maxDist > maxError;
 }
 
 void Contours::BuildPolyMesh()
@@ -934,7 +729,7 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
             //    minSampledY = sampledY;
             //    minSampledYIdx = i;
             //}
-            Int2 ac{ c.x - a.x, c.z - a.z };
+            Vertex2D ac{ c.x - a.x, c.z - a.z };
             int len = ac.LengthSq();
             if (minLen >= len)
             {
@@ -1120,7 +915,7 @@ vector<Poly> Contours::MergeToConvexPolys(const vector<Poly>& triangles, const v
             next.push_back(current);
         }
 
-        polys = move(next);
+        polys = std::move(next);
     }
 
     return polys;

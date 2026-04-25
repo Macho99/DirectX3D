@@ -1,21 +1,21 @@
 #pragma once
 #include "HeightFieldBase.h"
 
-struct Int2
+struct Vertex2D
 {
     int x, z;
 
-    bool operator==(const Int2& other) const
+    bool operator==(const Vertex2D& other) const
     {
         return x == other.x && z == other.z;
     }
 
-    bool operator!=(const Int2& other) const
+    bool operator!=(const Vertex2D& other) const
     {
         return !(*this == other);
     }
 
-    int Dot(const Int2& other) const
+    int Dot(const Vertex2D& other) const
     {
         return x * other.x + z * other.z;
     }
@@ -26,34 +26,36 @@ struct Int2
     }
 };
 
-struct Int2Hash
+struct Vertex2DHash
 {
-    size_t operator()(const Int2& p) const
+    size_t operator()(const Vertex2D& p) const
     {
         return (static_cast<size_t>(p.x) * 73856093u) ^
             (static_cast<size_t>(p.z) * 19349663u);
     }
 };
 
-struct ContourVertex
+struct Vertex
 {
     int x, y, z;
-    int neighborRegion;
-
-    bool operator==(const ContourVertex& other) const
+    bool operator==(const Vertex& other) const
     {
         return x == other.x && y == other.y && z == other.z;
     }
-
-    bool operator!=(const ContourVertex& other) const
+    bool operator!=(const Vertex& other) const
     {
         return !(*this == other);
     }
 };
 
-struct ContourVertexHash
+struct ContourVertex : public Vertex
 {
-    size_t operator()(const ContourVertex& v) const
+    int neighborRegion;
+};
+
+struct VertexHash
+{
+    size_t operator()(const Vertex& v) const
     {
         return (static_cast<size_t>(v.x) * 73856093u) ^
             (static_cast<size_t>(v.y) * 19349663u) ^
@@ -61,16 +63,17 @@ struct ContourVertexHash
     }
 };
 
+
 struct ContourEdge
 {
     ContourEdge() = delete;
     ContourEdge(int x, int z, int y, int dir)
         :_y(y)
     {
-        Int2 p0{ x,     z };
-        Int2 p1{ x + 1, z };
-        Int2 p2{ x + 1, z + 1 };
-        Int2 p3{ x,     z + 1 };
+        Vertex2D p0{ x,     z };
+        Vertex2D p1{ x + 1, z };
+        Vertex2D p2{ x + 1, z + 1 };
+        Vertex2D p3{ x,     z + 1 };
 
         switch (dir)
         {
@@ -82,22 +85,9 @@ struct ContourEdge
         }
     }
 
-    Int2 _a;
-    Int2 _b;
+    Vertex2D _a;
+    Vertex2D _b;
     int _y;
-};
-
-struct ContourShareEdge : public ContourEdge
-{
-    ContourShareEdge() = delete;
-    ContourShareEdge(int x, int z, int y, int dir, int rhsRegion, int lhsRegion)
-        : ContourEdge(x, z, y, dir), _rhsRegion(rhsRegion), _lhsRegion(lhsRegion)
-    {
-    }
-
-    int _rhsRegion;
-    // 왼쪽 region일 경우, 방향을 뒤집어서 봐야함
-    int _lhsRegion;
 };
 
 struct Poly
@@ -123,12 +113,12 @@ public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
     const vector<vector<ContourVertex>>& GetContours() const { return _contours; }
-    void GreedySimplify(float maxError);
+    //void GreedySimplify(float maxError);
     void RDPSimplify(float maxError);
     void GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const;
 
 private:
-    using EdgeMap = unordered_multimap<Int2, int, Int2Hash>;
+    using EdgeMap = unordered_multimap<Vertex2D, int, Vertex2DHash>;
     bool FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int & findSpanIdx, int & findDir);
     vector<ContourVertex> BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir);
     int GetNeighborSpanIdx(const CompactHeightField& heightField, int cx, int cz, int targetY);
@@ -136,15 +126,9 @@ private:
 
     void RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si, int ei, float maxError);
 
-    void CollectRegionEdges(const CompactHeightField& heightField, vector<ContourShareEdge>& sharedEdges, vector<vector<ContourEdge>>& regionEdges);
-    vector<ContourVertex> BuildOneLoop(const vector<ContourEdge>& edges, const EdgeMap& edgeMap, vector<bool>& used, int startEdgeIdx);
-    vector<ContourVertex> BuildOneLoop(const vector<ContourShareEdge>& sharedEdges, const EdgeMap& sharedEdgeMap, vector<bool>& sharedVisited, 
-        const vector<ContourEdge>& regionEdges, const EdgeMap& regionEdgeMap, vector<bool>& regionVisited, int curRegion, Int2 startPos);
-
 private:
     float PointToSegmentDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
     float PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
-    bool NeedsPoint(const vector<ContourVertex>& contour, int start, int end, float maxError);
 
 public:
     void BuildPolyMesh();
@@ -161,7 +145,6 @@ private:
     pair<int, int> FindSharedEdge(const Poly& a, const Poly& b);
     vector<int> BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB);
     vector<Poly> MergeToConvexPolys(const vector<Poly>& triangles, const vector<ContourVertex>& positions);
-
 
 private:
     vector<vector<ContourVertex>> _contours;
