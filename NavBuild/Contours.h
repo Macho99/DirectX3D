@@ -63,32 +63,31 @@ struct VertexHash
     }
 };
 
-
-struct ContourEdge
-{
-    ContourEdge() = delete;
-    ContourEdge(int x, int z, int y, int dir)
-        :_y(y)
-    {
-        Vertex2D p0{ x,     z };
-        Vertex2D p1{ x + 1, z };
-        Vertex2D p2{ x + 1, z + 1 };
-        Vertex2D p3{ x,     z + 1 };
-
-        switch (dir)
-        {
-        case 0: _a = p2; _b = p3; break;
-        case 1: _a = p1; _b = p2; break;
-        case 2: _a = p0; _b = p1; break;
-        case 3:
-        default:_a = p3; _b = p0; break;
-        }
-    }
-
-    Vertex2D _a;
-    Vertex2D _b;
-    int _y;
-};
+//struct ContourEdge
+//{
+//    ContourEdge() = delete;
+//    ContourEdge(int x, int z, int y, int dir)
+//        :_y(y)
+//    {
+//        Vertex2D p0{ x,     z };
+//        Vertex2D p1{ x + 1, z };
+//        Vertex2D p2{ x + 1, z + 1 };
+//        Vertex2D p3{ x,     z + 1 };
+//
+//        switch (dir)
+//        {
+//        case 0: _a = p2; _b = p3; break;
+//        case 1: _a = p1; _b = p2; break;
+//        case 2: _a = p0; _b = p1; break;
+//        case 3:
+//        default:_a = p3; _b = p0; break;
+//        }
+//    }
+//
+//    Vertex2D _a;
+//    Vertex2D _b;
+//    int _y;
+//};
 
 struct Poly
 {
@@ -115,7 +114,6 @@ public:
     const vector<vector<ContourVertex>>& GetContours() const { return _contours; }
     //void GreedySimplify(float maxError);
     void RDPSimplify(float maxError);
-    void GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const;
 
 private:
     using EdgeMap = unordered_multimap<Vertex2D, int, Vertex2DHash>;
@@ -133,14 +131,14 @@ private:
 public:
     void BuildPolyMesh();
     const vector<PolyMesh>& GetPolyMeshs() const { return _polyMeshs; }
+
 private:
-    int Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
-    int Dot2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
-    bool IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    int Cross2D(const Vertex & a, const Vertex & b, const Vertex & c);
+    int Dot2D(const Vertex & a, const Vertex & b, const Vertex & c);
+    bool IsConvex(const Vertex & a, const Vertex & b, const Vertex & c);
     bool IsConvex(const vector<int>& poly, const vector<ContourVertex>& verts);
-    bool PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
+    bool PointInTri2D(const Vertex & p, const Vertex & a, const Vertex & b, const Vertex & c);
     PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);
-    float SampledAverageY(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c);
 
     pair<int, int> FindSharedEdge(const Poly& a, const Poly& b);
     vector<int> BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB);

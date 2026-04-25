@@ -263,12 +263,6 @@ void Contours::RDPSimplify(float maxError)
     }
 }
 
-void Contours::GetVertexWorldPos(int x, int z, float& worldX, float& worldZ) const
-{
-    worldX = _bmin.x + x * _cs;
-    worldZ = _bmin.z + z * _cs;
-}
-
 bool Contours::FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int& findSpanIdx, int& findDir)
 {
     const vector<CompactCell>& cells = heightField.GetCells();
@@ -555,7 +549,7 @@ void Contours::BuildPolyMesh()
     }
 }
 
-int Contours::Cross2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+int Contours::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c)
 {
     int abx = b.x - a.x;
     int abz = b.z - a.z;
@@ -564,7 +558,7 @@ int Contours::Cross2D(const ContourVertex& a, const ContourVertex& b, const Cont
     return abx * acz - abz * acx;
 }
 
-int Contours::Dot2D(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+int Contours::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c)
 {
     int bax = a.x - b.x;
     int baz = a.z - b.z;
@@ -573,7 +567,7 @@ int Contours::Dot2D(const ContourVertex& a, const ContourVertex& b, const Contou
     return bax * bcx + baz * bcz;
 }
 
-bool Contours::IsConvex(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+bool Contours::IsConvex(const Vertex& a, const Vertex& b, const Vertex& c)
 {
     return Cross2D(a, b, c) > 0;
 }
@@ -596,7 +590,7 @@ bool Contours::IsConvex(const vector<int>& poly, const vector<ContourVertex>& ve
     return true;
 }
 
-bool Contours::PointInTri2D(const ContourVertex& p, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
+bool Contours::PointInTri2D(const Vertex& p, const Vertex& a, const Vertex& b, const Vertex& c)
 {
     int c1 = Cross2D(a, b, p);
     int c2 = Cross2D(b, c, p);
@@ -762,75 +756,6 @@ Contours::PolyMesh Contours::TriangulateEarClipping(const vector<ContourVertex>&
     }
 
     return result;
-}
-
-float Contours::SampledAverageY(const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)
-{
-    const vector<CompactCell>& cells = _heightField.GetCells();
-    const vector<CompactSpan>& spans = _heightField.GetSpans();
-
-    ContourVertex minBound;
-    minBound.x = min({ a.x, b.x, c.x });
-    minBound.y = min({ a.y, b.y, c.y });
-    minBound.z = min({ a.z, b.z, c.z });
-
-    ContourVertex maxBound;
-    maxBound.x = max({ a.x, b.x, c.x });
-    maxBound.y = max({ a.y, b.y, c.y });
-    maxBound.z = max({ a.z, b.z, c.z });
-
-    Vec3 v0{ (float)a.x, (float)a.y, (float)a.z };
-    Vec3 v1{ (float)b.x, (float)b.y, (float)b.z };
-    Vec3 v2{ (float)c.x, (float)c.y, (float)c.z };
-
-    Vec3 e0 = v1 - v0;
-    Vec3 e1 = v2 - v0;
-    Vec3 n = Vec3::Cross(e0, e1);
-    n.y += 0.00001f;
-
-    float A = n.x;
-    float B = n.y;
-    float C = n.z;
-    float D = -(A * v0.x + B * v0.y + C * v0.z);
-
-    float yDiffSum = 0;
-    int yDiffCount = 0;
-
-    for (int cx = minBound.x; cx < maxBound.x; cx++)
-    {
-        for (int cz = minBound.z; cz < maxBound.z; cz++)
-        {
-            if (PointInTri2D({ cx, 0, cz }, a, b, c) == false)
-                continue;
-
-            float cy = -(A * cx + C * cz + D) / B;
-            cy = std::clamp(cy, (float)minBound.y, (float)maxBound.y);
-
-            float minYDiff = INT_MAX;
-            int closestCellIdx = -1;
-            int columnIdx = GetColumnIndex(cx, cz);
-            const CompactCell cell = cells[columnIdx];
-            for (int cellIdx = 0; cellIdx < cell.count; ++cellIdx)
-            {
-                const CompactSpan span = spans[cell.index + cellIdx];
-
-                float yDiff = abs(span.y - cy);
-                if (minYDiff > yDiff)
-                {
-                    minYDiff = yDiff;
-                    closestCellIdx = cell.index + cellIdx;
-                }
-            }
-
-            if (closestCellIdx < 0)
-                continue;
-
-            yDiffSum += minYDiff;
-            yDiffCount++;
-        }
-    }
-
-    return yDiffCount > 0 ? yDiffSum / yDiffCount : 0;
 }
 
 pair<int, int> Contours::FindSharedEdge(const Poly& a, const Poly& b)

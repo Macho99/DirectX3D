@@ -16,7 +16,8 @@ public:
     float GetCellSize() const { return _cs; }
     float GetCellHeight() const { return _ch; }
 
-    void GetWorldPos(int cx, int cz, OUT float& wx, OUT float& wz) const;
+    void GetCellWorldPos(int cx, int cz, OUT float& wx, OUT float& wz) const;
+    void GetVertexWorldPos(int cx, int cz, float & wx, float & wz) const;
     void GetWorldHeight(int cy, OUT float& wy) const;
     int GetColumnIndex(int cx, int cz) const { return cx + cz * _width; }
 

@@ -96,7 +96,7 @@ NavMesh::NavMesh() : Super(StaticType)
                         const Span& span = column[i];
 
                         Vec3 origin;
-                        heightField.GetWorldPos(cx, cz, origin.x, origin.z);
+                        heightField.GetCellWorldPos(cx, cz, origin.x, origin.z);
                         origin.y = (span.cminY + span.cmaxY) * 0.5f * cellHeight + heightField.GetBoundMin().y;
 
                         float worldHeight = (span.cmaxY - span.cminY) * cellHeight;
@@ -189,7 +189,7 @@ NavMesh::NavMesh() : Super(StaticType)
                         const int dist = dists[spanIdx];
 
                         Vec3 origin;
-                        heightField.GetWorldPos(cx, cz, origin.x, origin.z);
+                        heightField.GetCellWorldPos(cx, cz, origin.x, origin.z);
                         origin.y = (span.y - 0.5f) * cellHeight + heightField.GetBoundMin().y;
 
                         GeometryHelper::CreateCube(srcGeometry, halfCellSize, cellHeight * 0.5f, halfCellSize, origin);
@@ -240,7 +240,7 @@ NavMesh::NavMesh() : Super(StaticType)
                                 continue;
 
                             Vec3 neighborOrigin;
-                            heightField.GetWorldPos(neighborCoord.x, neighborCoord.z, neighborOrigin.x, neighborOrigin.z);
+                            heightField.GetCellWorldPos(neighborCoord.x, neighborCoord.z, neighborOrigin.x, neighborOrigin.z);
                             const CompactSpan& neighborSpan = spans[neighborSpanIdx];
                             uint16 neighborCeiling = std::min<uint16>(neighborSpan.h, neighborSpan.y + 1);
                             neighborOrigin.y = (neighborSpan.y + neighborCeiling) * 0.5f * cellHeight + heightField.GetBoundMin().y;

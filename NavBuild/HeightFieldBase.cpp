@@ -30,10 +30,16 @@ int HeightFieldBase::GetCellHeight(float wy) const
     return (int)((wy - _bmin.y) / _ch);
 }
 
-void HeightFieldBase::GetWorldPos(int cx, int cz, OUT float& wx, OUT float& wz) const
+void HeightFieldBase::GetCellWorldPos(int cx, int cz, OUT float& wx, OUT float& wz) const
 {
     wx = _bmin.x + (cx + 0.5f) * _cs;
     wz = _bmin.z + (cz + 0.5f) * _cs;
+}
+
+void HeightFieldBase::GetVertexWorldPos(int cx, int cz, float & wx, float & wz) const
+{
+    wx = _bmin.x + cx * _cs;
+    wz = _bmin.z + cz * _cs;
 }
 
 void HeightFieldBase::GetWorldHeight(int cy, OUT float& wy) const
