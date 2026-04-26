@@ -30,6 +30,7 @@ public:
     int GetMaxDist() const { return _maxDist; }
     int GetExtraConnection(int spanIdx, int dirFirst, int dirSecond) const;
     int GetAgentMaxClimbCell() const { return _agentMaxClimbCell; }
+    bool TryGetHeight(int cx, int cz, int region, OUT int & cy) const;
 
 private:
     void BuildDistances();

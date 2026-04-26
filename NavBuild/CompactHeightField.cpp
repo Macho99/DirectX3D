@@ -349,6 +349,29 @@ int CompactHeightField::GetExtraConnection(int spanIdx, int dirFirst, int dirSec
     return NOT_CONNECTED;
 }
 
+bool CompactHeightField::TryGetHeight(int cx, int cz, int region, OUT int& cy) const
+{
+    cx = std::clamp(cx, 0, _width - 1);
+    cz = std::clamp(cz, 0, _depth - 1);
+
+    const CompactCell& cell = _cells[GetColumnIndex(cx, cz)];
+    if (cell.count == 0)
+        return false;
+
+    int minDiff = INT_MAX;
+    int minY = -1;
+    for (int i = 0; i < cell.count; ++i)
+    {
+        const CompactSpan& span = _spans[cell.index + i];
+        if (span.region == region)
+        {
+            cy = span.y;
+            return true;
+        }
+    }
+    return false;
+}
+
 void CompactHeightField::BuildRegions()
 {
     _regions.clear();

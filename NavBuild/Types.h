@@ -14,6 +14,8 @@ struct NavBuildSettings
     float contourMaxError = 1.0f;
 
     int debugSeedCount = 0;
+    float detailSampleMaxError = 1.0f;
+    int detailSampleDist = 2;
 };
 
 struct InputTri
@@ -115,18 +117,28 @@ struct VertexHash
     }
 };
 
-struct Poly
+template<int MaxVerts>
+struct PolyBase
 {
-    static constexpr int MAX_VERTS = 6;
+    static constexpr int MAX_VERTS = MaxVerts;
+
     int indices[MAX_VERTS] = {};
     int vertCount = 0;
     bool isValid = true;
 
-    Poly(const vector<int>& srcIndices, bool isValid = true)
+    PolyBase() = default;
+
+    PolyBase(const vector<int>& srcIndices, bool isValid = true)
         : isValid(isValid)
     {
-        vertCount = static_cast<int>(std::min(srcIndices.size(), static_cast<size_t>(Poly::MAX_VERTS)));
+        vertCount = static_cast<int>(std::min(srcIndices.size(), static_cast<size_t>(MAX_VERTS)));
+
         for (int i = 0; i < vertCount; ++i)
             indices[i] = srcIndices[i];
     }
 };
+
+using Triangle = PolyBase<3>;
+using Poly = PolyBase<6>;
+
+constexpr float kEps = 1e-6f;

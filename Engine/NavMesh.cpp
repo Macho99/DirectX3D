@@ -7,6 +7,7 @@
 #include "GeometryHelper.h"
 #include "../NavBuild/Contours.h"
 #include "../NavBuild/PolyMeshField.h"
+#include "../NavBuild/DetailMeshField.h"
 
 NavMesh::NavMesh() : Super(StaticType)
 {
@@ -282,7 +283,6 @@ NavMesh::NavMesh() : Super(StaticType)
 
     _contoursDebugFunc = [this](const Contours& contours)
         {
-
             int count = 0;
             const auto& contoursData = contours.GetContours();
             for (const auto& loop : contoursData)
@@ -354,7 +354,7 @@ NavMesh::NavMesh() : Super(StaticType)
                 const int indicesBase = static_cast<int>(vertices.size());
 
                 const PolyMesh& polyMesh = polyMeshs[regionIdx];
-                Vec3 tangentAsColor = GetDebugColor(regionIdx + 1);
+                Vec3 tangentAsColor = GetDebugColor(regionIdx);
                 for (const Vertex& vertex : polyMesh.vertices)
                 {
                     Vec3 worldPos;
@@ -382,11 +382,34 @@ NavMesh::NavMesh() : Super(StaticType)
                         continue;
 
                     const int base = poly.isValid ? indicesBase : invalidBase;
-                    for (int v = 2; v < poly.vertCount; ++v)
+                    if (poly.vertCount == 3)
                     {
                         indices.push_back(base + poly.indices[0]);
-                        indices.push_back(base + poly.indices[v]);
-                        indices.push_back(base + poly.indices[v - 1]);
+                        indices.push_back(base + poly.indices[1]);
+                        indices.push_back(base + poly.indices[2]);
+                        continue;
+                    }
+                    else
+                    {
+                        Vec3 worldPosSum;
+                        for (int v = 0; v < poly.vertCount; ++v)
+                        {
+                            Vec3 worldPos;
+                            const Vertex& vertex = polyMesh.vertices[poly.indices[v]];
+                            polyMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                            polyMeshField.GetWorldHeight(vertex.y, worldPos.y);
+                            worldPosSum += worldPos;
+                        }
+                        worldPosSum /= static_cast<float>(poly.vertCount);
+
+                        Vec3 centerColor = Vec3(1.f);
+                        vertices.push_back(VertexTextureNormalTangentData{ worldPosSum, Vec2(0.f), Vec3(0.f), centerColor });
+                        for (int v = 1; v <= poly.vertCount; ++v)
+                        {
+                            indices.push_back(vertices.size() - 1);
+                            indices.push_back(base + poly.indices[v % poly.vertCount]);
+                            indices.push_back(base + poly.indices[v - 1]);
+                        }
                     }
                 }
 
@@ -427,7 +450,52 @@ NavMesh::NavMesh() : Super(StaticType)
             geometry->SetVertices(vertices);
             geometry->SetIndices(indices);
             mesh->CreateFromGeometry(geometry);
-        });                             
+        });
+
+    _builder.SetDebugOnBuildDetailMesh([this](const DetailMeshField& detailMeshField)
+        {
+            if (TryInitializeDebugMesh(NavDebugOption::BuildDetailMesh) == false)
+                return;
+
+            MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
+            Mesh* mesh = meshRenderer->GetMesh().Resolve();
+            ASSERT(mesh != nullptr);
+            auto geometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
+
+            auto srcGeometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
+            vector<VertexTextureNormalTangentData> vertices;
+            vector<uint32> indices;
+            const vector<DetailMesh>& detailMeshs = detailMeshField.GetDetailMeshs();
+            for (int regionIdx = 0; regionIdx < detailMeshs.size(); regionIdx++)
+            {
+                const DetailMesh& detailMesh = detailMeshs[regionIdx];
+                Vec3 tangentAsColor = GetDebugColor(regionIdx);
+                for (const Vec3& vertex : detailMesh.vertices)
+                {
+                    Vec3 worldPos;
+                    detailMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    detailMeshField.GetWorldHeight(vertex.y, worldPos.y);
+                    GeometryHelper::CreateCube(srcGeometry, 0.05f, 0.05f, 0.05f, worldPos);
+                    vector<VertexTextureNormalTangentData> coloredVertices = srcGeometry->GetVertices();
+                    vector<uint32> srcIndices = srcGeometry->GetIndices();
+                    for (VertexTextureNormalTangentData& v : coloredVertices)
+                    {
+                        v.tangent = tangentAsColor;
+                    }
+                    int baseIndex = static_cast<int>(vertices.size());
+                    for (uint32& idx : srcIndices)
+                    {
+                        idx += baseIndex;
+                    }
+
+                    vertices.insert(vertices.end(), coloredVertices.begin(), coloredVertices.end());
+                    indices.insert(indices.end(), srcIndices.begin(), srcIndices.end());
+                }
+            }
+            geometry->SetVertices(vertices);
+            geometry->SetIndices(indices);
+            mesh->CreateFromGeometry(geometry);
+        });
 }
 
 NavMesh::~NavMesh()
@@ -476,6 +544,7 @@ bool NavMesh::OnGUI()
     changed |= OnGUIUtils::DrawInt32("Debug Count", &_debugSeedCount, 1.f);
     changed |= OnGUIUtils::DrawBool("Show Distance Field", &_showDistanceField);
     changed |= OnGUIUtils::DrawInt32("Debug Poly Index Count", &_debugPolyIndexCount, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Detail Sample Max Error", &_detailSampleMaxError, 0.1f);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
@@ -487,6 +556,7 @@ bool NavMesh::OnGUI()
         NavBuildInput input;
         input.settings.contourMaxError = _contourSimplifyMaxError;
         input.settings.debugSeedCount = _debugSeedCount;
+        input.settings.detailSampleMaxError = _detailSampleMaxError;
 
         const auto& objs = CUR_SCENE->GetObjects();
         for (auto& gameObjectRef : objs)

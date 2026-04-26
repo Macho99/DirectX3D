@@ -42,13 +42,24 @@ void HeightFieldBase::GetVertexWorldPos(int cx, int cz, float & wx, float & wz) 
     wz = _bmin.z + cz * _cs;
 }
 
+void HeightFieldBase::GetVertexWorldPos(float cx, float cz, float& wx, float& wz) const
+{
+    wx = _bmin.x + cx * _cs;
+    wz = _bmin.z + cz * _cs;
+}
+
 void HeightFieldBase::GetWorldHeight(int cy, OUT float& wy) const
 {
     wy = _bmin.y + cy * _ch;
 }
 
+void HeightFieldBase::GetWorldHeight(float cy, OUT float& wy) const
+{
+    wy = _bmin.y + cy * _ch;
+}
 
-int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c)
+
+int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     int abx = b.x - a.x;
     int abz = b.z - a.z;
@@ -57,7 +68,7 @@ int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c)
     return abx * acz - abz * acx;
 }
 
-int HeightFieldBase::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c)
+int HeightFieldBase::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     int bax = a.x - b.x;
     int baz = a.z - b.z;
@@ -66,7 +77,7 @@ int HeightFieldBase::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c)
     return bax * bcx + baz * bcz;
 }
 
-bool HeightFieldBase::IsConvex(const Vertex& a, const Vertex& b, const Vertex& c)
+bool HeightFieldBase::IsConvex(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     return Cross2D(a, b, c) > 0;
 }

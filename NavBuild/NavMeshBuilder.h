@@ -21,6 +21,7 @@ public:
     void SetDebugOnBuildContours(function<void(const class Contours&)> callback) { _onBuildContours = callback; }
     void SetDebugOnSimplifyContours(function<void(const class Contours&)> callback) { _onSimplifyContours = callback; }
     void SetDebugOnBuildPolyMesh(function<void(const class PolyMeshField&)> callback) { _onBuildPolyMesh = callback; }
+    void SetDebugOnBuildDetailMesh(function<void(const class DetailMeshField&)> callback) { _onBuildDetailMesh = callback; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
@@ -30,7 +31,7 @@ private:
     //bool BuildRegions();
     //bool BuildContours();
     //bool BuildPolyMesh();
-    bool BuildDetailMesh();
+    //bool BuildDetailMesh();
 
 private:
     Vec3 GetTriangleNormal(const InputTri& tri);
@@ -43,5 +44,6 @@ private:
     function<void(const class Contours&)> _onBuildContours;
     function<void(const class Contours&)> _onSimplifyContours;
     function<void(const class PolyMeshField&)> _onBuildPolyMesh;
+    function<void(const class DetailMeshField&)> _onBuildDetailMesh;
 };
 

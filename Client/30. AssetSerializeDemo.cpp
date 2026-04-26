@@ -40,6 +40,7 @@
 #include "Sky.h"
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
+#include "NavMesh.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -106,6 +107,7 @@ void AssetSerializeDemo::Init()
         objRef.Resolve()->GetTransform()->SetPosition(Vec3(0, 0, 0));
         objRef.Resolve()->AddComponent(std::move(tessTerrain));
         tessTerrainRef = objRef.Resolve()->GetFixedComponentRef<TessTerrain>();
+        objRef.Resolve()->AddComponent(make_unique<NavMesh>());
     }
 
     {

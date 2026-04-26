@@ -44,6 +44,9 @@
     <ClInclude Include="PolyMeshField.h">
       <Filter>소스 파일\Builder</Filter>
     </ClInclude>
+    <ClInclude Include="DetailMeshField.h">
+      <Filter>소스 파일\Builder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -71,6 +74,9 @@
       <Filter>소스 파일\Builder</Filter>
     </ClCompile>
     <ClCompile Include="PolyMeshField.cpp">
+      <Filter>소스 파일\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="DetailMeshField.cpp">
       <Filter>소스 파일\Builder</Filter>
     </ClCompile>
   </ItemGroup>

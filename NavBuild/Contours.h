@@ -20,8 +20,7 @@ private:
     void RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si, int ei, float maxError);
 
 private:
-    float PointToSegmentDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
-    float PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd);
+    float PointToSegmentDist(const Vertex& p, const Vertex& a, const Vertex& b);
 
 private:
     vector<vector<ContourVertex>> _contours;

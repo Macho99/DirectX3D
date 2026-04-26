@@ -18,16 +18,18 @@ public:
 
     void GetCellWorldPos(int cx, int cz, OUT float& wx, OUT float& wz) const;
     void GetVertexWorldPos(int cx, int cz, float & wx, float & wz) const;
+    void GetVertexWorldPos(float cx, float cz, float& wx, float& wz) const;
     void GetWorldHeight(int cy, OUT float& wy) const;
+    void GetWorldHeight(float cy, OUT float& wy) const;
     int GetColumnIndex(int cx, int cz) const { return cx + cz * _width; }
+
+    int Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) const;
+    int Dot2D(const Vertex& a, const Vertex& b, const Vertex& c) const;
+    bool IsConvex(const Vertex& a, const Vertex& b, const Vertex& c) const;
 
 protected:
     void GetCellIndex(float wx, float wz, OUT int& cx, OUT int& cz) const;
     int GetCellHeight(float wy) const;
-
-    int Cross2D(const Vertex& a, const Vertex& b, const Vertex& c);
-    int Dot2D(const Vertex& a, const Vertex& b, const Vertex& c);
-    bool IsConvex(const Vertex& a, const Vertex& b, const Vertex& c);
 
 protected:
     int _width = 0;   // x 방향 cell 개수

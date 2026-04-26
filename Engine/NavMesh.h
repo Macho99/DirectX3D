@@ -10,6 +10,7 @@
     X(BuildContours) \
     X(SimplifyContours) \
     X(BuildPolyMesh) \
+    X(BuildDetailMesh) \
 
 enum class NavDebugOption
 {
@@ -51,11 +52,12 @@ private:
     vector<ComponentRef<class LineRenderer>> _debugLineRenderers;
     NavDebugOption _debugOption = NavDebugOption::None;
     Vec3 _buildExtent = Vec3(11.f, 20.f, 11.f);
-    float _contourSimplifyMaxError = 0.9f;
+    float _contourSimplifyMaxError = 1.5f;
     bool _debugInvalidTriangle = false;
     int _debugSeedCount = 0;
     bool _showDistanceField = false;
     int _debugPolyIndexCount = 0;
+    float _detailSampleMaxError = 2.f;
 
     function<void(const HeightField&)> _heightFieldDebugFunc;
     function<void(const Contours&)> _contoursDebugFunc;

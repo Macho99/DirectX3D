@@ -445,7 +445,6 @@ void Contours::RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si
     int j = (si + 1) % loopSize;
     while (j != ei)
     {
-        constexpr float kEps = 1e-6f;
         float d = PointToSegmentDist(loop[j], va, vb);
 
         if (d > maxD + kEps)
@@ -471,7 +470,7 @@ void Contours::RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si
         j = (j + 1) % loopSize;
     }
 
-    if (maxD > maxError && maxI != -1)
+    if (maxD > maxError * maxError && maxI != -1)
     {
         // 최대 편차 점 유지 후 재귀
         keep[maxI] = true;
@@ -481,8 +480,9 @@ void Contours::RDP(const vector<ContourVertex>& loop, vector<bool>& keep, int si
     // maxD <= maxError면 구간 내 모든 점 제거 (keep 안 함)
 }
 
-float Contours::PointToSegmentDist(ContourVertex p, ContourVertex a, ContourVertex b)
+float Contours::PointToSegmentDist(const Vertex& p, const Vertex& a, const Vertex& b)
 {
+
     float abx = (float)(b.x - a.x);
     float aby = (float)(b.y - a.y);
     float abz = (float)(b.z - a.z);
@@ -492,7 +492,7 @@ float Contours::PointToSegmentDist(ContourVertex p, ContourVertex a, ContourVert
 
     float ab2 = abx * abx + aby * aby + abz * abz;
 
-    if (ab2 < 1e-6f)
+    if (ab2 < kEps)
         return apx * apx + apy * apy + apz * apz;
 
     float t = (apx * abx + apy * aby + apz * abz) / ab2;
@@ -503,36 +503,6 @@ float Contours::PointToSegmentDist(ContourVertex p, ContourVertex a, ContourVert
     float dz = apz - t * abz;
 
     return dx * dx + dy * dy + dz * dz;
-}
-
-float Contours::PerpendicularDist(ContourVertex p, ContourVertex lineStart, ContourVertex lineEnd)
-{
-    float dx = lineEnd.x - lineStart.x;
-    float dy = lineEnd.y - lineStart.y;
-    float dz = lineEnd.z - lineStart.z;
-
-    float lenSq = dx * dx + dy * dy + dz * dz;
-    if (lenSq == 0.0f)
-    {
-        dx = p.x - lineStart.x;
-        dy = p.y - lineStart.y;
-        dz = p.z - lineStart.z;
-        return sqrtf(dx * dx + dy * dy + dz * dz);
-    }
-
-    float t = ((p.x - lineStart.x) * dx +
-        (p.y - lineStart.y) * dy +
-        (p.z - lineStart.z) * dz) / lenSq;
-    t = max(0.0f, min(1.0f, t));
-
-    float projX = lineStart.x + t * dx;
-    float projY = lineStart.y + t * dy;
-    float projZ = lineStart.z + t * dz;
-
-    dx = p.x - projX;
-    dy = p.y - projY;
-    dz = p.z - projZ;
-    return sqrtf(dx * dx + dy * dy + dz * dz);
 }
 
 /*bool Contours::PointInTri2D(const ContourVertex& prevP, const ContourVertex& p, const ContourVertex& nextP, const ContourVertex& a, const ContourVertex& b, const ContourVertex& c)

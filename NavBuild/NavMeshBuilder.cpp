@@ -2,6 +2,7 @@
 #include "NavMeshBuilder.h"
 #include "Contours.h"
 #include "PolyMeshField.h"
+#include "DetailMeshField.h"
 
 bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 {
@@ -35,6 +36,9 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 
     PolyMeshField polyMeshField(contours);
     _onBuildPolyMesh(polyMeshField);
+
+    DetailMeshField detailMeshField(polyMeshField, compactHeightField, input.settings);
+    _onBuildDetailMesh(detailMeshField);
 
     return true;
 }
