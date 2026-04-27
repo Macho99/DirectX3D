@@ -124,12 +124,10 @@ struct PolyBase
 
     int indices[MAX_VERTS] = {};
     int vertCount = 0;
-    bool isValid = true;
 
     PolyBase() = default;
 
-    PolyBase(const vector<int>& srcIndices, bool isValid = true)
-        : isValid(isValid)
+    PolyBase(const vector<int>& srcIndices)
     {
         vertCount = static_cast<int>(std::min(srcIndices.size(), static_cast<size_t>(MAX_VERTS)));
 
@@ -138,7 +136,19 @@ struct PolyBase
     }
 };
 
-using Triangle = PolyBase<3>;
+struct Triangle : public PolyBase<3>
+{
+    Triangle() = default;
+    Triangle(int i0, int i1, int i2)
+        : PolyBase({ i0, i1, i2 })
+    {
+        indices[0] = i0;
+        indices[1] = i1;
+        indices[2] = i2;
+        vertCount = 3;
+    }
+};
+
 using Poly = PolyBase<6>;
 
 constexpr float kEps = 1e-6f;

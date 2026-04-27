@@ -351,7 +351,7 @@ NavMesh::NavMesh() : Super(StaticType)
             int debugLineRendererCount = 0;
             for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
             {
-                const int indicesBase = static_cast<int>(vertices.size());
+                const int base = static_cast<int>(vertices.size());
 
                 const PolyMesh& polyMesh = polyMeshs[regionIdx];
                 Vec3 tangentAsColor = GetDebugColor(regionIdx);
@@ -362,26 +362,14 @@ NavMesh::NavMesh() : Super(StaticType)
                     polyMeshField.GetWorldHeight(vertex.y, worldPos.y);
                     vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
                 }
-                const int invalidBase = static_cast<int>(vertices.size());
-                for (const Vertex& vertex : polyMesh.vertices)
-                {
-                    Vec3 worldPos;
-                    polyMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
-                    polyMeshField.GetWorldHeight(vertex.y, worldPos.y);
-                    vertices.push_back(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), Vec3(1,0,0) });
-                }
 
                 for (int i = 0; i < polyMesh.polys.size(); ++i)
                 {
                     const Poly& poly = polyMesh.polys[i];
 
-                    if (_debugInvalidTriangle == false && poly.isValid == false)
-                        continue;
-
                     if (_debugPolyIndexCount >= 3 && poly.vertCount != _debugPolyIndexCount)
                         continue;
 
-                    const int base = poly.isValid ? indicesBase : invalidBase;
                     if (poly.vertCount == 3)
                     {
                         indices.push_back(base + poly.indices[0]);
@@ -461,11 +449,11 @@ NavMesh::NavMesh() : Super(StaticType)
             Mesh* mesh = meshRenderer->GetMesh().Resolve();
             ASSERT(mesh != nullptr);
             auto geometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
+            const vector<DetailMesh>& detailMeshs = detailMeshField.GetDetailMeshs();
 
             auto srcGeometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
             vector<VertexTextureNormalTangentData> vertices;
             vector<uint32> indices;
-            const vector<DetailMesh>& detailMeshs = detailMeshField.GetDetailMeshs();
             for (int regionIdx = 0; regionIdx < detailMeshs.size(); regionIdx++)
             {
                 const DetailMesh& detailMesh = detailMeshs[regionIdx];
@@ -494,6 +482,30 @@ NavMesh::NavMesh() : Super(StaticType)
             }
             geometry->SetVertices(vertices);
             geometry->SetIndices(indices);
+
+            for (int regionIdx = 0; regionIdx < detailMeshs.size(); regionIdx++)
+            {
+                const DetailMesh& detailMesh = detailMeshs[regionIdx];
+                Vec3 tangentAsColor = GetDebugColor(regionIdx);
+                const int base = static_cast<int>(geometry->GetVertices().size());
+                for (const Vec3& vertex : detailMesh.vertices)
+                {
+                    Vec3 worldPos;
+                    detailMeshField.GetVertexWorldPos(vertex.x, vertex.z, worldPos.x, worldPos.z);
+                    detailMeshField.GetWorldHeight(vertex.y, worldPos.y);
+                    geometry->AddVertex(VertexTextureNormalTangentData{ worldPos, Vec2(0.f), Vec3(0.f), tangentAsColor });
+                }
+                for (const vector<Triangle>& tris : detailMesh.triangles)
+                {
+                    for (const Triangle& tri : tris)
+                    {
+                        geometry->AddIndex(base + tri.indices[0]);
+                        geometry->AddIndex(base + tri.indices[1]);
+                        geometry->AddIndex(base + tri.indices[2]);
+                    }
+                }
+            }
+
             mesh->CreateFromGeometry(geometry);
         });
 }
@@ -540,7 +552,6 @@ bool NavMesh::OnGUI()
     }
     changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
     changed |= OnGUIUtils::DrawFloat("Contour GreedySimplify Max Error", &_contourSimplifyMaxError, 0.1f);
-    changed |= OnGUIUtils::DrawBool("Debug Invalid Triangle", &_debugInvalidTriangle);
     changed |= OnGUIUtils::DrawInt32("Debug Count", &_debugSeedCount, 1.f);
     changed |= OnGUIUtils::DrawBool("Show Distance Field", &_showDistanceField);
     changed |= OnGUIUtils::DrawInt32("Debug Poly Index Count", &_debugPolyIndexCount, 1.f);

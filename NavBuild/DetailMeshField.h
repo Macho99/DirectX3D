@@ -25,7 +25,7 @@ struct EdgeKeyHash
     }
 };
 
-using SharedEdgeCache = unordered_map<EdgeKey, vector<Vec3>, EdgeKeyHash>;
+using SharedEdgeCache = unordered_map<EdgeKey, pair<int, int>, EdgeKeyHash>;
 
 struct DetailMesh
 {
@@ -44,6 +44,7 @@ public:
 private:
     void SampleEdgeMaxError(const int region, const Vec3& a, const Vec3& b, const CompactHeightField& heightField, float maxError, float stepSize, vector<Vec3>& result);
     bool InCircumcircle(const Vec3& a, const Vec3& b, const Vec3& c, const Vec3& p);
+    void DelaunayTriangulate(vector<Vec3>& verts, const vector<int>& indices, vector<Triangle>& curTris);
 
 private:
     vector<DetailMesh> _detailMeshs;

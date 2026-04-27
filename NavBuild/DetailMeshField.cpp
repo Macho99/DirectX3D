@@ -12,6 +12,7 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
     {
         const PolyMesh& polyMesh = polyMeshs[regionIdx];
         DetailMesh& detailMesh = _detailMeshs[regionIdx];
+        detailMesh.triangles.resize(polyMesh.polys.size());
 
         for (const Vertex& vertex : polyMesh.vertices)
         {
@@ -19,12 +20,18 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
         }
 
         SharedEdgeCache sharedEdgeCache;
-        for (const Poly& poly : polyMesh.polys)
+        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
         {
+            const Poly& poly = polyMesh.polys[polyIdx];
+            vector<int> detailIndices;
+            unordered_set<int> shareIndices;
+
             for (int i = 0; i < poly.vertCount; i++)
             {
                 int idxA = poly.indices[i];
                 int idxB = poly.indices[(i + 1) % poly.vertCount];
+                shareIndices.insert(idxA);
+                shareIndices.insert(idxB);
 
                 // 경계 엣지는 Contours에서 Simplify 할 때 샘플링되어 있으므로, 내부 엣지만 최대 오차 샘플링을 수행
                 if (std::abs(idxA - idxB) == 1 || std::abs(idxA - idxB) == polyMesh.vertices.size() - 1)
@@ -32,14 +39,30 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
 
                 EdgeKey edgeKey(idxA, idxB);
                 auto it = sharedEdgeCache.find(edgeKey);
+                int startIndex, endIndex;
                 if (it == sharedEdgeCache.end())
                 {
                     vector<Vec3> edgeVerts;
                     SampleEdgeMaxError(regionIdx, detailMesh.vertices[edgeKey.u], detailMesh.vertices[edgeKey.v], compactHeightField, settings.detailSampleMaxError, settings.detailSampleDist, edgeVerts);
-                    sharedEdgeCache[edgeKey] = edgeVerts;
+                    startIndex = (int)detailMesh.vertices.size();
                     detailMesh.vertices.insert(detailMesh.vertices.end(), edgeVerts.begin(), edgeVerts.end());
+                    endIndex = (int)detailMesh.vertices.size();
+                    sharedEdgeCache[edgeKey] = make_pair(startIndex, endIndex);
                 }
+                else
+                {
+                    startIndex = it->second.first;
+                    endIndex = it->second.second;
+                }
+
+                for (int j = startIndex; j < endIndex; j++)
+                    detailIndices.push_back(j);
             }
+
+            for (int idx : shareIndices)
+                detailIndices.push_back(idx);
+
+            DelaunayTriangulate(detailMesh.vertices, detailIndices, detailMesh.triangles[polyIdx]);
         }
     }
 }
@@ -102,4 +125,130 @@ bool DetailMeshField::InCircumcircle(const Vec3& a, const Vec3& b,
         + (ax * ax + az * az) * (bx * cz - bz * cx);
 
     return det > 0.0;
+}
+
+void DetailMeshField::DelaunayTriangulate(vector<Vec3>& verts, const vector<int>& indices, vector<Triangle>& curTris)
+{
+    int originVertsSize = (int)verts.size();
+
+    // --- 헬퍼: 방향 검사 (CCW 보장) ---
+    auto cross2D = [&](int i0, int i1, int i2)
+        {
+            const Vec3& a = verts[i0];
+            const Vec3& b = verts[i1];
+            const Vec3& c = verts[i2];
+            return ((b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x));
+        };
+
+    vector<int> toInsert;
+    bool superTriAdded = false;
+
+    // curTris가 비어있으면 수퍼 삼각형 추가 (모든 점을 포함하도록 충분히 큰 삼각형)
+    if (curTris.empty())
+    {
+        // 수퍼 삼각형 (모든 점을 포함하는 큰 삼각형)
+        float minX = FLT_MAX, maxX = -FLT_MAX;
+        float minZ = FLT_MAX, maxZ = -FLT_MAX;
+        for (auto& v : verts)
+        {
+            minX = min(minX, v.x); maxX = max(maxX, v.x);
+            minZ = min(minZ, v.z); maxZ = max(maxZ, v.z);
+        }
+        float dx = maxX - minX, dz = maxZ - minZ;
+        float delta = max(dx, dz) * 10.0f;
+        float mx = (minX + maxX) * 0.5f;
+        float mz = (minZ + maxZ) * 0.5f;
+
+        verts.push_back({ mx,        0, mz - delta * 2 });
+        verts.push_back({ mx - delta, 0, mz + delta });
+        verts.push_back({ mx + delta, 0, mz + delta });
+
+        int s0 = originVertsSize, s1 = originVertsSize + 1, s2 = originVertsSize + 2;
+        curTris.push_back({ s0, s2, s1 });
+
+        toInsert.reserve(indices.size() + 1);
+        for (int i = 0; i < indices.size(); i++)
+            toInsert.push_back(indices[i]);
+
+        superTriAdded = true;
+    }
+    else
+    {
+        toInsert.push_back(verts.size() - 1);
+    }
+
+    // --- 정점 하나씩 삽입 ---
+    for (int newVert : toInsert)
+    {
+        vector<Triangle> kept;       // 재활용할 삼각형
+
+        using Edge = pair<int, int>; 
+        struct PairHash
+        {
+            size_t operator()(const std::pair<int, int>& p) const noexcept
+            {
+                size_t h1 = std::hash<int>{}(p.first);
+                size_t h2 = std::hash<int>{}(p.second);
+                return h1 ^ (h2 * 2654435761ULL);
+            }
+        };
+        unordered_map<Edge, int, PairHash> edgeCount;
+
+        for (const auto& tri : curTris)
+        {
+            const Vec3& a = verts[tri.indices[0]];
+            const Vec3& b = verts[tri.indices[1]];
+            const Vec3& c = verts[tri.indices[2]];
+            const Vec3& p = verts[newVert];
+
+            if (InCircumcircle(a, b, c, p))
+            {
+                for (int k = 0; k < 3; ++k)
+                {
+                    int a = tri.indices[k];
+                    int b = tri.indices[(k + 1) % 3];
+                    // 정규화 (작은 인덱스 먼저)
+                    Edge e = (a < b) ? Edge{ a, b } : Edge{ b, a };
+                    edgeCount[e]++;
+                }
+            }
+            else
+                kept.push_back(tri); // ← 기존 삼각형 재활용
+        }
+
+        curTris = std::move(kept); // 재활용 삼각형 유지
+        for (auto& [edge, cnt] : edgeCount)
+        {
+            if (cnt != 1) continue; // 공유 엣지는 내부 → 스킵
+
+            int a = edge.first;
+            int b = edge.second;
+
+            float cross = cross2D(a, b, newVert);
+
+            // 세 점이 일직선 상에 있으면 삼각형 생성 안 함
+            if (std::abs(cross) < kEps)
+                continue;
+
+            if (cross > 0)
+                curTris.emplace_back(a, b, newVert);
+            else
+                curTris.emplace_back(b, a, newVert);
+        }
+    }
+
+    if (superTriAdded)
+    {
+        for (auto it = curTris.begin(); it != curTris.end(); )
+        {
+            if (it->indices[0] >= originVertsSize || it->indices[1] >= originVertsSize || it->indices[2] >= originVertsSize)
+                it = curTris.erase(it); // 수퍼 삼각형과 연결된 삼각형 제거
+            else
+                ++it;
+        }
+
+        verts.pop_back();
+        verts.pop_back();
+        verts.pop_back();
+    }
 }
