@@ -17,6 +17,12 @@ public:
     PolyMeshField(const class Contours& contours);
     const vector<PolyMesh>& GetPolyMeshs() const { return polyMeshs; }
 
+public:
+    const Poly& GetPoly(const PolyRef& ref) const;
+    Poly& GetPoly(const PolyRef& ref);
+    PolyRef FindContainingPoly(const Vec3& point) const;
+    PolyRef FindNearestPoly(const Vec3& point) const;
+
 private:
     PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);
 
@@ -25,6 +31,7 @@ private:
     pair<int, int> FindSharedEdge(const Poly& a, const Poly& b);
     vector<int> BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB);
     void MergeToConvexPolys(PolyMesh& polyMesh);
+    void BuildAdjacentInfo();
 
 private:
     vector<PolyMesh> polyMeshs;

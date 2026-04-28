@@ -12,6 +12,9 @@
     <Filter Include="소스 파일\Builder">
       <UniqueIdentifier>{9ba8509f-b141-47ea-99e5-ae757c762035}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Agent">
+      <UniqueIdentifier>{b7a407a2-b5d6-4dc1-a87c-f3a063ad08e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -47,6 +50,9 @@
     <ClInclude Include="DetailMeshField.h">
       <Filter>소스 파일\Builder</Filter>
     </ClInclude>
+    <ClInclude Include="NavMeshQuery.h">
+      <Filter>소스 파일\Agent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -78,6 +84,9 @@
     </ClCompile>
     <ClCompile Include="DetailMeshField.cpp">
       <Filter>소스 파일\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="NavMeshQuery.cpp">
+      <Filter>소스 파일\Agent</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

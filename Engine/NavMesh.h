@@ -29,7 +29,6 @@ static const char* NavDebugNames[] =
 #undef X
 };
 
-
 class NavMesh : public Component
 {
     using Super = Component;

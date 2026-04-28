@@ -15,6 +15,7 @@ PolyMeshField::PolyMeshField(const Contours& contourField)
         }
         polyMeshs.push_back(std::move(polyMesh));
     }
+    BuildAdjacentInfo();
 }
 
 PolyMesh PolyMeshField::TriangulateEarClipping(const vector<ContourVertex>& verts)
@@ -240,4 +241,114 @@ void PolyMeshField::MergeToConvexPolys(PolyMesh& polyMesh)
     }
 
     polyMesh.polys = std::move(polys);
+}
+
+void PolyMeshField::BuildAdjacentInfo()
+{
+    unordered_map<pair<Vertex, Vertex>, pair<PolyRef, int>, VertexPairHash> edgeToPoly;
+
+    for (int regionIdx = 0; regionIdx < polyMeshs.size(); ++regionIdx)
+    {
+        PolyMesh& polyMesh = polyMeshs[regionIdx];
+        const vector<Vertex>& vertices = polyMesh.vertices;
+        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); ++polyIdx)
+        {
+            Poly& poly = polyMesh.polys[polyIdx];
+            for (int i = 0; i < poly.vertCount; ++i)
+            {
+                int idxA = poly.indices[i];
+                int idxB = poly.indices[(i + 1) % poly.vertCount];
+                Vertex vA = vertices[idxA];
+                Vertex vB = vertices[idxB];
+
+                if (vA < vB)
+                    std::swap(vA, vB);
+                pair<Vertex, Vertex> edgeKey{ vA, vB };
+                auto it = edgeToPoly.find(edgeKey);
+                if (it == edgeToPoly.end())
+                {
+                    edgeToPoly[edgeKey] = make_pair(PolyRef{ regionIdx, polyIdx }, i);
+                }
+                else
+                {
+                    PolyRef adjPolyInfo = it->second.first;
+                    int adjEdgeIdx = it->second.second;
+                    Poly& adjacentPoly = polyMeshs[adjPolyInfo.regionIndex].polys[adjPolyInfo.polyIndex];
+
+                    adjacentPoly.neighbors[adjEdgeIdx] = PolyRef{ regionIdx, polyIdx };
+                    poly.neighbors[i] = adjPolyInfo;
+                }
+            }
+        }
+    }
+}
+
+const Poly& PolyMeshField::GetPoly(const PolyRef& ref) const
+{
+    if (!ref.IsValid())
+        throw std::runtime_error("Invalid PolyRef");
+    return polyMeshs[ref.regionIndex].polys[ref.polyIndex];
+}
+
+Poly& PolyMeshField::GetPoly(const PolyRef& ref)
+{
+    return const_cast<Poly&>(static_cast<const PolyMeshField*>(this)->GetPoly(ref));
+}
+
+PolyRef PolyMeshField::FindContainingPoly(const Vec3& point) const
+{
+    for (int regionIdx = 0; regionIdx < polyMeshs.size(); ++regionIdx)
+    {
+        const PolyMesh& polyMesh = polyMeshs[regionIdx];
+        const vector<Vertex>& vertices = polyMesh.vertices;
+        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); ++polyIdx)
+        {
+            const Poly& poly = polyMesh.polys[polyIdx];
+            bool contains = true;
+            for (int i = 0; i < poly.vertCount; ++i)
+            {
+                const Vertex& a = vertices[poly.indices[i]];
+                const Vertex& b = vertices[poly.indices[(i + 1) % poly.vertCount]];
+                if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
+                {
+                    contains = false;
+                    break;
+                }
+            }
+            if (contains)
+                return PolyRef(regionIdx, polyIdx);
+        }
+    }
+    return PolyRef();
+}
+
+PolyRef PolyMeshField::FindNearestPoly(const Vec3& point) const
+{
+    float minDist = FLT_MAX;
+    PolyRef bestRef;
+
+    for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
+    {
+        const PolyMesh& polyMesh = polyMeshs[regionIdx];
+        const vector<Vertex>& vertices = polyMesh.vertices;
+        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
+        {
+            const Poly& poly = polyMesh.polys[polyIdx];
+            Vec3 centroid;
+            for (int vertIdx = 0; vertIdx < poly.vertCount; vertIdx++)
+            {
+                centroid += vertices[poly.indices[vertIdx]].ToVec3();
+            }
+            centroid /= poly.vertCount;
+
+            float lenSq = (point - centroid).LengthSq();
+            if (minDist > lenSq)
+            {
+                minDist = lenSq;
+                bestRef = PolyRef(regionIdx, polyIdx);
+            }
+        }
+    }
+
+    return bestRef;
 }

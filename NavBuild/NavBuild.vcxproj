@@ -24,6 +24,7 @@
     <ProjectGuid>{137ea01d-8485-4055-aa21-05cc5d9c9dcf}</ProjectGuid>
     <RootNamespace>NavBuild</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>NavBuild</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -165,6 +166,7 @@
     <ClInclude Include="HeightFieldBase.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="NavMeshBuilder.h" />
+    <ClInclude Include="NavMeshQuery.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PolyMeshField.h" />
     <ClInclude Include="Types.h" />
@@ -177,6 +179,7 @@
     <ClCompile Include="HeightFieldBase.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="NavMeshBuilder.cpp" />
+    <ClCompile Include="NavMeshQuery.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

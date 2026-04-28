@@ -103,6 +103,25 @@ struct Vertex
     {
         return !(*this == other);
     }
+
+    bool operator<(const Vertex& other) const
+    {
+        if (x != other.x)
+            return x < other.x;
+        if (y != other.y)
+            return y < other.y;
+        return z < other.z;
+    }
+
+    bool operator>(const Vertex& other) const
+    {
+        return other < *this;
+    }
+
+    Vec3 ToVec3() const
+    {
+        return Vec3(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
+    }
 };
 
 struct ContourVertex : public Vertex
@@ -117,6 +136,22 @@ struct VertexHash
         return (static_cast<size_t>(v.x) * 73856093u) ^
             (static_cast<size_t>(v.y) * 19349663u) ^
             (static_cast<size_t>(v.z) * 83492791u);
+    }
+}; 
+
+struct VertexPairHash
+{
+    size_t operator()(const std::pair<Vertex, Vertex>& p) const noexcept
+    {
+        VertexHash vh;
+
+        size_t h1 = vh(p.first);
+        size_t h2 = vh(p.second);
+
+        size_t seed = h1;
+        seed ^= h2 + 0x9e3779b97f4a7c15ULL + (seed << 6) + (seed >> 2);
+
+        return seed;
     }
 };
 
@@ -152,6 +187,26 @@ struct Triangle : public PolyBase<3>
     }
 };
 
-using Poly = PolyBase<6>;
+struct PolyRef
+{
+    PolyRef() = default;
+    PolyRef(int regionIdx, int polyIdx)
+        : regionIndex(regionIdx), polyIndex(polyIdx) { }
+
+    int regionIndex = -1;
+    int polyIndex = -1;
+
+    bool IsValid() const { return regionIndex >= 0 && polyIndex >= 0; }
+};
+
+struct Poly : public PolyBase<6>
+{
+    Poly() = default;
+    Poly(const vector<int>& srcIndices)
+        : PolyBase(srcIndices)
+    {
+    }
+    PolyRef neighbors[MAX_VERTS] = {};
+};
 
 constexpr float kEps = 1e-6f;
