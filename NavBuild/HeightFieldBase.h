@@ -24,8 +24,14 @@ public:
     int GetColumnIndex(int cx, int cz) const { return cx + cz * _width; }
 
     int Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) const;
+    float Cross2D(const Vec3& a, const Vec3& b, const Vec3& c) const;
     int Dot2D(const Vertex& a, const Vertex& b, const Vertex& c) const;
     bool IsConvex(const Vertex& a, const Vertex& b, const Vertex& c) const;
+
+    bool PointInTri2D(const Vertex& p, const Vertex& a, const Vertex& b, const Vertex& c) const;
+    bool PointInTri2D(const Vec3& p, const Vec3& a, const Vec3& b, const Vec3& c) const;
+
+    float GetTriY(float x, float z, const Vec3& v0, const Vec3& v1, const Vec3& v2) const;
 
 protected:
     void GetCellIndex(float wx, float wz, OUT int& cx, OUT int& cz) const;

@@ -68,6 +68,15 @@ int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) 
     return abx * acz - abz * acx;
 }
 
+float HeightFieldBase::Cross2D(const Vec3& a, const Vec3& b, const Vec3& c) const
+{
+    float abx = b.x - a.x;
+    float abz = b.z - a.z;
+    float acx = c.x - a.x;
+    float acz = c.z - a.z;
+    return abx * acz - abz * acx;
+}
+
 int HeightFieldBase::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     int bax = a.x - b.x;
@@ -80,4 +89,43 @@ int HeightFieldBase::Dot2D(const Vertex& a, const Vertex& b, const Vertex& c) co
 bool HeightFieldBase::IsConvex(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     return Cross2D(a, b, c) > 0;
+}
+
+bool HeightFieldBase::PointInTri2D(const Vertex& p, const Vertex& a, const Vertex& b, const Vertex& c) const
+{
+    int c1 = Cross2D(a, b, p);
+    int c2 = Cross2D(b, c, p);
+    int c3 = Cross2D(c, a, p);
+
+    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
+    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
+
+    return !(hasNeg && hasPos);
+}
+
+bool HeightFieldBase::PointInTri2D(const Vec3& p, const Vec3& a, const Vec3& b, const Vec3& c) const
+{
+    float c1 = Cross2D(a, b, p);
+    float c2 = Cross2D(b, c, p);
+    float c3 = Cross2D(c, a, p);
+
+    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
+    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
+
+    return !(hasNeg && hasPos);
+}
+
+float HeightFieldBase::GetTriY(float x, float z, const Vec3& v0, const Vec3& v1, const Vec3& v2) const
+{
+    Vec3 e0 = v1 - v0;
+    Vec3 e1 = v2 - v0;
+    Vec3 n = Vec3::Cross(e0, e1);
+
+    float A = n.x;
+    float B = n.y;
+    float C = n.z;
+    float D = -(A * v0.x + B * v0.y + C * v0.z);
+
+    float y = -(A * x + C * z + D) / B;
+    return y;
 }

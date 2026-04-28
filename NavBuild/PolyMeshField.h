@@ -21,7 +21,6 @@ private:
     PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);
 
     bool IsConvex(const vector<int>& poly, const vector<Vertex>& verts);
-    bool PointInTri2D(const Vertex& p, const Vertex& a, const Vertex& b, const Vertex& c);
 
     pair<int, int> FindSharedEdge(const Poly& a, const Poly& b);
     vector<int> BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB);

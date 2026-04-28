@@ -13,16 +13,18 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
         const PolyMesh& polyMesh = polyMeshs[regionIdx];
         DetailMesh& detailMesh = _detailMeshs[regionIdx];
         detailMesh.triangles.resize(polyMesh.polys.size());
+        vector<Vec3>& detailVertices = detailMesh.vertices;
 
         for (const Vertex& vertex : polyMesh.vertices)
         {
-            detailMesh.vertices.push_back(Vec3(vertex.x, vertex.y, vertex.z));
+            detailVertices.push_back(Vec3(vertex.x, vertex.y, vertex.z));
         }
 
         SharedEdgeCache sharedEdgeCache;
         for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
         {
             const Poly& poly = polyMesh.polys[polyIdx];
+            vector<Triangle>& curTris = detailMesh.triangles[polyIdx];
             vector<int> detailIndices;
             unordered_set<int> shareIndices;
 
@@ -43,10 +45,10 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
                 if (it == sharedEdgeCache.end())
                 {
                     vector<Vec3> edgeVerts;
-                    SampleEdgeMaxError(regionIdx, detailMesh.vertices[edgeKey.u], detailMesh.vertices[edgeKey.v], compactHeightField, settings.detailSampleMaxError, settings.detailSampleDist, edgeVerts);
-                    startIndex = (int)detailMesh.vertices.size();
-                    detailMesh.vertices.insert(detailMesh.vertices.end(), edgeVerts.begin(), edgeVerts.end());
-                    endIndex = (int)detailMesh.vertices.size();
+                    SampleEdgeMaxError(regionIdx, detailVertices[edgeKey.u], detailVertices[edgeKey.v], compactHeightField, settings.detailSampleMaxError, settings.detailSampleDist, edgeVerts);
+                    startIndex = (int)detailVertices.size();
+                    detailVertices.insert(detailVertices.end(), edgeVerts.begin(), edgeVerts.end());
+                    endIndex = (int)detailVertices.size();
                     sharedEdgeCache[edgeKey] = make_pair(startIndex, endIndex);
                 }
                 else
@@ -62,7 +64,79 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
             for (int idx : shareIndices)
                 detailIndices.push_back(idx);
 
-            DelaunayTriangulate(detailMesh.vertices, detailIndices, detailMesh.triangles[polyIdx]);
+            DelaunayTriangulate(detailMesh.vertices, detailIndices, curTris);
+
+            bool vertexAdded = true;
+            while (vertexAdded)
+            {
+                vertexAdded = false;
+
+                float maxErr = 0.0f;
+                Vec3 maxErrPt;
+                for (int triIdx = 0; triIdx < curTris.size(); triIdx++)
+                {
+                    const Triangle& tri = curTris[triIdx];
+                    Vertex2D boundMin = { INT_MAX, INT_MAX };
+                    Vertex2D boundMax = { INT_MIN, INT_MIN };
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int index = tri.indices[i];
+                        const Vec3& v = detailVertices[index];
+                        boundMin.x = min(boundMin.x, static_cast<int>(v.x));
+                        boundMin.z = min(boundMin.z, static_cast<int>(v.z));
+                        boundMax.x = max(boundMax.x, static_cast<int>(v.x));
+                        boundMax.z = max(boundMax.z, static_cast<int>(v.z));
+                    }
+
+                    for (int cx = boundMin.x; cx <= boundMax.x; cx++)
+                    {
+                        for (int cz = boundMin.z; cz <= boundMax.z; cz++)
+                        {
+                            float x = static_cast<float>(cx);
+                            float z = static_cast<float>(cz);
+                            Vec3 p0{ x, 0, z };
+                            Vec3 p1{ x + 1, 0, z };
+                            Vec3 p2{ x, 0, z + 1 };
+                            Vec3 p3{ x + 1, 0, z + 1 };
+
+                            const Vec3& a = detailVertices[tri.indices[0]];
+                            const Vec3& b = detailVertices[tri.indices[1]];
+                            const Vec3& c = detailVertices[tri.indices[2]];
+
+                            if (PointInTri2D(p0, a, b, c) == false)
+                                continue;
+                            if (PointInTri2D(p1, a, b, c) == false)
+                                continue;
+                            if (PointInTri2D(p2, a, b, c) == false)
+                                continue;
+                            if (PointInTri2D(p3, a, b, c) == false)
+                                continue;
+
+                            int actualHeight;
+                            if (compactHeightField.TryGetHeight(cx, cz, regionIdx, OUT actualHeight) == false)
+                                continue;
+
+                            float interpHeight = GetTriY(cx, cz, a, b, c);
+                            float err = std::abs(actualHeight - interpHeight);
+
+                            if (err > maxErr)
+                            {
+                                maxErr = err;
+                                maxErrPt = { static_cast<float>(cx), static_cast<float>(actualHeight), static_cast<float>(cz) };
+                            }
+                        }
+                    }
+                }
+
+                if (maxErr > settings.detailSampleMaxError)
+                {
+                    detailVertices.push_back(maxErrPt);
+                    detailIndices.push_back(detailVertices.size() - 1);
+
+                    DelaunayTriangulate(detailMesh.vertices, detailIndices, curTris);
+                    vertexAdded = true;
+                }
+            }
         }
     }
 }
@@ -113,20 +187,26 @@ void DetailMeshField::SampleEdgeMaxError(const int region, const Vec3& a, const 
     SampleEdgeMaxError(region, maxErrPt, b, heightField, maxError, stepSize, result);
 }
 
-bool DetailMeshField::InCircumcircle(const Vec3& a, const Vec3& b,
-    const Vec3& c, const Vec3& p)
+bool DetailMeshField::InCircumcircle(
+    const Vec3& a,
+    const Vec3& b,
+    const Vec3& c,
+    const Vec3& p)
 {
-    double ax = a.x - p.x, az = a.z - p.z;
-    double bx = b.x - p.x, bz = b.z - p.z;
-    double cx = c.x - p.x, cz = c.z - p.z;
+    double ax = a.x - p.x;
+    double az = a.z - p.z;
+    double bx = b.x - p.x;
+    double bz = b.z - p.z;
+    double cx = c.x - p.x;
+    double cz = c.z - p.z;
 
-    double det = ax * (bz * (cx * cx + cz * cz) - cz * (bx * bx + bz * bz))
+    double det =
+        ax * (bz * (cx * cx + cz * cz) - cz * (bx * bx + bz * bz))
         - az * (bx * (cx * cx + cz * cz) - cx * (bx * bx + bz * bz))
         + (ax * ax + az * az) * (bx * cz - bz * cx);
 
-    return det > 0.0;
+    return det < 0.0;
 }
-
 void DetailMeshField::DelaunayTriangulate(vector<Vec3>& verts, const vector<int>& indices, vector<Triangle>& curTris)
 {
     int originVertsSize = (int)verts.size();
@@ -164,7 +244,7 @@ void DetailMeshField::DelaunayTriangulate(vector<Vec3>& verts, const vector<int>
         verts.push_back({ mx + delta, 0, mz + delta });
 
         int s0 = originVertsSize, s1 = originVertsSize + 1, s2 = originVertsSize + 2;
-        curTris.push_back({ s0, s2, s1 });
+        curTris.push_back({ s0, s1, s2 });
 
         toInsert.reserve(indices.size() + 1);
         for (int i = 0; i < indices.size(); i++)
@@ -174,7 +254,7 @@ void DetailMeshField::DelaunayTriangulate(vector<Vec3>& verts, const vector<int>
     }
     else
     {
-        toInsert.push_back(verts.size() - 1);
+        toInsert.push_back(indices[indices.size() - 1]);
     }
 
     // --- 정점 하나씩 삽입 ---
@@ -230,7 +310,7 @@ void DetailMeshField::DelaunayTriangulate(vector<Vec3>& verts, const vector<int>
             if (std::abs(cross) < kEps)
                 continue;
 
-            if (cross > 0)
+            if (cross < 0)
                 curTris.emplace_back(a, b, newVert);
             else
                 curTris.emplace_back(b, a, newVert);

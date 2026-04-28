@@ -151,18 +151,6 @@ bool PolyMeshField::IsConvex(const vector<int>& poly, const vector<Vertex>& vert
     return true;
 }
 
-bool PolyMeshField::PointInTri2D(const Vertex& p, const Vertex& a, const Vertex& b, const Vertex& c)
-{
-    int c1 = Cross2D(a, b, p);
-    int c2 = Cross2D(b, c, p);
-    int c3 = Cross2D(c, a, p);
-
-    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
-    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
-
-    return !(hasNeg && hasPos);
-}
-
 pair<int, int> PolyMeshField::FindSharedEdge(const Poly& a, const Poly& b)
 {
     for (int i = 0; i < a.vertCount; ++i)

@@ -57,7 +57,8 @@ struct Bounds
 
 struct Vertex2D
 {
-    int x, z;
+    int x = 0;
+    int z = 0;
 
     bool operator==(const Vertex2D& other) const
     {
@@ -91,7 +92,9 @@ struct Vertex2DHash
 
 struct Vertex
 {
-    int x, y, z;
+    int x = 0;
+    int y = 0;
+    int z = 0;
     bool operator==(const Vertex& other) const
     {
         return x == other.x && y == other.y && z == other.z;
