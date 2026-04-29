@@ -49,6 +49,9 @@ private:
     ComponentRef<MeshRenderer> _debugMeshRenderer;
     GameObjectRef _debugLineRendererParent;
     vector<ComponentRef<class LineRenderer>> _debugLineRenderers;
+    ComponentRef<Transform> _startPoint;
+    ComponentRef<Transform> _endPoint;
+
     NavDebugOption _debugOption = NavDebugOption::None;
     Vec3 _buildExtent = Vec3(11.f, 20.f, 11.f);
     float _contourSimplifyMaxError = 1.5f;

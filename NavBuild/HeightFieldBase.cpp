@@ -58,6 +58,16 @@ void HeightFieldBase::GetWorldHeight(float cy, OUT float& wy) const
     wy = _bmin.y + cy * _ch;
 }
 
+Vec3 HeightFieldBase::ToWorldPos(const Vec3& v) const
+{
+    return Vec3(_bmin.x + v.x * _cs, _bmin.y + v.y * _ch, _bmin.z + v.z * _cs);
+}
+
+Vec3 HeightFieldBase::ToNavPos(const Vec3& v) const
+{
+    return Vec3((v.x - _bmin.x) / _cs, (v.y - _bmin.y) / _ch, (v.z - _bmin.z) / _cs);  
+}
+
 
 int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
@@ -119,7 +129,7 @@ float HeightFieldBase::GetTriY(float x, float z, const Vec3& v0, const Vec3& v1,
 {
     Vec3 e0 = v1 - v0;
     Vec3 e1 = v2 - v0;
-    Vec3 n = Vec3::Cross(e0, e1);
+    Vec3 n = e0.Cross(e1);
 
     float A = n.x;
     float B = n.y;

@@ -23,6 +23,9 @@ public:
     void GetWorldHeight(float cy, OUT float& wy) const;
     int GetColumnIndex(int cx, int cz) const { return cx + cz * _width; }
 
+    Vec3 ToWorldPos(const Vec3& v) const;
+    Vec3 ToNavPos(const Vec3& v) const;
+
     int Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) const;
     float Cross2D(const Vec3& a, const Vec3& b, const Vec3& c) const;
     int Dot2D(const Vertex& a, const Vertex& b, const Vertex& c) const;

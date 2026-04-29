@@ -197,6 +197,14 @@ struct PolyRef
     int polyIndex = -1;
 
     bool IsValid() const { return regionIndex >= 0 && polyIndex >= 0; }
+    bool operator==(const PolyRef& other) const
+    {
+        return regionIndex == other.regionIndex && polyIndex == other.polyIndex;
+    }
+    bool operator!=(const PolyRef& other) const
+    {
+        return !(*this == other);
+    }
 };
 
 struct Poly : public PolyBase<6>
@@ -207,6 +215,7 @@ struct Poly : public PolyBase<6>
     {
     }
     PolyRef neighbors[MAX_VERTS] = {};
+    Vec3 centroid;
 };
 
 constexpr float kEps = 1e-6f;

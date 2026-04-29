@@ -3,6 +3,7 @@
 #include "Contours.h"
 #include "PolyMeshField.h"
 #include "DetailMeshField.h"
+#include "NavMeshQuery.h"
 
 bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 {
@@ -34,21 +35,39 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     contours.RDPSimplify(input.settings.contourMaxError);
     _onSimplifyContours(contours);
 
-    PolyMeshField polyMeshField(contours);
-    _onBuildPolyMesh(polyMeshField);
+    _polyMeshField = make_unique<PolyMeshField>(contours);
+    _onBuildPolyMesh(*_polyMeshField);
 
-    DetailMeshField detailMeshField(polyMeshField, compactHeightField, input.settings);
-    _onBuildDetailMesh(detailMeshField);
+    _detailMeshField = make_unique<DetailMeshField>(*_polyMeshField, compactHeightField, input.settings);
+    _onBuildDetailMesh(*_detailMeshField);
+
+    _navMeshQuery = make_unique<NavMeshQuery>(*_polyMeshField, *_detailMeshField);
 
     return true;
+}
+
+vector<Vec3> NavMeshBuilder::FindPath(const Vec3& worldStart, const Vec3& worldEnd) const
+{
+    if (_navMeshQuery == nullptr)
+        return {};
+
+    const Vec3 navStart = _polyMeshField->ToNavPos(worldStart);
+    const Vec3 navEnd = _polyMeshField->ToNavPos(worldEnd);
+
+    vector<Vec3> pathes = _navMeshQuery->FindPath(navStart, navEnd);
+    for (int i = 0; i < pathes.size(); i++)
+    {
+        pathes[i] = _polyMeshField->ToWorldPos(pathes[i]);
+    }
+    return pathes;
 }
 
 Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)
 {
     Vec3 e0 = tri.v1 - tri.v0;
     Vec3 e1 = tri.v2 - tri.v0;
-    Vec3 n = Vec3::Cross(e0, e1);
-    n = Vec3::Normalize(n);
+    Vec3 n = e0.Cross(e1);
+    n.Normalize();
     return n;
 }
 
@@ -60,7 +79,7 @@ void NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
     {
         InputTri& tri = input.triangles[i];
         Vec3 n = GetTriangleNormal(tri);
-        float dot = Vec3::Dot(n, Vec3(0.f, 1.f, 0.f));
+        float dot = n.Dot(Vec3(0.f, 1.f, 0.f));
         tri.walkable = dot >= walkableThreshold;
     }
 }

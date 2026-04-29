@@ -17,9 +17,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Math.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
@@ -53,12 +50,12 @@
     <ClInclude Include="NavMeshQuery.h">
       <Filter>소스 파일\Agent</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleMath.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Math.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Types.cpp">
@@ -88,5 +85,13 @@
     <ClCompile Include="NavMeshQuery.cpp">
       <Filter>소스 파일\Agent</Filter>
     </ClCompile>
+    <ClCompile Include="SimpleMath.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl">
+      <Filter>소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

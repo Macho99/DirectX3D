@@ -13,6 +13,7 @@ class NavMeshBuilder
 {
 public:
     bool Build(NavBuildInput input, const fs::path& savePath);
+    vector<Vec3> FindPath(const Vec3 & worldStart, const Vec3 & worldEnd) const;
 
     void SetDebugOnMarkWalkableTriangles(function<void(const vector<InputTri>&)> callback) { _onMarkWalkableTriangles = callback; }
     void SetDebugOnBuildHeightField(function<void(const HeightField&)> callback) { _onBuildHeightField = callback; }
@@ -45,5 +46,9 @@ private:
     function<void(const class Contours&)> _onSimplifyContours;
     function<void(const class PolyMeshField&)> _onBuildPolyMesh;
     function<void(const class DetailMeshField&)> _onBuildDetailMesh;
+
+    unique_ptr<PolyMeshField> _polyMeshField;
+    unique_ptr<DetailMeshField> _detailMeshField;
+    unique_ptr<class NavMeshQuery> _navMeshQuery;
 };
 

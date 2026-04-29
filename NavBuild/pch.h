@@ -17,8 +17,7 @@
 #include <functional>
 #include <queue>
 #include <unordered_set>
-using namespace std;
-namespace fs = std::filesystem;
+#include <memory>
 
 using int8 = __int8;
 using int16 = __int16;
@@ -29,7 +28,14 @@ using uint16 = unsigned __int16;
 using uint32 = unsigned __int32;
 using uint64 = unsigned __int64;
 
-#include "Math.h"
+#include "DirectXMath.h"
+#include "SimpleMath.h"
+using Vec3 = DirectX::SimpleMath::Vector3;
+
+using namespace std;
+namespace fs = std::filesystem;
+
 #include "Types.h"
+
 
 #endif //PCH_H

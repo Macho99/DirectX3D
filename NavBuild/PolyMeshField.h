@@ -32,6 +32,7 @@ private:
     vector<int> BuildMergedVerts(const Poly& a, int edgeA, const Poly& b, int edgeB);
     void MergeToConvexPolys(PolyMesh& polyMesh);
     void BuildAdjacentInfo();
+    void BuildCentroid();
 
 private:
     vector<PolyMesh> polyMeshs;

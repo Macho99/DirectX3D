@@ -16,6 +16,7 @@ PolyMeshField::PolyMeshField(const Contours& contourField)
         polyMeshs.push_back(std::move(polyMesh));
     }
     BuildAdjacentInfo();
+    BuildCentroid();
 }
 
 PolyMesh PolyMeshField::TriangulateEarClipping(const vector<ContourVertex>& verts)
@@ -283,6 +284,27 @@ void PolyMeshField::BuildAdjacentInfo()
     }
 }
 
+void PolyMeshField::BuildCentroid()
+{
+    for (int regionIdx = 0; regionIdx < polyMeshs.size(); ++regionIdx)
+    {
+        PolyMesh& polyMesh = polyMeshs[regionIdx];
+        const vector<Vertex>& vertices = polyMesh.vertices;
+        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); ++polyIdx)
+        {
+            Poly& poly = polyMesh.polys[polyIdx];
+            poly.centroid = Vec3(0.f);
+            for (int i = 0; i < poly.vertCount; ++i)
+            {
+                int idx = poly.indices[i];
+                const Vertex& v = vertices[idx];
+                poly.centroid += v.ToVec3();
+            }
+            poly.centroid /= poly.vertCount;
+        }
+    }
+}
+
 const Poly& PolyMeshField::GetPoly(const PolyRef& ref) const
 {
     if (!ref.IsValid())
@@ -334,14 +356,7 @@ PolyRef PolyMeshField::FindNearestPoly(const Vec3& point) const
         for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
         {
             const Poly& poly = polyMesh.polys[polyIdx];
-            Vec3 centroid;
-            for (int vertIdx = 0; vertIdx < poly.vertCount; vertIdx++)
-            {
-                centroid += vertices[poly.indices[vertIdx]].ToVec3();
-            }
-            centroid /= poly.vertCount;
-
-            float lenSq = (point - centroid).LengthSq();
+            float lenSq = (point - poly.centroid).LengthSquared();
             if (minDist > lenSq)
             {
                 minDist = lenSq;

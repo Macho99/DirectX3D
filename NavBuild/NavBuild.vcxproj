@@ -164,11 +164,11 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="HeightField.h" />
     <ClInclude Include="HeightFieldBase.h" />
-    <ClInclude Include="Math.h" />
     <ClInclude Include="NavMeshBuilder.h" />
     <ClInclude Include="NavMeshQuery.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PolyMeshField.h" />
+    <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
@@ -177,7 +177,6 @@
     <ClCompile Include="DetailMeshField.cpp" />
     <ClCompile Include="HeightField.cpp" />
     <ClCompile Include="HeightFieldBase.cpp" />
-    <ClCompile Include="Math.cpp" />
     <ClCompile Include="NavMeshBuilder.cpp" />
     <ClCompile Include="NavMeshQuery.cpp" />
     <ClCompile Include="pch.cpp">
@@ -187,7 +186,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PolyMeshField.cpp" />
+    <ClCompile Include="SimpleMath.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Types.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

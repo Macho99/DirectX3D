@@ -36,7 +36,6 @@ struct DetailMesh
 class DetailMeshField : public HeightFieldBase
 {
 public:
-    DetailMeshField() = delete;
     DetailMeshField(const PolyMeshField& polyMeshField, const CompactHeightField& compactHeightField, const NavBuildSettings& settings);
 
     const vector<DetailMesh>& GetDetailMeshs() const { return _detailMeshs; }

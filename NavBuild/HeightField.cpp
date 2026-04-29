@@ -36,7 +36,7 @@ void HeightField::HandleTriangles(const vector<InputTri>& tris)
 
         Vec3 e0 = v1 - v0;
         Vec3 e1 = v2 - v0;
-        Vec3 n = Vec3::Cross(e0, e1);
+        Vec3 n = e0.Cross(e1);
         n.y += 0.00001f; // 수직선과의 교차점 계산 시 y값이 0이 되는 경우를 방지하기 위해 아주 작은 값을 더해줌
 
         float A = n.x;
