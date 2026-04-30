@@ -5,15 +5,15 @@ class DetailMeshField;
 struct PolyPath
 {
     PolyPath() = default;
-    PolyPath(const PolyRef& ref, int idx) : polyRef(ref), index(idx) {}
+    PolyPath(const PolyRef& ref, int idx) : polyRef(ref), portalEdgeIndex(idx) {}
 
     PolyRef polyRef;
-    int index = -1;
+    int portalEdgeIndex = -1;
 
     bool operator==(const PolyPath& other) const
     {
         return polyRef == other.polyRef &&
-            index == other.index;
+            portalEdgeIndex == other.portalEdgeIndex;
     }
     bool operator!=(const PolyPath& other) const
     {
@@ -38,10 +38,11 @@ class NavMeshQuery
 public:
     NavMeshQuery(const PolyMeshField& polyMeshField, const DetailMeshField& detailMeshField);
 
-    vector<Vec3> FindPath(const Vec3& start, const Vec3& end) const;
+    vector<Vec3> FindPath(const Vec3& start, const Vec3& end, OUT vector<Vec3>& edgePath) const;
 
 private:
     vector<PolyPath> FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly) const;
+    vector<Vec3> FunnelSmooth(const vector<PolyPath>& polyPath, const Vec3& startPos, const Vec3& endPos) const;
 
 private:
     const PolyMeshField& _polyMeshField;

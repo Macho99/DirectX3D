@@ -532,6 +532,15 @@ NavMesh::~NavMesh()
 {
 }
 
+void NavMesh::Awake()
+{
+    TransformRef transformRef = GetGameObject()->GetFixedComponentRef<Transform>();
+    _debugMeshRenderer.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
+    _debugLineRendererParent.Resolve()->GetTransform()->SetParent(transformRef);
+    _startPoint.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
+    _endPoint.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
+}
+
 bool NavMesh::OnGUI()
 {
     bool changed = false;
@@ -608,22 +617,27 @@ bool NavMesh::OnGUI()
         {
             Vec3 startPos = _startPoint.Resolve()->GetPosition();
             Vec3 endPos = _endPoint.Resolve()->GetPosition();
-            auto path = _builder.FindPath(startPos, endPos);
-            GameObject* parentObj = _debugLineRendererParent.Resolve();
-            parentObj->SetActive(true);
-            EnsureLineRendererCount(1);
+
             for (ComponentRef<LineRenderer>& lineRendererRef : _debugLineRenderers)
-            {
                 lineRendererRef.Resolve()->GetGameObject()->SetActive(false);
-            }
-            LineRenderer* lineRenderer = _debugLineRenderers[0].Resolve();
-            lineRenderer->GetGameObject()->SetActive(true);
-            lineRenderer->ClearPoints();
-            lineRenderer->SetColor(Color(1.f, 0.f, 0.f, 1.f));
-            for (auto& point : path)
-            {
-                lineRenderer->AddPoint(point);
-            }
+
+            auto OnDebugDrawPath = [this](const vector<Vec3>& path, int drawIdx)
+                {
+                    GameObject* parentObj = _debugLineRendererParent.Resolve();
+                    parentObj->SetActive(true);
+                    EnsureLineRendererCount(drawIdx + 1);
+                    LineRenderer* lineRenderer = _debugLineRenderers[drawIdx].Resolve();
+                    lineRenderer->GetGameObject()->SetActive(true);
+                    lineRenderer->ClearPoints();
+                    Vec3 color = GetDebugColor(drawIdx);
+                    lineRenderer->SetColor(Color(color.x, color.y, color.z, 1));
+                    for (auto& point : path)
+                    {
+                        lineRenderer->AddPoint(point);
+                    }
+                };
+
+            auto path = _builder.FindPath(startPos, endPos, OnDebugDrawPath);
         }
     }
 

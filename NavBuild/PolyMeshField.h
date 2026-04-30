@@ -20,8 +20,7 @@ public:
 public:
     const Poly& GetPoly(const PolyRef& ref) const;
     Poly& GetPoly(const PolyRef& ref);
-    PolyRef FindContainingPoly(const Vec3& point) const;
-    PolyRef FindNearestPoly(const Vec3& point) const;
+    PolyRef FindClosestPoly(const Vec3& point) const;
 
 private:
     PolyMesh TriangulateEarClipping(const vector<ContourVertex>& verts);

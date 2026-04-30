@@ -9,19 +9,10 @@ NavMeshQuery::NavMeshQuery(const PolyMeshField& polyMeshField, const DetailMeshF
 {
 }
 
-vector<Vec3> NavMeshQuery::FindPath(const Vec3& start, const Vec3& end) const
+vector<Vec3> NavMeshQuery::FindPath(const Vec3& start, const Vec3& end, OUT vector<Vec3>& edgePath) const
 {
-    // 1) 포함 폴리 탐색 (실패 시 가장 가까운 폴리로 폴백)
-    //PolyRef startPoly = _polyMeshField.FindContainingPoly(start);
-    //if (startPoly.IsValid() == false)
-    //    startPoly = _polyMeshField.FindNearestPoly(start);
-    //
-    //PolyRef goalPoly = _polyMeshField.FindContainingPoly(end);
-    //if (goalPoly.IsValid() == false)
-    //    goalPoly = _polyMeshField.FindNearestPoly(end);
-
-    PolyRef startPoly = _polyMeshField.FindNearestPoly(start);
-    PolyRef goalPoly = _polyMeshField.FindNearestPoly(end);
+    PolyRef startPoly = _polyMeshField.FindClosestPoly(start);
+    PolyRef goalPoly = _polyMeshField.FindClosestPoly(end);
 
     if (startPoly.IsValid() == false || goalPoly.IsValid() == false)
         return {};
@@ -30,26 +21,25 @@ vector<Vec3> NavMeshQuery::FindPath(const Vec3& start, const Vec3& end) const
     vector<PolyPath> polyPathes = FindPolyPath(startPoly, goalPoly);
     if (polyPathes.empty()) return {};
 
-    // 3) 퍼널 → 최종 웨이포인트
-    //return FunnelSmooth(polyPath, start, goal);
-
     vector<Vec3> waypoints;
-    waypoints.push_back(start);
+    edgePath.push_back(start);
     for (const PolyPath& polyPath : polyPathes)
     {
-        if (polyPath.index < 0)
+        if (polyPath.portalEdgeIndex < 0)
             break;
 
         const Poly& poly = _polyMeshField.GetPoly(polyPath.polyRef);
         const vector<Vertex>& vertices = _polyMeshField.GetPolyMeshs()[polyPath.polyRef.regionIndex].vertices;
-        const int edgeIdx = polyPath.index;
+        const int edgeIdx = polyPath.portalEdgeIndex;
         Vertex v0 = vertices[poly.indices[edgeIdx]];
         Vertex v1 = vertices[poly.indices[(edgeIdx + 1) % poly.vertCount]];
         Vec3 edgeMidpoint = (v0.ToVec3() + v1.ToVec3()) * 0.5f;
-        waypoints.push_back(edgeMidpoint);
+        edgePath.push_back(edgeMidpoint);
     }
-    waypoints.push_back(end);
-    return waypoints;
+    edgePath.push_back(end);
+
+    // 3) 퍼널 → 최종 웨이포인트
+    return FunnelSmooth(polyPathes, start, end);
 }
 
 vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly) const
@@ -140,4 +130,90 @@ vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const Poly
     }
 
     return {}; // 경로 없음
+}
+
+vector<Vec3> NavMeshQuery::FunnelSmooth(const vector<PolyPath>& polyPath, const Vec3& startPos, const Vec3& endPos) const
+{
+    if (polyPath.empty()) return {};
+    if (polyPath.size() == 1) return { startPos, endPos };
+
+    // 포털 목록 수집
+    struct Portal { Vec3 left, right; };
+    vector<Portal> portals;
+    portals.push_back({ startPos, startPos }); // 시작 더미
+
+    for (int i = 0; i + 1 < (int)polyPath.size(); ++i)
+    {
+        const PolyPath& path = polyPath[i];
+        const Poly& poly = _polyMeshField.GetPoly(polyPath[i].polyRef);
+        const vector<Vertex>& vertices = _polyMeshField.GetPolyMeshs()[polyPath[i].polyRef.regionIndex].vertices;
+        
+        Portal p;
+        int leftIdx = poly.indices[path.portalEdgeIndex];
+        int rightIdx = poly.indices[(path.portalEdgeIndex + 1) % poly.vertCount];
+        p.left = vertices[leftIdx].ToVec3();
+        p.right = vertices[rightIdx].ToVec3();
+        portals.push_back(p);
+    }
+    portals.push_back({ endPos, endPos }); // 목표 더미
+
+    // --- Simple Stupid Funnel Algorithm ---
+    vector<Vec3> waypoints;
+    waypoints.push_back(startPos);
+
+    Vec3 apex = startPos;
+    Vec3 left = portals[0].left;
+    Vec3 right = portals[0].right;
+    int apexIdx = 0, leftIdx = 0, rightIdx = 0;
+
+    for (int i = 1; i < (int)portals.size(); ++i)
+    {
+        const Vec3& newLeft = portals[i].left;
+        const Vec3& newRight = portals[i].right;
+
+        // --- 오른쪽 업데이트 ---
+        if (_polyMeshField.Cross2D(apex, right, newRight) <= 0.f)
+        {
+            if (apex == right || _polyMeshField.Cross2D(apex, left, newRight) > 0.f)
+            {
+                right = newRight;
+                rightIdx = i;
+            }
+            else
+            {
+                // 왼쪽 엣지를 넘었음 → 왼쪽 꼭짓점이 새 apex
+                waypoints.push_back(left);
+                apex = left;
+                apexIdx = leftIdx;
+                right = apex;
+                rightIdx = apexIdx;
+                // 포털을 apex 이후부터 재시작
+                i = apexIdx;
+                continue;
+            }
+        }
+
+        // --- 왼쪽 업데이트 ---
+        if (_polyMeshField.Cross2D(apex, left, newLeft) >= 0.f)
+        {
+            if (apex == left || _polyMeshField.Cross2D(apex, right, newLeft) < 0.f)
+            {
+                left = newLeft;
+                leftIdx = i;
+            }
+            else
+            {
+                waypoints.push_back(right);
+                apex = right;
+                apexIdx = rightIdx;
+                left = apex;
+                leftIdx = apexIdx;
+                i = apexIdx;
+                continue;
+            }
+        }
+    }
+
+    waypoints.push_back(endPos);
+    return waypoints;
 }

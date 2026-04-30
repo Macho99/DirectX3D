@@ -317,8 +317,12 @@ Poly& PolyMeshField::GetPoly(const PolyRef& ref)
     return const_cast<Poly&>(static_cast<const PolyMeshField*>(this)->GetPoly(ref));
 }
 
-PolyRef PolyMeshField::FindContainingPoly(const Vec3& point) const
+PolyRef PolyMeshField::FindClosestPoly(const Vec3& point) const
 {
+    PolyRef closestRef;
+    bool closestContainsPoint = false;
+    float closestDistSq = FLT_MAX;
+
     for (int regionIdx = 0; regionIdx < polyMeshs.size(); ++regionIdx)
     {
         const PolyMesh& polyMesh = polyMeshs[regionIdx];
@@ -326,44 +330,42 @@ PolyRef PolyMeshField::FindContainingPoly(const Vec3& point) const
         for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); ++polyIdx)
         {
             const Poly& poly = polyMesh.polys[polyIdx];
-            bool contains = true;
-            for (int i = 0; i < poly.vertCount; ++i)
+            float yDiff = abs(poly.centroid.y - point.y);
+            bool contains = false;
+            if (yDiff < 10.f)
             {
-                const Vertex& a = vertices[poly.indices[i]];
-                const Vertex& b = vertices[poly.indices[(i + 1) % poly.vertCount]];
-                if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
+                contains = true;
+                for (int i = 0; i < poly.vertCount; ++i)
                 {
-                    contains = false;
-                    break;
+                    const Vertex& a = vertices[poly.indices[i]];
+                    const Vertex& b = vertices[poly.indices[(i + 1) % poly.vertCount]];
+                    if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
+                    {
+                        contains = false;
+                        break;
+                    }
                 }
             }
-            if (contains)
-                return PolyRef(regionIdx, polyIdx);
-        }
-    }
-    return PolyRef();
-}
+            float distSq = (poly.centroid - point).LengthSquared();
 
-PolyRef PolyMeshField::FindNearestPoly(const Vec3& point) const
-{
-    float minDist = FLT_MAX;
-    PolyRef bestRef;
-
-    for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
-    {
-        const PolyMesh& polyMesh = polyMeshs[regionIdx];
-        const vector<Vertex>& vertices = polyMesh.vertices;
-        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
-        {
-            const Poly& poly = polyMesh.polys[polyIdx];
-            float lenSq = (point - poly.centroid).LengthSquared();
-            if (minDist > lenSq)
+            if (closestContainsPoint == contains)
             {
-                minDist = lenSq;
-                bestRef = PolyRef(regionIdx, polyIdx);
+                if (distSq < closestDistSq)
+                {
+                    closestDistSq = distSq;
+                    closestRef = PolyRef(regionIdx, polyIdx);
+                }
+            }
+            else
+            {
+                if (contains)
+                {
+                    closestContainsPoint = true;
+                    closestDistSq = distSq;
+                    closestRef = PolyRef(regionIdx, polyIdx);
+                }
             }
         }
     }
-
-    return bestRef;
+    return closestRef;
 }

@@ -46,7 +46,7 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     return true;
 }
 
-vector<Vec3> NavMeshBuilder::FindPath(const Vec3& worldStart, const Vec3& worldEnd) const
+vector<Vec3> NavMeshBuilder::FindPath(const Vec3& worldStart, const Vec3& worldEnd, function<void(const vector<Vec3>&, int)> onDebugDraw) const
 {
     if (_navMeshQuery == nullptr)
         return {};
@@ -54,11 +54,19 @@ vector<Vec3> NavMeshBuilder::FindPath(const Vec3& worldStart, const Vec3& worldE
     const Vec3 navStart = _polyMeshField->ToNavPos(worldStart);
     const Vec3 navEnd = _polyMeshField->ToNavPos(worldEnd);
 
-    vector<Vec3> pathes = _navMeshQuery->FindPath(navStart, navEnd);
+    vector<Vec3> edgePath;
+    vector<Vec3> pathes = _navMeshQuery->FindPath(navStart, navEnd, edgePath);
     for (int i = 0; i < pathes.size(); i++)
     {
         pathes[i] = _polyMeshField->ToWorldPos(pathes[i]);
     }
+    for (int i = 0; i < edgePath.size(); i++)
+    {
+        edgePath[i] = _polyMeshField->ToWorldPos(edgePath[i]);
+    }
+    onDebugDraw(edgePath, 0);
+    onDebugDraw(pathes, 1);
+
     return pathes;
 }
 

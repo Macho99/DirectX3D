@@ -68,7 +68,6 @@ Vec3 HeightFieldBase::ToNavPos(const Vec3& v) const
     return Vec3((v.x - _bmin.x) / _cs, (v.y - _bmin.y) / _ch, (v.z - _bmin.z) / _cs);  
 }
 
-
 int HeightFieldBase::Cross2D(const Vertex& a, const Vertex& b, const Vertex& c) const
 {
     int abx = b.x - a.x;

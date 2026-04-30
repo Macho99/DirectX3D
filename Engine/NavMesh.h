@@ -37,6 +37,7 @@ public:
     NavMesh();
     ~NavMesh();
 
+    virtual void Awake() override;
     virtual bool OnGUI() override;
 
 private:
