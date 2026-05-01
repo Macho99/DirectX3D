@@ -332,6 +332,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="ModelMeshResource.h" />
     <ClInclude Include="ModelMeta.h" />
     <ClInclude Include="ModelSourceMeta.h" />
+    <ClInclude Include="NavAgent.h" />
     <ClInclude Include="NavMesh.h" />
     <ClInclude Include="NotSupportMeta.h" />
     <ClInclude Include="OnGUIUtils.h" />
@@ -529,6 +530,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="ModelMeshResource.cpp" />
     <ClCompile Include="ModelMeta.cpp" />
     <ClCompile Include="ModelSourceMeta.cpp" />
+    <ClCompile Include="NavAgent.cpp" />
     <ClCompile Include="NavMesh.cpp" />
     <ClCompile Include="NotSupportMeta.cpp" />
     <ClCompile Include="OnGUIUtils.cpp" />

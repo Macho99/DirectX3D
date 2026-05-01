@@ -13,6 +13,8 @@
 #include "ModelAnimator.h"
 #include "MeshRenderer.h"
 #include "LineRenderer.h"
+#include "NavMesh.h"
+#include "NavAgent.h"
 
 template<class T>
 T* ComponentRef<T>::Resolve() const
@@ -48,3 +50,5 @@ template struct ComponentRef<MonoBehaviour>;
 template struct ComponentRef<ModelAnimator>;
 template struct ComponentRef<MeshRenderer>;
 template struct ComponentRef<LineRenderer>;
+template struct ComponentRef<NavMesh>;
+template struct ComponentRef<NavAgent>;

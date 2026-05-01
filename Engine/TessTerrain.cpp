@@ -194,34 +194,11 @@ bool TessTerrain::OnGUI()
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Terrain Data", _terrainData, false);
 
-	auto DrawModeButton = [this](const char* label, EditMode editMode)
-		{
-			bool selected = (_editMode == editMode);
-
-			if (!selected)
-			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-			}
-
-			if (ImGui::Button(label))
-			{
-				if (_editMode == editMode)
-					_editMode = EditMode::None;
-				else
-					_editMode = editMode;
-			}
-
-			if (!selected)
-				ImGui::PopStyleColor(3);
-		};
-
-    DrawModeButton("Raise/Lower", EditMode::RaiseLower);
+    OnGUIUtils::DrawEnableButton("Raise/Lower", _editMode, EditMode::RaiseLower, EditMode::None);
     ImGui::SameLine();
-    DrawModeButton("Smooth", EditMode::Smooth);
+	OnGUIUtils::DrawEnableButton("Smooth", _editMode, EditMode::Smooth, EditMode::None);
     ImGui::SameLine();
-    DrawModeButton("Texture", EditMode::Texture);
+	OnGUIUtils::DrawEnableButton("Texture", _editMode, EditMode::Texture, EditMode::None);
 	ImGui::Spacing();
 
 	TerrainData* terrainData = _terrainData.Resolve();

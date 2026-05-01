@@ -46,28 +46,34 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     return true;
 }
 
-vector<Vec3> NavMeshBuilder::FindPath(const Vec3& worldStart, const Vec3& worldEnd, function<void(const vector<Vec3>&, int)> onDebugDraw) const
+bool NavMeshBuilder::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, OUT NavPath & navPath) const
 {
     if (_navMeshQuery == nullptr)
-        return {};
+        return false;
+
+    navPath.path.clear();
+    navPath.edgeCenterPath.clear();
+    navPath.polyPath.clear();
 
     const Vec3 navStart = _polyMeshField->ToNavPos(worldStart);
     const Vec3 navEnd = _polyMeshField->ToNavPos(worldEnd);
 
-    vector<Vec3> edgePath;
-    vector<Vec3> pathes = _navMeshQuery->FindPath(navStart, navEnd, edgePath);
-    for (int i = 0; i < pathes.size(); i++)
+    bool result = _navMeshQuery->TryFindPath(navStart, navEnd, navPath);
+    if (result == false)
+        return false;
+
+    vector<Vec3>& path = navPath.path;
+    for (int i = 0; i < path.size(); i++)
     {
-        pathes[i] = _polyMeshField->ToWorldPos(pathes[i]);
+        path[i] = _polyMeshField->ToWorldPos(path[i]);
     }
+    vector<Vec3>& edgePath = navPath.edgeCenterPath;
     for (int i = 0; i < edgePath.size(); i++)
     {
         edgePath[i] = _polyMeshField->ToWorldPos(edgePath[i]);
     }
-    onDebugDraw(edgePath, 0);
-    onDebugDraw(pathes, 1);
 
-    return pathes;
+    return true;
 }
 
 Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)

@@ -25,6 +25,13 @@ struct PolyPath
     }
 };
 
+struct NavPath
+{
+    vector<Vec3> path;
+    vector<Vec3> edgeCenterPath;
+    vector<PolyPath> polyPath;
+};
+
 struct AStarNode
 {
     float g = FLT_MAX;   // 시작점으로부터 비용
@@ -38,7 +45,7 @@ class NavMeshQuery
 public:
     NavMeshQuery(const PolyMeshField& polyMeshField, const DetailMeshField& detailMeshField);
 
-    vector<Vec3> FindPath(const Vec3& start, const Vec3& end, OUT vector<Vec3>& edgePath) const;
+    bool TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath & navPath) const;
 
 private:
     vector<PolyPath> FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly) const;

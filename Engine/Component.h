@@ -3,6 +3,7 @@ class GameObject;
 class Transform;
 #include "GameObjectRef.h"
 #include "ComponentRegistry.h"
+#include <wrl/client.h>
 
 enum class ComponentType : uint8
 {
@@ -26,6 +27,7 @@ enum class ComponentType : uint8
     SphereCollider,
     NavMesh,
     LineRenderer,
+	NavAgent,
 	// ...
 	Script,
 
@@ -65,6 +67,7 @@ public:
 	GameObject* GetGameObject();
     GameObjectRef GetGameObjectRef() const { return _gameObject; }
 	Transform* GetTransform();
+    TransformRef GetTransformRef();
     Guid GetGuid() const { return _guid; }
 	void SetGuid(const Guid& guid) { _guid = guid; }
 

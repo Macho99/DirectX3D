@@ -121,7 +121,7 @@ void Transform::SetPosition(const Vec3& worldPosition)
 		Matrix worldToParentLocalMatrix = parent->GetWorldMatrix().Invert();
 
 		Vec3 position;
-		position.Transform(worldPosition, worldToParentLocalMatrix);
+		position = Vec3::Transform(worldPosition, worldToParentLocalMatrix);
 
 		SetLocalPosition(position);
 	}

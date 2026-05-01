@@ -27,6 +27,11 @@ Transform* Component::GetTransform()
 	return _gameObject.Resolve()->GetTransform();
 }
 
+TransformRef Component::GetTransformRef()
+{
+    return _gameObject.Resolve()->GetTransformRef();
+}
+
 bool Component::OnGUI()
 {
 	return false;

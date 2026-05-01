@@ -334,17 +334,7 @@ PolyRef PolyMeshField::FindClosestPoly(const Vec3& point) const
             bool contains = false;
             if (yDiff < 10.f)
             {
-                contains = true;
-                for (int i = 0; i < poly.vertCount; ++i)
-                {
-                    const Vertex& a = vertices[poly.indices[i]];
-                    const Vertex& b = vertices[poly.indices[(i + 1) % poly.vertCount]];
-                    if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
-                    {
-                        contains = false;
-                        break;
-                    }
-                }
+                contains = IsPointInPoly(point, PolyRef(regionIdx, polyIdx));
             }
             float distSq = (poly.centroid - point).LengthSquared();
 
@@ -368,4 +358,51 @@ PolyRef PolyMeshField::FindClosestPoly(const Vec3& point) const
         }
     }
     return closestRef;
+}
+
+Vec3 PolyMeshField::FindClosestPointInPoly(const Vec3& point, const PolyRef& polyRef) const
+{
+    const Poly& poly = GetPoly(polyRef);
+    const vector<Vertex>& verts = polyMeshs[polyRef.regionIndex].vertices;
+    Vec3 closestPoint;
+    float closestDistSq = FLT_MAX;
+    for (int i = 0; i < poly.vertCount; ++i)
+    {
+        const Vertex& a = verts[poly.indices[i]];
+        const Vertex& b = verts[poly.indices[(i + 1) % poly.vertCount]];
+        Vec3 edgeStart = a.ToVec3();
+        Vec3 edgeEnd = b.ToVec3();
+        Vec3 edgeDir = edgeEnd - edgeStart;
+        float edgeLengthSq = edgeDir.LengthSquared();
+        if (edgeLengthSq < kEps)
+            continue;
+        float t = ((point - edgeStart).Dot(edgeDir)) / edgeLengthSq;
+        t = std::clamp(t, 0.f, 1.f);
+        Vec3 projectedPoint = edgeStart + t * edgeDir;
+        float distSq = (projectedPoint - point).LengthSquared();
+        if (distSq < closestDistSq)
+        {
+            closestDistSq = distSq;
+            closestPoint = projectedPoint;
+        }
+    }
+    return closestPoint;
+}
+
+bool PolyMeshField::IsPointInPoly(const Vec3& point, const PolyRef& polyRef) const
+{
+    const Poly& poly = GetPoly(polyRef);
+    const vector<Vertex>& verts = polyMeshs[polyRef.regionIndex].vertices;
+    bool contains = true;
+    for (int i = 0; i < poly.vertCount; ++i)
+    {
+        const Vertex& a = verts[poly.indices[i]];
+        const Vertex& b = verts[poly.indices[(i + 1) % poly.vertCount]];
+        if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
+        {
+            contains = false;
+            break;
+        }
+    }
+    return contains;
 }

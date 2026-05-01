@@ -183,6 +183,11 @@ Transform* GameObject::GetTransform()
 	return static_cast<Transform*>(component);
 }
 
+TransformRef GameObject::GetTransformRef()
+{
+    return GetFixedComponentRef<Transform>();
+}
+
 Camera* GameObject::GetCamera()
 {
 	Component* component = GetFixedComponent(ComponentType::Camera);

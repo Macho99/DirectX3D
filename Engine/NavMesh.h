@@ -40,6 +40,8 @@ public:
     virtual void Awake() override;
     virtual bool OnGUI() override;
 
+    bool TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, OUT NavPath& navPath) const;
+
 private:
     Vec3 GetDebugColor(int id);
     bool TryInitializeDebugMesh(NavDebugOption option, bool useMeshRenderer = true);
@@ -50,8 +52,8 @@ private:
     ComponentRef<MeshRenderer> _debugMeshRenderer;
     GameObjectRef _debugLineRendererParent;
     vector<ComponentRef<class LineRenderer>> _debugLineRenderers;
-    ComponentRef<Transform> _startPoint;
-    ComponentRef<Transform> _endPoint;
+    //ComponentRef<Transform> _startPoint;
+    //ComponentRef<Transform> _endPoint;
 
     NavDebugOption _debugOption = NavDebugOption::None;
     Vec3 _buildExtent = Vec3(11.f, 20.f, 11.f);

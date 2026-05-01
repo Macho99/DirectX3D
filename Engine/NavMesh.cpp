@@ -25,22 +25,22 @@ NavMesh::NavMesh() : Super(StaticType)
         obj->SetActive(false);
     }
 
-    {
-        _startPoint = CUR_SCENE->Add("NavDebug Start Point").Resolve()->GetFixedComponentRef<Transform>();
-        _endPoint = CUR_SCENE->Add("NavDebug End Point").Resolve()->GetFixedComponentRef<Transform>();
-
-        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
-        auto mesh = RESOURCES->GetSphereMesh();
-        GameObject* obj = _startPoint.Resolve()->GetGameObject();
-        obj->AddComponent(make_unique<MeshRenderer>());
-        obj->GetMeshRenderer()->SetMaterial(materialRef);
-        obj->GetMeshRenderer()->SetMesh(mesh);
-
-        obj = _endPoint.Resolve()->GetGameObject();
-        obj->AddComponent(make_unique<MeshRenderer>());
-        obj->GetMeshRenderer()->SetMaterial(materialRef);
-        obj->GetMeshRenderer()->SetMesh(mesh);
-    }
+    //{
+    //    _startPoint = CUR_SCENE->Add("NavDebug Start Point").Resolve()->GetFixedComponentRef<Transform>();
+    //    _endPoint = CUR_SCENE->Add("NavDebug End Point").Resolve()->GetFixedComponentRef<Transform>();
+    //
+    //    ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
+    //    auto mesh = RESOURCES->GetSphereMesh();
+    //    GameObject* obj = _startPoint.Resolve()->GetGameObject();
+    //    obj->AddComponent(make_unique<MeshRenderer>());
+    //    obj->GetMeshRenderer()->SetMaterial(materialRef);
+    //    obj->GetMeshRenderer()->SetMesh(mesh);
+    //
+    //    obj = _endPoint.Resolve()->GetGameObject();
+    //    obj->AddComponent(make_unique<MeshRenderer>());
+    //    obj->GetMeshRenderer()->SetMaterial(materialRef);
+    //    obj->GetMeshRenderer()->SetMesh(mesh);
+    //}
 
     {
         _debugLineRendererParent = CUR_SCENE->Add("NavDebug LineRenderer Parent"); 
@@ -537,8 +537,8 @@ void NavMesh::Awake()
     TransformRef transformRef = GetGameObject()->GetFixedComponentRef<Transform>();
     _debugMeshRenderer.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
     _debugLineRendererParent.Resolve()->GetTransform()->SetParent(transformRef);
-    _startPoint.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
-    _endPoint.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
+    //_startPoint.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
+    //_endPoint.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
 }
 
 bool NavMesh::OnGUI()
@@ -611,37 +611,45 @@ bool NavMesh::OnGUI()
         bool result = _builder.Build(input, "InvalidPath");
     }
 
-    if (ImGui::Button("Find Path"))
-    {
-        if (_startPoint.Resolve() != nullptr && _endPoint.Resolve() != nullptr)
-        {
-            Vec3 startPos = _startPoint.Resolve()->GetPosition();
-            Vec3 endPos = _endPoint.Resolve()->GetPosition();
-
-            for (ComponentRef<LineRenderer>& lineRendererRef : _debugLineRenderers)
-                lineRendererRef.Resolve()->GetGameObject()->SetActive(false);
-
-            auto OnDebugDrawPath = [this](const vector<Vec3>& path, int drawIdx)
-                {
-                    GameObject* parentObj = _debugLineRendererParent.Resolve();
-                    parentObj->SetActive(true);
-                    EnsureLineRendererCount(drawIdx + 1);
-                    LineRenderer* lineRenderer = _debugLineRenderers[drawIdx].Resolve();
-                    lineRenderer->GetGameObject()->SetActive(true);
-                    lineRenderer->ClearPoints();
-                    Vec3 color = GetDebugColor(drawIdx);
-                    lineRenderer->SetColor(Color(color.x, color.y, color.z, 1));
-                    for (auto& point : path)
-                    {
-                        lineRenderer->AddPoint(point);
-                    }
-                };
-
-            auto path = _builder.FindPath(startPos, endPos, OnDebugDrawPath);
-        }
-    }
+    //if (ImGui::Button("Find Path"))
+    //{
+    //    if (_startPoint.Resolve() != nullptr && _endPoint.Resolve() != nullptr)
+    //    {
+    //        Vec3 startPos = _startPoint.Resolve()->GetPosition();
+    //        Vec3 endPos = _endPoint.Resolve()->GetPosition();
+    //
+    //        for (ComponentRef<LineRenderer>& lineRendererRef : _debugLineRenderers)
+    //            lineRendererRef.Resolve()->GetGameObject()->SetActive(false);
+    //
+    //        auto OnDebugDrawPath = [this](const vector<Vec3>& path, int drawIdx)
+    //            {
+    //                GameObject* parentObj = _debugLineRendererParent.Resolve();
+    //                parentObj->SetActive(true);
+    //                EnsureLineRendererCount(drawIdx + 1);
+    //                LineRenderer* lineRenderer = _debugLineRenderers[drawIdx].Resolve();
+    //                lineRenderer->GetGameObject()->SetActive(true);
+    //                lineRenderer->ClearPoints();
+    //                Vec3 color = GetDebugColor(drawIdx);
+    //                lineRenderer->SetColor(Color(color.x, color.y, color.z, 1));
+    //                for (auto& point : path)
+    //                {
+    //                    lineRenderer->AddPoint(point);
+    //                }
+    //            };
+    //
+    //        auto path = _builder.TryFindPath(startPos, endPos, OnDebugDrawPath);
+    //    }
+    //}
 
     return changed;
+}
+
+bool NavMesh::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, NavPath& navPath) const
+{
+    if (_builder.IsBuilt() == false)
+        return false;
+
+    return _builder.TryFindPath(worldStart, worldEnd, navPath);
 }
 
 Vec3 NavMesh::GetDebugColor(int id)

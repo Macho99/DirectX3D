@@ -9,20 +9,26 @@ NavMeshQuery::NavMeshQuery(const PolyMeshField& polyMeshField, const DetailMeshF
 {
 }
 
-vector<Vec3> NavMeshQuery::FindPath(const Vec3& start, const Vec3& end, OUT vector<Vec3>& edgePath) const
+bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath& navPath) const
 {
     PolyRef startPoly = _polyMeshField.FindClosestPoly(start);
     PolyRef goalPoly = _polyMeshField.FindClosestPoly(end);
 
     if (startPoly.IsValid() == false || goalPoly.IsValid() == false)
-        return {};
+        return false;
 
     // 2) A* → 폴리곤 시퀀스
     vector<PolyPath> polyPathes = FindPolyPath(startPoly, goalPoly);
-    if (polyPathes.empty()) return {};
+    if (polyPathes.empty())
+        return false;
 
-    vector<Vec3> waypoints;
-    edgePath.push_back(start);
+    Vec3 closestStart;
+    if (_polyMeshField.IsPointInPoly(start, startPoly) == false)
+        closestStart = _polyMeshField.FindClosestPointInPoly(start, startPoly);
+    else
+        closestStart = start;
+
+    navPath.edgeCenterPath.push_back(closestStart);
     for (const PolyPath& polyPath : polyPathes)
     {
         if (polyPath.portalEdgeIndex < 0)
@@ -34,12 +40,12 @@ vector<Vec3> NavMeshQuery::FindPath(const Vec3& start, const Vec3& end, OUT vect
         Vertex v0 = vertices[poly.indices[edgeIdx]];
         Vertex v1 = vertices[poly.indices[(edgeIdx + 1) % poly.vertCount]];
         Vec3 edgeMidpoint = (v0.ToVec3() + v1.ToVec3()) * 0.5f;
-        edgePath.push_back(edgeMidpoint);
+        navPath.edgeCenterPath.push_back(edgeMidpoint);
     }
-    edgePath.push_back(end);
+    navPath.edgeCenterPath.push_back(end);
 
     // 3) 퍼널 → 최종 웨이포인트
-    return FunnelSmooth(polyPathes, start, end);
+    navPath.path = FunnelSmooth(polyPathes, closestStart, end);
 }
 
 vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly) const

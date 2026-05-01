@@ -21,6 +21,9 @@ public:
     template<typename TEnum>
     static bool DrawEnumCombo(const char* label, TEnum& value, const char* const* names, int count, bool isReadOnly = false);
 
+    template<typename TEnum>
+    static bool DrawEnableButton(const char* label, TEnum& curEnum, const TEnum enableIfEnum, const TEnum disableEnum, bool isReadOnly = false);
+
     template<typename T>
     static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly = false);
     static bool DrawAssetRef(const char* label, AssetRef& assetRef, bool isReadOnly = false);
@@ -59,6 +62,33 @@ inline bool OnGUIUtils::DrawEnumCombo(const char* label, TEnum& value, const cha
 
     return changed;
 }
+
+template<typename TEnum>
+inline bool OnGUIUtils::DrawEnableButton(const char* label, TEnum& curEnum, const TEnum enableIfEnum, const TEnum disableEnum, bool isReadOnly)
+{
+    bool selected = (curEnum == enableIfEnum);
+
+    if (!selected)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+    }
+
+    bool changed = false;
+    if (ImGui::Button(label))
+    {
+        if (curEnum == enableIfEnum)
+            curEnum = disableEnum;
+        else
+            curEnum = enableIfEnum;
+        changed = true;
+    }
+
+    if (!selected)
+        ImGui::PopStyleColor(3);
+    return changed;
+};
 
 template<typename T>
 inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)

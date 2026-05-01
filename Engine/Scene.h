@@ -4,6 +4,7 @@
 #include "SlotManager.h"
 #include "cereal/types/unordered_set.hpp"
 #include "Sky.h"
+#include "GameObject.h"
 
 class Camera;
 class Transform;
@@ -52,6 +53,24 @@ public:
     SlotManager<Component>* GetComponentSlotManager() { return &_componentSlotManager; }
 
     uint64 GetInstanceId() const { return _instanceId; }
+
+    template<class T>
+    ComponentRef<T> FindComponentRef() const
+    {
+        for (const auto& gameObjectRef : _gameObjects)
+        {
+            GameObject* gameObject = gameObjectRef.Resolve();
+            if (gameObject)
+            {
+                ComponentRef<T> componentRef = gameObject->GetFixedComponentRef<T>();
+                if (componentRef.IsValid())
+                {
+                    return componentRef;
+                }
+            }
+        }
+        return ComponentRef<T>();
+    }
 
 private:
 	GameObjectRef Add(GuidRef guidRef);

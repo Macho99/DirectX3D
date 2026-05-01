@@ -777,6 +777,9 @@
     <ClInclude Include="LineRenderer.h">
       <Filter>04. Component\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="NavAgent.h">
+      <Filter>04. Component\Navigation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1183,6 +1186,9 @@
     </ClCompile>
     <ClCompile Include="LineRenderer.cpp">
       <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="NavAgent.cpp">
+      <Filter>04. Component\Navigation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

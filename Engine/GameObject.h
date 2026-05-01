@@ -42,6 +42,7 @@ public:
     ComponentRef<T> GetFixedComponentRef();
 
 	Transform* GetTransform();
+    TransformRef GetTransformRef();
 	Camera* GetCamera();
 	Light* GetLight();
 	MeshRenderer* GetMeshRenderer();
