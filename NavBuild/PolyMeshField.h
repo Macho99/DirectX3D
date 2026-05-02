@@ -20,7 +20,7 @@ public:
 public:
     const Poly& GetPoly(const PolyRef& ref) const;
     Poly& GetPoly(const PolyRef& ref);
-    PolyRef FindClosestPoly(const Vec3& point) const;
+    PolyRef FindClosestPolyAndPoint(const Vec3 & srcPoint, OUT Vec3& closestPoint) const;
     Vec3 FindClosestPointInPoly(const Vec3& point, const PolyRef& polyRef) const;
     bool IsPointInPoly(const Vec3& point, const PolyRef& polyRef) const;
 

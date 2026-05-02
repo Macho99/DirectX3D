@@ -317,7 +317,7 @@ Poly& PolyMeshField::GetPoly(const PolyRef& ref)
     return const_cast<Poly&>(static_cast<const PolyMeshField*>(this)->GetPoly(ref));
 }
 
-PolyRef PolyMeshField::FindClosestPoly(const Vec3& point) const
+PolyRef PolyMeshField::FindClosestPolyAndPoint(const Vec3& srcPoint, OUT Vec3& closestPoint) const
 {
     PolyRef closestRef;
     bool closestContainsPoint = false;
@@ -330,13 +330,13 @@ PolyRef PolyMeshField::FindClosestPoly(const Vec3& point) const
         for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); ++polyIdx)
         {
             const Poly& poly = polyMesh.polys[polyIdx];
-            float yDiff = abs(poly.centroid.y - point.y);
+            float yDiff = abs(poly.centroid.y - srcPoint.y);
             bool contains = false;
             if (yDiff < 10.f)
             {
-                contains = IsPointInPoly(point, PolyRef(regionIdx, polyIdx));
+                contains = IsPointInPoly(srcPoint, PolyRef(regionIdx, polyIdx));
             }
-            float distSq = (poly.centroid - point).LengthSquared();
+            float distSq = (poly.centroid - srcPoint).LengthSquared();
 
             if (closestContainsPoint == contains)
             {
@@ -357,6 +357,12 @@ PolyRef PolyMeshField::FindClosestPoly(const Vec3& point) const
             }
         }
     }
+
+    if (closestContainsPoint)
+        closestPoint = srcPoint;
+    else
+        closestPoint = FindClosestPointInPoly(srcPoint, closestRef);
+
     return closestRef;
 }
 

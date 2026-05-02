@@ -11,22 +11,17 @@ NavMeshQuery::NavMeshQuery(const PolyMeshField& polyMeshField, const DetailMeshF
 
 bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath& navPath) const
 {
-    PolyRef startPoly = _polyMeshField.FindClosestPoly(start);
-    PolyRef goalPoly = _polyMeshField.FindClosestPoly(end);
+    Vec3 closestStart, closestEnd;
+    PolyRef startPoly = _polyMeshField.FindClosestPolyAndPoint(start, OUT closestStart);
+    PolyRef goalPoly = _polyMeshField.FindClosestPolyAndPoint(end, OUT closestEnd);
 
     if (startPoly.IsValid() == false || goalPoly.IsValid() == false)
         return false;
 
     // 2) A* → 폴리곤 시퀀스
-    vector<PolyPath> polyPathes = FindPolyPath(startPoly, goalPoly);
+    vector<PolyPath> polyPathes = FindPolyPath(startPoly, goalPoly, closestStart, closestEnd);
     if (polyPathes.empty())
         return false;
-
-    Vec3 closestStart;
-    if (_polyMeshField.IsPointInPoly(start, startPoly) == false)
-        closestStart = _polyMeshField.FindClosestPointInPoly(start, startPoly);
-    else
-        closestStart = start;
 
     navPath.edgeCenterPath.push_back(closestStart);
     for (const PolyPath& polyPath : polyPathes)
@@ -46,9 +41,10 @@ bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath& 
 
     // 3) 퍼널 → 최종 웨이포인트
     navPath.path = FunnelSmooth(polyPathes, closestStart, end);
+    return true;
 }
 
-vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly) const
+vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly, const Vec3& startPos, const Vec3& goalPos) const
 {
     if (startPoly.IsValid() == false || goalPoly.IsValid() == false)
         return {};
@@ -84,11 +80,10 @@ vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const Poly
     };
     priority_queue<Entry, vector<Entry>, greater<Entry>> openSet;
 
-    const Vec3 goalCentroid = _polyMeshField.GetPoly(goalPoly).centroid;
-
     AStarNode& startNode = GetNode(startPoly);
     startNode.g = 0.f;
-    startNode.h = (_polyMeshField.GetPoly(startPoly).centroid - goalCentroid).Length();
+    startNode.h = (startPos - goalPos).Length();
+    startNode.enterPoint = startPos;
     openSet.push({ startNode.f(), startPoly });
 
     while (!openSet.empty())
@@ -110,7 +105,8 @@ vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const Poly
 
         const Poly& poly = _polyMeshField.GetPoly(curPolyRef);
         AStarNode& curNode = GetNode(curPolyRef);
-        const Vec3 curCentroid = poly.centroid;
+        const Vec3& enterPoint = curNode.enterPoint;
+        const vector<Vertex>& vertices = _polyMeshField.GetPolyMeshs()[curPolyRef.regionIndex].vertices;
 
         for (int i = 0; i < poly.vertCount; ++i)
         {
@@ -120,16 +116,20 @@ vector<PolyPath> NavMeshQuery::FindPolyPath(const PolyRef& startPoly, const Poly
             if (GetClosed(next))
                 continue;
 
+            const Vertex& v0 = vertices[poly.indices[i]];
+            const Vertex& v1 = vertices[poly.indices[(i + 1) % poly.vertCount]];
+            const Vec3 edgeMidPoint = (v0.ToVec3() + v1.ToVec3()) * 0.5f;
+
             const Poly& nextPoly = _polyMeshField.GetPoly(next);
-            const Vec3 nextCentroid = nextPoly.centroid;
             AStarNode& nextNode = GetNode(next);
-            float tentativeG = curNode.g + (curCentroid - nextCentroid).Length();
+            float tentativeG = curNode.g + (enterPoint - edgeMidPoint).Length();
 
             if (tentativeG < nextNode.g)
             {
                 nextNode.g = tentativeG;
-                nextNode.h = (nextCentroid - goalCentroid).Length();
+                nextNode.h = (edgeMidPoint - goalPos).Length();
                 nextNode.parent = PolyPath(curPolyRef, i);
+                nextNode.enterPoint = edgeMidPoint;
                 openSet.push({ nextNode.f(), next });
             }
         }

@@ -38,6 +38,7 @@ struct AStarNode
     float h = 0.f;       // 휴리스틱 (목표까지 예상 비용)
     float f() const { return g + h; }
     PolyPath parent;
+    Vec3 enterPoint;
 };
 
 class NavMeshQuery
@@ -48,7 +49,7 @@ public:
     bool TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath & navPath) const;
 
 private:
-    vector<PolyPath> FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly) const;
+    vector<PolyPath> FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly, const Vec3& startPos, const Vec3& goalPos) const;
     vector<Vec3> FunnelSmooth(const vector<PolyPath>& polyPath, const Vec3& startPos, const Vec3& endPos) const;
 
 private:

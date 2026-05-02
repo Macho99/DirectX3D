@@ -41,6 +41,7 @@
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
 #include "NavMesh.h"
+#include "NavAgent.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -107,7 +108,6 @@ void AssetSerializeDemo::Init()
         objRef.Resolve()->GetTransform()->SetPosition(Vec3(0, 0, 0));
         objRef.Resolve()->AddComponent(std::move(tessTerrain));
         tessTerrainRef = objRef.Resolve()->GetFixedComponentRef<TessTerrain>();
-        objRef.Resolve()->AddComponent(make_unique<NavMesh>());
     }
 
     {
@@ -253,6 +253,18 @@ void AssetSerializeDemo::Init()
         FoliageController::S_WindDesc.windDirection = windDir;
         FoliageController::S_WindDesc.waveFrequency = 0.1f;
         FoliageController::S_WindDesc.windStrength = 2.f;
+    }
+
+    {
+        // NavMesh
+        auto objRef = CUR_SCENE->Add("NavMesh");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<NavMesh>());
+    }
+    {
+        auto objRef = CUR_SCENE->Add("NavAgent");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<NavAgent>());
     }
 }
 
