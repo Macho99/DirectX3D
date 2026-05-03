@@ -267,7 +267,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="cereal\types\vector.hpp" />
     <ClInclude Include="cereal\version.hpp" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="ComponentDrawer.h" />
     <ClInclude Include="ComponentRef.h" />
     <ClInclude Include="ComponentRegistry.h" />
     <ClInclude Include="Console.h" />
@@ -319,15 +318,11 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Inspector.h" />
-    <ClInclude Include="InspectorDrawer.h" />
     <ClInclude Include="InstancingBuffer.h" />
-    <ClInclude Include="LightDrawer.h" />
     <ClInclude Include="LineRenderer.h" />
-    <ClInclude Include="MaterialDrawer.h" />
     <ClInclude Include="MaterialMeta.h" />
     <ClInclude Include="MeshMeta.h" />
     <ClInclude Include="MetaFile.h" />
-    <ClInclude Include="MetaFileDrawer.h" />
     <ClInclude Include="MetaStore.h" />
     <ClInclude Include="ModelMeshResource.h" />
     <ClInclude Include="ModelMeta.h" />
@@ -358,7 +353,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="BindShaderDesc.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ResourceBase.h" />
-    <ClInclude Include="ResourceDrawer.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="AssetRef.h" />
     <ClInclude Include="ResourceRef.h" />
@@ -389,7 +383,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ToneMapping.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="TransformDrawer.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexBuffer.h" />
@@ -411,7 +404,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="ComponentDrawer.cpp" />
     <ClCompile Include="ComponentRef.cpp" />
     <ClCompile Include="ComponentRegistry.cpp" />
     <ClCompile Include="Console.cpp" />
@@ -517,15 +509,11 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Inspector.cpp" />
-    <ClCompile Include="InspectorDrawer.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
-    <ClCompile Include="LightDrawer.cpp" />
     <ClCompile Include="LineRenderer.cpp" />
-    <ClCompile Include="MaterialDrawer.cpp" />
     <ClCompile Include="MaterialMeta.cpp" />
     <ClCompile Include="MeshMeta.cpp" />
     <ClCompile Include="MetaFile.cpp" />
-    <ClCompile Include="MetaFileDrawer.cpp" />
     <ClCompile Include="MetaStore.cpp" />
     <ClCompile Include="ModelMeshResource.cpp" />
     <ClCompile Include="ModelMeta.cpp" />
@@ -561,7 +549,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="BindShaderDesc.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ResourceBase.cpp" />
-    <ClCompile Include="ResourceDrawer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="AssetRef.cpp" />
     <ClCompile Include="ResourceRef.cpp" />
@@ -595,7 +582,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     </ClCompile>
     <ClCompile Include="ToneMapping.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="TransformDrawer.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexData.cpp" />

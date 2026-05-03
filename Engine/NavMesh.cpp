@@ -644,12 +644,12 @@ bool NavMesh::OnGUI()
     return changed;
 }
 
-bool NavMesh::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, NavPath& navPath) const
+bool NavMesh::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, MoveInfo& moveInfo) const
 {
     if (_builder.IsBuilt() == false)
         return false;
 
-    return _builder.TryFindPath(worldStart, worldEnd, navPath);
+    return _builder.TryFindPath(worldStart, worldEnd, moveInfo);
 }
 
 Vec3 NavMesh::GetDebugColor(int id)

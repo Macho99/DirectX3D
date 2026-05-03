@@ -218,4 +218,71 @@ struct Poly : public PolyBase<6>
     Vec3 centroid;
 };
 
+struct PolyPath
+{
+    PolyPath() = default;
+    PolyPath(const PolyRef& ref, int idx) : polyRef(ref), portalEdgeIndex(idx) {}
+
+    PolyRef polyRef;
+    int portalEdgeIndex = -1;
+
+    bool operator==(const PolyPath& other) const
+    {
+        return polyRef == other.polyRef &&
+            portalEdgeIndex == other.portalEdgeIndex;
+    }
+    bool operator!=(const PolyPath& other) const
+    {
+        return !(*this == other);
+    }
+    bool IsValid() const
+    {
+        return polyRef.IsValid();
+    }
+};
+
+struct NavPath
+{
+    vector<Vec3> path;
+    vector<Vec3> edgeCenterPath;
+    vector<PolyPath> polyPath;
+};
+
+struct MoveConfig
+{
+    float speed = 5.0f;   // 이동 속도
+    float turnSpeed = 360.0f; // 회전 속도 (deg/sec)
+    float arrivalDist = 0.2f;   // 웨이포인트 도착 판정 거리
+    float stoppingDist = 0.5f;   // 목적지 도착 판정 거리 (마지막 포인트)
+};
+
+struct MoveInfo
+{
+    enum class State
+    {
+        Idle,
+        Moving,
+        Arrived
+    };
+
+    Vec3 position;
+    float rotationY = 0;
+
+    int curPathIdx = 0;
+    int curPolyIdx = 0;
+    NavPath navPath;
+    State state = State::Idle;
+
+    void Init()
+    {
+        navPath.path.clear();
+        navPath.edgeCenterPath.clear();
+        navPath.polyPath.clear();
+        curPathIdx = 0;
+        curPolyIdx = 0;
+        state = MoveInfo::State::Idle;
+    }
+};
+
 constexpr float kEps = 1e-6f;
+constexpr float PI = 3.14159265358979323846f;

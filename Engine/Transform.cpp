@@ -79,6 +79,17 @@ TransformRef Transform::GetRef()
 	return GetGameObject()->GetFixedComponentRef<Transform>();
 }
 
+Vec3 Transform::GetLocalRotation() const
+{ 
+	return GetNormalizedRotation(MathUtils::RadToDeg(_localRotation));
+}
+
+void Transform::SetLocalRotation(const Vec3& localRotation)
+{
+    _localRotation = MathUtils::DegToRad(localRotation);
+    UpdateTransform();
+}
+
 void Transform::SetScale(const Vec3& worldScale)
 {
 	Transform* parent;
@@ -97,6 +108,11 @@ void Transform::SetScale(const Vec3& worldScale)
 	}
 }
 
+Vec3 Transform::GetRotation() const
+{
+	return GetNormalizedRotation(MathUtils::RadToDeg(_rotation));
+}
+
 void Transform::SetRotation(const Vec3& worldRotation)
 {
 	Transform* parent;
@@ -105,7 +121,7 @@ void Transform::SetRotation(const Vec3& worldRotation)
 		Matrix inverseMatrix = parent->GetWorldMatrix().Invert();
 
 		Vec3 rotation;
-		rotation.TransformNormal(worldRotation, inverseMatrix);
+		rotation = Vec3::TransformNormal(worldRotation, inverseMatrix);
 
 		SetLocalRotation(rotation);
 	}
@@ -293,12 +309,11 @@ bool Transform::OnGUI()
 		changed = true;
 		SetLocalPosition(position);
 	}
-	Vec3 radRotation = GetLocalRotation();
-	Vec3 degRotation = MathUtils::RadToDeg(radRotation);
-	if (OnGUIUtils::DrawVec3("Rotation", &degRotation, dragSpeed, false))
+	Vec3 rotation = GetLocalRotation();
+	if (OnGUIUtils::DrawVec3("Rotation", &rotation, dragSpeed, false))
 	{
 		changed = true;
-		SetLocalRotation(MathUtils::DegToRad(degRotation));
+		SetLocalRotation(rotation);
 	}
 	Vec3 scale = GetLocalScale();
 	if (OnGUIUtils::DrawVec3("Scale", &scale, dragSpeed, false))
@@ -330,4 +345,13 @@ void Transform::RemoveFromTransforms(vector<TransformRef>& transforms, Transform
 {
 	auto iter = std::remove(transforms.begin(), transforms.end(), targetId);
 	transforms.erase(iter, transforms.end());
+}
+
+Vec3 Transform::GetNormalizedRotation(const Vec3& rotation) const
+{
+	if (fabsf(rotation.x - 180.f) < 0.01f && fabsf(rotation.z - 180.f) < 0.01f)
+	{
+        return Vec3(0.f, 180.f - rotation.y, 0.f);
+	}
+    return rotation;
 }

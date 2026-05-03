@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "../NavBuild/Types.h"
 
 class NavMesh;
 class MeshRenderer;
@@ -14,6 +15,7 @@ public:
     ~NavAgent();
 
     virtual void Start() override;
+    virtual void Update() override;
     virtual bool OnGUI() override;
 
     void FindPath();
@@ -30,4 +32,8 @@ private:
     ComponentRef<LineRenderer> _pathRenderer;
     ComponentRef<LineRenderer> _edgeCenterPathRenderer;
     bool _terrainPickingMode = false;
+
+    MoveConfig _moveConfig;
+    MoveInfo _moveInfo;
+    float _offsetY = 180.f;
 };

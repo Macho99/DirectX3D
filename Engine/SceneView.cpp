@@ -48,6 +48,7 @@ void SceneView::OnGUI()
     {
         Camera* camera = camObj->GetCamera();
         ImGuizmo::BeginFrame();
+        ImGuizmo::AllowAxisFlip(false);
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetRect(gameDesc.scenePos.x, gameDesc.scenePos.y, gameDesc.sceneWidth, gameDesc.sceneHeight);

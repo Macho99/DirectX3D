@@ -22,6 +22,25 @@ void NavAgent::Start()
     _navMesh = CUR_SCENE->FindComponentRef<NavMesh>();
 }
 
+void NavAgent::Update()
+{
+    if (TryMakeDebugRenderer() == false)
+        return;
+
+    Transform* transform = GetTransform();
+    _moveInfo.position = GetTransform()->GetPosition();
+    Vec3 rotation = GetTransform()->GetRotation();
+    rotation.y -= _offsetY;
+    _moveInfo.rotationY = rotation.y;
+    if (_navMesh.Resolve()->MoveAlongPath(_moveConfig, _moveInfo, TIME->GetDeltaTime()) == false)
+        return;
+
+    transform->SetPosition(_moveInfo.position);
+    rotation.y = _moveInfo.rotationY;
+    rotation.y += _offsetY;
+    transform->SetRotation(rotation);
+}
+
 bool NavAgent::OnGUI()
 {
     bool changed = false;
@@ -31,6 +50,8 @@ bool NavAgent::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("Path Renderer", _pathRenderer);
     changed |= OnGUIUtils::DrawComponentRef("EdgeCenter Path Renderer", _edgeCenterPathRenderer);
     changed |= OnGUIUtils::DrawColor("Debug Color", &_debugColor);
+    changed |= OnGUIUtils::DrawFloat("speed", &_moveConfig.speed, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("turnSpeed", &_moveConfig.turnSpeed, 0.1f);
 
     changed |= OnGUIUtils::DrawEnableButton("Terrain Picking Mode", _terrainPickingMode, true, false);
     if (_terrainPickingMode)
@@ -49,6 +70,8 @@ bool NavAgent::OnGUI()
             }
         }
     }
+    if (ImGui::Button("Find Path"))
+        FindPath();
 
     return changed;
 }
@@ -61,10 +84,10 @@ void NavAgent::FindPath()
     Vec3 startPos = GetTransform()->GetPosition();
     Vec3 goalPos = _goalMeshRenderer.Resolve()->GetTransform()->GetPosition();
 
-    NavPath navPath;
-    if (_navMesh.Resolve()->TryFindPath(startPos, goalPos, navPath) == false)
+    if (_navMesh.Resolve()->TryFindPath(startPos, goalPos, _moveInfo) == false)
         return;
 
+    NavPath& navPath = _moveInfo.navPath;
     LineRenderer* pathRenderer = _pathRenderer.Resolve();
     pathRenderer->ClearPoints();
     for (const Vec3& point : navPath.path)

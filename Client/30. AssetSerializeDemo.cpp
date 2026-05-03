@@ -42,6 +42,7 @@
 #include "GrassRenderer.h"
 #include "NavMesh.h"
 #include "NavAgent.h"
+#include "MathUtils.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -69,7 +70,7 @@ void AssetSerializeDemo::Init()
         lightDesc.ambient = Vec4(0.4f);
         lightDesc.diffuse = Vec4(1.f);
         lightDesc.specular = Vec4(0.1f);
-        light.Resolve()->GetTransform()->SetRotation(Vec3(1.f, -1.f, 1.f));
+        light.Resolve()->GetTransform()->SetRotation(MathUtils::RadToDeg(Vec3(1.f, -1.f, 1.f)));
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
     {

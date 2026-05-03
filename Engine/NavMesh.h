@@ -40,7 +40,13 @@ public:
     virtual void Awake() override;
     virtual bool OnGUI() override;
 
-    bool TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, OUT NavPath& navPath) const;
+    bool TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, MoveInfo& moveInfo) const;
+    bool MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, float deltaTime) const
+    {
+        if (_builder.IsBuilt() == false)
+            return false;
+        return _builder.MoveAlongPath(config, moveInfo, deltaTime);
+    }
 
 private:
     Vec3 GetDebugColor(int id);

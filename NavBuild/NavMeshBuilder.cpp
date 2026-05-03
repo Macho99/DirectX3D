@@ -46,19 +46,18 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
     return true;
 }
 
-bool NavMeshBuilder::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, OUT NavPath & navPath) const
+bool NavMeshBuilder::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, MoveInfo& moveInfo) const
 {
     if (_navMeshQuery == nullptr)
         return false;
 
-    navPath.path.clear();
-    navPath.edgeCenterPath.clear();
-    navPath.polyPath.clear();
+    moveInfo.Init();
+    NavPath& navPath = moveInfo.navPath;
 
     const Vec3 navStart = _polyMeshField->ToNavPos(worldStart);
     const Vec3 navEnd = _polyMeshField->ToNavPos(worldEnd);
 
-    bool result = _navMeshQuery->TryFindPath(navStart, navEnd, navPath);
+    bool result = _navMeshQuery->TryFindPath(navStart, navEnd, moveInfo);
     if (result == false)
         return false;
 
@@ -73,9 +72,16 @@ bool NavMeshBuilder::TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, O
         edgePath[i] = _polyMeshField->ToWorldPos(edgePath[i]);
     }
 
+    moveInfo.state = MoveInfo::State::Moving;
     return true;
 }
 
+bool NavMeshBuilder::MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, float deltaTime) const
+{
+    if (_navMeshQuery == nullptr)
+        return false;
+    return _navMeshQuery->MoveAlongPath(config, moveInfo, deltaTime);
+}
 Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)
 {
     Vec3 e0 = tri.v1 - tri.v0;

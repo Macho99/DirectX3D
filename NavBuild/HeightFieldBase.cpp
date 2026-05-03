@@ -138,3 +138,37 @@ float HeightFieldBase::GetTriY(float x, float z, const Vec3& v0, const Vec3& v1,
     float y = -(A * x + C * z + D) / B;
     return y;
 }
+
+bool HeightFieldBase::IsPointInPoly(const Vec3& point, const vector<Vertex>& verts, const Poly& poly) const
+{
+    bool contains = true;
+    for (int i = 0; i < poly.vertCount; ++i)
+    {
+        const Vertex& a = verts[poly.indices[i]];
+        const Vertex& b = verts[poly.indices[(i + 1) % poly.vertCount]];
+        // Poly는 반시계 방향
+        if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
+        {
+            contains = false;
+            break;
+        }
+    }
+    return contains;
+}
+
+bool HeightFieldBase::IsPointInTriangle(const Vec3& point, const vector<Vec3>& verts, const Triangle& tri) const
+{
+    bool contains = true;
+    for (int i = 0; i < tri.vertCount; ++i)
+    {
+        const Vec3& a = verts[tri.indices[i]];
+        const Vec3& b = verts[tri.indices[(i + 1) % tri.vertCount]];
+        // Triangle은 시계 방향
+        if (Cross2D(a, b, point) > 0)
+        {
+            contains = false;
+            break;
+        }
+    }
+    return contains;
+}

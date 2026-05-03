@@ -141,6 +141,28 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
     }
 }
 
+float DetailMeshField::SampleHeight(const PolyRef& polyRef, const Vec3& pos) const
+{
+    if (polyRef.IsValid() == false)
+        return pos.y;
+
+    const DetailMesh& detailMesh = _detailMeshs[polyRef.regionIndex];
+    const vector<Vec3>& vertices = detailMesh.vertices;
+    const vector<Triangle>& triangles = detailMesh.triangles[polyRef.polyIndex];
+
+    for (const Triangle& tri : triangles)
+    {
+        if (IsPointInTriangle(pos, vertices, tri))
+        {
+            const Vec3& a = vertices[tri.indices[0]];
+            const Vec3& b = vertices[tri.indices[1]];
+            const Vec3& c = vertices[tri.indices[2]];
+            return GetTriY(pos.x, pos.z, a, b, c);
+        }
+    }
+    return pos.y;
+}
+
 void DetailMeshField::SampleEdgeMaxError(const int region, const Vec3& a, const Vec3& b, const CompactHeightField& heightField, float maxError, float stepSize, vector<Vec3>& result)
 {    // A°ÊB πÊ«‚ ∫§≈Õ
     float dx = b.x - a.x;

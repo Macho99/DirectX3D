@@ -39,6 +39,7 @@ public:
     DetailMeshField(const PolyMeshField& polyMeshField, const CompactHeightField& compactHeightField, const NavBuildSettings& settings);
 
     const vector<DetailMesh>& GetDetailMeshs() const { return _detailMeshs; }
+    float SampleHeight(const PolyRef& polyRef, const Vec3& pos) const;
 
 private:
     void SampleEdgeMaxError(const int region, const Vec3& a, const Vec3& b, const CompactHeightField& heightField, float maxError, float stepSize, vector<Vec3>& result);

@@ -61,9 +61,6 @@
     <Filter Include="00. Engine\Guid">
       <UniqueIdentifier>{7cacb3c1-a9b6-4dbc-8fb2-d5ffd759e6a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="50. Editor\InspectorDrawer">
-      <UniqueIdentifier>{cd9ba630-855a-40ae-8c84-61d143d111af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="98. Utils\ImGui">
       <UniqueIdentifier>{139c997c-611a-471d-bcc8-edf9ec4f0781}</UniqueIdentifier>
     </Filter>
@@ -84,15 +81,6 @@
     </Filter>
     <Filter Include="98. Utils\Assimp">
       <UniqueIdentifier>{91a3e01c-1a50-4772-b2dc-a4d5959f8b33}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="50. Editor\InspectorDrawer\ComponentDrawer">
-      <UniqueIdentifier>{5ad6bc7e-a94a-406a-bca5-c7ec747eaa10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="50. Editor\InspectorDrawer\ResourceDrawer">
-      <UniqueIdentifier>{519aa7f5-e324-4028-b67b-e5b214688d5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="50. Editor\InspectorDrawer\MetaFileDrawer">
-      <UniqueIdentifier>{f90e9f54-e922-4c6e-b0d1-a65a1a457136}</UniqueIdentifier>
     </Filter>
     <Filter Include="04. Component\Navigation">
       <UniqueIdentifier>{183c3868-6a9a-4e57-922f-415e87a3924b}</UniqueIdentifier>
@@ -630,9 +618,6 @@
     <ClInclude Include="Handle.h">
       <Filter>00. Engine\Guid</Filter>
     </ClInclude>
-    <ClInclude Include="InspectorDrawer.h">
-      <Filter>50. Editor\InspectorDrawer</Filter>
-    </ClInclude>
     <ClInclude Include="ImGuizmo.h">
       <Filter>98. Utils\ImGuizmo</Filter>
     </ClInclude>
@@ -731,24 +716,6 @@
     </ClInclude>
     <ClInclude Include="ModelMeshResource.h">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="LightDrawer.h">
-      <Filter>50. Editor\InspectorDrawer\ComponentDrawer</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformDrawer.h">
-      <Filter>50. Editor\InspectorDrawer\ComponentDrawer</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceDrawer.h">
-      <Filter>50. Editor\InspectorDrawer\ResourceDrawer</Filter>
-    </ClInclude>
-    <ClInclude Include="ComponentDrawer.h">
-      <Filter>50. Editor\InspectorDrawer\ComponentDrawer</Filter>
-    </ClInclude>
-    <ClInclude Include="MetaFileDrawer.h">
-      <Filter>50. Editor\InspectorDrawer\MetaFileDrawer</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialDrawer.h">
-      <Filter>50. Editor\InspectorDrawer\ResourceDrawer</Filter>
     </ClInclude>
     <ClInclude Include="OnGUIUtils.h">
       <Filter>98. Utils</Filter>
@@ -1046,9 +1013,6 @@
     <ClCompile Include="Handle.cpp">
       <Filter>00. Engine\Guid</Filter>
     </ClCompile>
-    <ClCompile Include="InspectorDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer</Filter>
-    </ClCompile>
     <ClCompile Include="ImSequencer.cpp">
       <Filter>98. Utils\ImGuizmo</Filter>
     </ClCompile>
@@ -1141,24 +1105,6 @@
     </ClCompile>
     <ClCompile Include="ModelMeshResource.cpp">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="LightDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer\ComponentDrawer</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer\ComponentDrawer</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer\ResourceDrawer</Filter>
-    </ClCompile>
-    <ClCompile Include="ComponentDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer\ComponentDrawer</Filter>
-    </ClCompile>
-    <ClCompile Include="MetaFileDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer\MetaFileDrawer</Filter>
-    </ClCompile>
-    <ClCompile Include="MaterialDrawer.cpp">
-      <Filter>50. Editor\InspectorDrawer\ResourceDrawer</Filter>
     </ClCompile>
     <ClCompile Include="OnGUIUtils.cpp">
       <Filter>98. Utils</Filter>

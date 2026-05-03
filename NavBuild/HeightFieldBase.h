@@ -36,6 +36,9 @@ public:
 
     float GetTriY(float x, float z, const Vec3& v0, const Vec3& v1, const Vec3& v2) const;
 
+    bool IsPointInPoly(const Vec3& point, const vector<Vertex>& verts, const Poly& poly) const;
+    bool IsPointInTriangle(const Vec3& point, const vector<Vec3>& verts, const Triangle& tri) const;
+
 protected:
     void GetCellIndex(float wx, float wz, OUT int& cx, OUT int& cz) const;
     int GetCellHeight(float wy) const;

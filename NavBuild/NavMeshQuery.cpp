@@ -9,22 +9,24 @@ NavMeshQuery::NavMeshQuery(const PolyMeshField& polyMeshField, const DetailMeshF
 {
 }
 
-bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath& navPath) const
+bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, MoveInfo& moveInfo) const
 {
     Vec3 closestStart, closestEnd;
     PolyRef startPoly = _polyMeshField.FindClosestPolyAndPoint(start, OUT closestStart);
     PolyRef goalPoly = _polyMeshField.FindClosestPolyAndPoint(end, OUT closestEnd);
+    NavPath& navPath = moveInfo.navPath;
 
     if (startPoly.IsValid() == false || goalPoly.IsValid() == false)
         return false;
 
     // 2) A* → 폴리곤 시퀀스
-    vector<PolyPath> polyPathes = FindPolyPath(startPoly, goalPoly, closestStart, closestEnd);
-    if (polyPathes.empty())
+    vector<PolyPath>& polyPath = moveInfo.navPath.polyPath;
+    polyPath = FindPolyPath(startPoly, goalPoly, closestStart, closestEnd);
+    if (polyPath.empty())
         return false;
 
     navPath.edgeCenterPath.push_back(closestStart);
-    for (const PolyPath& polyPath : polyPathes)
+    for (const PolyPath& polyPath : polyPath)
     {
         if (polyPath.portalEdgeIndex < 0)
             break;
@@ -40,7 +42,81 @@ bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, OUT NavPath& 
     navPath.edgeCenterPath.push_back(end);
 
     // 3) 퍼널 → 최종 웨이포인트
-    navPath.path = FunnelSmooth(polyPathes, closestStart, end);
+    navPath.path = FunnelSmooth(polyPath, closestStart, end);
+    return true;
+}
+
+bool NavMeshQuery::MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, float dt) const
+{
+    if (moveInfo.state != MoveInfo::State::Moving) 
+        return false;
+
+    const NavPath& navPath = moveInfo.navPath;
+    if (moveInfo.curPathIdx >= (int)navPath.path.size())
+    {
+        moveInfo.state = MoveInfo::State::Arrived;
+        return false;
+    }
+
+    const Vec3& target = navPath.path[moveInfo.curPathIdx];
+    bool isLastPoint = (moveInfo.curPathIdx == (int)navPath.path.size() - 1);
+
+    // XZ 평면 기준 방향/거리 계산 (Y는 지형 따라가므로 제외)
+    Vec3  toTarget = target - moveInfo.position;
+    toTarget.y = 0.f;
+    float distXZ = toTarget.Length();
+
+    // ── 1. 회전 ──────────────────────────────────────────────
+    if (distXZ > 0.001f)
+    {
+        float targetYaw = atan2f(toTarget.x, toTarget.z) * (180.f / PI);
+        float diff = fmodf(targetYaw - moveInfo.rotationY + 540.f, 360.f) - 180.f; // [-180, 180]
+        float maxTurn = config.turnSpeed * dt;
+        float step = clamp(diff, -maxTurn, maxTurn);
+        moveInfo.rotationY += step;
+    }
+
+    // ── 2. 이동 ──────────────────────────────────────────────
+    float arrivalThreshold = isLastPoint ? config.stoppingDist
+        : config.arrivalDist;
+
+    if (distXZ <= arrivalThreshold)
+    {
+        // 현재 웨이포인트 도달 → 다음으로
+        moveInfo.position.x = target.x;
+        moveInfo.position.z = target.z;
+        moveInfo.curPathIdx++;
+
+        if (moveInfo.curPathIdx >= (int)navPath.path.size())
+            moveInfo.state = MoveInfo::State::Arrived;
+
+        return true;
+    }
+
+    // 이동 벡터 적용
+    Vec3 dir = toTarget / distXZ;  // XZ 정규화
+    float moveDist = std::min(config.speed * dt, distXZ);
+
+    moveInfo.position.x += dir.x * moveDist;
+    moveInfo.position.z += dir.z * moveDist;
+
+    for (int i = 0; i < navPath.polyPath.size(); i++)
+    {
+        int polyPathIdx = moveInfo.curPolyIdx + i;
+        polyPathIdx %= navPath.polyPath.size();
+
+        const PolyRef& polyRef = navPath.polyPath[polyPathIdx].polyRef;
+
+        Vec3 navPos = _polyMeshField.ToNavPos(moveInfo.position);
+        if (_polyMeshField.IsPointInPolyRef(navPos, polyRef))
+        {
+            float height = _detailMeshField.SampleHeight(polyRef, navPos);
+            _detailMeshField.GetWorldHeight(height, OUT moveInfo.position.y);
+            moveInfo.curPolyIdx = polyPathIdx;
+            break;
+        }
+    }
+
     return true;
 }
 

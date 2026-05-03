@@ -17,7 +17,7 @@ private:
 private:
 	float _moveSpeed = 10.f;
 	float _sprintSpeed = 25.f;
-	float _mouseSpeed = 0.002f;
+	float _mouseSpeed = 0.1f;
 	POINT _prevMousePos = {};
 
 	TransformRef _focusMoveTransform;

@@ -332,9 +332,9 @@ PolyRef PolyMeshField::FindClosestPolyAndPoint(const Vec3& srcPoint, OUT Vec3& c
             const Poly& poly = polyMesh.polys[polyIdx];
             float yDiff = abs(poly.centroid.y - srcPoint.y);
             bool contains = false;
-            if (yDiff < 10.f)
+            if (yDiff < 50.f)
             {
-                contains = IsPointInPoly(srcPoint, PolyRef(regionIdx, polyIdx));
+                contains = IsPointInPolyRef(srcPoint, PolyRef(regionIdx, polyIdx));
             }
             float distSq = (poly.centroid - srcPoint).LengthSquared();
 
@@ -395,20 +395,9 @@ Vec3 PolyMeshField::FindClosestPointInPoly(const Vec3& point, const PolyRef& pol
     return closestPoint;
 }
 
-bool PolyMeshField::IsPointInPoly(const Vec3& point, const PolyRef& polyRef) const
+bool PolyMeshField::IsPointInPolyRef(const Vec3& point, const PolyRef& polyRef) const
 {
     const Poly& poly = GetPoly(polyRef);
     const vector<Vertex>& verts = polyMeshs[polyRef.regionIndex].vertices;
-    bool contains = true;
-    for (int i = 0; i < poly.vertCount; ++i)
-    {
-        const Vertex& a = verts[poly.indices[i]];
-        const Vertex& b = verts[poly.indices[(i + 1) % poly.vertCount]];
-        if (Cross2D(a.ToVec3(), b.ToVec3(), point) < 0)
-        {
-            contains = false;
-            break;
-        }
-    }
-    return contains;
+    return IsPointInPoly(point, verts, poly);
 }
