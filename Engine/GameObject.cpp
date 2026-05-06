@@ -236,7 +236,9 @@ Renderer* GameObject::GetRenderer()
     if (renderer == nullptr)
         renderer = GetFixedComponent(ComponentType::GrassRenderer);
     if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::LineRenderer);;
+		renderer = GetFixedComponent(ComponentType::LineRenderer);
+	if (renderer == nullptr)
+		renderer = GetFixedComponent(ComponentType::SsrRenderer);
 
 	return static_cast<Renderer*>(renderer);
 }

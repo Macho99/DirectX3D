@@ -53,6 +53,8 @@ void RenderManager::Render(vector<GameObject*>& gameObjects, RenderTech renderTe
 		LineRenderer* lineRenderer = gameObject->GetFixedComponent<LineRenderer>(ComponentType::LineRenderer);
 		if (lineRenderer != nullptr)
 			lineRenderer->Render(_renderTech);
+
+        //SsrRenderer는 포스트 프로세싱에서 렌더링
 	}
 }
 

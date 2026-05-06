@@ -75,6 +75,7 @@
     <FxCompile Include="..\Assets\Shaders\Ssao.fx" />
     <FxCompile Include="..\Assets\Shaders\Terrain.fx" />
     <FxCompile Include="..\Assets\Shaders\ToneMapping.fx" />
+    <FxCompile Include="..\Assets\Shaders\WaterSSR.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

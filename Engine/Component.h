@@ -28,6 +28,7 @@ enum class ComponentType : uint8
     NavMesh,
     LineRenderer,
 	NavAgent,
+    SsrRenderer,
 	// ...
 	Script,
 

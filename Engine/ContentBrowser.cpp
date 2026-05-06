@@ -227,6 +227,15 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
                         FileUtils::SaveResourceToJson(newPath, newMesh);
                     }
                 }
+                if (ImGui::MenuItem("QuadY"))
+                {
+                    if (TryGetNewFilePath(_currentFolder, "New Quad Mesh", Mesh::GetExtension(), OUT newPath))
+                    {
+                        unique_ptr<ResourceBase> newMesh = make_unique<Mesh>();
+                        static_cast<Mesh*>(newMesh.get())->CreateQuadY();
+                        FileUtils::SaveResourceToJson(newPath, newMesh);
+                    }
+                }
                 if (ImGui::MenuItem("Cube"))
                 {
                     if (TryGetNewFilePath(_currentFolder, "New Cube Mesh", Mesh::GetExtension(), OUT newPath))

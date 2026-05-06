@@ -184,5 +184,8 @@
     <FxCompile Include="..\Assets\Shaders\Line.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\WaterSSR.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

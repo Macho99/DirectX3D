@@ -28,7 +28,6 @@ public:
         ar(CEREAL_NVP(_material), CEREAL_NVP(_pass));
     }
 
-
 protected:
 	virtual void InnerRender(RenderTech renderTech);
 

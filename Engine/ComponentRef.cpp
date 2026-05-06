@@ -15,6 +15,7 @@
 #include "LineRenderer.h"
 #include "NavMesh.h"
 #include "NavAgent.h"
+#include "SsrRenderer.h"
 
 template<class T>
 T* ComponentRef<T>::Resolve() const
@@ -52,3 +53,4 @@ template struct ComponentRef<MeshRenderer>;
 template struct ComponentRef<LineRenderer>;
 template struct ComponentRef<NavMesh>;
 template struct ComponentRef<NavAgent>;
+template struct ComponentRef<SsrRenderer>;

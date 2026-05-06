@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "Ssao.h"
 #include "Viewport.h"
+#include "SsReflection.h"
 #include "Bloom.h"
 #include "ToneMapping.h"
 #include "Camera.h"
@@ -22,6 +23,7 @@ void Graphics::Init(HWND hwnd)
 
 void Graphics::Start()
 {
+    _postProcesses.push_back(make_shared<SsReflection>());
 	_postProcesses.push_back(make_shared<Bloom>());
 	//_postProcesses[0]->SetEnabled(false);
 	_postProcesses.push_back(make_shared<ToneMapping>());
@@ -270,6 +272,9 @@ void Graphics::DrawPostProcesses()
 		PostProcess* postProcess = _postProcesses[i].get();
         if (postProcess->IsEnabled() == false)
             continue;
+        if (postProcess->NeedCopiedHDRTexture())
+			_deviceContext->CopyResource(_ppTextures[i].Get(), _hdrTexture.Get());
+
 		postProcess->Render(_ppRTVs[i]);
 		_deviceContext->CopyResource(_hdrTexture.Get(), _ppTextures[i].Get());
         postProcess->SetDebugTextureSRV(_ppDebugTextures[i]);

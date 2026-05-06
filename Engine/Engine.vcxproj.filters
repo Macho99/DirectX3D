@@ -747,6 +747,12 @@
     <ClInclude Include="NavAgent.h">
       <Filter>04. Component\Navigation</Filter>
     </ClInclude>
+    <ClInclude Include="SsReflection.h">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="SsrRenderer.h">
+      <Filter>04. Component\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1135,6 +1141,12 @@
     </ClCompile>
     <ClCompile Include="NavAgent.cpp">
       <Filter>04. Component\Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="SsReflection.cpp">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="SsrRenderer.cpp">
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

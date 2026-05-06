@@ -71,6 +71,7 @@ public:
 	Texture * GetEditorTexture(string key, const fs::path& loadPath);
 
 	ResourceRef<Mesh> GetQuadMesh() const;
+	ResourceRef<Mesh> GetQuadYMesh() const;
 	ResourceRef<Mesh> GetCubeMesh() const;
 	ResourceRef<Mesh> GetSphereMesh() const;
 	Texture* GetRandomTexture();

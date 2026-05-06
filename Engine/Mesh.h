@@ -13,6 +13,7 @@ public:
     virtual ~Mesh();
 
 	void CreateQuad();
+    void CreateQuadY();
 	void CreateCube();
 	void CreateGrid(int32 sizeX, int32 sizeZ);
 	void CreateSphere();

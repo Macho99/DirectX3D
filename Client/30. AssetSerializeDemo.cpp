@@ -43,12 +43,13 @@
 #include "NavMesh.h"
 #include "NavAgent.h"
 #include "MathUtils.h"
+#include "SsrRenderer.h"
 
 void AssetSerializeDemo::Init()
 {
     auto sky = make_shared<Sky>();
     sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SnowSkyMat.mat"));
-    //CUR_SCENE->SetSky(sky);
+    CUR_SCENE->SetSky(sky);
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
     {
@@ -266,6 +267,14 @@ void AssetSerializeDemo::Init()
         auto objRef = CUR_SCENE->Add("NavAgent");
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<NavAgent>());
+    }
+    {
+        auto objRef = CUR_SCENE->Add("Water");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<SsrRenderer>());
+        SsrRenderer* ssrRenderer = obj->GetFixedComponentRef<SsrRenderer>().Resolve();
+        ssrRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\WaterSSRMat.mat"));
+        ssrRenderer->SetMesh(RESOURCES->GetQuadYMesh());
     }
 }
 

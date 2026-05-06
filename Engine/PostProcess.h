@@ -12,6 +12,7 @@ public:
     bool IsEnabled() const { return _isEnabled; }
     virtual void OnSize(UINT width, UINT height) {}
     virtual void SetDebugTextureSRV(ResourceRef<Texture> texture) {}
+    virtual bool NeedCopiedHDRTexture() const { return false; }
 
 protected:
     void DrawQuad(Material* material);

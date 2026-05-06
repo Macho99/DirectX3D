@@ -227,6 +227,11 @@ ResourceRef<Mesh> ResourceManager::GetQuadMesh() const
     return GetResourceRefByPath<Mesh>(L"Meshes\\Quad.mesh");
 }
 
+ResourceRef<Mesh> ResourceManager::GetQuadYMesh() const
+{
+	return GetResourceRefByPath<Mesh>(L"Meshes\\QuadY.mesh");
+}
+
 ResourceRef<Mesh> ResourceManager::GetCubeMesh() const
 {
     return GetResourceRefByPath<Mesh>(L"Meshes\\Cube.mesh");
