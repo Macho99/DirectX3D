@@ -56,6 +56,7 @@ void AssetSerializeDemo::Init()
         GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
         GameObject* camera = cameraRef.Resolve();
         camera->GetTransform()->SetPosition(Vec3{ -4.f, 9.f, 65.f });
+        camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
         camera->AddComponent(make_unique<Camera>());
         camera->AddComponent(make_unique<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
@@ -74,6 +75,7 @@ void AssetSerializeDemo::Init()
         light.Resolve()->GetTransform()->SetRotation(MathUtils::RadToDeg(Vec3(1.f, -1.f, 1.f)));
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
+
     {
         ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
         for (int32 i = 0; i < 1; i++)
@@ -275,6 +277,10 @@ void AssetSerializeDemo::Init()
         SsrRenderer* ssrRenderer = obj->GetFixedComponentRef<SsrRenderer>().Resolve();
         ssrRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\WaterSSRMat.mat"));
         ssrRenderer->SetMesh(RESOURCES->GetQuadYMesh());
+
+        Transform* transform = obj->GetTransform();
+        transform->SetPosition(Vec3(0.f, 1.f, 50.f));
+        transform->SetScale(Vec3(20.f, 1.f, 20.f));
     }
 }
 

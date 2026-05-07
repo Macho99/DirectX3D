@@ -345,7 +345,7 @@ float4 NormalDepthPS(DomainOut pin) : SV_TARGET
     float3 normalW = cross(tangent, bitan);
     float3 normalV = normalize(mul(normalW, (float3x3) V));
 	
-    return float4(normalV, pin.positionV.z);
+    return float4(normalV, pin.PosH.z);
 }
 
 technique11 Draw

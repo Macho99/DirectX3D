@@ -15,7 +15,7 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
 {
     {
         //Super::Render(rtv);
-        DC->OMSetRenderTargets(1, rtv.GetAddressOf(), 0);
+        DC->OMSetRenderTargets(1, rtv.GetAddressOf(), GRAPHICS->GetDepthStencilView().Get());
 
     }
 
@@ -33,9 +33,9 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
     if (mat->GetDiffuseMap().Resolve() == nullptr)
     {
         mat->SetDiffuseMap(RESOURCES->AllocateTempResource<Texture>());
-        mat->GetDiffuseMap().Resolve()->SetSRV(_hdrSRV);
         mat->SetNormalMap(GRAPHICS->GetNormalDepthMap());
     }
+    mat->GetDiffuseMap().Resolve()->SetSRV(_hdrSRV);
 
     ssrRenderer->Render(RenderTech::Draw);
 }

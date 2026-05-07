@@ -5,7 +5,7 @@
 //const float ReflectionStrength = ;
 //const float Roughness = 0.5f;
 const float DepthThickness = 100.f;
-const float MaxRayDistance = 100.f;
+const float MaxRayDistance = 300.f;
 const int MaxSteps = 64;
 
 #define SceneMap DiffuseMap
@@ -33,12 +33,11 @@ float3 ComputeSSR(float3 viewPos, float3 viewNormal, float3 viewDir)
 
         float sceneDepth = NormalDepthMap.SampleLevel(PointSampler, uv, 0).a;
         float rayDepth = clip.z / max(clip.w, 1e-5f);
-
-        float diff = sceneDepth - rayDepth;
-        if (abs(diff) < DepthThickness)
+        
+        if (rayDepth > sceneDepth)
         {
             return SceneMap.Sample(LinearSampler, uv).rgb;
-        }                  
+        }
     }
 
     return float3(0, 0, 0);
@@ -50,18 +49,17 @@ float4 PS(MeshOutput input) : SV_TARGET
     float3 viewNormal = normalize(input.normalV);
 
     float3 reflected = ComputeSSR(input.positionV, viewNormal, viewDir);
-    float fresnel = pow(1.0f - saturate(dot(-viewDir, viewNormal)), 5.0f);
-    float reflectivity = 0.5f; //= saturate(ReflectionStrength * (1.0f - Roughness));
+    //float fresnel = pow(1.0f - saturate(dot(-viewDir, viewNormal)), 5.0f);
+    //float reflectivity = 0.5f; //= saturate(ReflectionStrength * (1.0f - Roughness));
+    //
+    //float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
+    //float4 baseColor = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadow);
+    float3 color = reflected; //lerp(baseColor.rgb, reflected, saturate(reflectivity + fresnel));
     
-    float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    float4 baseColor = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadow);
-    float3 color = lerp(baseColor.rgb, reflected, saturate(reflectivity + fresnel));
-
-    return float4(1.0f, 1.0f, 1.0f, 0.5f);
-    //return float4(color, 1.0f);
+    return float4(color, 1.0f);
 }
 
 technique11 Draw
 {
-	PASS_BS_VP(P0, AlphaBlend, VS_Mesh, PS)
+	PASS_BS_VP(P0, AlphaBlend, VS_Mesh_NotInst, PS)
 };

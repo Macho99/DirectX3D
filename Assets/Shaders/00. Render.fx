@@ -10,6 +10,35 @@
 
 // ************** MeshRender ****************
 
+struct VertexMesh_NotInst
+{
+    float4 position : POSITION;
+    float2 uv : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+};
+
+MeshOutput VS_Mesh_NotInst(VertexMesh_NotInst input)
+{
+    MeshOutput output;
+
+    float4 worldPos = mul(input.position, W);
+    output.position = worldPos; // W
+    output.worldPosition = output.position;
+    output.position = mul(output.position, VP);
+    output.uv = input.uv;
+	
+    output.normal = mul(input.normal, (float3x3) W);
+    output.normalV = mul(output.normal, (float3x3) V);
+    output.positionV = mul(worldPos, V);
+    output.viewZ = output.positionV.z;
+    output.ssaoPosH = mul(worldPos, VPT);
+	
+    output.tangent = input.tangent; //mul(input.tangent, (float3x3) W);
+	
+    return output;
+}
+
 struct VertexMesh
 {
 	float4 position : POSITION;
@@ -31,7 +60,7 @@ MeshOutput VS_Mesh(VertexMesh input)
 	output.position = mul(output.position, VP);
 	output.uv = input.uv;
 	
-    output.normal = mul(input.normal, (float3x3) W);
+    output.normal = mul(input.normal, (float3x3) input.world);
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
     output.viewZ = output.positionV.z;

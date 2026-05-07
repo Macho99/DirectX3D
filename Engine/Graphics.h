@@ -51,6 +51,7 @@ public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
 	Viewport& GetViewport() { return _vp; }
 	Viewport& GetShadowViewport() { return _shadowVP; }
+    ComPtr<ID3D11DepthStencilView> GetDepthStencilView() { return _depthStencilView; }
     ComPtr<ID3D11ShaderResourceView> GetSceneViewSRV() { return _sceneSRV; }
     ComPtr<ID3D11ShaderResourceView> GetShadowArraySRV() { return _shadowArraySRV; }
 	ResourceRef<Texture> GetShadowMap(int index) { return _shadowMap[index]; }

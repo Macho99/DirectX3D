@@ -14,7 +14,7 @@ float4 PS(MeshOutput input) : SV_TARGET
 float4 NormalDepthPS(MeshOutput input) : SV_TARGET
 {
     input.normalV = normalize(input.normalV);
-    return float4(input.normalV, input.positionV.z);
+    return float4(input.normalV, input.position.z);
 }
 
 technique11 Draw

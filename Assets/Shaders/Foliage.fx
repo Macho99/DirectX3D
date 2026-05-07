@@ -56,7 +56,7 @@ float4 AlphaClipNormalDepthPS(MeshOutput input) : SV_TARGET
     if (color.a < 0.1f)
         discard;
 	
-    return float4(input.normalV, input.positionV.z);
+    return float4(input.normalV, input.position.z);
 }
 
 technique11 Draw
