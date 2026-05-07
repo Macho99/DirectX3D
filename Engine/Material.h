@@ -38,6 +38,7 @@ public:
 	ResourceRef<Texture> GetNormalMap() { return _normalMap; }
 	ResourceRef<Texture> GetSpecularMap() { return _specularMap; }
 	//ResourceRef<Texture> GetRandomTex() { return _randomTex; }
+    ResourceRef<Texture> GetCubeMap() { return _cubeMap; }
 
 	void SetShader(ResourceRef<Shader> shader);
 	void SetDiffuseMap(ResourceRef<Texture> diffuseMap);

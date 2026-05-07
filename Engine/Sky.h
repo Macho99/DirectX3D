@@ -8,6 +8,7 @@ public:
 	~Sky();
 
     void SetMaterial(ResourceRef<class Material> material) { _material = material; }
+	ResourceRef<Material> GetMaterial() const { return _material; }
 
 	void Render(class Camera* camera);
 

@@ -16,7 +16,6 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
     {
         //Super::Render(rtv);
         DC->OMSetRenderTargets(1, rtv.GetAddressOf(), GRAPHICS->GetDepthStencilView().Get());
-
     }
 
     SsrRenderer* ssrRenderer = _ssrRenderer.Resolve();
@@ -34,6 +33,15 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
     {
         mat->SetDiffuseMap(RESOURCES->AllocateTempResource<Texture>());
         mat->SetNormalMap(GRAPHICS->GetNormalDepthMap());
+        shared_ptr<Sky> sky = CUR_SCENE->GetSky();
+        if (sky != nullptr)
+        {
+            Material* skyMat = sky->GetMaterial().Resolve();
+            if (skyMat != nullptr)
+            {
+                mat->SetCubeMap(skyMat->GetCubeMap());
+            }
+        }
     }
     mat->GetDiffuseMap().Resolve()->SetSRV(_hdrSRV);
 

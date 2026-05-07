@@ -10,6 +10,14 @@ const int MaxSteps = 64;
 
 #define SceneMap DiffuseMap
 #define NormalDepthMap NormalMap
+TextureCube CubeMap;
+SamplerState samTriLinearSam
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
 
 float DepthToViewZ(float depth)
 {
@@ -71,9 +79,11 @@ float3 BinarySearch(float3 rayPos, float3 reflDir, float stepDistance)
     float2 edgeFade = smoothstep(0.0f, 0.1f, hitResult.uv)
                             * smoothstep(1.0f, 0.9f, hitResult.uv);
     float fade = edgeFade.x * edgeFade.y;
-
     
-    return SceneMap.Sample(LinearSampler, hitResult.uv).rgb * fade;
+    float3 worldReflDir = mul(reflDir, (float3x3) VInv);
+    float3 skyColor = CubeMap.Sample(samTriLinearSam, worldReflDir).rgb;
+    float3 sceneColor = SceneMap.Sample(LinearSampler, hitResult.uv).rgb;
+    return lerp(sceneColor, skyColor, 1.0f - fade);
 }
 
 float3 ComputeSSR(float3 viewPos, float3 viewNormal, float3 viewDir)
@@ -94,7 +104,8 @@ float3 ComputeSSR(float3 viewPos, float3 viewNormal, float3 viewDir)
         }
     }
 
-    return float3(0, 0, 0);
+    float3 worldReflDir = mul(reflDir, (float3x3) VInv);
+    return CubeMap.Sample(samTriLinearSam, worldReflDir).rgb;
 }
 
 float4 PS(MeshOutput input) : SV_TARGET

@@ -44,6 +44,7 @@ public:
 	GameObject* Pick(int32 screenX, int32 screenY);
 
 	void SetSky(shared_ptr<Sky> sky) { _sky = sky; }
+    shared_ptr<Sky> GetSky() const { return _sky; }
 
 	void CheckCollision();
 	bool IsInScene(const GameObjectRef& ref) { return _gameObjects.find(ref) != _gameObjects.end(); }
