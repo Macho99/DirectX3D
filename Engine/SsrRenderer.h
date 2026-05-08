@@ -10,6 +10,7 @@ public:
     ~SsrRenderer();
     void InnerRender(RenderTech renderTech) override;
     virtual bool OnGUI() override;
+    virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
 
     void SetMesh(ResourceRef<Mesh> mesh) { _mesh = mesh; }
     ResourceRef<Mesh> GetMesh() { return _mesh; }

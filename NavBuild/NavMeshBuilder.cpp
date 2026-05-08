@@ -98,6 +98,9 @@ void NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)
     for (int i = 0; i < input.triangles.size(); i++)
     {
         InputTri& tri = input.triangles[i];
+        if (tri.walkable == false)
+            continue;
+
         Vec3 n = GetTriangleNormal(tri);
         float dot = n.Dot(Vec3(0.f, 1.f, 0.f));
         tri.walkable = dot >= walkableThreshold;

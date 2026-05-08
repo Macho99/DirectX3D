@@ -23,7 +23,7 @@ struct InputTri
     Vec3 v0;
     Vec3 v1;
     Vec3 v2;
-    bool walkable = false;
+    bool walkable = true;
 };
 
 struct Bounds

@@ -586,7 +586,18 @@ bool NavMesh::OnGUI()
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
-        Vec3 curPos = GetTransform()->GetPosition();
+        Transform* transform = GetTransform();
+        const vector<TransformRef>& children = transform->GetChildren();
+        for (const TransformRef& childRef : children)
+        {
+            Transform* child = childRef.Resolve();
+            if (child == nullptr)
+                continue;
+
+            child->SetPosition(Vec3(0.f));
+        }
+
+        Vec3 curPos = transform->GetPosition();
         Bounds bounds{ -_buildExtent, _buildExtent };
         bounds.bmin += curPos;
         bounds.bmax += curPos;

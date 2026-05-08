@@ -120,6 +120,7 @@ void CameraMove::MoveFocusTarget()
 	{
 		DBG->LogError("CameraMove::MoveFocusTarget - focus move target is null");
 		_focusMoveTransform = TransformRef();
+        return;
 	}
 
 	Transform* camTransform = GetTransform();
@@ -132,7 +133,7 @@ void CameraMove::MoveFocusTarget()
 
 	camTransform->SetPosition(movePos);
 
-	if (t >= 1.f)
+	if (t >= 1.f || (movePos - targetPosOffset).LengthSquared() < 0.1f)
 	{
 		_focusMoveTransform = TransformRef();
 	}

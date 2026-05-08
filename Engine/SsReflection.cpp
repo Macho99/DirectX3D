@@ -24,6 +24,8 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
     ssrRenderer = _ssrRenderer.Resolve();
     if (ssrRenderer == nullptr)
         return;
+    if (ssrRenderer->GetGameObject()->IsActiveInHierarchy() == false)
+        return;
 
     Material* mat = ssrRenderer->GetMaterial().Resolve();
     if (mat == nullptr)
