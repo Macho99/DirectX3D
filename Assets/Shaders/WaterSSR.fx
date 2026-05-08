@@ -2,7 +2,7 @@
 #include "00. Light.fx"
 #include "00. Render.fx"
 
-const float EdgeFade = 0.05f;
+const float EdgeFade = 0.025f;
 const float Reflectivity = 0.2f;
 const float MaxThickness = 8.f;
 const float MaxRayDistance = 300.f;
@@ -118,39 +118,44 @@ float4 PS(MeshOutput input) : SV_TARGET
 {
     float3 viewDir = normalize(input.positionV);
     
-    float2 uv = input.uv + float2(Time * 0.01f, Time * 0.015f);
+    float2 uv = input.uv + float2(Time * 0.005f, Time * 0.01f);
     float3 normalMapping = ComputeNormalMapping(input.normal, input.tangent, uv);
-    float2 uv2 = float2(input.uv.y, input.uv.x) - float2(Time * 0.015f, Time * 0.01f);
+    float2 uv2 = float2(input.uv.y, input.uv.x) - float2(Time * 0.01f, Time * 0.005f);
     float3 normalMapping2 = ComputeNormalMapping(input.normal, input.tangent, uv2);
     
     normalMapping = normalize(normalMapping + normalMapping2);
     
-    float3 worldNormal = lerp(input.normal, normalMapping, 0.15f);
+    float3 worldNormal = lerp(input.normal, normalMapping, 0.1f);
     float3 viewNormal = mul(worldNormal, (float3x3) V);
 
     float3 reflected = ComputeSSR(input.positionV, viewNormal, viewDir);
     float fresnel = pow(1.0f - saturate(dot(-viewDir, viewNormal)), 5.0f);
     //float reflectivity = saturate(ReflectionStrength * (1.0f - Roughness));
     
-    float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    float3 color = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadow).rgb;
+    float shadowFactor = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
+    float3 waterColor = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadowFactor).rgb;
     
     float2 sceneUv = GetUVFromViewPos(input.positionV);
     float sceneDepth = DepthMap.SampleLevel(PointSampler, sceneUv, 0).r;
     float sceneViewZ = DepthToViewZ(sceneDepth);
-    float depthDiff = (sceneViewZ - input.positionV.z);
-    color = lerp(color, float3(0.f, 0.f, 0.f), saturate(depthDiff / MaxDeepness));
+    float depthDiff = abs(sceneViewZ - input.positionV.z);
+    waterColor = lerp(waterColor, float3(0.f, 0.f, 0.f), saturate(depthDiff / MaxDeepness));
     
     float reflectivity = Reflectivity + fresnel;
-    color = lerp(color, reflected, reflectivity);
-    color = lerp(color, Material.ambient.rgb * GlobalLight.ambient.rgb, 1.f - shadow);
+    waterColor = lerp(waterColor, reflected, reflectivity);
+    waterColor = lerp(Material.ambient.rgb * GlobalLight.ambient.rgb, waterColor, shadowFactor);
     
     float alpha = min(Material.diffuse.a, saturate(depthDiff / MinDeepness + 0.2f));
     
-    return float4(color, alpha);
+    float distortionAmount = saturate((depthDiff - MinDeepness) / (MaxDeepness - MinDeepness));
+    float2 distortionUv = sceneUv + (worldNormal.xz * distortionAmount);
+    float3 sceneColor = SceneMap.Sample(LinearSampler, distortionUv).rgb;
+    float3 finalColor = lerp(sceneColor, waterColor, alpha);
+    
+    return float4(finalColor, 1.0f);
 }
 
 technique11 Draw
 {
-	PASS_BS_VP(P0, AlphaBlend, VS_Mesh_NotInst, PS)
+	PASS_VP(P0, VS_Mesh_NotInst, PS)
 };
