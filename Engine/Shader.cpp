@@ -398,6 +398,7 @@ void Shader::PushGlobalData(const Matrix& view, const Matrix& projection)
 	_globalDesc.VPT = _globalDesc.VP * toTexSpace;
 	_globalDesc.VInv = view.Invert();
 	_globalDesc.CamPos = Camera::S_Pos;
+	_globalDesc.Time = TIME->GetGameTime();
 
 	_globalBuffer->CopyData(_globalDesc);
 	_globalEffectBuffer->SetConstantBuffer(_globalBuffer->GetComPtr().Get());

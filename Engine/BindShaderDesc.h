@@ -9,7 +9,7 @@ struct GlobalDesc
 	Matrix VPT = Matrix::Identity;
 	Matrix VInv = Matrix::Identity;
 	Vec3 CamPos = Vec3(0, 0, 0);
-	float padding;
+	float Time;
 };
 
 struct TransformDesc

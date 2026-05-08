@@ -32,7 +32,7 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
     if (mat->GetDiffuseMap().Resolve() == nullptr)
     {
         mat->SetDiffuseMap(RESOURCES->AllocateTempResource<Texture>());
-        mat->SetNormalMap(GRAPHICS->GetDepthStencilMap());
+        mat->SetSpecularMap(GRAPHICS->GetDepthStencilMap());
         shared_ptr<Sky> sky = CUR_SCENE->GetSky();
         if (sky != nullptr)
         {

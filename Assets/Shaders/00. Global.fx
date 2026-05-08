@@ -16,7 +16,7 @@ cbuffer GlobalBuffer
     matrix VPT;
 	matrix VInv;
 	float3 CamPos; // 그림자 그릴때 라이트가 아닌 카메라 위치가 필요(빌보드)
-	float padding;
+	float Time;
 };
 
 cbuffer TransformBuffer

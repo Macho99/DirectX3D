@@ -2,14 +2,16 @@
 #include "00. Light.fx"
 #include "00. Render.fx"
 
+const float EdgeFade = 0.05f;
 const float Reflectivity = 0.2f;
 const float MaxThickness = 8.f;
 const float MaxRayDistance = 300.f;
 const float MaxDeepness = 30.f;
+const float MinDeepness = 5.f;
 const int MaxSteps = 64;
 
 #define SceneMap DiffuseMap
-#define DepthMap NormalMap
+#define DepthMap SpecularMap
 TextureCube CubeMap;
 SamplerState samTriLinearSam
 {
@@ -80,8 +82,8 @@ float3 BinarySearch(float3 rayPos, float3 reflDir, float stepDistance)
             lo = mid; // 아직 안 들어감 → 더 전진
     } 
     
-    float2 edgeFade = smoothstep(0.0f, 0.05f, hitResult.uv)
-                            * smoothstep(1.0f, 0.95f, hitResult.uv);
+    float2 edgeFade = smoothstep(0.0f, EdgeFade, hitResult.uv)
+                            * smoothstep(1.0f, 1.0f - EdgeFade, hitResult.uv);
     float fade = edgeFade.x * edgeFade.y;
     
     float3 worldReflDir = mul(reflDir, (float3x3) VInv);
@@ -115,7 +117,16 @@ float3 ComputeSSR(float3 viewPos, float3 viewNormal, float3 viewDir)
 float4 PS(MeshOutput input) : SV_TARGET
 {
     float3 viewDir = normalize(input.positionV);
-    float3 viewNormal = normalize(input.normalV);
+    
+    float2 uv = input.uv + float2(Time * 0.01f, Time * 0.015f);
+    float3 normalMapping = ComputeNormalMapping(input.normal, input.tangent, uv);
+    float2 uv2 = float2(input.uv.y, input.uv.x) - float2(Time * 0.015f, Time * 0.01f);
+    float3 normalMapping2 = ComputeNormalMapping(input.normal, input.tangent, uv2);
+    
+    normalMapping = normalize(normalMapping + normalMapping2);
+    
+    float3 worldNormal = lerp(input.normal, normalMapping, 0.15f);
+    float3 viewNormal = mul(worldNormal, (float3x3) V);
 
     float3 reflected = ComputeSSR(input.positionV, viewNormal, viewDir);
     float fresnel = pow(1.0f - saturate(dot(-viewDir, viewNormal)), 5.0f);
@@ -124,8 +135,8 @@ float4 PS(MeshOutput input) : SV_TARGET
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
     float3 color = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadow).rgb;
     
-    float2 uv = GetUVFromViewPos(input.positionV);
-    float sceneDepth = DepthMap.SampleLevel(PointSampler, uv, 0).r;
+    float2 sceneUv = GetUVFromViewPos(input.positionV);
+    float sceneDepth = DepthMap.SampleLevel(PointSampler, sceneUv, 0).r;
     float sceneViewZ = DepthToViewZ(sceneDepth);
     float depthDiff = (sceneViewZ - input.positionV.z);
     color = lerp(color, float3(0.f, 0.f, 0.f), saturate(depthDiff / MaxDeepness));
@@ -134,7 +145,9 @@ float4 PS(MeshOutput input) : SV_TARGET
     color = lerp(color, reflected, reflectivity);
     color = lerp(color, Material.ambient.rgb * GlobalLight.ambient.rgb, 1.f - shadow);
     
-    return float4(color, Material.diffuse.a);
+    float alpha = min(Material.diffuse.a, saturate(depthDiff / MinDeepness + 0.2f));
+    
+    return float4(color, alpha);
 }
 
 technique11 Draw

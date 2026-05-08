@@ -12,7 +12,7 @@ cbuffer SnowBuffer
 	float Turbulence;
 
 	float3 Extent;
-	float Time;
+	float TimeDummy;
 };
 
 struct VertexInput
