@@ -61,6 +61,21 @@ Texture2D SsaoMap;
 // Function //
 //////////////
 
+float GetSpecularValue(float3 worldPosition, float3 worldNormal)
+{
+	//float3 R = reflect(GlobalLight.direction, normal);
+    float3 R = GlobalLight.direction - (2 * worldNormal * dot(GlobalLight.direction, worldNormal));
+    R = normalize(R);
+
+    float3 cameraPosition = CameraPosition();
+    float3 E = normalize(cameraPosition - worldPosition);
+
+    float value = saturate(dot(R, E)); // clamp(0~1)
+    float specular = pow(value, 10);
+
+    return specular;
+}
+
 float4 ComputeLight(float3 normal, float4 litColor, float3 worldPosition, float4 ssaoPosH, float shadow = 1)
 {
     float4 ambientColor = 0;
@@ -88,19 +103,7 @@ float4 ComputeLight(float3 normal, float4 litColor, float3 worldPosition, float4
     }
 
 	// Specular
-	{
-		//float3 R = reflect(GlobalLight.direction, normal);
-        float3 R = GlobalLight.direction - (2 * normal * dot(GlobalLight.direction, normal));
-        R = normalize(R);
-
-        float3 cameraPosition = CameraPosition();
-        float3 E = normalize(cameraPosition - worldPosition);
-
-        float value = saturate(dot(R, E)); // clamp(0~1)
-        float specular = pow(value, 10);
-
-        specularColor = GlobalLight.specular * Material.specular * specular;
-    }
+    specularColor = GlobalLight.specular * Material.specular * GetSpecularValue(worldPosition, normal);
 
 	// Emissive
 	{

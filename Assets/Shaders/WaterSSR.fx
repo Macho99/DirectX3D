@@ -133,12 +133,18 @@ float4 PS(MeshOutput input) : SV_TARGET
     //float reflectivity = saturate(ReflectionStrength * (1.0f - Roughness));
     
     float shadowFactor = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    float3 waterColor = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadowFactor).rgb;
+    float3 waterColor = ComputeLight(worldNormal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadowFactor).rgb;
     
     float2 sceneUv = GetUVFromViewPos(input.positionV);
     float sceneDepth = DepthMap.SampleLevel(PointSampler, sceneUv, 0).r;
     float sceneViewZ = DepthToViewZ(sceneDepth);
-    float depthDiff = abs(sceneViewZ - input.positionV.z);
+    float sceneDepthDiff = abs(sceneViewZ - input.positionV.z);
+    
+    float2 distortionUv = sceneUv + (worldNormal.xz * saturate(sceneDepthDiff / MinDeepness));
+    distortionUv = clamp(distortionUv, float2(0.01f, 0.01f), float2(0.99f, 0.99f));
+    float distortionDepth = DepthMap.SampleLevel(PointSampler, distortionUv, 0).r;
+    float distortionViewZ = DepthToViewZ(distortionDepth);
+    float depthDiff = abs(distortionViewZ - input.positionV.z);
     waterColor = lerp(waterColor, float3(0.f, 0.f, 0.f), saturate(depthDiff / MaxDeepness));
     
     float reflectivity = Reflectivity + fresnel;
@@ -147,10 +153,11 @@ float4 PS(MeshOutput input) : SV_TARGET
     
     float alpha = min(Material.diffuse.a, saturate(depthDiff / MinDeepness + 0.2f));
     
-    float distortionAmount = saturate((depthDiff - MinDeepness) / (MaxDeepness - MinDeepness));
-    float2 distortionUv = sceneUv + (worldNormal.xz * distortionAmount);
     float3 sceneColor = SceneMap.Sample(LinearSampler, distortionUv).rgb;
+    
     float3 finalColor = lerp(sceneColor, waterColor, alpha);
+    //float specularValue = GetSpecularValue(input.worldPosition, worldNormal);
+    //finalColor += GlobalLight.specular * Material.specular * specularValue * shadowFactor * 3;
     
     return float4(finalColor, 1.0f);
 }
