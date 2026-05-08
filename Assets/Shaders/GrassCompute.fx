@@ -141,6 +141,11 @@ void CS(uint3 DTid : SV_DispatchThreadID)
         return;
     }
     
+    if (position.y < -1)
+    {
+        return;
+    }
+    
     float2 halfWidthDepth = float2(terrainWidth, terrainDepth) * 0.5f;
     float2 pinTex = (position.xz + halfWidthDepth) / float2(terrainWidth, terrainDepth);
     pinTex.y = 1 - pinTex.y;

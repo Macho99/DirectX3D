@@ -23,6 +23,8 @@ void Graphics::Init(HWND hwnd)
 
 void Graphics::Start()
 {
+	_depthStencilMap = RESOURCES->AllocateTempResource(make_unique<Texture>());
+
     _postProcesses.push_back(make_shared<SsReflection>());
 	_postProcesses.push_back(make_shared<Bloom>());
 	//_postProcesses[0]->SetEnabled(false);
@@ -445,11 +447,11 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 		desc.Height = static_cast<uint32>(GAME->GetGameDesc().sceneHeight);
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
@@ -486,6 +488,28 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 				DX_CREATE_DSV(_shadowDSTexture.Get(), &desc, _shadowDSV[i]);
 			}
 		}
+	}
+
+    // DSV와 SRV를 동시에 바인딩할 때 필요한 읽기 전용 DSV
+	{
+		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Flags = D3D11_DSV_READ_ONLY_DEPTH | D3D11_DSV_READ_ONLY_STENCIL;
+		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipSlice = 0;
+
+		DX_CREATE_DSV(_depthStencilTexture.Get(), &desc, _readonlyDepthStencilView);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+
+        ComPtr<ID3D11ShaderResourceView> depthSRV;
+        DX_CREATE_SRV(_depthStencilTexture.Get(), &srvDesc, depthSRV);
+        _depthStencilMap.Resolve()->SetSRV(depthSRV);
 	}
 
 	if (createShadowMap)

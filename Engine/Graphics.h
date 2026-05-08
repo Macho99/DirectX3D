@@ -36,6 +36,7 @@ public:
     void SsaoOnSize(float width, float height, float fovY, float farZ);
 
 	ResourceRef<Texture> GetNormalDepthMap();
+    ResourceRef<Texture> GetDepthStencilMap() { return _depthStencilMap; }
 	ResourceRef<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
     void SetBackBufferRenderTarget();
@@ -51,7 +52,7 @@ public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
 	Viewport& GetViewport() { return _vp; }
 	Viewport& GetShadowViewport() { return _shadowVP; }
-    ComPtr<ID3D11DepthStencilView> GetDepthStencilView() { return _depthStencilView; }
+    ComPtr<ID3D11DepthStencilView> GetReadOnlyDepthStencilView() { return _readonlyDepthStencilView; }
     ComPtr<ID3D11ShaderResourceView> GetSceneViewSRV() { return _sceneSRV; }
     ComPtr<ID3D11ShaderResourceView> GetShadowArraySRV() { return _shadowArraySRV; }
 	ResourceRef<Texture> GetShadowMap(int index) { return _shadowMap[index]; }
@@ -98,6 +99,8 @@ private:
 	// DSV
 	ComPtr<ID3D11Texture2D> _depthStencilTexture;
 	ComPtr<ID3D11DepthStencilView> _depthStencilView;
+    ComPtr<ID3D11DepthStencilView> _readonlyDepthStencilView;
+    ResourceRef<Texture> _depthStencilMap;
 
 	ComPtr<ID3D11Texture2D> _shadowDSTexture;
 	ComPtr<ID3D11DepthStencilView> _shadowDSV[NUM_SHADOW_CASCADES];

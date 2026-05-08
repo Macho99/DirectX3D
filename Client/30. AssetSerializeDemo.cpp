@@ -279,8 +279,8 @@ void AssetSerializeDemo::Init()
         ssrRenderer->SetMesh(RESOURCES->GetQuadYMesh());
 
         Transform* transform = obj->GetTransform();
-        transform->SetPosition(Vec3(30.f, 2.f, 80.f));
-        transform->SetScale(Vec3(40.f, 1.f, 40.f));
+        transform->SetPosition(Vec3(30.f, -2.f, 120.f));
+        transform->SetScale(Vec3(100.f, 1.f, 100.f));
     }
 }
 

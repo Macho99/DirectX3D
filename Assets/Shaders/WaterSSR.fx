@@ -2,14 +2,14 @@
 #include "00. Light.fx"
 #include "00. Render.fx"
 
-const float ReflectionStrength = 0.5f;
-const float Roughness = 0.5f;
+const float Reflectivity = 0.2f;
 const float MaxThickness = 8.f;
 const float MaxRayDistance = 300.f;
+const float MaxDeepness = 30.f;
 const int MaxSteps = 64;
 
 #define SceneMap DiffuseMap
-#define NormalDepthMap NormalMap
+#define DepthMap NormalMap
 TextureCube CubeMap;
 SamplerState samTriLinearSam
 {
@@ -17,7 +17,6 @@ SamplerState samTriLinearSam
     AddressU = Wrap;
     AddressV = Wrap;
 };
-
 
 float DepthToViewZ(float depth)
 {
@@ -30,14 +29,20 @@ struct HitTestResult
     float2 uv;
 };
 
+float2 GetUVFromViewPos(float3 viewPos)
+{
+    float4 clip = mul(float4(viewPos, 1.0f), P);
+    float2 uv = clip.xy / max(clip.w, 1e-5f);
+    uv = uv * 0.5f + 0.5f;
+    uv.y = 1.0f - uv.y;
+    return uv;
+}
+
 HitTestResult HitTest(float3 rayPos)
 {
     HitTestResult result;
     
-    float4 clip = mul(float4(rayPos, 1.0f), P);
-    float2 uv = clip.xy / max(clip.w, 1e-5f);
-    uv = uv * 0.5f + 0.5f;
-    uv.y = 1.0f - uv.y;
+    float2 uv = GetUVFromViewPos(rayPos);
     result.uv = uv;
     
     if (any(uv < 0.0f) || any(uv > 1.0f))
@@ -46,9 +51,8 @@ HitTestResult HitTest(float3 rayPos)
         return result;
     }
 
-    float sceneDepth = NormalDepthMap.SampleLevel(PointSampler, uv, 0).a;
+    float sceneDepth = DepthMap.SampleLevel(PointSampler, uv, 0).r;
     float sceneViewZ = DepthToViewZ(sceneDepth);
-    //float rayDepth = clip.z / max(clip.w, 1e-5f);
         
     float diff = rayPos.z - sceneViewZ;
     
@@ -76,8 +80,8 @@ float3 BinarySearch(float3 rayPos, float3 reflDir, float stepDistance)
             lo = mid; // 아직 안 들어감 → 더 전진
     } 
     
-    float2 edgeFade = smoothstep(0.0f, 0.1f, hitResult.uv)
-                            * smoothstep(1.0f, 0.9f, hitResult.uv);
+    float2 edgeFade = smoothstep(0.0f, 0.05f, hitResult.uv)
+                            * smoothstep(1.0f, 0.95f, hitResult.uv);
     float fade = edgeFade.x * edgeFade.y;
     
     float3 worldReflDir = mul(reflDir, (float3x3) VInv);
@@ -115,13 +119,22 @@ float4 PS(MeshOutput input) : SV_TARGET
 
     float3 reflected = ComputeSSR(input.positionV, viewNormal, viewDir);
     float fresnel = pow(1.0f - saturate(dot(-viewDir, viewNormal)), 5.0f);
-    float reflectivity = saturate(ReflectionStrength * (1.0f - Roughness));
+    //float reflectivity = saturate(ReflectionStrength * (1.0f - Roughness));
     
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    float4 baseColor = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadow);
-    float3 color = lerp(baseColor.rgb, reflected, saturate(reflectivity + fresnel));
+    float3 color = ComputeLight(input.normal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadow).rgb;
     
-    return float4(color, 1.0f);
+    float2 uv = GetUVFromViewPos(input.positionV);
+    float sceneDepth = DepthMap.SampleLevel(PointSampler, uv, 0).r;
+    float sceneViewZ = DepthToViewZ(sceneDepth);
+    float depthDiff = (sceneViewZ - input.positionV.z);
+    color = lerp(color, float3(0.f, 0.f, 0.f), saturate(depthDiff / MaxDeepness));
+    
+    float reflectivity = Reflectivity + fresnel;
+    color = lerp(color, reflected, reflectivity);
+    color = lerp(color, Material.ambient.rgb * GlobalLight.ambient.rgb, 1.f - shadow);
+    
+    return float4(color, Material.diffuse.a);
 }
 
 technique11 Draw

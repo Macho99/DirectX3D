@@ -8,16 +8,16 @@
                 "_version": 2,
                 "_desc": {
                     "ambient": {
-                        "value.x": 0.09941711276769638,
-                        "value.y": 0.3896643817424774,
-                        "value.z": 0.953667938709259,
+                        "value.x": 0.18459774553775788,
+                        "value.y": 0.20189997553825379,
+                        "value.z": 0.23552125692367555,
                         "value.w": 1.0
                     },
                     "diffuse": {
-                        "value.x": 0.3011583089828491,
-                        "value.y": 0.5871707797050476,
-                        "value.z": 1.0,
-                        "value.w": 1.0
+                        "value.x": 0.330868661403656,
+                        "value.y": 0.4440154433250427,
+                        "value.z": 0.4212754964828491,
+                        "value.w": 0.8349999785423279
                     },
                     "specular": {
                         "value.x": 1.0,
@@ -33,7 +33,7 @@
                     }
                 },
                 "_renderQueue": 2,
-                "_castShadow": false,
+                "_castShadow": true,
                 "_includeInNavMesh": true,
                 "_shader": {
                     "assetId": {
@@ -43,14 +43,14 @@
                 },
                 "_diffuseMap": {
                     "assetId": {
-                        "leftId": 15253326858159604064,
-                        "rightId": 14172559247709678305
+                        "leftId": 1735295170421595892,
+                        "rightId": 5324311513521395613
                     }
                 },
                 "_normalMap": {
                     "assetId": {
-                        "leftId": 10285607883464873133,
-                        "rightId": 941110930588244771
+                        "leftId": 10510590583791639906,
+                        "rightId": 16520073602784245957
                     }
                 },
                 "_specularMap": {
@@ -61,8 +61,8 @@
                 },
                 "_cubeMap": {
                     "assetId": {
-                        "leftId": 0,
-                        "rightId": 0
+                        "leftId": 16859672694939793752,
+                        "rightId": 3596228088854476547
                     }
                 },
                 "_useRandomTexture": false
