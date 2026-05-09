@@ -62,7 +62,7 @@ private:
     //ComponentRef<Transform> _endPoint;
 
     NavDebugOption _debugOption = NavDebugOption::None;
-    Vec3 _buildExtent = Vec3(11.f, 20.f, 11.f);
+    Vec3 _buildExtent = Vec3(11.f, 100.f, 11.f);
     float _contourSimplifyMaxError = 1.5f;
     int _debugSeedCount = 0;
     bool _showDistanceField = false;

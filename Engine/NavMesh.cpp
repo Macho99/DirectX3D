@@ -603,6 +603,7 @@ bool NavMesh::OnGUI()
         bounds.bmax += curPos;
 
         NavBuildInput input;
+        input.settings.cellSize = 0.5f;
         input.settings.contourMaxError = _contourSimplifyMaxError;
         input.settings.debugSeedCount = _debugSeedCount;
         input.settings.detailSampleMaxError = _detailSampleMaxError;
@@ -619,7 +620,12 @@ bool NavMesh::OnGUI()
 
             renderer->SubmitTriangles(bounds, input.triangles);
         }
+
+        auto startTime = std::chrono::high_resolution_clock::now();
         bool result = _builder.Build(input, "InvalidPath");
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+        DBG->Log(Utils::Format("NavMesh build %s in %lld ms", result ? "succeeded" : "failed", duration));
     }
 
     //if (ImGui::Button("Find Path"))

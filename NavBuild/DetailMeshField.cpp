@@ -130,6 +130,18 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
 
                 if (maxErr > settings.detailSampleMaxError)
                 {
+                    bool samePointExists = false;
+                    for (const Vec3& v : detailVertices)
+                    {
+                        if (std::abs(v.x - maxErrPt.x) < kEps && std::abs(v.z - maxErrPt.z) < kEps)
+                        {
+                            samePointExists = true;
+                            break;
+                        }
+                    }
+
+                    if (samePointExists)
+                        break;
                     detailVertices.push_back(maxErrPt);
                     detailIndices.push_back(detailVertices.size() - 1);
 

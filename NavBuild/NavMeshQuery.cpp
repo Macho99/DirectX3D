@@ -39,10 +39,10 @@ bool NavMeshQuery::TryFindPath(const Vec3& start, const Vec3& end, MoveInfo& mov
         Vec3 edgeMidpoint = (v0.ToVec3() + v1.ToVec3()) * 0.5f;
         navPath.edgeCenterPath.push_back(edgeMidpoint);
     }
-    navPath.edgeCenterPath.push_back(end);
+    navPath.edgeCenterPath.push_back(closestEnd);
 
     // 3) 퍼널 → 최종 웨이포인트
-    navPath.path = FunnelSmooth(polyPath, closestStart, end);
+    navPath.path = FunnelSmooth(polyPath, closestStart, closestEnd);
     return true;
 }
 
