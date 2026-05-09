@@ -23,7 +23,6 @@ public:										\
 #define GET_SINGLE(classname)	classname::GetInstance()
 
 #define CHECK(p)	assert(SUCCEEDED(p))
-#define HR(p)		assert(SUCCEEDED(p))
 #define GAME		GET_SINGLE(Game)		
 #define GRAPHICS	GET_SINGLE(Graphics)
 #define DEVICE		GRAPHICS->GetDevice()

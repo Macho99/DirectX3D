@@ -174,7 +174,7 @@ inline void DX_SetDebugName(
 #else
 
 #define DX_INTERNAL_CREATE(call, outObj) \
-    CHECK(call);
+    call;
 
 #endif
 

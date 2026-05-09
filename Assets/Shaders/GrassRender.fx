@@ -68,6 +68,10 @@ void GS(point VS_TO_GS input[1], inout TriangleStream<GrassOutput> stream)
     float3 bladeUp = worldUp * scale.y;
     
     GrassOutput v[4];
+    v[0] = (GrassOutput) 0;
+    v[1] = (GrassOutput) 0;
+    v[2] = (GrassOutput) 0;
+    v[3] = (GrassOutput) 0;
     
     // 0: Bottom-Left
     v[0].worldPosition = bladeBasePos - bladeRight;

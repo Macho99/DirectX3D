@@ -58,7 +58,8 @@ void FileUtils::Open(wstring filePath, FileMode mode)
 void FileUtils::Write(void* data, uint32 dataSize)
 {
 	uint32 numOfBytes = 0;
-	assert(::WriteFile(_handle, data, dataSize, reinterpret_cast<LPDWORD>(&numOfBytes), nullptr));
+	bool result = ::WriteFile(_handle, data, dataSize, reinterpret_cast<LPDWORD>(&numOfBytes), nullptr);
+    assert(result);
 }
 
 void FileUtils::Write(const string& data)
@@ -75,7 +76,8 @@ void FileUtils::Write(const string& data)
 void FileUtils::Read(void** data, uint32 dataSize)
 {
 	uint32 numOfBytes = 0;
-	assert(::ReadFile(_handle, *data, dataSize, reinterpret_cast<LPDWORD>(&numOfBytes), nullptr));
+	bool result = ::ReadFile(_handle, *data, dataSize, reinterpret_cast<LPDWORD>(&numOfBytes), nullptr);
+    assert(result);
 }
 
 void FileUtils::Read(OUT string& data)
@@ -113,11 +115,13 @@ void FileUtils::SaveTextureToFile(ID3D11Texture2D* texture, const WCHAR* filenam
 
 	// DirectXTex의 ScratchImage로 캡처
 	ScratchImage image;
-	HR(CaptureTexture(DEVICE.Get(), DC.Get(), texture, image));
+	HRESULT hr = CaptureTexture(DEVICE.Get(), DC.Get(), texture, image);
+    CHECK(hr);
 
 	// PNG 파일로 저장
-	HR(DirectX::SaveToWICFile(*image.GetImages(), WIC_FLAGS_NONE,
-		GetWICCodec(WIC_CODEC_PNG), filename));
+	hr = DirectX::SaveToWICFile(*image.GetImages(), WIC_FLAGS_NONE,
+		GetWICCodec(WIC_CODEC_PNG), filename);
+    CHECK(hr);
 }
 
 void FileUtils::SaveResourceToJson(const fs::path path, unique_ptr<ResourceBase>& target)

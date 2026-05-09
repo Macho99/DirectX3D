@@ -360,7 +360,6 @@ void Graphics::CreateDeviceAndSwapChain()
 
 void Graphics::CreateRenderTargetView()
 {
-	HRESULT hr;
 	_ppTextures.clear();
 	_ppSRVs.clear();
 	_ppRTVs.clear();
@@ -370,7 +369,8 @@ void Graphics::CreateRenderTargetView()
     float sceneHeight = GAME->GetGameDesc().sceneHeight;
 
     _backBufferTexture.Reset();
-	CHECK(_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf()));
+	HRESULT hr = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)_backBufferTexture.GetAddressOf());
+	CHECK(hr);
 	if (GAME->GetGameDesc().isEditor)
 	{
 		D3D11_TEXTURE2D_DESC texDesc;

@@ -135,7 +135,8 @@ void ResourceManager::CreateRandomTexture()
 	texDesc.ArraySize = 1;
 
 	ComPtr<ID3D11Texture1D> randomTex;
-	CHECK(DEVICE->CreateTexture1D(&texDesc, &initData, randomTex.GetAddressOf()));
+	HRESULT hr = DEVICE->CreateTexture1D(&texDesc, &initData, randomTex.GetAddressOf());
+	CHECK(hr);
 
 	//
 	// Create the resource view.

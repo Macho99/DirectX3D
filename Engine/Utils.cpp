@@ -186,7 +186,9 @@ ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<fs::path>
 		for (uint32 mipLevel = 0; mipLevel < texElementDesc.MipLevels; ++mipLevel)
 		{
 			D3D11_MAPPED_SUBRESOURCE mappedTex2D;
-			HR(context->Map(srcTex[texElement].Get(), mipLevel, D3D11_MAP_READ, 0, &mappedTex2D));
+            ZeroMemory(&mappedTex2D, sizeof(mappedTex2D));
+			HRESULT hr = context->Map(srcTex[texElement].Get(), mipLevel, D3D11_MAP_READ, 0, &mappedTex2D);
+            CHECK(hr);
 
 			context->UpdateSubresource(texArray.Get(),
 				::D3D11CalcSubresource(mipLevel, texElement, texElementDesc.MipLevels),
