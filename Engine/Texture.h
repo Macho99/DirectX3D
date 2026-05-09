@@ -18,6 +18,7 @@ public:
 
     bool SetDynamic();
     bool Save();
+    void DiscardDynamic();
     bool IsDynamic() const { return _isDynamic; }
     bool TryGetPixel(uint32 x, uint32 y, Color& outColor) const;
     bool TrySetDynamicPixel(uint32 x, uint32 y, const Color& color);

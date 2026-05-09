@@ -171,8 +171,16 @@ bool Texture::Save()
     if (SaveScratchImageToFile(snapshot) == false)
         return false;
 
-    //Load(_loadedPath);
+    DiscardDynamic();
     return true;
+}
+
+void Texture::DiscardDynamic()
+{
+    if (_isDynamic == false)
+        return;
+    _isDynamic = false;
+    Load(_loadedPath);
 }
 
 bool Texture::ApplyDynamicImageToGPU()

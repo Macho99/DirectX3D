@@ -186,7 +186,7 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Kachujin" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, 15, rand() % 100));
+            obj->GetTransform()->SetPosition(Vec3(rand() % 100, 10, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
             obj->GetTransform()->SetParent(parentTransformRef);
             obj->AddComponent(make_unique<ModelAnimator>());

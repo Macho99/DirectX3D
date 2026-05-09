@@ -422,6 +422,20 @@ bool TessTerrain::OnGUI()
             }
 		}
 	}
+    ImGui::SameLine(0.0f, 200.f);
+	if (OnGUIUtils::DrawEnableButton("Reload Terrain", isMapsDirty, true, false))
+	{
+		TerrainData* terrainData = _terrainData.Resolve();
+		Texture* blendMap = terrainData->GetBlendMap().Resolve();
+		if (blendMap != nullptr)
+		{
+			blendMap->DiscardDynamic();
+		}
+		_initialized = false;
+		TryInitialize();
+		_isHeightmapDirty = false;
+        _isBlendmapDirty = false;
+	}
 
     return changed;
 }
