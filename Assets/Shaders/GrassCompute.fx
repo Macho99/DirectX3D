@@ -141,7 +141,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
         return;
     }
     
-    if (position.y < -1)
+    if (position.y < 9.5f)
     {
         return;
     }

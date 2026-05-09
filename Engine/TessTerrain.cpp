@@ -337,10 +337,12 @@ bool TessTerrain::OnGUI()
                         }
 					}
 
+					_isBlendmapDirty = true;
 					blendMap->ApplyDynamicImageToGPU();
                 }
 				else
 				{
+                    const float heightScale = terrainData->GetHeightScale();
 					for (int32 y = startY; y <= endY; ++y)
 					{
 						const float vertexZ = terrainDepth * 0.5f - y * cellSpacing;
@@ -363,10 +365,13 @@ bool TessTerrain::OnGUI()
 							{
 								_heightmap[index] = MathUtils::Lerp(_heightmap[index], Average(y, x), power);
 							}
-							_halfHeightmap[index] = MathUtils::ConvertFloatToHalf(_heightmap[index]);
+                            _heightmap[index] = std::clamp(_heightmap[index], 0.0f, heightScale);
+							float height = _heightmap[index];
+							_halfHeightmap[index] = MathUtils::ConvertFloatToHalf(height);
 						}
 					}
 
+					_isHeightmapDirty = true;
 					curHeightmapEditing = true;
 					UpdateHeightmapTexture();
 				}
@@ -376,6 +381,9 @@ bool TessTerrain::OnGUI()
 
     if (curHeightmapEditing == false && _prevHeightmapEditing == true)
     {
+		auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
+		_minHeight = *minIt;
+		_maxHeight = *maxIt;
 		CalcAllPatchBoundsY();
 		UpdateQuadPatchVB();
         OnHeightmapChanged.Invoke();
@@ -385,6 +393,35 @@ bool TessTerrain::OnGUI()
 
     changed |= OnGUIUtils::DrawUInt32("Triangle Cell Size", &_triCellSize, 1.f);
     changed |= OnGUIUtils::DrawBool("Submit Triangles Always", &_submitTrianglesAlways);
+
+	bool isMapsDirty = _isHeightmapDirty || _isBlendmapDirty;
+	if (OnGUIUtils::DrawEnableButton("Save Map", isMapsDirty, true, false))
+	{
+		if (_isHeightmapDirty)
+		{
+			if (SaveHeightmap())
+			{
+				DBG->Log("Heightmap saved successfully.");
+				_isHeightmapDirty = false;
+			}
+			else
+			{
+				DBG->LogError("Failed to save heightmap.");
+			}
+		}
+		if (_isBlendmapDirty)
+		{
+            if (SaveBlendmap())
+            {
+                DBG->Log("Blendmap saved successfully.");
+                _isBlendmapDirty = false;
+            }
+            else
+            {
+                DBG->LogError("Failed to save blendmap.");
+            }
+		}
+	}
 
     return changed;
 }
@@ -604,9 +641,9 @@ void TessTerrain::LoadHeightmap()
 {
     TerrainData* terrainData = _terrainData.Resolve();
 	// A height for each vertex
-	float heightmapHeight = terrainData->GetHeightmapHeight();
-    float heightmapWidth = terrainData->GetHeightmapWidth();
-    float heightScale = terrainData->GetHeightScale();
+	const float heightmapHeight = terrainData->GetHeightmapHeight();
+    const float heightmapWidth = terrainData->GetHeightmapWidth();
+    const float heightScale = terrainData->GetHeightScale();
 	vector<unsigned char> in(heightmapWidth * heightmapHeight);
 
 	// Open the file.
@@ -896,6 +933,44 @@ void TessTerrain::BuildHeightmapSRV()
 	_heightMapTexture.Resolve()->SetSRV(_heightMapSRV);
 }
 
+bool TessTerrain::SaveHeightmap()
+{
+	TerrainData* terrainData = _terrainData.Resolve();
+	if (terrainData == nullptr || _heightmap.empty())
+		return false;
+
+	const string& path = terrainData->GetHeightMapPath().string();
+	ofstream outFile(path.c_str(), std::ios_base::binary);
+	if (outFile.is_open() == false)
+		return false;
+
+	vector<unsigned char> out(_heightmap.size(), 0);
+	const float heightScale = max(terrainData->GetHeightScale(), 0.0001f);
+	for (size_t i = 0; i < _heightmap.size(); ++i)
+	{
+		float normalized = std::clamp(_heightmap[i] / heightScale, 0.0f, 1.0f);
+		out[i] = static_cast<unsigned char>(normalized * 255.0f);
+	}
+
+	outFile.write(reinterpret_cast<const char*>(out.data()), static_cast<std::streamsize>(out.size()));
+	if (outFile.fail())
+		return false;
+
+	outFile.close();
+	_isHeightmapDirty = false;
+	return true;
+}
+
+bool TessTerrain::SaveBlendmap()
+{
+    TerrainData* terrainData = _terrainData.Resolve();
+    Texture* blendMap = terrainData->GetBlendMap().Resolve();
+    if (blendMap == nullptr)
+        return false;
+
+	return blendMap->Save();
+}
+
 float TessTerrain::SampleBrush(const DirectX::Image* brushImage, float u, float v)
 {
 	if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
@@ -935,16 +1010,6 @@ bool TessTerrain::UpdateHeightmapTexture()
     TerrainData* terrainData = _terrainData.Resolve();
     if (terrainData == nullptr || _heightMapTexture2D == nullptr || _heightmap.empty())
         return false;
-
-	if (_isHeightmapDirty)
-	{
-		_halfHeightmap.resize(_heightmap.size());
-		std::transform(_heightmap.begin(), _heightmap.end(), _halfHeightmap.begin(), MathUtils::ConvertFloatToHalf);
-		auto [minIt, maxIt] = std::minmax_element(_heightmap.begin(), _heightmap.end());
-		_minHeight = *minIt;
-		_maxHeight = *maxIt;
-        _isHeightmapDirty = false;
-	}
 
     D3D11_MAPPED_SUBRESOURCE subResource = {};
     HRESULT hr = DC->Map(_heightMapTexture2D.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &subResource);

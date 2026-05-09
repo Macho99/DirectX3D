@@ -154,7 +154,7 @@ bool Texture::TrySetDynamicPixel(uint32 x, uint32 y, const Color& color)
     }
 }
 
-bool Texture::SaveAndReload()
+bool Texture::Save()
 {
     if (_loadedPath.empty())
         return false;
@@ -171,7 +171,7 @@ bool Texture::SaveAndReload()
     if (SaveScratchImageToFile(snapshot) == false)
         return false;
 
-    Load(_loadedPath);
+    //Load(_loadedPath);
     return true;
 }
 

@@ -17,7 +17,7 @@ public:
     void SetSRV(ComPtr<ID3D11ShaderResourceView> srv);
 
     bool SetDynamic();
-    bool SaveAndReload();
+    bool Save();
     bool IsDynamic() const { return _isDynamic; }
     bool TryGetPixel(uint32 x, uint32 y, Color& outColor) const;
     bool TrySetDynamicPixel(uint32 x, uint32 y, const Color& color);

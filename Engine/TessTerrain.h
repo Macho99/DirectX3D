@@ -63,6 +63,9 @@ private:
 	void BuildQuadPatchIB();
 	void BuildHeightmapSRV();
 
+	bool SaveHeightmap();
+    bool SaveBlendmap();
+
     float SampleBrush(const DirectX::Image* brushImage, float u, float v);
 
 public:
@@ -103,9 +106,10 @@ private:
 	vector<XMFLOAT2> _patchBoundsY;
 	vector<float> _heightmap;
     vector<uint16> _halfHeightmap; // 16-bit heightmap for GPU
-    bool _isHeightmapDirty = false;
     bool _prevHeightmapEditing = false;
 
+    bool _isBlendmapDirty = false;
+	bool _isHeightmapDirty = false;
     float _minHeight = FLT_MAX;
     float _maxHeight = -FLT_MAX;
 	uint32 _triCellSize = 3;

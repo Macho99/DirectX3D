@@ -55,7 +55,7 @@ void AssetSerializeDemo::Init()
     {
         GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
         GameObject* camera = cameraRef.Resolve();
-        camera->GetTransform()->SetPosition(Vec3{ -4.f, 9.f, 65.f });
+        camera->GetTransform()->SetPosition(Vec3{ -4.f, 15.f, 65.f });
         camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
         camera->AddComponent(make_unique<Camera>());
         camera->AddComponent(make_unique<CameraMove>());
@@ -82,7 +82,7 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Veigar");
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetLocalPosition(Vec3(0, 1, 0));
+            obj->GetTransform()->SetLocalPosition(Vec3(0, 10, 0));
             obj->GetTransform()->SetLocalScale(Vec3(1.f));
             obj->AddComponent(make_unique<MeshRenderer>());
             {
@@ -146,7 +146,7 @@ void AssetSerializeDemo::Init()
         auto objRef = CUR_SCENE->Add("Fire");
         GameObject* obj = objRef.Resolve();
         obj->SetActive(false);
-        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 5.f, 0.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 15.f, 0.f));
         obj->AddComponent(make_unique<ParticleSystem>());
         ParticleSystem* particleSystem = obj->GetFixedComponent<ParticleSystem>(ComponentType::ParticleSystem);
         particleSystem->SetEmitDirW(Vec3(0.f, 2.f, 0.f));
@@ -186,7 +186,7 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Kachujin" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, 0, rand() % 100));
+            obj->GetTransform()->SetPosition(Vec3(rand() % 100, 15, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.01f));
             obj->GetTransform()->SetParent(parentTransformRef);
             obj->AddComponent(make_unique<ModelAnimator>());
@@ -209,7 +209,7 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Tower" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
+            obj->GetTransform()->SetPosition(Vec3(rand() % 100, 9, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(0.02f));
             obj->GetTransform()->SetParent(parentTransformRef);
 
@@ -235,7 +235,7 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, -1, rand() % 100));
+            obj->GetTransform()->SetPosition(Vec3(rand() % 100, 9, rand() % 100));
             obj->GetTransform()->SetScale(Vec3(5.f));
             obj->GetTransform()->SetParent(parentTransformRef);
 
@@ -279,7 +279,7 @@ void AssetSerializeDemo::Init()
         ssrRenderer->SetMesh(RESOURCES->GetQuadYMesh());
 
         Transform* transform = obj->GetTransform();
-        transform->SetPosition(Vec3(30.f, -1.f, 120.f));
+        transform->SetPosition(Vec3(30.f, 9.5f, 120.f));
         transform->SetScale(Vec3(200.f, 1.f, 200.f));
     }
 }
