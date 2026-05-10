@@ -8,149 +8,150 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
 {
     vector<PolyMesh> polyMeshs = polyMeshField.GetPolyMeshs();
     _detailMeshs.resize(polyMeshs.size());
-    for (int regionIdx = 0; regionIdx < polyMeshs.size(); regionIdx++)
-    {
-        const PolyMesh& polyMesh = polyMeshs[regionIdx];
-        DetailMesh& detailMesh = _detailMeshs[regionIdx];
-        detailMesh.triangles.resize(polyMesh.polys.size());
-        vector<Vec3>& detailVertices = detailMesh.vertices;
 
-        for (const Vertex& vertex : polyMesh.vertices)
+    ParallelFor(1, polyMeshs.size(), [&](int regionIdx)
         {
-            detailVertices.push_back(Vec3(vertex.x, vertex.y, vertex.z));
-        }
+            const PolyMesh& polyMesh = polyMeshs[regionIdx];
+            DetailMesh& detailMesh = _detailMeshs[regionIdx];
+            detailMesh.triangles.resize(polyMesh.polys.size());
+            vector<Vec3>& detailVertices = detailMesh.vertices;
 
-        SharedEdgeCache sharedEdgeCache;
-        for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
-        {
-            const Poly& poly = polyMesh.polys[polyIdx];
-            vector<Triangle>& curTris = detailMesh.triangles[polyIdx];
-            vector<int> detailIndices;
-            unordered_set<int> shareIndices;
-
-            for (int i = 0; i < poly.vertCount; i++)
+            for (const Vertex& vertex : polyMesh.vertices)
             {
-                int idxA = poly.indices[i];
-                int idxB = poly.indices[(i + 1) % poly.vertCount];
-                shareIndices.insert(idxA);
-                shareIndices.insert(idxB);
-
-                // 경계 엣지는 Contours에서 Simplify 할 때 샘플링되어 있으므로, 내부 엣지만 최대 오차 샘플링을 수행
-                if (std::abs(idxA - idxB) == 1 || std::abs(idxA - idxB) == polyMesh.vertices.size() - 1)
-                    continue;
-
-                EdgeKey edgeKey(idxA, idxB);
-                auto it = sharedEdgeCache.find(edgeKey);
-                int startIndex, endIndex;
-                if (it == sharedEdgeCache.end())
-                {
-                    vector<Vec3> edgeVerts;
-                    SampleEdgeMaxError(regionIdx, detailVertices[edgeKey.u], detailVertices[edgeKey.v], compactHeightField, settings.detailSampleMaxError, settings.detailSampleDist, edgeVerts);
-                    startIndex = (int)detailVertices.size();
-                    detailVertices.insert(detailVertices.end(), edgeVerts.begin(), edgeVerts.end());
-                    endIndex = (int)detailVertices.size();
-                    sharedEdgeCache[edgeKey] = make_pair(startIndex, endIndex);
-                }
-                else
-                {
-                    startIndex = it->second.first;
-                    endIndex = it->second.second;
-                }
-
-                for (int j = startIndex; j < endIndex; j++)
-                    detailIndices.push_back(j);
+                detailVertices.push_back(Vec3(vertex.x, vertex.y, vertex.z));
             }
 
-            for (int idx : shareIndices)
-                detailIndices.push_back(idx);
-
-            DelaunayTriangulate(detailMesh.vertices, detailIndices, curTris);
-
-            bool vertexAdded = true;
-            while (vertexAdded)
+            SharedEdgeCache sharedEdgeCache;
+            for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); polyIdx++)
             {
-                vertexAdded = false;
+                const Poly& poly = polyMesh.polys[polyIdx];
+                vector<Triangle>& curTris = detailMesh.triangles[polyIdx];
+                vector<int> detailIndices;
+                unordered_set<int> shareIndices;
 
-                float maxErr = 0.0f;
-                Vec3 maxErrPt;
-                for (int triIdx = 0; triIdx < curTris.size(); triIdx++)
+                for (int i = 0; i < poly.vertCount; i++)
                 {
-                    const Triangle& tri = curTris[triIdx];
-                    Vertex2D boundMin = { INT_MAX, INT_MAX };
-                    Vertex2D boundMax = { INT_MIN, INT_MIN };
-                    for (int i = 0; i < 3; i++)
+                    int idxA = poly.indices[i];
+                    int idxB = poly.indices[(i + 1) % poly.vertCount];
+                    shareIndices.insert(idxA);
+                    shareIndices.insert(idxB);
+
+                    // 경계 엣지는 Contours에서 Simplify 할 때 샘플링되어 있으므로, 내부 엣지만 최대 오차 샘플링을 수행
+                    if (std::abs(idxA - idxB) == 1 || std::abs(idxA - idxB) == polyMesh.vertices.size() - 1)
+                        continue;
+
+                    EdgeKey edgeKey(idxA, idxB);
+                    auto it = sharedEdgeCache.find(edgeKey);
+                    int startIndex, endIndex;
+                    if (it == sharedEdgeCache.end())
                     {
-                        int index = tri.indices[i];
-                        const Vec3& v = detailVertices[index];
-                        boundMin.x = min(boundMin.x, static_cast<int>(v.x));
-                        boundMin.z = min(boundMin.z, static_cast<int>(v.z));
-                        boundMax.x = max(boundMax.x, static_cast<int>(v.x));
-                        boundMax.z = max(boundMax.z, static_cast<int>(v.z));
+                        vector<Vec3> edgeVerts;
+                        SampleEdgeMaxError(regionIdx, detailVertices[edgeKey.u], detailVertices[edgeKey.v], compactHeightField, settings.detailSampleMaxError, settings.detailSampleDist, edgeVerts);
+                        startIndex = (int)detailVertices.size();
+                        detailVertices.insert(detailVertices.end(), edgeVerts.begin(), edgeVerts.end());
+                        endIndex = (int)detailVertices.size();
+                        sharedEdgeCache[edgeKey] = make_pair(startIndex, endIndex);
+                    }
+                    else
+                    {
+                        startIndex = it->second.first;
+                        endIndex = it->second.second;
                     }
 
-                    for (int cx = boundMin.x; cx <= boundMax.x; cx++)
+                    for (int j = startIndex; j < endIndex; j++)
+                        detailIndices.push_back(j);
+                }
+
+                for (int idx : shareIndices)
+                    detailIndices.push_back(idx);
+
+                DelaunayTriangulate(detailMesh.vertices, detailIndices, curTris);
+
+                bool vertexAdded = true;
+                while (vertexAdded)
+                {
+                    vertexAdded = false;
+
+                    float maxErr = 0.0f;
+                    Vec3 maxErrPt;
+                    for (int triIdx = 0; triIdx < curTris.size(); triIdx++)
                     {
-                        for (int cz = boundMin.z; cz <= boundMax.z; cz++)
+                        const Triangle& tri = curTris[triIdx];
+                        Vertex2D boundMin = { INT_MAX, INT_MAX };
+                        Vertex2D boundMax = { INT_MIN, INT_MIN };
+                        for (int i = 0; i < 3; i++)
                         {
-                            float x = static_cast<float>(cx);
-                            float z = static_cast<float>(cz);
-                            Vec3 p0{ x, 0, z };
-                            Vec3 p1{ x + 1, 0, z };
-                            Vec3 p2{ x, 0, z + 1 };
-                            Vec3 p3{ x + 1, 0, z + 1 };
+                            int index = tri.indices[i];
+                            const Vec3& v = detailVertices[index];
+                            boundMin.x = min(boundMin.x, static_cast<int>(v.x));
+                            boundMin.z = min(boundMin.z, static_cast<int>(v.z));
+                            boundMax.x = max(boundMax.x, static_cast<int>(v.x));
+                            boundMax.z = max(boundMax.z, static_cast<int>(v.z));
+                        }
 
-                            const Vec3& a = detailVertices[tri.indices[0]];
-                            const Vec3& b = detailVertices[tri.indices[1]];
-                            const Vec3& c = detailVertices[tri.indices[2]];
-
-                            if (PointInTri2D(p0, a, b, c) == false)
-                                continue;
-                            if (PointInTri2D(p1, a, b, c) == false)
-                                continue;
-                            if (PointInTri2D(p2, a, b, c) == false)
-                                continue;
-                            if (PointInTri2D(p3, a, b, c) == false)
-                                continue;
-
-                            int actualHeight;
-                            if (compactHeightField.TryGetHeight(cx, cz, regionIdx, OUT actualHeight) == false)
-                                continue;
-
-                            float interpHeight = GetTriY(cx, cz, a, b, c);
-                            float err = std::abs(actualHeight - interpHeight);
-
-                            if (err > maxErr)
+                        for (int cx = boundMin.x; cx <= boundMax.x; cx++)
+                        {
+                            for (int cz = boundMin.z; cz <= boundMax.z; cz++)
                             {
-                                maxErr = err;
-                                maxErrPt = { static_cast<float>(cx), static_cast<float>(actualHeight), static_cast<float>(cz) };
+                                float x = static_cast<float>(cx);
+                                float z = static_cast<float>(cz);
+                                Vec3 p0{ x, 0, z };
+                                Vec3 p1{ x + 1, 0, z };
+                                Vec3 p2{ x, 0, z + 1 };
+                                Vec3 p3{ x + 1, 0, z + 1 };
+
+                                const Vec3& a = detailVertices[tri.indices[0]];
+                                const Vec3& b = detailVertices[tri.indices[1]];
+                                const Vec3& c = detailVertices[tri.indices[2]];
+
+                                if (PointInTri2D(p0, a, b, c) == false)
+                                    continue;
+                                if (PointInTri2D(p1, a, b, c) == false)
+                                    continue;
+                                if (PointInTri2D(p2, a, b, c) == false)
+                                    continue;
+                                if (PointInTri2D(p3, a, b, c) == false)
+                                    continue;
+
+                                int actualHeight;
+                                if (compactHeightField.TryGetHeight(cx, cz, regionIdx, OUT actualHeight) == false)
+                                    continue;
+
+                                float interpHeight = GetTriY(cx, cz, a, b, c);
+                                float err = std::abs(actualHeight - interpHeight);
+
+                                if (err > maxErr)
+                                {
+                                    maxErr = err;
+                                    maxErrPt = { static_cast<float>(cx), static_cast<float>(actualHeight), static_cast<float>(cz) };
+                                }
                             }
                         }
                     }
-                }
 
-                if (maxErr > settings.detailSampleMaxError)
-                {
-                    bool samePointExists = false;
-                    for (const Vec3& v : detailVertices)
+                    if (maxErr > settings.detailSampleMaxError)
                     {
-                        if (std::abs(v.x - maxErrPt.x) < kEps && std::abs(v.z - maxErrPt.z) < kEps)
+                        bool samePointExists = false;
+                        for (const Vec3& v : detailVertices)
                         {
-                            samePointExists = true;
-                            break;
+                            if (std::abs(v.x - maxErrPt.x) < kEps && std::abs(v.z - maxErrPt.z) < kEps)
+                            {
+                                samePointExists = true;
+                                break;
+                            }
                         }
+
+                        if (samePointExists)
+                            break;
+                        detailVertices.push_back(maxErrPt);
+                        detailIndices.push_back(detailVertices.size() - 1);
+
+                        DelaunayTriangulate(detailMesh.vertices, detailIndices, curTris);
+                        vertexAdded = true;
                     }
-
-                    if (samePointExists)
-                        break;
-                    detailVertices.push_back(maxErrPt);
-                    detailIndices.push_back(detailVertices.size() - 1);
-
-                    DelaunayTriangulate(detailMesh.vertices, detailIndices, curTris);
-                    vertexAdded = true;
                 }
             }
-        }
-    }
+        });
 }
 
 float DetailMeshField::SampleHeight(const PolyRef& polyRef, const Vec3& pos) const

@@ -18,6 +18,8 @@
 #include <queue>
 #include <unordered_set>
 #include <memory>
+#include <atomic>
+#include <thread>
 
 using int8 = __int8;
 using int16 = __int16;

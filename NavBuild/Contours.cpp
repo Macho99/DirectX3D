@@ -2,9 +2,6 @@
 #include "Contours.h"
 #include "CompactHeightField.h"
 
-#include <atomic>
-#include <thread>
-
 Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings& settings)
     : HeightFieldBase(heightField), _heightField(heightField)
 {
@@ -16,39 +13,15 @@ Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings
     vector<WalkStartInfo> walkStartInfos;
     FindWalkStartInfos(heightField, OUT walkStartInfos, regions.size());
 
-    std::atomic<int> nextRegionIdx = 1;
-    const unsigned int hwThreadCount = std::thread::hardware_concurrency();
-    const unsigned int workerCount = std::max(1u, hwThreadCount);
+    ParallelFor(1, regions.size(), [&](int regionIdx)
+        {
+            const WalkStartInfo& walkStartInfo = walkStartInfos[regionIdx];
+            if (walkStartInfo.IsValid() == false)
+                return;
 
-    vector<std::thread> workers;
-    workers.reserve(workerCount);
-
-    for (unsigned int workerIdx = 0; workerIdx < workerCount; ++workerIdx)
-    {
-        workers.emplace_back([&]()
-            {
-                while (true)
-                {
-                    int regionIdx = nextRegionIdx.fetch_add(1);
-                    if (regionIdx >= static_cast<int>(regions.size()))
-                    {
-                        break;
-                    }
-
-                    const WalkStartInfo& walkStartInfo = walkStartInfos[regionIdx];
-                    if (walkStartInfo.IsValid() == false)
-                        continue;
-
-                    vector<ContourVertex> loop = BuildOneLoopByWalking(heightField, walkStartInfo);
-                    _contours[regionIdx] = std::move(loop);
-                }
-            });
-    }
-
-    for (std::thread& worker : workers)
-    {
-        worker.join();
-    }
+            vector<ContourVertex> loop = BuildOneLoopByWalking(heightField, walkStartInfo);
+            _contours[regionIdx] = std::move(loop);
+        });
 }
 /*
 void Contours::Simplify(float maxError)

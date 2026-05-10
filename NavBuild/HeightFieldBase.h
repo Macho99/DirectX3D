@@ -43,6 +43,83 @@ protected:
     void GetCellIndex(float wx, float wz, OUT int& cx, OUT int& cz) const;
     int GetCellHeight(float wy) const;
 
+    template<typename Func>
+    void ParallelFor(int startInclusive, int endExclusive, Func&& func)
+    {
+        if (endExclusive <= startInclusive)
+            return;
+
+        std::atomic<int> nextIndex = startInclusive;
+
+        const unsigned int hwThreadCount = std::thread::hardware_concurrency();
+        const unsigned int workerCount = std::max(1u, hwThreadCount);
+
+        std::vector<std::thread> workers;
+        workers.reserve(workerCount);
+
+        for (unsigned int workerIdx = 0; workerIdx < workerCount; ++workerIdx)
+        {
+            workers.emplace_back([&]()
+                {
+                    while (true)
+                    {
+                        int index = nextIndex.fetch_add(1);
+
+                        if (index >= endExclusive)
+                            break;
+
+                        func(index);
+                    }
+                });
+        }
+
+        for (std::thread& worker : workers)
+        {
+            worker.join();
+        }
+    }
+
+    template<typename Func>
+    void ParallelForRange(int startInclusive, int endExclusive, Func&& func)
+    {
+        if (endExclusive <= startInclusive)
+            return;
+
+        const int totalCount = endExclusive - startInclusive;
+
+        unsigned int hwThreadCount = std::thread::hardware_concurrency();
+        unsigned int workerCount = std::max(1u, hwThreadCount);
+
+        workerCount = std::min<unsigned int>(workerCount, totalCount);
+
+        std::vector<std::thread> workers;
+        workers.reserve(workerCount);
+
+        const int chunkSize = (totalCount + workerCount - 1) / workerCount;
+
+        for (unsigned int workerIdx = 0; workerIdx < workerCount; ++workerIdx)
+        {
+            const int rangeStart = startInclusive + static_cast<int>(workerIdx) * chunkSize;
+            const int rangeEnd = std::min(rangeStart + chunkSize, endExclusive);
+
+            if (rangeStart >= rangeEnd)
+                break;
+
+            workers.emplace_back([rangeStart, rangeEnd, &func]()
+                {
+                    for (int i = rangeStart; i < rangeEnd; ++i)
+                    {
+                        func(i);
+                    }
+                });
+        }
+
+        for (std::thread& worker : workers)
+        {
+            worker.join();
+        }
+    }
+
 protected:
     int _width = 0;   // x 방향 cell 개수
     int _depth = 0;   // z 방향 cell 개수
