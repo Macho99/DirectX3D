@@ -4,7 +4,7 @@
 
 float4 PS(MeshOutput input) : SV_TARGET
 {
-    float4 litcolor = float4(input.tangent, 1.0f);
+    float4 litcolor = float4(input.tangent, 0.3f);
 	
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
     //float4 color = ComputeLight(input.normal, litcolor, input.worldPosition, input.ssaoPosH, shadow);
@@ -19,7 +19,7 @@ float4 NormalDepthPS(MeshOutput input) : SV_TARGET
 
 technique11 Draw
 {
-	PASS_VP(P0, VS_Mesh, PS)
+	PASS_BS_VP(P0, AlphaBlend, VS_Mesh, PS)
 };
 
 technique11 Shadow

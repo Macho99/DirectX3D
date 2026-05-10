@@ -283,7 +283,7 @@ void Contours::FindWalkStartInfos(const CompactHeightField& heightField, OUT vec
                 if (walkStartInfo.IsValid())
                     continue;
 
-                walkStartInfo.dir = 3;
+                walkStartInfo.dir = 2;
                 walkStartInfo.startX = cx;
                 walkStartInfo.startZ = cz;
                 walkStartInfo.spanIdx = spanIdx;

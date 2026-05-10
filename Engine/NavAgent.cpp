@@ -89,6 +89,7 @@ void NavAgent::FindPath()
 
     NavPath& navPath = _moveInfo.navPath;
     LineRenderer* pathRenderer = _pathRenderer.Resolve();
+    pathRenderer->SetColor(Colors::Green);
     pathRenderer->ClearPoints();
     for (const Vec3& point : navPath.path)
     {
