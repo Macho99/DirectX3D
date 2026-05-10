@@ -93,5 +93,6 @@
     <None Include="SimpleMath.inl">
       <Filter>소스 파일</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,9 @@
 #include "Contours.h"
 #include "CompactHeightField.h"
 
+#include <atomic>
+#include <thread>
+
 Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings& settings)
     : HeightFieldBase(heightField), _heightField(heightField)
 {
@@ -9,21 +12,44 @@ Contours::Contours(const CompactHeightField& heightField, const NavBuildSettings
     const vector<int>& regions = heightField.GetRegions();
 
     _contours.resize(regions.size());
-    for (int regionIdx = 1; regionIdx < regions.size(); ++regionIdx)
+
+    vector<WalkStartInfo> walkStartInfos;
+    FindWalkStartInfos(heightField, OUT walkStartInfos, regions.size());
+
+    std::atomic<int> nextRegionIdx = 1;
+    const unsigned int hwThreadCount = std::thread::hardware_concurrency();
+    const unsigned int workerCount = std::max(1u, hwThreadCount);
+
+    vector<std::thread> workers;
+    workers.reserve(workerCount);
+
+    for (unsigned int workerIdx = 0; workerIdx < workerCount; ++workerIdx)
     {
-        int startX, startZ, spanIdx, dir;
-        bool findResult = FindWalkStartPos(heightField, regionIdx, OUT startX, OUT startZ, OUT spanIdx, OUT dir);
+        workers.emplace_back([&]()
+            {
+                while (true)
+                {
+                    int regionIdx = nextRegionIdx.fetch_add(1);
+                    if (regionIdx >= static_cast<int>(regions.size()))
+                    {
+                        break;
+                    }
 
-        if (findResult == false)
-        {
-            continue;
-        }
+                    const WalkStartInfo& walkStartInfo = walkStartInfos[regionIdx];
+                    if (walkStartInfo.IsValid() == false)
+                        continue;
 
-        vector<ContourVertex> loop = BuildOneLoopByWalking(heightField, startX, startZ, spanIdx, dir);
-        _contours[regionIdx] = std::move(loop);
+                    vector<ContourVertex> loop = BuildOneLoopByWalking(heightField, walkStartInfo);
+                    _contours[regionIdx] = std::move(loop);
+                }
+            });
+    }
+
+    for (std::thread& worker : workers)
+    {
+        worker.join();
     }
 }
-
 /*
 void Contours::Simplify(float maxError)
 {
@@ -263,8 +289,10 @@ void Contours::RDPSimplify(float maxError)
     }
 }
 
-bool Contours::FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int& findSpanIdx, int& findDir)
+void Contours::FindWalkStartInfos(const CompactHeightField& heightField, OUT vector<WalkStartInfo>& walkStartInfos, int regionSize)
 {
+    walkStartInfos.resize(regionSize);
+
     const vector<CompactCell>& cells = heightField.GetCells();
     const vector<CompactSpan>& spans = heightField.GetSpans();
     for (int cz = 0; cz < _depth; cz++)
@@ -274,34 +302,24 @@ bool Contours::FindWalkStartPos(const CompactHeightField& heightField, const int
             const CompactCell& cell = cells[GetColumnIndex(cx, cz)];
             for (int i = 0; i < cell.count; ++i)
             {
-                int spanIdx = cell.index + i;
+                const int spanIdx = cell.index + i;
                 const CompactSpan& s = spans[spanIdx];
-                if (s.region != region)
+
+                const int regionIdx = s.region;
+                WalkStartInfo& walkStartInfo = walkStartInfos[regionIdx];
+                if (walkStartInfo.IsValid())
                     continue;
 
-                for (int dir = 0; dir < 4; dir++)
-                {
-                    int nei = s.connections[dir];
-                    if (nei != NOT_CONNECTED)
-                    {
-                        const CompactSpan& neighborSpan = spans[nei];
-                        if (neighborSpan.region == s.region)
-                            continue;
-                    }
-
-                    startX = cx;
-                    startZ = cz;
-                    findDir = dir;
-                    findSpanIdx = spanIdx;
-                    return true;
-                }
+                walkStartInfo.dir = 3;
+                walkStartInfo.startX = cx;
+                walkStartInfo.startZ = cz;
+                walkStartInfo.spanIdx = spanIdx;
             }
         }
     }
-    return false;
 }
 
-vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir)
+vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& heightField, const WalkStartInfo& walkStartInfo)
 {
     vector<ContourVertex> loop;
     const vector<CompactSpan>& spans = heightField.GetSpans();
@@ -309,10 +327,10 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
     unordered_set<ContourVertex, VertexHash> visited;
 
     //го, ©Л, ╩С, аб
-    int x = startX;
-    int z = startZ;
-    int spanIdx = startSpan;
-    int dir = startDir;
+    int x = walkStartInfo.startX;
+    int z = walkStartInfo.startZ;
+    int spanIdx = walkStartInfo.spanIdx;
+    int dir = walkStartInfo.dir;
     do
     {
         const CompactSpan& span = spans[spanIdx];
@@ -351,7 +369,7 @@ vector<ContourVertex> Contours::BuildOneLoopByWalking(const CompactHeightField& 
             dir = (dir + 1) % 4;
         }
 
-    } while (x != startX || z != startZ || dir != startDir);
+    } while (x != walkStartInfo.startX || z != walkStartInfo.startZ || dir != walkStartInfo.dir);
 
     return loop;
 }

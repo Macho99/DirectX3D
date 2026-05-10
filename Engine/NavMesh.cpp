@@ -603,7 +603,7 @@ bool NavMesh::OnGUI()
         bounds.bmax += curPos;
 
         NavBuildInput input;
-        input.settings.cellSize = 0.5f;
+        input.settings.cellSize = 0.4f;
         input.settings.contourMaxError = _contourSimplifyMaxError;
         input.settings.debugSeedCount = _debugSeedCount;
         input.settings.detailSampleMaxError = _detailSampleMaxError;

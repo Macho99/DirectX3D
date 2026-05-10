@@ -3,6 +3,19 @@
 
 class Contours : public HeightFieldBase
 {
+    struct WalkStartInfo
+    {
+        int startX = -1;
+        int startZ = -1;
+        int spanIdx = -1;
+        int dir = -1;
+
+        bool IsValid() const
+        {
+            return !(startX == -1 || startZ == -1 || spanIdx == -1 || dir == -1);
+        }
+    };
+
 public:
     Contours(const class CompactHeightField& heightField, const NavBuildSettings& settings);
 
@@ -12,8 +25,8 @@ public:
 
 private:
     using EdgeMap = unordered_multimap<Vertex2D, int, Vertex2DHash>;
-    bool FindWalkStartPos(const CompactHeightField& heightField, const int region, int& startX, int& startZ, int & findSpanIdx, int & findDir);
-    vector<ContourVertex> BuildOneLoopByWalking(const CompactHeightField& heightField, int startX, int startZ, int startSpan, int startDir);
+    void FindWalkStartInfos(const CompactHeightField& heightField, OUT vector<WalkStartInfo>& walkStartInfos, int regionSize);
+    vector<ContourVertex> BuildOneLoopByWalking(const CompactHeightField& heightField, const WalkStartInfo& walkStartInfo);
     int GetNeighborSpanIdx(const CompactHeightField& heightField, int cx, int cz, int targetY);
     ContourVertex GetCornerVertex(const CompactHeightField& heightField, int cx, int cz, int spanIdx, int dir, int neighborRegion);
 
