@@ -8,6 +8,8 @@ struct PolyMesh
     vector<int> failIndices;
 };
 
+class NavFileUtils;
+
 class PolyMeshField : public HeightFieldBase
 {
     using Super = HeightFieldBase;
@@ -15,7 +17,11 @@ class PolyMeshField : public HeightFieldBase
 public:
     PolyMeshField() = delete;
     PolyMeshField(const class Contours& contours);
+    PolyMeshField(const HeightFieldBase& heightFieldBase, NavFileUtils& fileUtils);
     const vector<PolyMesh>& GetPolyMeshs() const { return polyMeshs; }
+
+    void SaveToFile(NavFileUtils& fileUtils) const;
+    void LoadFromFile(NavFileUtils& fileUtils);
 
 public:
     const Poly& GetPoly(const PolyRef& ref) const;

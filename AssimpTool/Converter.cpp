@@ -214,8 +214,8 @@ void Converter::WriteModelFile(wstring finalPath)
 	auto path = filesystem::path(finalPath);
 	filesystem::create_directory(path.parent_path());
 
-	shared_ptr<FileUtils> fileUtils = make_shared<FileUtils>();
-	fileUtils->Open(finalPath, FileMode::Write);
+	shared_ptr<NavFileUtils> fileUtils = make_shared<NavFileUtils>();
+	fileUtils->Open(finalPath, NavFileMode::Write);
 
 	// Bone Data
 	fileUtils->Write<uint32>(_bones.size());
@@ -374,8 +374,8 @@ string Converter::WriteTexture(string saveFolder, string file)
 
 		if (srcTexture->mHeight == 0)
 		{
-			shared_ptr<FileUtils> file = make_shared<FileUtils>();
-			file->Open(Utils::ToWString(pathStr), FileMode::Write);
+			shared_ptr<NavFileUtils> file = make_shared<NavFileUtils>();
+			file->Open(Utils::ToWString(pathStr), NavFileMode::Write);
 			file->Write(srcTexture->pcData, srcTexture->mWidth);
 		}
 		else
@@ -551,8 +551,8 @@ void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring fi
 	// 폴더가 없으면 만든다.
 	filesystem::create_directory(path.parent_path());
 
-	shared_ptr<FileUtils> file = make_shared<FileUtils>();
-	file->Open(finalPath, FileMode::Write);
+	shared_ptr<NavFileUtils> file = make_shared<NavFileUtils>();
+	file->Open(finalPath, NavFileMode::Write);
 
 	file->Write<string>(animation->name);
 	file->Write<float>(animation->duration);

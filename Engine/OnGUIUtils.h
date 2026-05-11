@@ -23,6 +23,7 @@ public:
 
     template<typename TEnum>
     static bool DrawEnableButton(const char* label, TEnum& curEnum, const TEnum enableIfEnum, const TEnum disableEnum, bool isReadOnly = false);
+    static bool DrawEnableButton(const char* label, bool value, bool isReadOnly = false);
 
     template<typename T>
     static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly = false);

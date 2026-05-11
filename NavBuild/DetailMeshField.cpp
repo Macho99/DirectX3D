@@ -2,6 +2,7 @@
 #include "DetailMeshField.h"
 #include "PolyMeshField.h"
 #include "CompactHeightField.h"
+#include "NavFileUtils.h"
 
 DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const CompactHeightField& compactHeightField, const NavBuildSettings& settings)
     : HeightFieldBase(polyMeshField)
@@ -154,6 +155,12 @@ DetailMeshField::DetailMeshField(const PolyMeshField& polyMeshField, const Compa
         });
 }
 
+DetailMeshField::DetailMeshField(const HeightFieldBase& heightFieldBase, NavFileUtils& fileUtils)
+    :HeightFieldBase(heightFieldBase)
+{
+    LoadFromFile(fileUtils);
+}
+
 float DetailMeshField::SampleHeight(const PolyRef& polyRef, const Vec3& pos) const
 {
     if (polyRef.IsValid() == false)
@@ -174,6 +181,59 @@ float DetailMeshField::SampleHeight(const PolyRef& polyRef, const Vec3& pos) con
         }
     }
     return pos.y;
+}
+
+void DetailMeshField::SaveToFile(NavFileUtils& fileUtils) const
+{
+    fileUtils.Write((int)_detailMeshs.size());
+    for (const DetailMesh& detailMesh : _detailMeshs)
+    {
+        fileUtils.Write((int)detailMesh.vertices.size());
+        fileUtils.Write(detailMesh.vertices.data(), sizeof(Vec3) * detailMesh.vertices.size());
+
+        fileUtils.Write((int)detailMesh.triangles.size());
+        for (const vector<Triangle>& tris : detailMesh.triangles)
+        {
+            fileUtils.Write((int)tris.size());
+            for (const Triangle& tri : tris)
+            {
+                fileUtils.Write(tri.indices[0]);
+                fileUtils.Write(tri.indices[1]);
+                fileUtils.Write(tri.indices[2]);
+            }
+        }
+    }
+}
+
+void DetailMeshField::LoadFromFile(NavFileUtils& fileUtils)
+{
+    _detailMeshs.clear();
+    int meshCount = fileUtils.Read<int>();
+    for (int i = 0; i < meshCount; i++)
+    {
+        DetailMesh detailMesh;
+        int vertCount = fileUtils.Read<int>();
+        detailMesh.vertices.resize(vertCount);
+
+        void* vertDataPtr = detailMesh.vertices.data();
+        fileUtils.Read(&vertDataPtr, sizeof(Vec3) * vertCount);
+
+        int triGroupCount = fileUtils.Read<int>();
+        detailMesh.triangles.resize(triGroupCount);
+        for (int j = 0; j < triGroupCount; j++)
+        {
+            int triCount = fileUtils.Read<int>();
+            detailMesh.triangles[j].resize(triCount);
+            for (int k = 0; k < triCount; k++)
+            {
+                Triangle& tri = detailMesh.triangles[j][k];
+                tri.indices[0] = fileUtils.Read<int>();
+                tri.indices[1] = fileUtils.Read<int>();
+                tri.indices[2] = fileUtils.Read<int>();
+            }
+        }
+        _detailMeshs.push_back(std::move(detailMesh));
+    }
 }
 
 void DetailMeshField::SampleEdgeMaxError(const int region, const Vec3& a, const Vec3& b, const CompactHeightField& heightField, float maxError, float stepSize, vector<Vec3>& result)

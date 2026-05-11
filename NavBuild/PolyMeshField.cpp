@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PolyMeshField.h"
 #include "Contours.h"
+#include "NavFileUtils.h"
 
 PolyMeshField::PolyMeshField(const Contours& contourField)
     : HeightFieldBase(contourField)
@@ -17,6 +18,72 @@ PolyMeshField::PolyMeshField(const Contours& contourField)
     }
     BuildAdjacentInfo();
     BuildCentroid();
+}
+
+PolyMeshField::PolyMeshField(const HeightFieldBase& heightFieldBase, NavFileUtils& fileUtils)
+    : HeightFieldBase(heightFieldBase)
+{
+    LoadFromFile(fileUtils);
+}
+
+void PolyMeshField::SaveToFile(NavFileUtils& fileUtils) const
+{
+    fileUtils.Write<uint32>(polyMeshs.size());
+    for (const PolyMesh& polyMesh : polyMeshs)
+    {
+        fileUtils.Write<uint32>(polyMesh.vertices.size());
+        fileUtils.Write(polyMesh.vertices.data(), sizeof(Vertex) * polyMesh.vertices.size());
+
+        fileUtils.Write<uint32>(polyMesh.polys.size());
+        for (const Poly& poly : polyMesh.polys)
+        {
+            fileUtils.Write<uint32>(poly.vertCount);
+            for (int i = 0; i < poly.vertCount; ++i)
+            {
+                fileUtils.Write(poly.indices[i]);
+                fileUtils.Write(poly.neighbors[i]);
+            }
+            fileUtils.Write(poly.centroid);
+        }
+
+        fileUtils.Write<uint32>(polyMesh.failIndices.size());
+        fileUtils.Write(polyMesh.failIndices.data(), sizeof(int) * polyMesh.failIndices.size());
+    }
+}
+
+void PolyMeshField::LoadFromFile(NavFileUtils& fileUtils)
+{
+    polyMeshs.clear();
+    uint32 meshCount = fileUtils.Read<uint32>();
+    for (uint32 meshIdx = 0; meshIdx < meshCount; meshIdx++)
+    {
+        PolyMesh polyMesh;
+        uint32 vertCount = fileUtils.Read<uint32>();
+        polyMesh.vertices.resize(vertCount);
+        void* vertDataPtr = polyMesh.vertices.data();
+        fileUtils.Read(&vertDataPtr, sizeof(Vertex) * vertCount);
+
+        uint32 polyCount = fileUtils.Read<uint32>();
+        polyMesh.polys.resize(polyCount);
+        for (uint32 polyIdx = 0; polyIdx < polyCount; polyIdx++)
+        {
+            Poly& poly = polyMesh.polys[polyIdx];
+            poly.vertCount = fileUtils.Read<uint32>();
+            for (int vertIdx = 0; vertIdx < poly.vertCount; vertIdx++)
+            {
+                fileUtils.Read(poly.indices[vertIdx]);
+                fileUtils.Read(poly.neighbors[vertIdx]);
+            }
+            fileUtils.Read(poly.centroid);
+        }
+
+        uint32 failIndexCount = fileUtils.Read<uint32>();
+        polyMesh.failIndices.resize(failIndexCount);
+        void* failIndexDataPtr = polyMesh.failIndices.data();
+        fileUtils.Read(&failIndexDataPtr, sizeof(int) * failIndexCount);
+
+        polyMeshs.push_back(std::move(polyMesh));
+    }
 }
 
 PolyMesh PolyMeshField::TriangulateEarClipping(const vector<ContourVertex>& verts)

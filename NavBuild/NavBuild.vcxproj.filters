@@ -53,6 +53,9 @@
     <ClInclude Include="SimpleMath.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="NavFileUtils.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -86,6 +89,9 @@
       <Filter>소스 파일\Agent</Filter>
     </ClCompile>
     <ClCompile Include="SimpleMath.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="NavFileUtils.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

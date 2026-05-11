@@ -9,6 +9,7 @@
 #include "../NavBuild/PolyMeshField.h"
 #include "../NavBuild/DetailMeshField.h"
 #include "../NavBuild/NavMeshQuery.h"
+#include "FileUtils.h"
 
 NavMesh::NavMesh() : Super(StaticType)
 {
@@ -628,35 +629,40 @@ bool NavMesh::OnGUI()
         DBG->Log(Utils::Format("NavMesh build %s in %lld ms", result ? "succeeded" : "failed", duration));
     }
 
-    //if (ImGui::Button("Find Path"))
-    //{
-    //    if (_startPoint.Resolve() != nullptr && _endPoint.Resolve() != nullptr)
-    //    {
-    //        Vec3 startPos = _startPoint.Resolve()->GetPosition();
-    //        Vec3 endPos = _endPoint.Resolve()->GetPosition();
-    //
-    //        for (ComponentRef<LineRenderer>& lineRendererRef : _debugLineRenderers)
-    //            lineRendererRef.Resolve()->GetGameObject()->SetActive(false);
-    //
-    //        auto OnDebugDrawPath = [this](const vector<Vec3>& path, int drawIdx)
-    //            {
-    //                GameObject* parentObj = _debugLineRendererParent.Resolve();
-    //                parentObj->SetActive(true);
-    //                EnsureLineRendererCount(drawIdx + 1);
-    //                LineRenderer* lineRenderer = _debugLineRenderers[drawIdx].Resolve();
-    //                lineRenderer->GetGameObject()->SetActive(true);
-    //                lineRenderer->ClearPoints();
-    //                Vec3 color = GetDebugColor(drawIdx);
-    //                lineRenderer->SetColor(Color(color.x, color.y, color.z, 1));
-    //                for (auto& point : path)
-    //                {
-    //                    lineRenderer->AddPoint(point);
-    //                }
-    //            };
-    //
-    //        auto path = _builder.TryFindPath(startPos, endPos, OnDebugDrawPath);
-    //    }
-    //}
+    if (ImGui::Button("Clear Debug Mesh"))
+    {
+        MeshRenderer* meshRenderer = _debugMeshRenderer.Resolve();
+        if (meshRenderer != nullptr)
+        {
+            meshRenderer->GetGameObject()->SetActive(false);
+        }
+        GameObject* parentObj = _debugLineRendererParent.Resolve();
+        parentObj->SetActive(false);
+        for (ComponentRef<LineRenderer>& lineRendererRef : _debugLineRenderers)
+            lineRendererRef.Resolve()->GetGameObject()->SetActive(false);
+    }
+
+    if (OnGUIUtils::DrawEnableButton("Save", _builder.IsBuilt()))
+    {
+        fs::path path = FileUtils::SaveFileDialog(
+            L"Save NavMesh",
+            L"NavMesh Files (*.nav)\0*.nav\0All Files (*.*)\0*.*\0",
+            L"nav",
+            L"..\\Assets");
+
+        _builder.SaveToFile(path);
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Load"))
+    {
+        fs::path path = FileUtils::OpenFileDialog(
+            L"Load NavMesh",
+            L"NavMesh Files (*.nav)\0*.nav\0All Files (*.*)\0*.*\0",
+            L"nav",
+            L"..\\Assets");
+        _builder.LoadFromFile(path);
+    }
 
     return changed;
 }

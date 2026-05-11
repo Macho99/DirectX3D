@@ -30,7 +30,7 @@ public:
 		return Write(data);
 	}
 
-	void Write(void* data, uint32 dataSize);
+	void Write(const void* data, uint32 dataSize);
 	void Write(const string& data);
 
 	template<typename T>
@@ -61,6 +61,12 @@ public:
 		const wchar_t* filter,
 		const wchar_t* defaultExt = L"",
 		const std::filesystem::path& initialDir = {});
+    static fs::path OpenFileDialog(
+        const wchar_t* title,
+        const wchar_t* filter,
+        const wchar_t* defaultExt = L"",
+        const std::filesystem::path& initialDir = {});
+
 private:
 	HANDLE _handle = INVALID_HANDLE_VALUE;
 };

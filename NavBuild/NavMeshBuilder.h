@@ -31,6 +31,9 @@ public:
     void SetDebugOnBuildPolyMesh(function<void(const class PolyMeshField&)> callback) { _onBuildPolyMesh = callback; }
     void SetDebugOnBuildDetailMesh(function<void(const class DetailMeshField&)> callback) { _onBuildDetailMesh = callback; }
 
+    void SaveToFile(const fs::path& filePath) const;
+    void LoadFromFile(const fs::path& filePath);
+
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
     //bool BuildHeightfield(const Bounds& bound, const NavBuildSettings & setting);

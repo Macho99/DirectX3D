@@ -4,6 +4,7 @@
 #include "PolyMeshField.h"
 #include "DetailMeshField.h"
 #include "NavMeshQuery.h"
+#include "NavFileUtils.h"
 
 bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
 {
@@ -89,6 +90,56 @@ Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)
     Vec3 n = e0.Cross(e1);
     n.Normalize();
     return n;
+}
+
+void NavMeshBuilder::SaveToFile(const fs::path& filePath) const
+{
+    if (IsBuilt() == false)
+        return;
+
+    filesystem::create_directory(filePath.parent_path());
+
+    unique_ptr<NavFileUtils> fileUtils = make_unique<NavFileUtils>();
+    fileUtils->Open(filePath, NavFileMode::Write);
+
+    HeightFieldBase& heightFieldBase = *_polyMeshField;
+    fileUtils->Write(heightFieldBase.GetWidth());
+    fileUtils->Write(heightFieldBase.GetDepth());
+
+    fileUtils->Write(heightFieldBase.GetBoundMin());
+    fileUtils->Write(heightFieldBase.GetBoundMax());
+
+    fileUtils->Write(heightFieldBase.GetCellSize());
+    fileUtils->Write(heightFieldBase.GetCellHeight());
+
+    _polyMeshField->SaveToFile(*fileUtils);
+    _detailMeshField->SaveToFile(*fileUtils);
+}
+
+void NavMeshBuilder::LoadFromFile(const fs::path& filePath)
+{
+    unique_ptr<NavFileUtils> fileUtils = make_unique<NavFileUtils>();
+    fileUtils->Open(filePath, NavFileMode::Read);
+
+    int width = fileUtils->Read<int>();
+    int depth = fileUtils->Read<int>();
+    Vec3 boundMin = fileUtils->Read<Vec3>();
+    Vec3 boundMax = fileUtils->Read<Vec3>();
+    float cellSize = fileUtils->Read<float>();
+    float cellHeight = fileUtils->Read<float>();
+
+    Bounds bounds;
+    bounds.bmax = boundMax;
+    bounds.bmin = boundMin;
+
+    HeightFieldBase heightFieldBase(bounds, cellSize, cellHeight);
+
+    _polyMeshField = make_unique<PolyMeshField>(heightFieldBase, *fileUtils);
+    _detailMeshField = make_unique<DetailMeshField>(heightFieldBase, *fileUtils);
+    _navMeshQuery = make_unique<NavMeshQuery>(*_polyMeshField, *_detailMeshField);
+
+    _onBuildPolyMesh(*_polyMeshField);
+    _onBuildDetailMesh(*_detailMeshField);
 }
 
 void NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)

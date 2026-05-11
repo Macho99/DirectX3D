@@ -98,6 +98,11 @@ bool OnGUIUtils::DrawRect(const char* label, RECT* rect, float dragSpeed, bool i
     return changed;
 }
 
+bool OnGUIUtils::DrawEnableButton(const char* label, bool value, bool isReadOnly)
+{
+    return DrawEnableButton(label, value, true, false, isReadOnly);
+}
+
 bool OnGUIUtils::DrawAssetRef(const char* label, AssetRef& assetRef, bool isReadOnly)
 {
     bool changed = false;

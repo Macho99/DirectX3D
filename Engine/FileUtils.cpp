@@ -55,7 +55,7 @@ void FileUtils::Open(wstring filePath, FileMode mode)
 }
 
 
-void FileUtils::Write(void* data, uint32 dataSize)
+void FileUtils::Write(const void* data, uint32 dataSize)
 {
 	uint32 numOfBytes = 0;
 	bool result = ::WriteFile(_handle, data, dataSize, reinterpret_cast<LPDWORD>(&numOfBytes), nullptr);
@@ -173,4 +173,34 @@ fs::path FileUtils::SaveFileDialog(const wchar_t* title, const wchar_t* filter, 
 		return std::filesystem::path(filePath);
 
 	return {};
+}
+
+fs::path FileUtils::OpenFileDialog(const wchar_t* title, const wchar_t* filter, const wchar_t* defaultExt, const std::filesystem::path& initialDir)
+{
+    wchar_t filePath[MAX_PATH] = L"";
+    OPENFILENAMEW ofn = {};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrTitle = title;
+    ofn.lpstrFile = filePath;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFilter = filter;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrDefExt = defaultExt;
+
+    std::wstring initDir;
+    if (!initialDir.empty())
+    {
+        initDir = initialDir.wstring();
+        ofn.lpstrInitialDir = initDir.c_str();
+    }
+
+    ofn.Flags =
+        OFN_PATHMUSTEXIST |
+        OFN_FILEMUSTEXIST |
+        OFN_NOCHANGEDIR;
+
+    if (GetOpenFileNameW(&ofn))
+        return std::filesystem::path(filePath);
+
+    return {};
 }
