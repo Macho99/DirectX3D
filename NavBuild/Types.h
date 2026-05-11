@@ -176,7 +176,10 @@ struct PolyBase
 
 struct Triangle : public PolyBase<3>
 {
-    Triangle() = default;
+    Triangle()
+    {
+        vertCount = 3;
+    }
     Triangle(int i0, int i1, int i2)
         : PolyBase({ i0, i1, i2 })
     {
