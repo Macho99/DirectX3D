@@ -285,6 +285,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="FolderMeta.h" />
     <ClInclude Include="FolderTreeCache.h" />
     <ClInclude Include="FoliageController.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="FontMeta.h" />
     <ClInclude Include="FsEventDebouncer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
@@ -422,6 +424,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="FolderMeta.cpp" />
     <ClCompile Include="FolderTreeCache.cpp" />
     <ClCompile Include="FoliageController.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FontMeta.cpp" />
     <ClCompile Include="FsEventDebouncer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />

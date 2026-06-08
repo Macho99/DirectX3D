@@ -13,6 +13,7 @@
 #include "TerrainData.h"
 #include "SceneMeta.h"
 #include "ModelMeta.h"
+#include "FontMeta.h"
 
 #include "Material.h"
 #include "ModelMeshResource.h"
@@ -486,3 +487,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, SceneMeta);
 
 CEREAL_REGISTER_TYPE(ModelMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, ModelMeta);
+
+CEREAL_REGISTER_TYPE(FontMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, FontMeta);

@@ -30,7 +30,7 @@ public:
     {
 		if (Archive::is_saving::value)
 			_version = GetVersion();
-
+		 
 		ar(CEREAL_NVP(_version));
     }
 

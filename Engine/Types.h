@@ -54,6 +54,7 @@ enum class ResourceType : uint8
 	ModelMesh,
 	TerrainData,
 	Scene,
+	Font,
 
 	End
 };

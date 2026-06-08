@@ -753,6 +753,12 @@
     <ClInclude Include="SsrRenderer.h">
       <Filter>04. Component\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="FontMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>00. Engine\Asset\Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1147,6 +1153,12 @@
     </ClCompile>
     <ClCompile Include="SsrRenderer.cpp">
       <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="FontMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
