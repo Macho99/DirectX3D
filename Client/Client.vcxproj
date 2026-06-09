@@ -67,6 +67,7 @@
     <FxCompile Include="..\Assets\Shaders\DebugWireFrameShader.fx" />
     <FxCompile Include="..\Assets\Shaders\DownSample.fx" />
     <FxCompile Include="..\Assets\Shaders\Foliage.fx" />
+    <FxCompile Include="..\Assets\Shaders\Font.fx" />
     <FxCompile Include="..\Assets\Shaders\GrassCompute.fx" />
     <FxCompile Include="..\Assets\Shaders\GrassRender.fx" />
     <FxCompile Include="..\Assets\Shaders\Line.fx" />

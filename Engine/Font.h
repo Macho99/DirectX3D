@@ -53,7 +53,6 @@ public:
 
     void Load(const wstring& path) override;
 
-private:
     const BMFontGlyph* GetGlyph(int charCode) const;
     int GetKerning(int first, int second) const;
 

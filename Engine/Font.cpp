@@ -2,8 +2,7 @@
 #include "Font.h"
 #include <fstream>
 
-Font::Font()
-    : Super(StaticType)
+Font::Font() : Super(StaticType)
 {
 }
 

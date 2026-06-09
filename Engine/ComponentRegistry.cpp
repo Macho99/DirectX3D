@@ -22,6 +22,7 @@
 #include "LineRenderer.h"
 #include "NavAgent.h"
 #include "SsrRenderer.h"
+#include "Text.h"
 
 static void ForceRegisterEngineComponents()
 {
@@ -46,6 +47,7 @@ static void ForceRegisterEngineComponents()
     LineRenderer::EnsureAutoRegister();
     NavAgent::EnsureAutoRegister();
     SsrRenderer::EnsureAutoRegister();
+    Text::EnsureAutoRegister();
 }
 
 void ComponentRegistry::Init()
@@ -127,3 +129,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, NavAgent);
 
 CEREAL_REGISTER_TYPE(SsrRenderer);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, SsrRenderer);
+
+CEREAL_REGISTER_TYPE(Text);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Text);

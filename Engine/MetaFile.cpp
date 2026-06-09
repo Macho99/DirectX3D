@@ -24,6 +24,7 @@
 #include "MetaStore.h"
 #include "DndPayload.h"
 #include "FileUtils.h"
+#include "Font.h"
 
 MetaFile::MetaFile()
     :_resourceType(ResourceType::None)
@@ -212,6 +213,13 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
     case ResourceType::Model:
         resource = FileUtils::LoadResourceFromJson(filePath);
         break;
+    case ResourceType::Font:
+    {
+        unique_ptr<Font> font = make_unique<Font>();
+        font->Load(filePath);
+        resource = std::move(font);
+        break;
+    }
     }
 
 

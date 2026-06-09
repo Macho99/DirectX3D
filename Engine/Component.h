@@ -29,6 +29,7 @@ enum class ComponentType : uint8
     LineRenderer,
 	NavAgent,
     SsrRenderer,
+	Text,
 	// ...
 	Script,
 

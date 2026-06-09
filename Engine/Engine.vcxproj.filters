@@ -759,6 +759,7 @@
     <ClInclude Include="Font.h">
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="Text.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1160,6 +1161,7 @@
     <ClCompile Include="Font.cpp">
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

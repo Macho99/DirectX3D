@@ -55,6 +55,13 @@ void Mesh::CreateFromGeometry(shared_ptr<Geometry<VertexTextureNormalTangentData
 
 void Mesh::CreateBuffers(const int indexCount)
 {
+	if (_geometry->GetVertexCount() == 0 || _geometry->GetIndexCount() == 0)
+	{
+        _vertexBuffer = nullptr;
+        _indexBuffer = nullptr;
+		return;
+	}
+
 	_vertexBuffer = make_shared<VertexBuffer>();
 	_vertexBuffer->Create(_geometry->GetVertices(), "MeshVB");
 	_indexBuffer = make_shared<IndexBuffer>();

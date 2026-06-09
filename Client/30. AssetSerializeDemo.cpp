@@ -44,6 +44,8 @@
 #include "NavAgent.h"
 #include "MathUtils.h"
 #include "SsrRenderer.h"
+#include "Font.h"
+#include "Text.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -283,6 +285,18 @@ void AssetSerializeDemo::Init()
         Transform* transform = obj->GetTransform();
         transform->SetPosition(Vec3(30.f, baseHeight - 0.5f, 120.f));
         transform->SetScale(Vec3(200.f, 1.f, 200.f));
+    }
+    {
+        auto objRef = CUR_SCENE->Add("Text");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<Text>());
+        //obj->SetLayerIndex(Layer_UI);
+
+        auto textRef = obj->GetFixedComponentRef<Text>().Resolve();
+        textRef->SetFont(RESOURCES->GetResourceRefByPath<Font>(L"Fonts\\arial.fnt"));
+
+        auto meshRendererRef = obj->GetFixedComponentRef<MeshRenderer>().Resolve();
+        meshRendererRef->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ArialFontMat.mat"));
     }
 }
 

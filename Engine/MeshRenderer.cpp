@@ -27,12 +27,16 @@ bool MeshRenderer::Render(RenderTech renderTech)
 	Mesh* mesh = _mesh.Resolve();
 	if (mesh == nullptr)
 		return false;
+
     Material* material = _material.Resolve();
     if (material == nullptr)
         return false;
 
 	// Light
 	//_material->Update();
+
+    if (mesh->GetVertexBuffer() == nullptr || mesh->GetIndexBuffer() == nullptr)
+        return false;
 
 	mesh->GetVertexBuffer()->PushData();
 	mesh->GetIndexBuffer()->PushData();
@@ -46,15 +50,20 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 	{
 		return;
 	}
+
 	Mesh* mesh = _mesh.Resolve();
 	if (mesh == nullptr)
 		return;
+
 	Material* material = _material.Resolve();
 	if (material == nullptr)
 		return;
 
 	// Light
 	//_material->Update();
+
+	if (mesh->GetVertexBuffer() == nullptr || mesh->GetIndexBuffer() == nullptr)
+		return;
 
 	mesh->GetVertexBuffer()->PushData();
 	mesh->GetIndexBuffer()->PushData();
