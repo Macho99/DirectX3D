@@ -388,6 +388,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ToneMapping.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="RectTransform.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexBuffer.h" />
@@ -592,6 +593,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     </ClCompile>
     <ClCompile Include="ToneMapping.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="RectTransform.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexData.cpp" />

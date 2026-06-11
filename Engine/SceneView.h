@@ -2,6 +2,10 @@
 #include "EditorWindow.h"
 #include "ImGuizmo.h"
 
+class Camera;
+class Transform;
+class RectTransform;
+
 struct GizmoUIState
 {
     ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
@@ -27,6 +31,8 @@ protected:
 
 private:
     void DrawSceneViewGizmoOverlay();
+    void DrawTransformGizmo(Transform* selectedTransform, Camera* camera);
+    void DrawRectTransformGizmo(RectTransform* selectedTransform, Camera* camera);
 
 private:
     GizmoUIState g_gizmo;

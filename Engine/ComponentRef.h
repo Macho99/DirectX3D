@@ -21,4 +21,5 @@ public:
 };
 
 using TransformRef = ComponentRef<class Transform>;
+using RectTransformRef = ComponentRef<class RectTransform>;
 using ComponentRefBase = ComponentRef<class Component>;

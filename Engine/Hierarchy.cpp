@@ -56,7 +56,7 @@ void Hierarchy::ShowHierarchy()
     {
         if (ImGui::MenuItem("Create Empty Root"))
         {
-            curScene->Add("New Object");
+            curScene->Add("New Object", false);
         }
         ImGui::EndPopup();
     }
@@ -64,7 +64,7 @@ void Hierarchy::ShowHierarchy()
     {
         if (ImGui::MenuItem("Create Empty Root"))
         {
-            curScene->Add("New Object");
+            curScene->Add("New Object", false);
         }
         ImGui::EndPopup();
     }

@@ -139,6 +139,7 @@ inline void Assert(bool condition, const char* expr, string message,
 
 #include "GameObject.h"
 #include "Transform.h"
+#include "RectTransform.h"
 #include "Mesh.h"
 
 #if defined(_DEBUG)

@@ -50,6 +50,7 @@ public:
 	}
 
 	Transform* GetParent() { return _parent.Resolve(); }
+	Transform* GetParent() const { return _parent.Resolve(); }
 	void SetParent(TransformRef& parent);
 	void SetSiblingIndex(int index);
 
@@ -69,6 +70,9 @@ public:
 			CEREAL_NVP(_children)
 		);
 	}
+
+protected:
+	Transform(ComponentType type);
 
 private:
 	bool IsAncestorOf(TransformRef& target);

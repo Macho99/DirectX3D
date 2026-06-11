@@ -760,6 +760,7 @@
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Text.h" />
+    <ClInclude Include="RectTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1162,6 +1163,7 @@
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Text.cpp" />
+    <ClCompile Include="RectTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

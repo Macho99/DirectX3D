@@ -8,6 +8,11 @@ Transform::Transform() : Super(StaticType)
 
 }
 
+Transform::Transform(ComponentType type) : Super(type)
+{
+
+}
+
 Transform::~Transform()
 {
 

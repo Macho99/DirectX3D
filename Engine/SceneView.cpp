@@ -2,6 +2,8 @@
 #include "SceneView.h"
 #include "Camera.h"
 #include "EditorManager.h"
+#include "RectTransform.h"
+#include "Viewport.h"
 
 SceneView::SceneView()
     :Super("Scene")
@@ -36,52 +38,115 @@ void SceneView::OnGUI()
 
     ImGui::Image((ImTextureID)GRAPHICS->GetSceneViewSRV().Get(), avail);
 
-    if(IsBegin)
-        DrawSceneViewGizmoOverlay();
-
     // ImGuizmo
     TransformRef selectedTransformRef;
     _editorManager->TryGetHierarchyTransform(OUT selectedTransformRef);
     Transform* selectedTransform = selectedTransformRef.Resolve();
-    GameObject* camObj = CUR_SCENE->GetMainCamera();
-    if (camObj != nullptr && selectedTransform != nullptr)
+    if (selectedTransform != nullptr)
     {
-        Camera* camera = camObj->GetCamera();
-        ImGuizmo::BeginFrame();
-        ImGuizmo::AllowAxisFlip(false);
-        ImGuizmo::SetOrthographic(false);
-        ImGuizmo::SetDrawlist();
-        ImGuizmo::SetRect(gameDesc.scenePos.x, gameDesc.scenePos.y, gameDesc.sceneWidth, gameDesc.sceneHeight);
+        GameObject* camObj = CUR_SCENE->GetMainCamera();
+        GameObject* uiCamObj = CUR_SCENE->GetUICamera();
 
-        float snap[3] = { 0,0,0 };
-        const float* snapPtr = nullptr;
+        RectTransform* rectTransform = dynamic_cast<RectTransform*>(selectedTransform);
 
-        if (g_gizmo.useSnap)
+        if (camObj != nullptr && rectTransform == nullptr)
         {
-            if (g_gizmo.op == ImGuizmo::TRANSLATE) { snap[0] = snap[1] = snap[2] = g_gizmo.snapMove; snapPtr = snap; }
-            else if (g_gizmo.op == ImGuizmo::ROTATE) { snap[0] = g_gizmo.snapRotate; snapPtr = snap; }
-            else { snap[0] = snap[1] = snap[2] = g_gizmo.snapScale; snapPtr = snap; }
+            Camera* camera = camObj->GetCamera();
+            DrawTransformGizmo(selectedTransform, camera);
         }
-
-        Matrix view = camera->GetViewMatrix();
-        Matrix proj = camera->GetProjectionMatrix();
-        Matrix world = selectedTransform->GetWorldMatrix();
-
-        ImGuizmo::Manipulate(
-            (float*)&view,
-            (float*)&proj,
-            g_gizmo.op,
-            g_gizmo.mode,
-            (float*)&world,
-            nullptr,
-            snapPtr
-        );
-
-        if (ImGuizmo::IsUsing())
+        else if (uiCamObj != nullptr && rectTransform != nullptr)
         {
-            selectedTransform->SetWorldMatrix(world);
+            Camera* camera = uiCamObj->GetCamera();
+            DrawRectTransformGizmo(rectTransform, camera);
         }
     }
+
+    if(IsBegin)
+        DrawSceneViewGizmoOverlay();
+}
+
+void SceneView::DrawTransformGizmo(Transform* selectedTransform, Camera* camera)
+{
+    GameDesc& gameDesc = GAME->GetGameDesc();
+
+    ImGuizmo::BeginFrame();
+    ImGuizmo::AllowAxisFlip(false);
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(gameDesc.scenePos.x, gameDesc.scenePos.y, gameDesc.sceneWidth, gameDesc.sceneHeight);
+
+    float snap[3] = { 0,0,0 };
+    const float* snapPtr = nullptr;
+
+    if (g_gizmo.useSnap)
+    {
+        if (g_gizmo.op == ImGuizmo::TRANSLATE) { snap[0] = snap[1] = snap[2] = g_gizmo.snapMove; snapPtr = snap; }
+        else if (g_gizmo.op == ImGuizmo::ROTATE) { snap[0] = g_gizmo.snapRotate; snapPtr = snap; }
+        else { snap[0] = snap[1] = snap[2] = g_gizmo.snapScale; snapPtr = snap; }
+    }
+
+    Matrix view = camera->GetViewMatrix();
+    Matrix proj = camera->GetProjectionMatrix();
+    Matrix world = selectedTransform->GetWorldMatrix();
+
+    ImGuizmo::Manipulate(
+        (float*)&view,
+        (float*)&proj,
+        g_gizmo.op,
+        g_gizmo.mode,
+        (float*)&world,
+        nullptr,
+        snapPtr
+    );
+
+    if (ImGuizmo::IsUsing())
+    {
+        selectedTransform->SetWorldMatrix(world);
+    }
+}
+
+void SceneView::DrawRectTransformGizmo(RectTransform* selectedTransform, Camera* camera)
+{
+    RectTransform* rectTransform = dynamic_cast<RectTransform*>(selectedTransform);
+    if (rectTransform == nullptr || camera == nullptr)
+        return;
+
+    GameDesc& gameDesc = GAME->GetGameDesc();
+    Viewport viewport(
+        static_cast<float>(gameDesc.sceneWidth),
+        static_cast<float>(gameDesc.sceneHeight),
+        gameDesc.scenePos.x,
+        gameDesc.scenePos.y);
+
+    const Vec2& pivot = rectTransform->GetPivot();
+    const Vec3 localCorners[4] =
+    {
+        Vec3(-pivot.x, -pivot.y, 0.f),
+        Vec3(1.f - pivot.x, -pivot.y, 0.f),
+        Vec3(1.f - pivot.x, 1.f - pivot.y, 0.f),
+        Vec3(-pivot.x, 1.f - pivot.y, 0.f),
+    };
+
+    Matrix world = rectTransform->GetWorldMatrix();
+    Matrix view = camera->GetViewMatrix();
+    Matrix projection = camera->GetProjectionMatrix();
+
+    ImVec2 screenCorners[4] = {};
+    for (int i = 0; i < 4; ++i)
+    {
+        Vec3 projected = viewport.Project(localCorners[i], world, view, projection);
+        screenCorners[i] = ImVec2(projected.x, projected.y);
+    }
+
+    Vec3 pivotPosition = viewport.Project(Vec3::Zero, world, view, projection);
+    ImVec2 screenPivot(pivotPosition.x, pivotPosition.y);
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    const ImU32 rectColor = IM_COL32(80, 200, 255, 255);
+    const ImU32 pivotColor = IM_COL32(255, 230, 120, 255);
+    drawList->AddPolyline(screenCorners, IM_ARRAYSIZE(screenCorners), rectColor, ImDrawFlags_Closed, 2.0f);
+    drawList->AddLine(ImVec2(screenPivot.x - 5.f, screenPivot.y), ImVec2(screenPivot.x + 5.f, screenPivot.y), pivotColor, 1.5f);
+    drawList->AddLine(ImVec2(screenPivot.x, screenPivot.y - 5.f), ImVec2(screenPivot.x, screenPivot.y + 5.f), pivotColor, 1.5f);
 }
 
 void SceneView::DrawSceneViewGizmoOverlay()

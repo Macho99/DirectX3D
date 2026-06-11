@@ -17,6 +17,7 @@
 #include "NavAgent.h"
 #include "SsrRenderer.h"
 #include "Text.h"
+#include "RectTransform.h"
 
 template<class T>
 T* ComponentRef<T>::Resolve() const
@@ -56,3 +57,5 @@ template struct ComponentRef<NavMesh>;
 template struct ComponentRef<NavAgent>;
 template struct ComponentRef<SsrRenderer>;
 template struct ComponentRef<Text>;
+template struct ComponentRef<RectTransform>;
+

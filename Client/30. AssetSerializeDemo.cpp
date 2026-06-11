@@ -286,17 +286,41 @@ void AssetSerializeDemo::Init()
         transform->SetPosition(Vec3(30.f, baseHeight - 0.5f, 120.f));
         transform->SetScale(Vec3(200.f, 1.f, 200.f));
     }
+
     {
-        auto objRef = CUR_SCENE->Add("Text");
+        auto objRef = CUR_SCENE->Add("Text", true);
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<Text>());
-        //obj->SetLayerIndex(Layer_UI);
+        obj->SetLayerIndex(Layer_UI);
 
         auto textRef = obj->GetFixedComponentRef<Text>().Resolve();
         textRef->SetFont(RESOURCES->GetResourceRefByPath<Font>(L"Fonts\\arial.fnt"));
 
         auto meshRendererRef = obj->GetFixedComponentRef<MeshRenderer>().Resolve();
         meshRendererRef->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ArialFontMat.mat"));
+    }
+
+    {
+        auto objRef = CUR_SCENE->Add("Button", true);
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent(make_unique<MeshRenderer>());
+        MeshRenderer* meshRenderer = obj->GetMeshRenderer();
+        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
+        meshRenderer->SetMesh(RESOURCES->GetQuadMesh());
+        meshRenderer->SetMaterial(materialRef);
+        obj->SetLayerIndex(Layer_UI);
+    }
+
+    {
+        auto objRef = CUR_SCENE->Add("UICamera");
+        GameObject* obj = objRef.Resolve();
+        obj->GetTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+        obj->AddComponent(make_unique<Camera>());
+
+        Camera* camera = obj->GetCamera();
+        camera->SetProjectionType(ProjectionType::Orthographic);
+        camera->SetCullingMaskAll();
+        camera->SetCullingMaskLayerOnOff(Layer_UI, false);
     }
 }
 

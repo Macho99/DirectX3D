@@ -23,6 +23,7 @@
 #include "NavAgent.h"
 #include "SsrRenderer.h"
 #include "Text.h"
+#include "RectTransform.h"
 
 static void ForceRegisterEngineComponents()
 {
@@ -43,6 +44,7 @@ static void ForceRegisterEngineComponents()
     TessTerrain::EnsureAutoRegister();
     Terrain::EnsureAutoRegister();
     Transform::EnsureAutoRegister();
+    RectTransform::EnsureAutoRegister();
     NavMesh::EnsureAutoRegister();
     LineRenderer::EnsureAutoRegister();
     NavAgent::EnsureAutoRegister();
@@ -132,3 +134,7 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, SsrRenderer);
 
 CEREAL_REGISTER_TYPE(Text);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Text);
+
+CEREAL_REGISTER_TYPE(RectTransform);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, RectTransform);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Transform, RectTransform);
