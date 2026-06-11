@@ -221,10 +221,10 @@ void Scene::RenderUICamera(Camera* cam)
 	cam->Render_Backward(RenderTech::Draw);
 }
 
-GameObjectRef Scene::Add(string name)
+GameObjectRef Scene::Add(string name, bool useRectTransform)
 {
 	GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(_instanceId, name);
-	return Add(guidRef);
+	return Add(guidRef, useRectTransform);
 }
 
 GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
@@ -268,14 +268,20 @@ void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 {
     GameObject* gameObject = gameObjectRef.Resolve();
 	Transform* transform = gameObject->GetTransform();
+    TransformRef transformRef = transform->GetRef();
 
-	// 2) 자식 먼저 전부 삭제
 	for (auto& child : transform->GetChildren())
 		RemoveGameObjectRecur(child.Resolve()->GetGameObjectRef());
 
-	if (transform->HasParent() == false)
+	if (transform->HasParent())
 	{
-		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), gameObject->GetFixedComponentRef<Transform>()), _rootObjects.end());
+		Transform* parent = transform->GetParent();
+		vector<TransformRef>& siblings = parent->GetChildren();
+		siblings.erase(std::remove(siblings.begin(), siblings.end(), transformRef), siblings.end());
+	}
+	else
+	{
+		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transformRef), _rootObjects.end());
 	}
 
 	_gameObjects.erase(gameObjectRef);
@@ -441,11 +447,20 @@ void Scene::CheckCollision()
 	}
 }
 
-GameObjectRef Scene::Add(GuidRef guidRef)
+GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform)
 {
     Guid::SetCurrentInstanceId(_instanceId);
 	GameObjectRef gameObjectRef = GameObjectRef(guidRef);
 	GameObject* gameObject = gameObjectRef.Resolve();
+
+    if (useRectTransform)
+    {
+        gameObject->AddComponent(make_unique<RectTransform>());
+    }
+    else
+    {
+        gameObject->AddComponent(make_unique<Transform>());
+    }
 
 	Transform* transform = gameObject->GetTransform();
 	if (transform->HasParent() == false)

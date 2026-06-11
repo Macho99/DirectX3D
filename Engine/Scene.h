@@ -28,7 +28,7 @@ public:
 	void RenderGameCamera(Camera* cam);
 	void RenderUICamera(Camera* cam);
 
-	GameObjectRef Add(string name);
+	GameObjectRef Add(string name, bool useRectTransform = false);
 	GuidRef AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
 	virtual void Remove(GameObjectRef gameObjectRef);
 	void CleanUpRemoveLists();
@@ -74,7 +74,7 @@ public:
     }
 
 private:
-	GameObjectRef Add(GuidRef guidRef);
+	GameObjectRef Add(GuidRef guidRef, bool useRectTransform);
 
 public:
     template<class Archive>
