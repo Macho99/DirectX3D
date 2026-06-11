@@ -5,6 +5,7 @@
 #include "Material.h"
 #include "OnGUIUtils.h"
 
+ProjectionType Camera::S_ProjectionType = ProjectionType::Perspective;
 Matrix Camera::S_MatView = Matrix::Identity;
 Matrix Camera::S_MatProjection = Matrix::Identity;
 Vec3 Camera::S_Pos = Vec3::Zero;
@@ -127,6 +128,7 @@ void Camera::SetStaticData()
 	S_MatView = _matView;
 	S_MatProjection = _matProjection;
 	S_Pos = GetTransform()->GetPosition();
+    S_ProjectionType = _type;
 }
 
 void Camera::Render_Forward(RenderTech renderTech)

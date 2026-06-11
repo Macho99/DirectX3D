@@ -214,6 +214,11 @@ void Scene::RenderGameCamera(Camera* cam)
 void Scene::RenderUICamera(Camera* cam)
 {
 	GRAPHICS->ClearDepthStencilView();
+	//GRAPHICS->DrawSsaoMap(true);
+	for (int cascadeIdx = 0; cascadeIdx < NUM_SHADOW_CASCADES; cascadeIdx++)
+	{
+		GRAPHICS->ClearShadowDepthStencilView(cascadeIdx);
+	}
 
 	cam->SetStaticData();
 	cam->SortGameObject();

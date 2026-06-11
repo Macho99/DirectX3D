@@ -87,6 +87,7 @@ private:
 	float _height = 0.f;
 
 public:
+    static ProjectionType S_ProjectionType;
 	static Matrix S_MatView;
 	static Matrix S_MatProjection;
 	static Vec3 S_Pos;

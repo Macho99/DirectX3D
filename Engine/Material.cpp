@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Material.h"
 #include "OnGUIUtils.h"
+#include "Camera.h"
 
 Material::Material() : Super(StaticType)
 {
@@ -85,7 +86,10 @@ void Material::Update()
     }
 
 	// TODO: 필요할때만 업데이트하기
-	_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap().Resolve()->GetComPtr().Get());
+	if(Camera::S_ProjectionType == ProjectionType::Perspective)
+		_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap().Resolve()->GetComPtr().Get());
+	else
+        _ssaoMapEffectBuffer->SetResource(RESOURCES->GetDummyTexture().Resolve()->GetComPtr().Get());
 }
 
 bool Material::OnGUI(bool isReadOnly)
