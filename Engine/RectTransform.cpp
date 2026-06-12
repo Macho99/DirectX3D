@@ -153,9 +153,13 @@ void RectTransform::ApplyToTransform()
     RectTransformRect rect = GetRect();
     Vec2 size = rect.GetSize();
     Vec2 pivotPosition = rect.min + size * _pivot;
+    Vec3 parentScale = GetParent() != nullptr ? GetParent()->GetScale() : Vec3(1.f, 1.f, 1.f);
 
-    SetLocalPosition(Vec3(pivotPosition.x, pivotPosition.y, GetLocalPosition().z));
-    SetLocalScale(Vec3(size.x, size.y, GetLocalScale().z));
+    Vec3 localPos = Vec3(pivotPosition.x / parentScale.x, pivotPosition.y / parentScale.y, GetLocalPosition().z);
+    SetLocalPosition(localPos);
+
+    Vec3 scaledSize = Vec3(size.x / parentScale.x, size.y / parentScale.y, GetLocalScale().z);
+    SetLocalScale(scaledSize);
 }
 
 RectTransformRect RectTransform::GetParentRect() const

@@ -4,6 +4,48 @@
 class Font;
 class Mesh;
 
+#define TEXT_HORIZONTAL_START_LIST(X) \
+    X(Left)                            \
+    X(Center)                          \
+    X(Right)
+
+enum class TextHorizontalStart
+{
+#define X(name) name,
+    TEXT_HORIZONTAL_START_LIST(X)
+#undef X
+
+    Max
+};
+
+static const char* TextHorizontalStartNames[] =
+{
+#define X(name) #name,
+    TEXT_HORIZONTAL_START_LIST(X)
+#undef X
+};
+
+#define TEXT_VERTICAL_START_LIST(X) \
+    X(Top)                          \
+    X(Middle)                       \
+    X(Bottom)
+
+enum class TextVerticalStart
+{
+#define X(name) name,
+    TEXT_VERTICAL_START_LIST(X)
+#undef X
+
+    Max
+};
+
+static const char* TextVerticalStartNames[] =
+{
+#define X(name) #name,
+    TEXT_VERTICAL_START_LIST(X)
+#undef X
+};
+
 class Text : public Component
 {
     using Super = Component;
@@ -18,6 +60,7 @@ public:
     virtual void Start() override;
     virtual void Update() override;
     virtual bool OnGUI() override;
+    virtual int GetVersion() const override { return 1; }
 
     void SetText(const TextString& text);
     const TextString& GetText() const { return _text; }
@@ -27,6 +70,10 @@ public:
     float GetFontSize() const { return _fontSize; }
     void SetColor(const Color& color);
     const Color& GetColor() const { return _color; }
+    void SetHorizontalStart(TextHorizontalStart horizontalStart);
+    TextHorizontalStart GetHorizontalStart() const { return _horizontalStart; }
+    void SetVerticalStart(TextVerticalStart verticalStart);
+    TextVerticalStart GetVerticalStart() const { return _verticalStart; }
 
     template<typename Archive>
     void serialize(Archive& ar)
@@ -36,6 +83,12 @@ public:
         ar(CEREAL_NVP(_font));
         ar(CEREAL_NVP(_fontSize));
         ar(CEREAL_NVP(_color));
+
+        if (Archive::is_saving::value || _version >= 1)
+        {
+            ar(CEREAL_NVP(_horizontalStart));
+            ar(CEREAL_NVP(_verticalStart));
+        }
 
         if (Archive::is_loading::value)
             _isDirty = true;
@@ -51,6 +104,8 @@ private:
     ResourceRef<Font> _font;
     float _fontSize = 1.0f;
     Color _color = Colors::White;
+    TextHorizontalStart _horizontalStart = TextHorizontalStart::Left;
+    TextVerticalStart _verticalStart = TextVerticalStart::Middle;
     bool _isDirty = false;
     ComponentRef<class MeshRenderer> _meshRenderer;
     ResourceRef<Mesh> _mesh;

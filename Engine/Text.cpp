@@ -11,6 +11,7 @@
 #include "Texture.h"
 #include "Utils.h"
 #include "VertexData.h"
+#include "RectTransform.h"
 
 Text::Text() : Super(StaticType)
 {
@@ -89,6 +90,18 @@ bool Text::OnGUI()
         changed = true;
     }
 
+    if (OnGUIUtils::DrawEnumCombo("Horizontal Start", _horizontalStart, TextHorizontalStartNames, (int)TextHorizontalStart::Max))
+    {
+        _isDirty = true;
+        changed = true;
+    }
+
+    if (OnGUIUtils::DrawEnumCombo("Vertical Start", _verticalStart, TextVerticalStartNames, (int)TextVerticalStart::Max))
+    {
+        _isDirty = true;
+        changed = true;
+    }
+
     return changed;
 }
 
@@ -131,6 +144,24 @@ void Text::SetColor(const Color& color)
     }
 }
 
+void Text::SetHorizontalStart(TextHorizontalStart horizontalStart)
+{
+    if (_horizontalStart != horizontalStart)
+    {
+        _horizontalStart = horizontalStart;
+        _isDirty = true;
+    }
+}
+
+void Text::SetVerticalStart(TextVerticalStart verticalStart)
+{
+    if (_verticalStart != verticalStart)
+    {
+        _verticalStart = verticalStart;
+        _isDirty = true;
+    }
+}
+
 void Text::EnsureMeshRenderer()
 {
     GameObject* gameObject = GetGameObject();
@@ -167,9 +198,94 @@ void Text::RebuildMesh()
     const float scale = lineHeight > 0 ? _fontSize / static_cast<float>(lineHeight) : 1.0f;
     auto geometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
 
-    float cursorX = 0.0f;
-    float cursorY = 0.0f;
+    vector<float> lineWidths(1, 0.0f);
+    {
+        float lineWidth = 0.0f;
+        int previousCodepointForMeasure = 0;
+        size_t measureIndex = 0;
+        while (measureIndex < _text.size())
+        {
+            int codepoint = 0;
+            if (DecodeNextUtf8(_text, measureIndex, codepoint) == false)
+                continue;
+
+            if (codepoint == '\r')
+                continue;
+
+            if (codepoint == '\n')
+            {
+                lineWidth = 0.0f;
+                previousCodepointForMeasure = 0;
+                lineWidths.push_back(0.0f);
+                continue;
+            }
+
+            const BMFontGlyph* glyph = font->GetGlyph(codepoint);
+            if (glyph == nullptr)
+                continue;
+
+            lineWidth += static_cast<float>(font->GetKerning(previousCodepointForMeasure, codepoint)) * scale;
+            lineWidth += static_cast<float>(glyph->xAdvance) * scale;
+            lineWidths.back() = lineWidth;
+            previousCodepointForMeasure = codepoint;
+        }
+    }
+
+    float horizontalAnchorX = 0.0f;
+    float initialCursorY = 0.0f;
+    RectTransform* rectTransform = dynamic_cast<RectTransform*>(GetTransform());
+    if (rectTransform != nullptr)
+    {
+        switch (_horizontalStart)
+        {
+        case TextHorizontalStart::Left:
+            horizontalAnchorX = -0.5f;
+            break;
+        case TextHorizontalStart::Center:
+            horizontalAnchorX = 0.0f;
+            break;
+        case TextHorizontalStart::Right:
+            horizontalAnchorX = 0.5f;
+            break;
+        }
+
+        switch (_verticalStart)
+        {
+        case TextVerticalStart::Top:
+            initialCursorY = 0.5f;
+            break;
+        case TextVerticalStart::Middle:
+            initialCursorY = 0.0f;
+            initialCursorY += static_cast<float>(lineHeight) * scale * 0.5f;
+            break;
+        case TextVerticalStart::Bottom:
+            initialCursorY = -0.5f;
+            initialCursorY += static_cast<float>(lineHeight) * scale;
+            break;
+        }
+    }
+
+    auto getLineStartX = [&](size_t lineIndex) -> float
+    {
+        const float lineWidth = lineIndex < lineWidths.size() ? lineWidths[lineIndex] : 0.0f;
+        switch (_horizontalStart)
+        {
+        case TextHorizontalStart::Center:
+            return horizontalAnchorX - lineWidth * 0.5f;
+        case TextHorizontalStart::Right:
+            return horizontalAnchorX - lineWidth;
+        case TextHorizontalStart::Left:
+        default:
+            return horizontalAnchorX;
+        }
+    };
+
+    size_t lineIndex = 0;
+    float initialCursorX = getLineStartX(lineIndex);
+    float cursorX = initialCursorX;
+    float cursorY = initialCursorY;
     int previousCodepoint = 0;
+
 
     size_t index = 0;
     while (index < _text.size())
@@ -183,7 +299,9 @@ void Text::RebuildMesh()
 
         if (codepoint == '\n')
         {
-            cursorX = 0.0f;
+            ++lineIndex;
+            initialCursorX = getLineStartX(lineIndex);
+            cursorX = initialCursorX;
             cursorY -= static_cast<float>(lineHeight) * scale;
             previousCodepoint = 0;
             continue;
