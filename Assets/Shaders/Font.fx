@@ -19,9 +19,9 @@ float4 PS(MeshOutput input) : SV_TARGET
 
 technique11 Draw
 {
-	PASS_BS_VP(P0, AlphaBlend, VS_Mesh, PS)
-	PASS_BS_VP(P1, AlphaBlend, VS_Model, PS)
-	PASS_BS_VP(P2, AlphaBlend, VS_Animation, PS)
+	PASS_BS_VP(P0, AlphaBlendKeepAlpha, VS_Mesh, PS)
+	PASS_BS_VP(P1, AlphaBlendKeepAlpha, VS_Model, PS)
+	PASS_BS_VP(P2, AlphaBlendKeepAlpha, VS_Animation, PS)
 };
 
 //technique11 Shadow

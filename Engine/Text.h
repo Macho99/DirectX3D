@@ -97,16 +97,18 @@ public:
 private:
     void EnsureMeshRenderer();
     void RebuildMesh();
+    Vec2 GetFontMetricScale(int lineHeight);
     static bool DecodeNextUtf8(const string& text, size_t& index, int& codepoint);
 
 private:
     TextString _text;
     ResourceRef<Font> _font;
-    float _fontSize = 1.0f;
+    float _fontSize = 32.0f;
     Color _color = Colors::White;
     TextHorizontalStart _horizontalStart = TextHorizontalStart::Left;
     TextVerticalStart _verticalStart = TextVerticalStart::Middle;
     bool _isDirty = false;
+    Vec3 _lastWorldScale = Vec3(0.0f, 0.0f, 0.0f);
     ComponentRef<class MeshRenderer> _meshRenderer;
     ResourceRef<Mesh> _mesh;
 };

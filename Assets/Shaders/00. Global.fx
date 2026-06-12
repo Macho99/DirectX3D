@@ -210,6 +210,21 @@ BlendState AlphaBlendAlphaToCoverageEnable
 	RenderTargetWriteMask[0] = 15;
 };
 
+BlendState AlphaBlendKeepAlpha
+{
+	AlphaToCoverageEnable = false;
+
+	BlendEnable[0] = true;
+	SrcBlend[0] = SRC_ALPHA;
+	DestBlend[0] = INV_SRC_ALPHA;
+	BlendOp[0] = ADD;
+
+	SrcBlendAlpha[0] = Zero;
+	DestBlendAlpha[0] = One;
+	BlendOpAlpha[0] = Add;
+
+	RenderTargetWriteMask[0] = 15;
+};
 BlendState AdditiveBlend
 {
 /*
@@ -237,6 +252,7 @@ BlendState AdditiveBlend
 	RenderTargetWriteMask[0] = 0x0F;
 
 };
+
 
 BlendState AdditiveBlendAlphaToCoverageEnable
 {

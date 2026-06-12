@@ -34,6 +34,14 @@ void Text::Start()
 
 void Text::Update()
 {
+    Transform* transform = GetTransform();
+    if (transform != nullptr)
+    {
+        const Vec3 worldScale = transform->GetScale();
+        if (worldScale != _lastWorldScale)
+            _isDirty = true;
+    }
+
     if (_isDirty)
     {
         RebuildMesh();
@@ -189,13 +197,16 @@ void Text::RebuildMesh()
     _isDirty = false;
     EnsureMeshRenderer();
 
+    Transform* transform = GetTransform();
+    _lastWorldScale = transform != nullptr ? transform->GetScale() : Vec3(0.0f, 0.0f, 0.0f);
+
     Font* font = _font.Resolve();
     Mesh* mesh = _mesh.Resolve();
     if (font == nullptr || mesh == nullptr)
         return;
 
     const int lineHeight = font->GetLineHeight();
-    const float scale = lineHeight > 0 ? _fontSize / static_cast<float>(lineHeight) : 1.0f;
+    const Vec2 metricScale = GetFontMetricScale(lineHeight);
     auto geometry = make_shared<Geometry<VertexTextureNormalTangentData>>();
 
     vector<float> lineWidths(1, 0.0f);
@@ -224,8 +235,8 @@ void Text::RebuildMesh()
             if (glyph == nullptr)
                 continue;
 
-            lineWidth += static_cast<float>(font->GetKerning(previousCodepointForMeasure, codepoint)) * scale;
-            lineWidth += static_cast<float>(glyph->xAdvance) * scale;
+            lineWidth += static_cast<float>(font->GetKerning(previousCodepointForMeasure, codepoint)) * metricScale.x;
+            lineWidth += static_cast<float>(glyph->xAdvance) * metricScale.x;
             lineWidths.back() = lineWidth;
             previousCodepointForMeasure = codepoint;
         }
@@ -256,11 +267,11 @@ void Text::RebuildMesh()
             break;
         case TextVerticalStart::Middle:
             initialCursorY = 0.0f;
-            initialCursorY += static_cast<float>(lineHeight) * scale * 0.5f;
+            initialCursorY += static_cast<float>(lineHeight) * metricScale.y * 0.5f;
             break;
         case TextVerticalStart::Bottom:
             initialCursorY = -0.5f;
-            initialCursorY += static_cast<float>(lineHeight) * scale;
+            initialCursorY += static_cast<float>(lineHeight) * metricScale.y;
             break;
         }
     }
@@ -302,7 +313,7 @@ void Text::RebuildMesh()
             ++lineIndex;
             initialCursorX = getLineStartX(lineIndex);
             cursorX = initialCursorX;
-            cursorY -= static_cast<float>(lineHeight) * scale;
+            cursorY -= static_cast<float>(lineHeight) * metricScale.y;
             previousCodepoint = 0;
             continue;
         }
@@ -311,12 +322,12 @@ void Text::RebuildMesh()
         if (glyph == nullptr)
             continue;
 
-        cursorX += static_cast<float>(font->GetKerning(previousCodepoint, codepoint)) * scale;
+        cursorX += static_cast<float>(font->GetKerning(previousCodepoint, codepoint)) * metricScale.x;
 
-        const float left = cursorX + static_cast<float>(glyph->xOffset) * scale;
-        const float top = cursorY - static_cast<float>(glyph->yOffset) * scale;
-        const float right = left + static_cast<float>(glyph->width) * scale;
-        const float bottom = top - static_cast<float>(glyph->height) * scale;
+        const float left = cursorX + static_cast<float>(glyph->xOffset) * metricScale.x;
+        const float top = cursorY - static_cast<float>(glyph->yOffset) * metricScale.y;
+        const float right = left + static_cast<float>(glyph->width) * metricScale.x;
+        const float bottom = top - static_cast<float>(glyph->height) * metricScale.y;
 
         const uint32 baseIndex = geometry->GetVertexCount();
         const Vec3 normal = Vec3(0.0f, 0.0f, -1.0f);
@@ -329,11 +340,29 @@ void Text::RebuildMesh()
 
         geometry->AddIndices({ baseIndex + 0, baseIndex + 1, baseIndex + 2, baseIndex + 2, baseIndex + 1, baseIndex + 3 });
 
-        cursorX += static_cast<float>(glyph->xAdvance) * scale;
+        cursorX += static_cast<float>(glyph->xAdvance) * metricScale.x;
         previousCodepoint = codepoint;
     }
 
     mesh->CreateFromGeometry(geometry);
+}
+
+Vec2 Text::GetFontMetricScale(int lineHeight)
+{
+    if (lineHeight <= 0)
+        return Vec2(1.0f, 1.0f);
+
+    Vec3 worldScale = Vec3(1.0f, 1.0f, 1.0f);
+    Transform* transform = GetTransform();
+    if (transform != nullptr)
+        worldScale = transform->GetScale();
+
+    constexpr float minScale = 0.0001f;
+    const float scaleX = std::max(std::abs(worldScale.x), minScale);
+    const float scaleY = std::max(std::abs(worldScale.y), minScale);
+    const float fontScale = _fontSize / static_cast<float>(lineHeight);
+
+    return Vec2(fontScale / scaleX, fontScale / scaleY);
 }
 
 bool Text::DecodeNextUtf8(const string& text, size_t& index, int& codepoint)
