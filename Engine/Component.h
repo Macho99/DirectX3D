@@ -30,6 +30,7 @@ enum class ComponentType : uint8
 	NavAgent,
     SsrRenderer,
 	Text,
+    UIImage,
 	// ...
 	Script,
 

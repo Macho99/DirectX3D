@@ -11,6 +11,7 @@
 #include "LineRenderer.h"
 #include "Terrain.h"
 #include "Button.h"
+#include "UIImage.h"
 #include "Billboard.h"
 #include "SnowBillboard.h"
 #include "Renderer.h"
@@ -259,6 +260,12 @@ Button* GameObject::GetButton()
 {
 	Component* component = GetFixedComponent(ComponentType::Button);
 	return static_cast<Button*>(component);
+}
+
+UIImage* GameObject::GetUIImage()
+{
+    Component* component = GetFixedComponent(ComponentType::UIImage);
+    return static_cast<UIImage*>(component);
 }
 
 Billboard* GameObject::GetBillboard()

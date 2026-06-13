@@ -16,6 +16,7 @@ class Button;
 class Billboard;
 class SnowBillboard;
 class Renderer;
+class UIImage;
 
 class GameObject
 {
@@ -52,6 +53,7 @@ public:
 	BaseCollider* GetCollider();
 	Terrain* GetTerrain();
 	Button* GetButton();
+    UIImage* GetUIImage();
 	Billboard* GetBillboard();
 	SnowBillboard* GetSnowBillboard();
 

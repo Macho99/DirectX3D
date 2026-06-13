@@ -17,6 +17,7 @@
 #include "NavAgent.h"
 #include "SsrRenderer.h"
 #include "Text.h"
+#include "UIImage.h"
 #include "RectTransform.h"
 
 template<class T>
@@ -57,5 +58,6 @@ template struct ComponentRef<NavMesh>;
 template struct ComponentRef<NavAgent>;
 template struct ComponentRef<SsrRenderer>;
 template struct ComponentRef<Text>;
+template struct ComponentRef<UIImage>;
 template struct ComponentRef<RectTransform>;
 

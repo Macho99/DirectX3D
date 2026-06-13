@@ -46,6 +46,7 @@
 #include "SsrRenderer.h"
 #include "Font.h"
 #include "Text.h"
+#include "UIImage.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -301,13 +302,12 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("Button", true);
+        auto objRef = CUR_SCENE->Add("ImageTop", true);
         GameObject* obj = objRef.Resolve();
-        obj->AddComponent(make_unique<MeshRenderer>());
-        MeshRenderer* meshRenderer = obj->GetMeshRenderer();
+        obj->AddComponent(make_unique<UIImage>());
+        UIImage* uiImage = obj->GetUIImage();
         ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
-        meshRenderer->SetMesh(RESOURCES->GetQuadMesh());
-        meshRenderer->SetMaterial(materialRef);
+        uiImage->SetMaterial(materialRef);
         obj->SetLayerIndex(Layer_UI);
     }
 

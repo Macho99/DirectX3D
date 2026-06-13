@@ -59,7 +59,7 @@ public:
 
 	void Update();
     virtual bool OnGUI(bool isReadOnly) override;
-	//shared_ptr<Material> Clone();
+	void Clone(Material* other);
 		
     template<class Archive>
     void serialize(Archive& ar)

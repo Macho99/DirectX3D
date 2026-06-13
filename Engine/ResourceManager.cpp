@@ -248,6 +248,15 @@ Texture* ResourceManager::GetRandomTexture()
 	return _randomTexture.Resolve();
 }
 
+ResourceRef<Material> ResourceManager::AllocateUIDefaultMaterial()
+{
+    ResourceRef<Material> uiDefaultMat = GetResourceRefByPath<Material>(L"Materials\\UIDefaultMat.mat");
+    ResourceRef<Material> allocated = AllocateTempResource<Material>();
+
+	allocated.Resolve()->Clone(uiDefaultMat.Resolve());
+    return allocated;
+}
+
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)

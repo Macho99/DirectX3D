@@ -124,6 +124,29 @@ bool Material::OnGUI(bool isReadOnly)
 	return changed;
 }
 
+void Material::Clone(Material* other)
+{
+    _desc = other->_desc;
+    _renderQueue = other->_renderQueue;
+    _castShadow = other->_castShadow;
+    _includeInNavMesh = other->_includeInNavMesh;
+    _shader = other->_shader;
+    _diffuseMap = other->_diffuseMap;
+    _normalMap = other->_normalMap;
+    _specularMap = other->_specularMap;
+    _cubeMap = other->_cubeMap;
+    _layerMapArraySRV = other->_layerMapArraySRV;
+    _diffuseEffectBuffer = other->_diffuseEffectBuffer;
+    _normalEffectBuffer = other->_normalEffectBuffer;
+    _specularEffectBuffer = other->_specularEffectBuffer;
+    _randomEffectBuffer = other->_randomEffectBuffer;
+    _cubeMapEffectBuffer = other->_cubeMapEffectBuffer;
+    _shadowMapEffectBuffer = other->_shadowMapEffectBuffer;
+    _ssaoMapEffectBuffer = other->_ssaoMapEffectBuffer;
+    _layerMapArrayEffectBuffer = other->_layerMapArrayEffectBuffer;
+    _initializedEffectBuffers = other->_initializedEffectBuffers;
+}
+
 void Material::InitializeEffectBuffers()
 {
     if (_initializedEffectBuffers)

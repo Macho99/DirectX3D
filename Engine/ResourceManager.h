@@ -76,6 +76,7 @@ public:
 	ResourceRef<Mesh> GetSphereMesh() const;
 	Texture* GetRandomTexture();
     ResourceRef<Texture> GetDummyTexture() const { return _dummyTexture; }
+    ResourceRef<Material> AllocateUIDefaultMaterial();
 
 private:
 	static wstring ToStr(FsAction fsAction);
