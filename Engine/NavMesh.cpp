@@ -13,6 +13,14 @@
 
 NavMesh::NavMesh() : Super(StaticType)
 {
+}
+
+NavMesh::~NavMesh()
+{
+}
+
+void NavMesh::Awake()
+{
     {
         GameObjectRef objRef = CUR_SCENE->Add("NavDebug MeshRenderer");
         GameObject* obj = objRef.Resolve();
@@ -44,12 +52,12 @@ NavMesh::NavMesh() : Super(StaticType)
     //}
 
     {
-        _debugLineRendererParent = CUR_SCENE->Add("NavDebug LineRenderer Parent"); 
+        _debugLineRendererParent = CUR_SCENE->Add("NavDebug LineRenderer Parent");
         GameObject* parentObj = _debugLineRendererParent.Resolve();
         parentObj->SetActive(false);
     }
 
-    
+
     _builder.SetDebugOnMarkWalkableTriangles([this](const vector<InputTri>& tris)
         {
             if (TryInitializeDebugMesh(NavDebugOption::MarkWalkable) == false)
@@ -72,9 +80,9 @@ NavMesh::NavMesh() : Super(StaticType)
                 //Vec2 uv = tri.walkable ? _walkableUV : _unwalkableUV;
 
                 uint32 baseIndex = static_cast<uint32>(vertices.size());
-                vertices.push_back(VertexTextureNormalTangentData{ tri.v0, Vec2(0.f), Vec3(0.f), tangentAsColor});
-                vertices.push_back(VertexTextureNormalTangentData{ tri.v1, Vec2(0.f), Vec3(0.f), tangentAsColor});
-                vertices.push_back(VertexTextureNormalTangentData{ tri.v2, Vec2(0.f), Vec3(0.f), tangentAsColor});
+                vertices.push_back(VertexTextureNormalTangentData{ tri.v0, Vec2(0.f), Vec3(0.f), tangentAsColor });
+                vertices.push_back(VertexTextureNormalTangentData{ tri.v1, Vec2(0.f), Vec3(0.f), tangentAsColor });
+                vertices.push_back(VertexTextureNormalTangentData{ tri.v2, Vec2(0.f), Vec3(0.f), tangentAsColor });
                 indices.push_back(baseIndex);
                 indices.push_back(baseIndex + 1);
                 indices.push_back(baseIndex + 2);
@@ -226,7 +234,7 @@ NavMesh::NavMesh() : Super(StaticType)
                                 {
                                     useDistanceColor = true;
                                 }
-                                else if(span.region == 0)
+                                else if (span.region == 0)
                                 {
                                     useDistanceColor = true;
                                 }
@@ -529,11 +537,8 @@ NavMesh::NavMesh() : Super(StaticType)
         });
 }
 
-NavMesh::~NavMesh()
-{
-}
 
-void NavMesh::Awake()
+void NavMesh::Start()
 {
     TransformRef transformRef = GetGameObject()->GetFixedComponentRef<Transform>();
     _debugMeshRenderer.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);

@@ -38,6 +38,7 @@ public:
     ~NavMesh();
 
     virtual void Awake() override;
+    virtual void Start() override;
     virtual bool OnGUI() override;
 
     bool TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, MoveInfo& moveInfo) const;
