@@ -77,6 +77,8 @@ public:
 	void SetActive(bool active);
     void UpdateActiveInHierarchy(bool parentActive, bool forceUpdate = false);
 
+	void OnGUI();
+
     Guid GetGuid() const { return _guid; }
 	void SetGuid(const Guid& guid) { _guid = guid; }
 

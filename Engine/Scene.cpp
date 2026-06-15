@@ -230,7 +230,14 @@ void Scene::RenderUICamera(Camera* cam)
 GameObjectRef Scene::Add(string name, bool useRectTransform)
 {
 	GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(_instanceId, name);
-	return Add(guidRef, useRectTransform);
+	return Add(guidRef, useRectTransform, nullptr);
+}
+
+GameObjectRef Scene::Add(string name, Transform* parent)
+{
+	GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(_instanceId, name);
+    RectTransform* rectParent = dynamic_cast<RectTransform*>(parent);
+	return Add(guidRef, rectParent != nullptr, parent);
 }
 
 GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
@@ -453,7 +460,7 @@ void Scene::CheckCollision()
 	}
 }
 
-GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform)
+GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform, Transform* parent)
 {
     Guid::SetCurrentInstanceId(_instanceId);
 	GameObjectRef gameObjectRef = GameObjectRef(guidRef);
@@ -462,6 +469,7 @@ GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform)
     if (useRectTransform)
     {
         gameObject->AddComponent(make_unique<RectTransform>());
+        gameObject->SetLayerIndex(Layer_UI);
     }
     else
     {
@@ -469,10 +477,15 @@ GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform)
     }
 
 	Transform* transform = gameObject->GetTransform();
-	if (transform->HasParent() == false)
+	if (parent == nullptr)
 	{
 		_rootObjects.push_back(gameObject->GetFixedComponentRef<Transform>());
 	}
+    else
+    {
+		TransformRef parentRef = parent->GetRef();
+        transform->SetParent(parentRef);
+    }
 	_gameObjects.insert(gameObjectRef);
 
 	gameObject->Awake();

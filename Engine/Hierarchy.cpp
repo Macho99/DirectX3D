@@ -215,7 +215,7 @@ void Hierarchy::DrawNode(Transform* node)
                 else if (y > t1) dropAction = DropAction::InsertAfter;
                 else dropAction = DropAction::MakeChild;
 
-                // Preview drawing
+                // Preview drawing 
                 if (dropAction == DropAction::InsertBefore)
                     DrawInsertLine(r, true);
                 else if (dropAction == DropAction::InsertAfter)

@@ -17,6 +17,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "SlotManager.h"
+#include "OnGUIUtils.h"
 
 GameObject::GameObject(string name) : _name(name), _components{}
 {
@@ -367,6 +368,12 @@ void GameObject::UpdateActiveInHierarchy(bool parentActive, bool forceUpdate)
 		ASSERT(childGameObject != nullptr);
 		childGameObject->UpdateActiveInHierarchy(_isActive, forceUpdate);
     }
+}
+
+void GameObject::OnGUI()
+{
+	ImGui::Text("GameObject: %s", _name.c_str());
+    OnGUIUtils::DrawUInt8("Layer", &_layerIndex, 1.f);
 }
 
 GameObjectRef GameObject::GetGameObjectRefByGuid(const Guid& guid)

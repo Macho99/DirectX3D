@@ -51,13 +51,6 @@ bool RectTransform::OnGUI()
         changed = true;
     }
 
-    Vec2 pivot = _pivot;
-    if (OnGUIUtils::DrawVec2("Pivot", &pivot, 0.01f))
-    {
-        SetPivot(pivot);
-        changed = true;
-    }
-
     return changed;
 }
 
@@ -96,12 +89,6 @@ void RectTransform::SetOffsets(const Vec2& offsetMin, const Vec2& offsetMax)
 {
     _offsetMin = offsetMin;
     _offsetMax = offsetMax;
-    ApplyToTransform();
-}
-
-void RectTransform::SetPivot(const Vec2& pivot)
-{
-    _pivot = pivot;
     ApplyToTransform();
 }
 

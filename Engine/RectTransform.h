@@ -55,7 +55,6 @@ public:
     void SetOffsets(const Vec2& offsetMin, const Vec2& offsetMax);
 
     const Vec2& GetPivot() const { return _pivot; }
-    void SetPivot(const Vec2& pivot);
 
     RectTransformRect GetRect() const;
     Vec2 GetSize() const { return GetRect().GetSize(); }
@@ -73,7 +72,6 @@ public:
         ar(CEREAL_NVP(_anchorMax));
         ar(CEREAL_NVP(_offsetMin));
         ar(CEREAL_NVP(_offsetMax));
-        ar(CEREAL_NVP(_pivot));
 
         if (Archive::is_loading::value)
             ApplyToTransform();
@@ -88,5 +86,5 @@ private:
     Vec2 _anchorMax = Vec2(0.5f, 0.5f);
     Vec2 _offsetMin = Vec2(-50.f, -50.f);
     Vec2 _offsetMax = Vec2(50.f, 50.f);
-    Vec2 _pivot = Vec2(0.5f, 0.5f);
+    const Vec2 _pivot = Vec2(0.5f, 0.5f);
 };

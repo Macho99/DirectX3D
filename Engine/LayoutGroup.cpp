@@ -157,7 +157,9 @@ void LayoutGroup::SetChildRect(RectTransform* child, const Vec2& positionFromTop
         return;
 
     child->SetAnchors(Vec2(0.f, 1.f), Vec2(0.f, 1.f));
-    child->SetPivot(Vec2(0.f, 1.f));
     child->SetSize(size);
-    child->SetAnchoredPosition(Vec2(positionFromTopLeft.x, -positionFromTopLeft.y));
+
+    const Vec2 pivot = child->GetPivot();
+    const Vec2 pivotPositionFromTopLeft = positionFromTopLeft + size * pivot;
+    child->SetAnchoredPosition(Vec2(pivotPositionFromTopLeft.x, -pivotPositionFromTopLeft.y));
 }

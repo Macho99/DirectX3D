@@ -55,7 +55,7 @@ void Inspector::DrawGameObject(TransformRef& transformRef)
     }
 
     GameObject* gameObject = transform->GetGameObject();
-    ImGui::Text("GameObject: %s", gameObject->GetName().c_str());
+    gameObject->OnGUI();
     ImGui::Separator();
     auto& components = gameObject->GetAllFixedComponents();
     for (auto& compRef : components)
