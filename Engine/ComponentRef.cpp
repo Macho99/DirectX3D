@@ -13,6 +13,10 @@
 #include "ModelAnimator.h"
 #include "MeshRenderer.h"
 #include "LineRenderer.h"
+#include "LayoutGroup.h"
+#include "VerticalLayoutGroup.h"
+#include "HorizontalLayoutGroup.h"
+#include "GridLayoutGroup.h"
 #include "NavMesh.h"
 #include "NavAgent.h"
 #include "SsrRenderer.h"
@@ -54,6 +58,9 @@ template struct ComponentRef<MonoBehaviour>;
 template struct ComponentRef<ModelAnimator>;
 template struct ComponentRef<MeshRenderer>;
 template struct ComponentRef<LineRenderer>;
+template struct ComponentRef<VerticalLayoutGroup>;
+template struct ComponentRef<HorizontalLayoutGroup>;
+template struct ComponentRef<GridLayoutGroup>;
 template struct ComponentRef<NavMesh>;
 template struct ComponentRef<NavAgent>;
 template struct ComponentRef<SsrRenderer>;

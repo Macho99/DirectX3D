@@ -323,7 +323,10 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Inspector.h" />
     <ClInclude Include="InstancingBuffer.h" />
+    <ClInclude Include="GridLayoutGroup.h" />
+    <ClInclude Include="HorizontalLayoutGroup.h" />
     <ClInclude Include="LineRenderer.h" />
+    <ClInclude Include="LayoutGroup.h" />
     <ClInclude Include="MaterialMeta.h" />
     <ClInclude Include="MeshMeta.h" />
     <ClInclude Include="MetaFile.h" />
@@ -393,6 +396,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="RectTransform.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="VerticalLayoutGroup.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexData.h" />
     <ClInclude Include="Viewport.h" />
@@ -413,7 +417,12 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ComponentRef.cpp" />
-    <ClCompile Include="ComponentRegistry.cpp" />
+    <ClCompile Include="ComponentRegistry.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="ContentBrowser.cpp" />
@@ -522,7 +531,10 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Inspector.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
+    <ClCompile Include="GridLayoutGroup.cpp" />
+    <ClCompile Include="HorizontalLayoutGroup.cpp" />
     <ClCompile Include="LineRenderer.cpp" />
+    <ClCompile Include="LayoutGroup.cpp" />
     <ClCompile Include="MaterialMeta.cpp" />
     <ClCompile Include="MeshMeta.cpp" />
     <ClCompile Include="MetaFile.cpp" />
@@ -599,6 +611,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="RectTransform.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="VerticalLayoutGroup.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexData.cpp" />
     <ClCompile Include="Viewport.cpp" />

@@ -58,6 +58,10 @@ void Hierarchy::ShowHierarchy()
         {
             curScene->Add("New Object", false);
         }
+        else if (ImGui::MenuItem("Create Empty RectTransform Root"))
+        {
+            curScene->Add("New UI Object", true);
+        }
         ImGui::EndPopup();
     }
     else if (ImGui::BeginPopup("HierarchyEmptyContext"))
@@ -184,6 +188,11 @@ void Hierarchy::DrawNode(Transform* node)
             _pendingOps.push_back(make_unique<PendingDelete>(nodeId));
         }
 
+        if (ImGui::MenuItem("Create Empty Child"))
+        {
+            _pendingOps.push_back(make_unique<PendingAdd>(nodeId));
+        }
+
         ImGui::EndPopup();
     }
 
@@ -290,4 +299,21 @@ void PendingDelete::Do()
         return;
 
     CUR_SCENE->Remove(targetTransform->GetGameObjectRef());
+}
+
+PendingAdd::PendingAdd(TransformRef parentId)
+    :parentId(parentId)
+{
+}
+
+void PendingAdd::Do()
+{
+    Transform* parent = parentId.Resolve();
+    if (parent == nullptr)
+        return;
+
+    RectTransform* rectParent = dynamic_cast<RectTransform*>(parent);
+
+    GameObjectRef objRef = CUR_SCENE->Add("New Object", rectParent != nullptr);
+    objRef.Resolve()->GetTransform()->SetParent(parentId);
 }

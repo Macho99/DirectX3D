@@ -29,8 +29,11 @@ enum class ComponentType : uint8
     LineRenderer,
 	NavAgent,
     SsrRenderer,
-	Text,
+    Text,
     UIImage,
+    VerticalLayoutGroup,
+    HorizontalLayoutGroup,
+    GridLayoutGroup,
 	// ...
 	Script,
 

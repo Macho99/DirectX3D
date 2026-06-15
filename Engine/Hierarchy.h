@@ -21,6 +21,13 @@ struct PendingOperation
     virtual void Do() = 0;
 };
 
+struct PendingAdd : PendingOperation
+{
+    PendingAdd(TransformRef parentId);
+    TransformRef parentId;
+    void Do() override;
+};
+
 struct PendingReparent : PendingOperation
 {
     PendingReparent(TransformRef droppedId, TransformRef targetId, DropAction action);

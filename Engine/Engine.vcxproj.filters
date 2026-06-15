@@ -85,6 +85,9 @@
     <Filter Include="04. Component\Navigation">
       <UniqueIdentifier>{183c3868-6a9a-4e57-922f-415e87a3924b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Component\UI\LayoutGroup">
+      <UniqueIdentifier>{f75fddbb-df93-4a53-9a97-0fc6780cf072}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -771,6 +774,18 @@
     <ClInclude Include="RectTransform.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
+    <ClInclude Include="GridLayoutGroup.h">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClInclude>
+    <ClInclude Include="HorizontalLayoutGroup.h">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClInclude>
+    <ClInclude Include="LayoutGroup.h">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalLayoutGroup.h">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1183,6 +1198,18 @@
     </ClCompile>
     <ClCompile Include="RectTransform.cpp">
       <Filter>04. Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="GridLayoutGroup.cpp">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClCompile>
+    <ClCompile Include="HorizontalLayoutGroup.cpp">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClCompile>
+    <ClCompile Include="LayoutGroup.cpp">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalLayoutGroup.cpp">
+      <Filter>04. Component\UI\LayoutGroup</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

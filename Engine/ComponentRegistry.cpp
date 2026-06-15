@@ -20,6 +20,10 @@
 #include "NavMesh.h"
 #include "MonoBehaviour.h"
 #include "LineRenderer.h"
+#include "LayoutGroup.h"
+#include "VerticalLayoutGroup.h"
+#include "HorizontalLayoutGroup.h"
+#include "GridLayoutGroup.h"
 #include "NavAgent.h"
 #include "SsrRenderer.h"
 #include "Text.h"
@@ -48,6 +52,9 @@ static void ForceRegisterEngineComponents()
     RectTransform::EnsureAutoRegister();
     NavMesh::EnsureAutoRegister();
     LineRenderer::EnsureAutoRegister();
+    VerticalLayoutGroup::EnsureAutoRegister();
+    HorizontalLayoutGroup::EnsureAutoRegister();
+    GridLayoutGroup::EnsureAutoRegister();
     NavAgent::EnsureAutoRegister();
     SsrRenderer::EnsureAutoRegister();
     Text::EnsureAutoRegister();
@@ -143,3 +150,15 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, UIImage);
 CEREAL_REGISTER_TYPE(RectTransform);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, RectTransform);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Transform, RectTransform);
+
+CEREAL_REGISTER_TYPE(VerticalLayoutGroup);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, VerticalLayoutGroup);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(LayoutGroup, VerticalLayoutGroup);
+
+CEREAL_REGISTER_TYPE(HorizontalLayoutGroup);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, HorizontalLayoutGroup);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(LayoutGroup, HorizontalLayoutGroup);
+
+CEREAL_REGISTER_TYPE(GridLayoutGroup);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, GridLayoutGroup);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(LayoutGroup, GridLayoutGroup);
