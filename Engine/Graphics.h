@@ -43,10 +43,14 @@ public:
 
 	void DrawPostProcesses();
 
+	void ApplyUIMaskState(UIMaskMode mode);
+	void ResetUIMaskState();
+
 private:
 	void CreateDeviceAndSwapChain();
 	void CreateRenderTargetView();
 	void CreateDSVAndShadowMap(bool createShadowMap);
+	void CreateUIMaskStates();
 
 public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
@@ -124,5 +128,10 @@ private:
     ComPtr<ID3D11Texture2D> _hdrTexture;
 	ComPtr<ID3D11ShaderResourceView> _hdrSRV;
 	ComPtr<ID3D11RenderTargetView> _hdrRTV;
+
+	ComPtr<ID3D11DepthStencilState> _uiDefaultDepthStencilState;
+	ComPtr<ID3D11DepthStencilState> _uiMaskWriteDepthStencilState;
+	ComPtr<ID3D11DepthStencilState> _uiMaskTestDepthStencilState;
+	ComPtr<ID3D11BlendState> _uiColorWriteDisabledBlendState;
 };
 

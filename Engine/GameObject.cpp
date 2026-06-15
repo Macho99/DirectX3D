@@ -221,7 +221,11 @@ ModelAnimator* GameObject::GetModelAnimator()
 
 Renderer* GameObject::GetRenderer()
 {
-	Component* renderer = GetFixedComponent(ComponentType::MeshRenderer);
+    Component* renderer = GetFixedComponent(ComponentType::Text);
+    if (renderer == nullptr)
+        renderer = GetFixedComponent(ComponentType::UIImage);
+    if (renderer == nullptr)
+	    renderer = GetFixedComponent(ComponentType::MeshRenderer);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::ModelRenderer);
 	if (renderer == nullptr)
@@ -236,7 +240,7 @@ Renderer* GameObject::GetRenderer()
 		renderer = GetFixedComponent(ComponentType::TessTerrain);
     if (renderer == nullptr)
         renderer = GetFixedComponent(ComponentType::GrassRenderer);
-    if (renderer == nullptr)
+	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::LineRenderer);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::SsrRenderer);
@@ -251,7 +255,7 @@ BaseCollider* GameObject::GetCollider()
 }
 
 Terrain* GameObject::GetTerrain()
-{
+{ 
 	Component* component = GetFixedComponent(ComponentType::Terrain);
 	return static_cast<Terrain*>(component);
 }

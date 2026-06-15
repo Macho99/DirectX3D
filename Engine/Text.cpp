@@ -5,7 +5,6 @@
 #include "Geometry.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "MeshRenderer.h"
 #include "OnGUIUtils.h"
 #include "ResourceManager.h"
 #include "Texture.h"
@@ -23,8 +22,9 @@ Text::~Text()
 
 void Text::Awake()
 {
-    EnsureMeshRenderer();
+    Super::Awake();
     _isDirty = true;
+    _mesh = RESOURCES->AllocateTempResource<Mesh>();
 }
 
 void Text::Start()
@@ -46,14 +46,10 @@ void Text::Update()
     {
         RebuildMesh();
 
-        MeshRenderer* meshRenderer = _meshRenderer.Resolve();
-        if (meshRenderer != nullptr)
+        Material* material = _material.Resolve();
+        if (material != nullptr)
         {
-            Material* material = meshRenderer->GetMaterial().Resolve();
-            if (material != nullptr)
-            {
-                material->GetMaterialDesc().diffuse = _color;
-            }
+            material->GetMaterialDesc().diffuse = _color;
         }
     }
 }
@@ -62,6 +58,7 @@ bool Text::OnGUI()
 {
     bool changed = false;
     changed |= Super::OnGUI();
+    ImGui::Separator();
 
     char buffer[1024] = {};
     strncpy_s(buffer, _text.c_str(), _TRUNCATE);
@@ -135,20 +132,16 @@ void Text::SetFontSize(float fontSize)
     {
         _fontSize = fontSize;
         _isDirty = true;
-    }
+    } 
 }
 
 void Text::SetColor(const Color& color)
 {
     _color = color;
-    MeshRenderer* meshRenderer = _meshRenderer.Resolve();
-    if (meshRenderer != nullptr)
+    Material* material = _material.Resolve();
+    if (material != nullptr)
     {
-        Material* material = meshRenderer->GetMaterial().Resolve();
-        if (material != nullptr)
-        {
-            material->GetMaterialDesc().diffuse = _color;
-        }
+        material->GetMaterialDesc().diffuse = _color;
     }
 }
 
@@ -170,32 +163,9 @@ void Text::SetVerticalStart(TextVerticalStart verticalStart)
     }
 }
 
-void Text::EnsureMeshRenderer()
-{
-    GameObject* gameObject = GetGameObject();
-    if (gameObject == nullptr)
-        return;
-
-    MeshRenderer* meshRenderer = gameObject->GetMeshRenderer();
-    if (meshRenderer == nullptr)
-    {
-        gameObject->AddComponent(make_unique<MeshRenderer>());
-        meshRenderer = gameObject->GetMeshRenderer();
-    }
-
-    _meshRenderer = gameObject->GetFixedComponentRef<MeshRenderer>();
-
-    if (_mesh.IsValid() == false)
-        _mesh = RESOURCES->AllocateTempResource<Mesh>();
-
-    if (meshRenderer != nullptr)
-        meshRenderer->SetMesh(_mesh);
-}
-
 void Text::RebuildMesh()
 {
     _isDirty = false;
-    EnsureMeshRenderer();
 
     Transform* transform = GetTransform();
     _lastWorldScale = transform != nullptr ? transform->GetScale() : Vec3(0.0f, 0.0f, 0.0f);

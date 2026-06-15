@@ -16,6 +16,15 @@ Renderer::~Renderer()
 // 여기서 검증하고 InnerRender를 호출
 bool Renderer::Render(RenderTech renderTech)
 {
+    if (CanRender(renderTech) == false)
+        return false;
+
+	InnerRender(renderTech);
+	return true;
+}
+
+bool Renderer::CanRender(RenderTech renderTech)
+{
 	if (_material.IsValid() == false)
 		return false;
 
@@ -24,8 +33,6 @@ bool Renderer::Render(RenderTech renderTech)
 
 	if (_material.Resolve()->GetShader()->CanDraw(renderTech) == false)
 		return false;
-
-	InnerRender(renderTech);
 
 	return true;
 }

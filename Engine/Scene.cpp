@@ -221,7 +221,7 @@ void Scene::RenderUICamera(Camera* cam)
 	}
 
 	cam->SetStaticData();
-	cam->SortGameObject();
+	cam->SortUIGameObject();
 	cam->Render_Forward(RenderTech::Draw);
 	//cam->Render_Backward(RenderTech::Draw);
 }

@@ -40,6 +40,26 @@ using Ray = DirectX::SimpleMath::Ray;
 using InstanceID = std::pair<uint64, uint64>;
 //using TransformID = int64;
 
+#define UI_MASK_MODE_LIST \
+	X(None)               \
+	X(Mask)               \
+	X(Masked)             \
+
+enum class UIMaskMode : uint8
+{
+#define X(name) name,
+	UI_MASK_MODE_LIST
+#undef X
+	Max
+};
+
+static const char* UIMaskModeNames[] =
+{
+#define X(name) #name,
+	UI_MASK_MODE_LIST
+#undef X
+};
+
 enum class ResourceType : uint8
 {
 	None = -1,

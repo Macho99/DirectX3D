@@ -1,5 +1,5 @@
 #pragma once
-#include "Component.h"
+#include "UIRenderer.h"
 
 class Font;
 class Mesh;
@@ -46,11 +46,10 @@ static const char* TextVerticalStartNames[] =
 #undef X
 };
 
-class Text : public Component
+class Text : public UIRenderer
 {
-    using Super = Component;
+    using Super = UIRenderer;
     DECLARE_COMPONENT(Text)
-
     using TextString = string;
 public:
     Text();
@@ -95,7 +94,6 @@ public:
     }
 
 private:
-    void EnsureMeshRenderer();
     void RebuildMesh();
     Vec2 GetFontMetricScale(int lineHeight);
     static bool DecodeNextUtf8(const string& text, size_t& index, int& codepoint);
@@ -109,6 +107,4 @@ private:
     TextVerticalStart _verticalStart = TextVerticalStart::Middle;
     bool _isDirty = false;
     Vec3 _lastWorldScale = Vec3(0.0f, 0.0f, 0.0f);
-    ComponentRef<class MeshRenderer> _meshRenderer;
-    ResourceRef<Mesh> _mesh;
 };

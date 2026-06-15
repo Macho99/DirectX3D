@@ -167,6 +167,20 @@ void Camera::SetStaticData()
 
 void Camera::Render_Forward(RenderTech renderTech)
 {
+    if (_type == ProjectionType::Orthographic)
+    {
+        for (GameObject* gameObject : _vecForward)
+        {
+            if (gameObject == nullptr || gameObject->IsActiveInHierarchy() == false)
+                continue;
+
+            Renderer* renderer = gameObject->GetRenderer();
+            if (renderer != nullptr)
+                renderer->Render(renderTech);
+        }
+        return;
+    }
+
 	GET_SINGLE(RenderManager)->Render(_vecForward, renderTech);
 }
 

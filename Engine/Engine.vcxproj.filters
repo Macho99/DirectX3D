@@ -765,6 +765,9 @@
     <ClInclude Include="UIImage.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
+    <ClInclude Include="UIRenderer.h">
+      <Filter>04. Component\UI</Filter>
+    </ClInclude>
     <ClInclude Include="RectTransform.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
@@ -1173,6 +1176,9 @@
       <Filter>04. Component\UI</Filter>
     </ClCompile>
     <ClCompile Include="UIImage.cpp">
+      <Filter>04. Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIRenderer.cpp">
       <Filter>04. Component\UI</Filter>
     </ClCompile>
     <ClCompile Include="RectTransform.cpp">

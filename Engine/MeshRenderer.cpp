@@ -17,39 +17,36 @@ MeshRenderer::~MeshRenderer()
 
 }
 
-bool MeshRenderer::Render(RenderTech renderTech)
+void MeshRenderer::InnerRender(RenderTech renderTech)
 {
-	if (Super::Render(renderTech) == false)
-	{
-		return false;
-	}
+	Super::InnerRender(renderTech);
 
 	Mesh* mesh = _mesh.Resolve();
 	if (mesh == nullptr)
-		return false;
+		return;
 
     Material* material = _material.Resolve();
     if (material == nullptr)
-        return false;
+        return;
 
 	// Light
 	//_material->Update();
 
     if (mesh->GetVertexBuffer() == nullptr || mesh->GetIndexBuffer() == nullptr)
-        return false;
+        return;
 
 	mesh->GetVertexBuffer()->PushData();
 	mesh->GetIndexBuffer()->PushData();
 	material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
-	return true;
 }
 
 void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
 {
-	if (Super::Render(renderTech) == false)
+	if (CanRender(renderTech) == false)
 	{
 		return;
 	}
+	Super::InnerRender(renderTech);
 
 	Mesh* mesh = _mesh.Resolve();
 	if (mesh == nullptr)

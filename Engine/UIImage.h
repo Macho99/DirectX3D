@@ -1,16 +1,14 @@
 #pragma once
-#include "Component.h"
-#include "ComponentRef.h"
+#include "UIRenderer.h"
 
 class Material;
 class Mesh;
-class MeshRenderer;
 class Texture;
 
-class UIImage : public Component
+class UIImage : public UIRenderer
 {
-    using Super = Component;
-    DECLARE_COMPONENT(UIImage, Component)
+    using Super = UIRenderer;
+    DECLARE_COMPONENT(UIImage)
 public:
     UIImage();
     ~UIImage();
@@ -23,8 +21,7 @@ public:
     void SetTexture(ResourceRef<Texture> texture);
     ResourceRef<Texture> GetTexture() const { return _texture; }
 
-    void SetMaterial(ResourceRef<Material> material);
-    ResourceRef<Material> GetMaterial() const { return _material; }
+    virtual void SetMaterial(ResourceRef<Material> material) override;
 
     void SetColor(const Color& color);
     const Color& GetColor() const { return _color; }
@@ -37,7 +34,6 @@ public:
     {
         Super::serialize(ar);
         ar(CEREAL_NVP(_texture));
-        ar(CEREAL_NVP(_material));
         ar(CEREAL_NVP(_color));
 
         if (Archive::is_saving::value)
@@ -46,22 +42,21 @@ public:
         }
 
         if (Archive::is_loading::value)
+        {
             _isDirty = true;
+            ApplyMaterial();
+        }
     }
 
 private:
-    void EnsureMeshRenderer();
     void RebuildMesh();
     void ApplyMaterial();
     Vec2 GetCurrentSize() const;
 
 private:
     ResourceRef<Texture> _texture;
-    ResourceRef<Material> _material;
     Color _color = Colors::White;
     bool _preserveAspect = false;
     bool _isDirty = false;
     Vec2 _lastSize = Vec2(0.0f, 0.0f);
-    ComponentRef<MeshRenderer> _meshRenderer;
-    ResourceRef<Mesh> _mesh;
 };

@@ -19,6 +19,7 @@ void Graphics::Init(HWND hwnd)
 	_hwnd = hwnd;
 
 	CreateDeviceAndSwapChain();
+	CreateUIMaskStates();
 }
 
 void Graphics::Start()
@@ -111,6 +112,11 @@ void Graphics::OnDestroy()
 	//	d3dDebug->Release();
 	//	OutputDebugStringW(L"==============출력 종료============\n");
 	//}
+
+	_uiColorWriteDisabledBlendState.Reset();
+	_uiMaskTestDepthStencilState.Reset();
+	_uiMaskWriteDepthStencilState.Reset();
+	_uiDefaultDepthStencilState.Reset();
 
 	_device.Reset();
 	_hwnd = nullptr;
@@ -291,6 +297,30 @@ void Graphics::DrawPostProcesses()
         toneMapping->Render(rtv);
 }
 
+void Graphics::ApplyUIMaskState(UIMaskMode mode)
+{
+    switch (mode)
+    {
+    case UIMaskMode::Mask:
+        _deviceContext->OMSetDepthStencilState(_uiMaskWriteDepthStencilState.Get(), 1);
+        _deviceContext->OMSetBlendState(_uiColorWriteDisabledBlendState.Get(), nullptr, 0xFFFFFFFF);
+        break;
+    case UIMaskMode::Masked:
+        _deviceContext->OMSetDepthStencilState(_uiMaskTestDepthStencilState.Get(), 1);
+        break;
+    case UIMaskMode::None:
+    default:
+        _deviceContext->OMSetDepthStencilState(_uiDefaultDepthStencilState.Get(), 0);
+        break;
+    }
+}
+
+void Graphics::ResetUIMaskState()
+{
+    _deviceContext->OMSetDepthStencilState(_uiDefaultDepthStencilState.Get(), 0);
+    _deviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+}
+
 void Graphics::CreateDeviceAndSwapChain()
 {
 	DXGI_SWAP_CHAIN_DESC desc;
@@ -356,6 +386,46 @@ void Graphics::CreateDeviceAndSwapChain()
 		// 치명적인 오류(Corruption) 발생 시에도 걸고 싶다면
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
 	}
+}
+
+void Graphics::CreateUIMaskStates()
+{
+    D3D11_DEPTH_STENCIL_DESC desc = {};
+    desc.DepthEnable = FALSE;
+    desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    desc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+    desc.StencilEnable = FALSE;
+    desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+    desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+
+    desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    desc.BackFace = desc.FrontFace;
+
+    HRESULT hr = _device->CreateDepthStencilState(&desc, _uiDefaultDepthStencilState.GetAddressOf());
+    CHECK(hr);
+
+    desc.StencilEnable = TRUE;
+    desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+    desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    desc.BackFace = desc.FrontFace;
+	hr = _device->CreateDepthStencilState(&desc, _uiMaskWriteDepthStencilState.GetAddressOf());
+    CHECK(hr);
+
+    desc.StencilWriteMask = 0;
+    desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    desc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+    desc.BackFace = desc.FrontFace;
+	hr = _device->CreateDepthStencilState(&desc, _uiMaskTestDepthStencilState.GetAddressOf());
+    CHECK(hr);
+
+    D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.RenderTarget[0].BlendEnable = FALSE;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = 0;
+	hr = _device->CreateBlendState(&blendDesc, _uiColorWriteDisabledBlendState.GetAddressOf());
+    CHECK(hr);
 }
 
 void Graphics::CreateRenderTargetView()

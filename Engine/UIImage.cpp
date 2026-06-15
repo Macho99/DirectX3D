@@ -4,7 +4,6 @@
 #include "Geometry.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "MeshRenderer.h"
 #include "OnGUIUtils.h"
 #include "RectTransform.h"
 #include "ResourceManager.h"
@@ -22,18 +21,21 @@ UIImage::~UIImage()
 
 void UIImage::Awake()
 {
-    EnsureMeshRenderer();
+    Super::Awake();
     ApplyMaterial();
     _isDirty = true;
+    _mesh = RESOURCES->AllocateTempResource<Mesh>();
 }
 
 void UIImage::Start()
 {
+    Super::Start();
     RebuildMesh();
 }
 
 void UIImage::Update()
 {
+    Super::Update();
     const Vec2 size = GetCurrentSize();
     if (size != _lastSize)
         _isDirty = true;
@@ -46,16 +48,11 @@ bool UIImage::OnGUI()
 {
     bool changed = false;
     changed |= Super::OnGUI();
+    ImGui::Separator();
 
     if (OnGUIUtils::DrawResourceRef("Texture", _texture))
     {
         SetTexture(_texture);
-        changed = true;
-    }
-
-    if (OnGUIUtils::DrawResourceRef("Material", _material))
-    {
-        SetMaterial(_material);
         changed = true;
     }
 
@@ -82,7 +79,7 @@ void UIImage::SetTexture(ResourceRef<Texture> texture)
 
 void UIImage::SetMaterial(ResourceRef<Material> material)
 {
-    _material = material;
+    Super::SetMaterial(material);
     ApplyMaterial();
 }
 
@@ -101,37 +98,9 @@ void UIImage::SetPreserveAspect(bool preserveAspect)
     }
 }
 
-void UIImage::EnsureMeshRenderer()
-{
-    GameObject* gameObject = GetGameObject();
-    if (gameObject == nullptr)
-        return;
-
-    gameObject->SetLayerIndex(Layer_UI);
-
-    MeshRenderer* meshRenderer = gameObject->GetMeshRenderer();
-    if (meshRenderer == nullptr)
-    {
-        gameObject->AddComponent(make_unique<MeshRenderer>());
-        meshRenderer = gameObject->GetMeshRenderer();
-    }
-
-    _meshRenderer = gameObject->GetFixedComponentRef<MeshRenderer>();
-
-    if (_mesh.IsValid() == false)
-        _mesh = RESOURCES->AllocateTempResource<Mesh>();
-
-    if (meshRenderer != nullptr)
-    {
-        meshRenderer->SetMesh(_mesh);
-        meshRenderer->SetPass(0);
-    }
-}
-
 void UIImage::RebuildMesh()
 {
     _isDirty = false;
-    EnsureMeshRenderer();
 
     Mesh* mesh = _mesh.Resolve();
     if (mesh == nullptr)
@@ -175,18 +144,12 @@ void UIImage::RebuildMesh()
 
 void UIImage::ApplyMaterial()
 {
-    EnsureMeshRenderer();
-
     Material* material = _material.Resolve();
     if (material == nullptr)
     {
         _material = RESOURCES->AllocateUIDefaultMaterial();
         material = _material.Resolve();
     }
-
-    MeshRenderer* meshRenderer = _meshRenderer.Resolve();
-    if (meshRenderer != nullptr)
-        meshRenderer->SetMaterial(_material);
 
     material->SetDiffuseMap(_texture);
     material->GetMaterialDesc().diffuse = _color;

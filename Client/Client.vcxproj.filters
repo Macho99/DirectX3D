@@ -190,5 +190,8 @@
     <FxCompile Include="..\Assets\Shaders\Font.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\UIDefault.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

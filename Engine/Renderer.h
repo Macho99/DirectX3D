@@ -15,7 +15,8 @@ public:
 	virtual void SetMaterial(ResourceRef<Material> material) { _material = material; }
 	ResourceRef<Material> GetMaterial() { return _material; }
 
-	virtual bool Render(RenderTech renderTech);
+	bool Render(RenderTech renderTech);
+    bool CanRender(RenderTech renderTech);
     void SetBeforeRender(function<void(Material*)> func) { _beforeRender = func; }
     virtual bool OnGUI() override;
 	virtual bool TryInitialize() { return true; }

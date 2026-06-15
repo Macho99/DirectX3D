@@ -270,11 +270,13 @@ void AssetSerializeDemo::Init()
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<NavMesh>());
     }
+
     {
         auto objRef = CUR_SCENE->Add("NavAgent");
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<NavAgent>());
     }
+
     {
         auto objRef = CUR_SCENE->Add("Water");
         GameObject* obj = objRef.Resolve();
@@ -296,9 +298,7 @@ void AssetSerializeDemo::Init()
 
         auto textRef = obj->GetFixedComponentRef<Text>().Resolve();
         textRef->SetFont(RESOURCES->GetResourceRefByPath<Font>(L"Fonts\\arial.fnt"));
-
-        auto meshRendererRef = obj->GetFixedComponentRef<MeshRenderer>().Resolve();
-        meshRendererRef->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ArialFontMat.mat"));
+        textRef->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ArialFontMat.mat"));
     }
 
     {
