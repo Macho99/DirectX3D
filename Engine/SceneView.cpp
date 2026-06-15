@@ -5,6 +5,18 @@
 #include "RectTransform.h"
 #include "Viewport.h"
 
+namespace
+{
+    enum class RectTransformHandleType
+    {
+        Move,
+        Left,
+        Right,
+        Bottom,
+        Top,
+    };
+}
+
 SceneView::SceneView()
     :Super("Scene")
 {
@@ -144,9 +156,120 @@ void SceneView::DrawRectTransformGizmo(RectTransform* selectedTransform, Camera*
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     const ImU32 rectColor = IM_COL32(80, 200, 255, 255);
     const ImU32 pivotColor = IM_COL32(255, 230, 120, 255);
+    const ImU32 handleColor = IM_COL32(80, 200, 255, 255);
+    const ImU32 handleHoverColor = IM_COL32(255, 230, 120, 255);
+    const ImU32 handleActiveColor = IM_COL32(255, 150, 80, 255);
     drawList->AddPolyline(screenCorners, IM_ARRAYSIZE(screenCorners), rectColor, ImDrawFlags_Closed, 2.0f);
     drawList->AddLine(ImVec2(screenPivot.x - 5.f, screenPivot.y), ImVec2(screenPivot.x + 5.f, screenPivot.y), pivotColor, 1.5f);
     drawList->AddLine(ImVec2(screenPivot.x, screenPivot.y - 5.f), ImVec2(screenPivot.x, screenPivot.y + 5.f), pivotColor, 1.5f);
+
+    const ImVec2 handlePositions[] =
+    {
+        screenPivot,
+        ImVec2((screenCorners[0].x + screenCorners[3].x) * 0.5f, (screenCorners[0].y + screenCorners[3].y) * 0.5f),
+        ImVec2((screenCorners[1].x + screenCorners[2].x) * 0.5f, (screenCorners[1].y + screenCorners[2].y) * 0.5f),
+        ImVec2((screenCorners[0].x + screenCorners[1].x) * 0.5f, (screenCorners[0].y + screenCorners[1].y) * 0.5f),
+        ImVec2((screenCorners[2].x + screenCorners[3].x) * 0.5f, (screenCorners[2].y + screenCorners[3].y) * 0.5f),
+    };
+    const RectTransformHandleType handleTypes[] =
+    {
+        RectTransformHandleType::Move,
+        RectTransformHandleType::Left,
+        RectTransformHandleType::Right,
+        RectTransformHandleType::Bottom,
+        RectTransformHandleType::Top,
+    };
+
+    const float handleSize = 10.f;
+    const float halfHandleSize = handleSize * 0.5f;
+    ImGui::PushID(rectTransform);
+    for (int i = 0; i < IM_ARRAYSIZE(handlePositions); ++i)
+    {
+        ImGui::PushID(i);
+        ImVec2 handlePos = handlePositions[i];
+        ImGui::SetCursorScreenPos(ImVec2(handlePos.x - halfHandleSize, handlePos.y - halfHandleSize));
+        ImGui::InvisibleButton("##RectTransformHandle", ImVec2(handleSize, handleSize));
+
+        ImU32 color = handleColor;
+        if (ImGui::IsItemActive())
+            color = handleActiveColor;
+        else if (ImGui::IsItemHovered())
+            color = handleHoverColor;
+
+        drawList->AddRectFilled(
+            ImVec2(handlePos.x - halfHandleSize, handlePos.y - halfHandleSize),
+            ImVec2(handlePos.x + halfHandleSize, handlePos.y + halfHandleSize),
+            color,
+            1.5f);
+        drawList->AddRect(
+            ImVec2(handlePos.x - halfHandleSize, handlePos.y - halfHandleSize),
+            ImVec2(handlePos.x + halfHandleSize, handlePos.y + halfHandleSize),
+            IM_COL32(20, 30, 35, 255),
+            1.5f);
+
+        if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+        {
+            Vec2 delta = GetRectTransformDragDelta(rectTransform, camera, viewport);
+            if (delta.LengthSquared() > 0.f)
+            {
+                Vec2 offsetMin = rectTransform->GetOffsetMin();
+                Vec2 offsetMax = rectTransform->GetOffsetMax();
+
+                switch (handleTypes[i])
+                {
+                case RectTransformHandleType::Move:
+                    offsetMin += delta;
+                    offsetMax += delta;
+                    break;
+                case RectTransformHandleType::Left:
+                    offsetMin.x += delta.x;
+                    break;
+                case RectTransformHandleType::Right:
+                    offsetMax.x += delta.x;
+                    break;
+                case RectTransformHandleType::Bottom:
+                    offsetMin.y += delta.y;
+                    break;
+                case RectTransformHandleType::Top:
+                    offsetMax.y += delta.y;
+                    break;
+                }
+
+                rectTransform->SetOffsets(offsetMin, offsetMax);
+            }
+        }
+        ImGui::PopID();
+    }
+    ImGui::PopID();
+}
+
+Vec2 SceneView::GetRectTransformDragDelta(RectTransform* rectTransform, Camera* camera, Viewport& viewport) const
+{
+    if (rectTransform == nullptr || camera == nullptr)
+        return Vec2::Zero;
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.MouseDelta.x == 0.f && io.MouseDelta.y == 0.f)
+        return Vec2::Zero;
+
+    Matrix view = camera->GetViewMatrix();
+    Matrix projection = camera->GetProjectionMatrix();
+    Matrix identity = Matrix::Identity;
+
+    Vec3 pivotPosition = viewport.Project(Vec3::Zero, rectTransform->GetWorldMatrix(), view, projection);
+    ImVec2 previousMouse(io.MousePos.x - io.MouseDelta.x, io.MousePos.y - io.MouseDelta.y);
+    Vec3 previousWorld = viewport.Unproject(Vec3(previousMouse.x, previousMouse.y, pivotPosition.z), identity, view, projection);
+    Vec3 currentWorld = viewport.Unproject(Vec3(io.MousePos.x, io.MousePos.y, pivotPosition.z), identity, view, projection);
+    Vec3 worldDelta = currentWorld - previousWorld;
+
+    Transform* parent = rectTransform->GetParent();
+    if (parent == nullptr)
+        return Vec2(worldDelta.x, worldDelta.y);
+
+    Matrix parentWorldInv = parent->GetWorldMatrix().Invert();
+    Vec3 parentLocalDelta = Vec3::TransformNormal(worldDelta, parentWorldInv);
+    Vec3 parentScale = parent->GetScale();
+    return Vec2(parentLocalDelta.x * parentScale.x, parentLocalDelta.y * parentScale.y);
 }
 
 void SceneView::DrawSceneViewGizmoOverlay()

@@ -5,6 +5,7 @@
 class Camera;
 class Transform;
 class RectTransform;
+class Viewport;
 
 struct GizmoUIState
 {
@@ -33,6 +34,7 @@ private:
     void DrawSceneViewGizmoOverlay();
     void DrawTransformGizmo(Transform* selectedTransform, Camera* camera);
     void DrawRectTransformGizmo(RectTransform* selectedTransform, Camera* camera);
+    Vec2 GetRectTransformDragDelta(RectTransform* rectTransform, Camera* camera, Viewport& viewport) const;
 
 private:
     GizmoUIState g_gizmo;
