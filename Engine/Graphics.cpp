@@ -290,22 +290,24 @@ void Graphics::DrawPostProcesses()
 	}
 
 	ComPtr<ID3D11RenderTargetView> rtv = GAME->GetGameDesc().isEditor ? _sceneRTV : _renderTargetView;
-    _deviceContext->OMSetRenderTargets(1, rtv.GetAddressOf(), 0);
 
     PostProcess* toneMapping = _postProcesses.back().get();
     if (toneMapping->IsEnabled())
         toneMapping->Render(rtv);
+	_deviceContext->OMSetRenderTargets(1, rtv.GetAddressOf(), _depthStencilView.Get());
 }
 
 void Graphics::ApplyUIMaskState(UIMaskMode mode)
 {
     switch (mode)
     {
-    case UIMaskMode::Mask:
-        _deviceContext->OMSetDepthStencilState(_uiMaskWriteDepthStencilState.Get(), 1);
-        _deviceContext->OMSetBlendState(_uiColorWriteDisabledBlendState.Get(), nullptr, 0xFFFFFFFF);
+    case UIMaskMode::InvisibleMask:
+		_deviceContext->OMSetBlendState(_uiColorWriteDisabledBlendState.Get(), nullptr, 0xFFFFFFFF);
+        // Fallthrough
+    case UIMaskMode::VisibleMask:
+		_deviceContext->OMSetDepthStencilState(_uiMaskWriteDepthStencilState.Get(), 1);
         break;
-    case UIMaskMode::Masked:
+    case UIMaskMode::MaskTarget:
         _deviceContext->OMSetDepthStencilState(_uiMaskTestDepthStencilState.Get(), 1);
         break;
     case UIMaskMode::None:
@@ -317,7 +319,7 @@ void Graphics::ApplyUIMaskState(UIMaskMode mode)
 
 void Graphics::ResetUIMaskState()
 {
-    _deviceContext->OMSetDepthStencilState(_uiDefaultDepthStencilState.Get(), 0);
+    _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
     _deviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
 }
 

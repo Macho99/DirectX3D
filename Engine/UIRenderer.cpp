@@ -55,10 +55,15 @@ void UIRenderer::InnerRender(RenderTech renderTech)
     {
         return;
     }
-
     mesh->GetVertexBuffer()->PushData();
     mesh->GetIndexBuffer()->PushData();
-    //GRAPHICS->ApplyUIMaskState(_maskMode);
-    material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
-    //GRAPHICS->ResetUIMaskState();
+
+    Shader* shader = material->GetShader();
+    int technique = shader->GetTechNum(renderTech);
+    shader->BeginDraw(technique, _pass);
+    GRAPHICS->ApplyUIMaskState(_maskMode);
+    DC->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
+    //material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
+    GRAPHICS->ResetUIMaskState();
+    shader->EndDraw(technique, _pass);
 }

@@ -130,6 +130,7 @@ private:
 	ComPtr<ID3D11RenderTargetView> _hdrRTV;
 
 	ComPtr<ID3D11DepthStencilState> _uiDefaultDepthStencilState;
+    ComPtr<ID3D11DepthStencilState> _defaultDepthStencilState;
 	ComPtr<ID3D11DepthStencilState> _uiMaskWriteDepthStencilState;
 	ComPtr<ID3D11DepthStencilState> _uiMaskTestDepthStencilState;
 	ComPtr<ID3D11BlendState> _uiColorWriteDisabledBlendState;

@@ -42,8 +42,9 @@ using InstanceID = std::pair<uint64, uint64>;
 
 #define UI_MASK_MODE_LIST \
 	X(None)               \
-	X(Mask)               \
-	X(Masked)             \
+	X(VisibleMask)        \
+	X(InvisibleMask)      \
+	X(MaskTarget)      \
 
 enum class UIMaskMode : uint8
 {
