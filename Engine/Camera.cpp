@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "Material.h"
 #include "OnGUIUtils.h"
+#include "Transform.h"
 
 ProjectionType Camera::S_ProjectionType = ProjectionType::Perspective;
 Matrix Camera::S_MatView = Matrix::Identity;
@@ -121,6 +122,39 @@ void Camera::SortGameObject()
 			break;
 		}
 	}
+}
+
+void Camera::SortUIGameObject()
+{
+	shared_ptr<Scene> scene = CUR_SCENE;
+	vector<TransformRef>& rootObjects = scene->GetRootObjects();
+
+	_vecForward.clear();
+	_vecBackward.clear();
+
+	function<void(Transform*)> dfs = [&](Transform* transform)
+	{
+		if (transform == nullptr)
+			return;
+
+		GameObject* gameObject = transform->GetGameObject();
+		if (gameObject != nullptr && IsCulled(gameObject->GetLayerIndex()) == false)
+		{
+			Renderer* renderer = gameObject->GetRenderer();
+			if (renderer != nullptr && renderer->TryInitialize())
+			{
+				Material* material = renderer->GetMaterial().Resolve();
+				if (material != nullptr)
+					_vecForward.push_back(gameObject);
+			}
+		}
+
+		for (TransformRef& childRef : transform->GetChildren())
+			dfs(childRef.Resolve());
+	};
+
+	for (TransformRef& transformRef : rootObjects)
+		dfs(transformRef.Resolve());
 }
 
 void Camera::SetStaticData()

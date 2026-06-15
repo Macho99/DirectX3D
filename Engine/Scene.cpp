@@ -223,7 +223,7 @@ void Scene::RenderUICamera(Camera* cam)
 	cam->SetStaticData();
 	cam->SortGameObject();
 	cam->Render_Forward(RenderTech::Draw);
-	cam->Render_Backward(RenderTech::Draw);
+	//cam->Render_Backward(RenderTech::Draw);
 }
 
 GameObjectRef Scene::Add(string name, bool useRectTransform)

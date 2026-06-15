@@ -306,8 +306,6 @@ void AssetSerializeDemo::Init()
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<UIImage>());
         UIImage* uiImage = obj->GetUIImage();
-        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
-        uiImage->SetMaterial(materialRef);
         obj->SetLayerIndex(Layer_UI);
     }
 

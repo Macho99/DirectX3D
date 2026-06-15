@@ -181,6 +181,7 @@ void UIImage::ApplyMaterial()
     if (material == nullptr)
     {
         _material = RESOURCES->AllocateUIDefaultMaterial();
+        material = _material.Resolve();
     }
 
     MeshRenderer* meshRenderer = _meshRenderer.Resolve();

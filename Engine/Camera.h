@@ -94,6 +94,7 @@ public:
 
 public:
 	void SortGameObject();
+	void SortUIGameObject();
 	void SetStaticData();
 	void Render_Forward(RenderTech renderTech);
 	void Render_Backward(RenderTech renderTech);
