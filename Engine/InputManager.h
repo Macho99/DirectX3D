@@ -1,4 +1,5 @@
 #pragma once
+#include "ComponentRef.h"
 
 enum class KEY_TYPE
 {
@@ -75,6 +76,10 @@ public:
 private:
 	inline KEY_STATE GetState(KEY_TYPE key) { return _states[static_cast<uint8>(key)]; }
 	inline void SetState(KEY_TYPE key, KEY_STATE state) { _states[static_cast<uint8>(key)] = state; }
+    void UpdateUIInput();
+    void ClearUIInput();
+    class UIRenderer* PickUI();
+    class UIRenderer* PickUIFromTransform(class Transform* transform);
 
 private:
 	HWND _hwnd;
@@ -83,5 +88,7 @@ private:
     short _curMouseWheelDelta = 0;
 	POINT _mousePos = {};
     bool _mouseInScene = false;
+    UIRendererRef _hoveredUIRef;
+    UIRendererRef _pressedUIRef;
 };
 

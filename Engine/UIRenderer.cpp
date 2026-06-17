@@ -35,6 +35,39 @@ void UIRenderer::SetMaskMode(UIMaskMode mode)
     _maskMode = mode;
 }
 
+Vec2 UIRenderer::GetMousePosition() const
+{
+    const POINT& mousePos = INPUT->GetMousePos();
+    const GameDesc& gameDesc = GAME->GetGameDesc();
+
+    return Vec2(
+        static_cast<float>(mousePos.x) - gameDesc.sceneWidth * 0.5f,
+        gameDesc.sceneHeight * 0.5f - static_cast<float>(mousePos.y)
+    );
+}
+
+Vec2 UIRenderer::GetLocalMousePosition()
+{
+    Transform* transform = GetTransform();
+    if (transform == nullptr)
+        return Vec2(0.0f, 0.0f);
+
+    const Vec2 mousePos = GetMousePosition();
+    Vec3 mouseWorld = Vec3(mousePos.x, mousePos.y, 0.0f);
+    Vec3 mouseLocal = Vec3::Transform(mouseWorld, transform->GetWorldMatrix().Invert());
+    return Vec2(mouseLocal.x, mouseLocal.y);
+}
+
+bool UIRenderer::ContainsMouseSelf()
+{
+    if (GAME->GetGameDesc().isEditor && !INPUT->IsMouseInScene())
+        return false;
+
+    const Vec2 mouseLocal = GetLocalMousePosition();
+    return -0.5f <= mouseLocal.x && mouseLocal.x <= 0.5f
+        && -0.5f <= mouseLocal.y && mouseLocal.y <= 0.5f;
+}
+
 void UIRenderer::InnerRender(RenderTech renderTech)
 {
     Super::InnerRender(renderTech);

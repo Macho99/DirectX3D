@@ -6,6 +6,7 @@ struct ComponentRef : public GuidRef
 {
 public:
     ComponentRef() : GuidRef() {}
+    ComponentRef(const T* component);
 
 private:
     ComponentRef(const Guid& guid) : GuidRef(guid) {}
@@ -23,3 +24,4 @@ public:
 using TransformRef = ComponentRef<class Transform>;
 using RectTransformRef = ComponentRef<class RectTransform>;
 using ComponentRefBase = ComponentRef<class Component>;
+using UIRendererRef = ComponentRef<class UIRenderer>;

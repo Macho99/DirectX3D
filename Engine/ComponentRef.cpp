@@ -23,7 +23,13 @@
 #include "Text.h"
 #include "UIImage.h"
 #include "RectTransform.h"
+#include "UIRenderer.h"
 
+template<class T>
+ComponentRef<T>::ComponentRef(const T* component)
+    : GuidRef(component != nullptr ? component->GetGuid() : Guid())
+{
+}
 template<class T>
 T* ComponentRef<T>::Resolve() const
 {
@@ -67,4 +73,5 @@ template struct ComponentRef<SsrRenderer>;
 template struct ComponentRef<Text>;
 template struct ComponentRef<UIImage>;
 template struct ComponentRef<RectTransform>;
+template struct ComponentRef<UIRenderer>;
 
