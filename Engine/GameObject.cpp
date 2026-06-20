@@ -372,7 +372,20 @@ void GameObject::UpdateActiveInHierarchy(bool parentActive, bool forceUpdate)
 
 void GameObject::OnGUI()
 {
-	ImGui::Text("GameObject: %s", _name.c_str());
+    char nameBuffer[256] = {};
+    strncpy_s(nameBuffer, _name.c_str(), _TRUNCATE);
+
+    ImGui::PushID("GameObjectName");
+    ImGui::AlignTextToFramePadding();
+    ImGui::TextUnformatted("Name");
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(200.0f);
+    if (ImGui::InputText("##value", nameBuffer, IM_ARRAYSIZE(nameBuffer)))
+    {
+        SetName(nameBuffer);
+    }
+    ImGui::PopID();
+
     OnGUIUtils::DrawUInt8("Layer", &_layerIndex, 1.f);
 }
 
