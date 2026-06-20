@@ -34,6 +34,7 @@ enum class ComponentType : uint8
     VerticalLayoutGroup,
     HorizontalLayoutGroup,
     GridLayoutGroup,
+    ScrollView,
 	// ...
 	Script,
 

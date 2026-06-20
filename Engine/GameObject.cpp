@@ -225,6 +225,8 @@ Renderer* GameObject::GetRenderer()
     Component* renderer = GetFixedComponent(ComponentType::Text);
     if (renderer == nullptr)
         renderer = GetFixedComponent(ComponentType::UIImage);
+	if (renderer == nullptr)
+        renderer = GetFixedComponent(ComponentType::ScrollView);
     if (renderer == nullptr)
 	    renderer = GetFixedComponent(ComponentType::MeshRenderer);
 	if (renderer == nullptr)

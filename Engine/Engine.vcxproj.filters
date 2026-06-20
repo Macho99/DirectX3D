@@ -756,6 +756,9 @@
     <ClInclude Include="SsrRenderer.h">
       <Filter>04. Component\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ScrollView.h">
+      <Filter>04. Component\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="FontMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
@@ -1179,6 +1182,9 @@
       <Filter>01. Graphics\PostProcess</Filter>
     </ClCompile>
     <ClCompile Include="SsrRenderer.cpp">
+      <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ScrollView.cpp">
       <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="FontMeta.cpp">

@@ -377,6 +377,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="Ssao.h" />
     <ClInclude Include="SsReflection.h" />
     <ClInclude Include="SsrRenderer.h" />
+    <ClInclude Include="ScrollView.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="SubAssetMetaFile.h" />
     <ClInclude Include="Technique.h" />
@@ -590,6 +591,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Ssao.cpp" />
     <ClCompile Include="SsReflection.cpp" />
     <ClCompile Include="SsrRenderer.cpp" />
+    <ClCompile Include="ScrollView.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="SubAssetMetaFile.cpp" />
     <ClCompile Include="Technique.cpp" />

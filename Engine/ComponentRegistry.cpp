@@ -26,6 +26,7 @@
 #include "GridLayoutGroup.h"
 #include "NavAgent.h"
 #include "SsrRenderer.h"
+#include "ScrollView.h"
 #include "Text.h"
 #include "UIImage.h"
 #include "RectTransform.h"
@@ -57,6 +58,7 @@ static void ForceRegisterEngineComponents()
     GridLayoutGroup::EnsureAutoRegister();
     NavAgent::EnsureAutoRegister();
     SsrRenderer::EnsureAutoRegister();
+    ScrollView::EnsureAutoRegister();
     Text::EnsureAutoRegister();
     UIImage::EnsureAutoRegister();
 }
@@ -162,3 +164,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(LayoutGroup, HorizontalLayoutGroup);
 CEREAL_REGISTER_TYPE(GridLayoutGroup);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, GridLayoutGroup);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(LayoutGroup, GridLayoutGroup);
+
+CEREAL_REGISTER_TYPE(ScrollView);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ScrollView);
