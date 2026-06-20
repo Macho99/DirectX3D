@@ -18,7 +18,6 @@ public:
     Vec2 GetMousePosition() const;
     Vec2 GetLocalMousePosition();
     bool ContainsMouseSelf();
-    bool IsMouseOver() const { return _isMouseOver; }
 
     virtual void InnerRender(RenderTech renderTech) override;
     virtual bool OnGUI() override;
@@ -33,17 +32,16 @@ public:
     }
 
 public:
-    virtual void OnMouseEnter() { DBG->Log("MouseEnter"); }
-    virtual void OnMouseStay() { DBG->Log("MouseStay"); }
-    virtual void OnMouseOver() { DBG->Log("MouseOver"); }
-    virtual void OnMouseExit() { DBG->Log("MouseExit"); }
-    virtual void OnMouseDown() { DBG->Log("MouseDown"); }
-    virtual void OnMouseUp() { DBG->Log("MouseUp"); }
-    virtual void OnMouseClick() { DBG->Log("MouseClick"); }
+    virtual void OnMouseEnter() { }
+
+    virtual void OnMouseStay() { }
+    virtual void OnMouseDown() { }
+    virtual void OnMouseDrag(Vec2 delta) { }
+    virtual void OnMouseUp() { }
+
+    virtual void OnMouseExit() { }
 
 protected:
     ResourceRef<Mesh> _mesh;
     UIMaskMode _maskMode = UIMaskMode::None;
-    bool _isMouseOver = false;
-    bool _isMousePressed = false;
 };

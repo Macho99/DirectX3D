@@ -99,61 +99,71 @@ void InputManager::Update()
 
 void InputManager::UpdateUIInput()
 {
-    UIRenderer* prevHoveredUI = _hoveredUIRef.Resolve();
-    UIRenderer* curHoveredUI = _mouseInScene ? PickUI() : nullptr;
+    bool curMousePressed = GetButton(KEY_TYPE::LBUTTON) || GetButtonDown(KEY_TYPE::LBUTTON);
+    bool prevMousePressed = _mousePressed;
+    _mousePressed = curMousePressed;
 
-    if (prevHoveredUI != curHoveredUI)
+    UIRenderer* prevPicked = _pickedUIRef.Resolve();
+    UIRenderer* curPicked;
+    if (curMousePressed && prevMousePressed)
+        curPicked = _pickedUIRef.Resolve();
+    else
+        curPicked = PickUI();
+    _pickedUIRef = UIRendererRef(curPicked);
+
+    POINT prevMousePressedPos = _mousePressedPos;
+    POINT curMousePressedPos = curMousePressed ? _mousePos : POINT();
+    _mousePressedPos = curMousePressedPos;
+
+    if (curPicked == prevPicked)
     {
-        if (prevHoveredUI != nullptr)
-            prevHoveredUI->OnMouseExit();
+        if (curPicked == nullptr)
+            return;
 
-        if (curHoveredUI != nullptr)
+        if (curMousePressed)
         {
-            _hoveredUIRef = UIRendererRef(curHoveredUI);
-            curHoveredUI->OnMouseEnter();
+            if (prevMousePressed)
+            {
+                Vec2 delta = Vec2(static_cast<float>(curMousePressedPos.x - prevMousePressedPos.x), static_cast<float>(curMousePressedPos.y - prevMousePressedPos.y));
+                curPicked->OnMouseDrag(delta);
+            }
+            else
+                curPicked->OnMouseDown();
         }
         else
         {
-            _hoveredUIRef = UIRendererRef();
+            if (prevMousePressed)
+                curPicked->OnMouseUp();
+            else
+                curPicked->OnMouseStay();
         }
     }
-
-    if (curHoveredUI != nullptr)
-        curHoveredUI->OnMouseStay();
-
-    if (curHoveredUI != nullptr && GetButtonDown(KEY_TYPE::LBUTTON))
+    else
     {
-        _pressedUIRef = UIRendererRef(curHoveredUI);
-        curHoveredUI->OnMouseDown();
-    }
-
-    if (GetButtonUp(KEY_TYPE::LBUTTON))
-    {
-        UIRenderer* pressedUI = _pressedUIRef.Resolve();
-        if (pressedUI != nullptr)
+        if (prevPicked != nullptr)
         {
-            pressedUI->OnMouseUp();
-
-            if (pressedUI == curHoveredUI)
-                pressedUI->OnMouseClick();
+            if (prevMousePressed)
+                prevPicked->OnMouseUp();
+            prevPicked->OnMouseExit();
         }
-
-        _pressedUIRef = UIRendererRef();
+        if (curPicked != nullptr)
+        {
+            curPicked->OnMouseEnter();
+            if (curMousePressed)
+                curPicked->OnMouseDown();
+        }
     }
 }
 
 void InputManager::ClearUIInput()
 {
-    UIRenderer* hoveredUI = _hoveredUIRef.Resolve();
-    if (hoveredUI != nullptr)
-        hoveredUI->OnMouseExit();
+    UIRenderer* pickedUI = _pickedUIRef.Resolve();
+    if(pickedUI == nullptr)
+        return;
 
-    UIRenderer* pressedUI = _pressedUIRef.Resolve();
-    if (pressedUI != nullptr && pressedUI != hoveredUI)
-        pressedUI->OnMouseUp();
-
-    _hoveredUIRef = UIRendererRef();
-    _pressedUIRef = UIRendererRef();
+    if (_mousePressed)
+        pickedUI->OnMouseUp();
+    pickedUI->OnMouseExit();
 }
 
 UIRenderer* InputManager::PickUI()

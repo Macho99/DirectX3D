@@ -88,7 +88,9 @@ private:
     short _curMouseWheelDelta = 0;
 	POINT _mousePos = {};
     bool _mouseInScene = false;
-    UIRendererRef _hoveredUIRef;
-    UIRendererRef _pressedUIRef;
+
+    UIRendererRef _pickedUIRef;
+    bool _mousePressed = false;
+	POINT _mousePressedPos = {};
 };
 
