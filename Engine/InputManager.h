@@ -1,5 +1,6 @@
 #pragma once
 #include "ComponentRef.h"
+#include "IDragHandler.h"
 
 enum class KEY_TYPE
 {
@@ -78,8 +79,9 @@ private:
 	inline void SetState(KEY_TYPE key, KEY_STATE state) { _states[static_cast<uint8>(key)] = state; }
     void UpdateUIInput();
     void ClearUIInput();
-    class UIRenderer* PickUI();
-    class UIRenderer* PickUIFromTransform(class Transform* transform);
+    UIRenderer* PickUI();
+    UIRenderer* PickUIFromTransform(class Transform* transform);
+    UIRenderer* FindDragHandler(UIRenderer* uiRenderer);
 
 private:
 	HWND _hwnd;
@@ -90,6 +92,8 @@ private:
     bool _mouseInScene = false;
 
     UIRendererRef _pickedUIRef;
+    UIRendererRef _dragHandlerRef;
+    bool _isDragging = false;
     bool _mousePressed = false;
 	POINT _mousePressedPos = {};
 };

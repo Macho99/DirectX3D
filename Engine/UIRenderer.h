@@ -36,7 +36,6 @@ public:
 
     virtual void OnMouseStay() { }
     virtual void OnMouseDown() { }
-    virtual void OnMouseDrag(Vec2 delta) { }
     virtual void OnMouseUp() { }
 
     virtual void OnMouseExit() { }

@@ -300,6 +300,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="GuidRef.h" />
     <ClInclude Include="Handle.h" />
     <ClInclude Include="Hierarchy.h" />
+    <ClInclude Include="IDragHandler.h" />
     <ClInclude Include="IExecute.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="ImCurveEdit.h" />
@@ -458,6 +459,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="GuidRef.cpp" />
     <ClCompile Include="Handle.cpp" />
     <ClCompile Include="Hierarchy.cpp" />
+    <ClCompile Include="IDragHandler.cpp" />
     <ClCompile Include="IExecute.cpp" />
     <ClCompile Include="ImCurveEdit.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

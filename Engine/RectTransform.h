@@ -53,6 +53,7 @@ public:
     void SetOffsetMin(const Vec2& offsetMin);
     void SetOffsetMax(const Vec2& offsetMax);
     void SetOffsets(const Vec2& offsetMin, const Vec2& offsetMax);
+    void MoveOffsets(const Vec2& delta);
 
     const Vec2& GetPivot() const { return _pivot; }
 

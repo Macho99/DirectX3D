@@ -111,6 +111,12 @@ void InputManager::UpdateUIInput()
         curPicked = PickUI();
     _pickedUIRef = UIRendererRef(curPicked);
 
+    if (curMousePressed && !prevMousePressed)
+    {
+        _dragHandlerRef = UIRendererRef();
+        _isDragging = false;
+    }
+
     POINT prevMousePressedPos = _mousePressedPos;
     POINT curMousePressedPos = curMousePressed ? _mousePos : POINT();
     _mousePressedPos = curMousePressedPos;
@@ -125,7 +131,27 @@ void InputManager::UpdateUIInput()
             if (prevMousePressed)
             {
                 Vec2 delta = Vec2(static_cast<float>(curMousePressedPos.x - prevMousePressedPos.x), static_cast<float>(curMousePressedPos.y - prevMousePressedPos.y));
-                curPicked->OnMouseDrag(delta);
+                UIRenderer* dragHandlerRenderer = _dragHandlerRef.Resolve();
+
+                if (dragHandlerRenderer == nullptr)
+                {
+                    dragHandlerRenderer = FindDragHandler(curPicked);
+                    _dragHandlerRef = UIRendererRef(dragHandlerRenderer);
+                }
+                IDragHandler* dragHandler = dynamic_cast<IDragHandler*>(dragHandlerRenderer);
+
+                if (dragHandler != nullptr)
+                {
+                    if (!_isDragging && (delta.LengthSquared() == 0))
+                        return;
+
+                    if (!_isDragging)
+                    {
+                        dragHandler->OnBeginDrag();
+                        _isDragging = true;
+                    }
+                    dragHandler->OnDrag(DragEvent{ delta });
+                }
             }
             else
                 curPicked->OnMouseDown();
@@ -133,7 +159,15 @@ void InputManager::UpdateUIInput()
         else
         {
             if (prevMousePressed)
+            {
+                IDragHandler* dragHandler = dynamic_cast<IDragHandler*>(_dragHandlerRef.Resolve());
+                if (_isDragging && dragHandler != nullptr)
+                    dragHandler->OnEndDrag();
+
+                _dragHandlerRef = UIRendererRef();
+                _isDragging = false;
                 curPicked->OnMouseUp();
+            }
             else
                 curPicked->OnMouseStay();
         }
@@ -143,7 +177,15 @@ void InputManager::UpdateUIInput()
         if (prevPicked != nullptr)
         {
             if (prevMousePressed)
+            {
+                IDragHandler* dragHandler = dynamic_cast<IDragHandler*>(_dragHandlerRef.Resolve());
+                if (_isDragging && dragHandler != nullptr)
+                    dragHandler->OnEndDrag();
+
+                _dragHandlerRef = UIRendererRef();
+                _isDragging = false;
                 prevPicked->OnMouseUp();
+            }
             prevPicked->OnMouseExit();
         }
         if (curPicked != nullptr)
@@ -158,12 +200,22 @@ void InputManager::UpdateUIInput()
 void InputManager::ClearUIInput()
 {
     UIRenderer* pickedUI = _pickedUIRef.Resolve();
-    if(pickedUI == nullptr)
-        return;
+    IDragHandler* dragHandler = dynamic_cast<IDragHandler*>(_dragHandlerRef.Resolve());
+    if (_isDragging && dragHandler != nullptr)
+        dragHandler->OnEndDrag();
 
-    if (_mousePressed)
-        pickedUI->OnMouseUp();
-    pickedUI->OnMouseExit();
+    if (pickedUI != nullptr)
+    {
+        if (_mousePressed)
+            pickedUI->OnMouseUp();
+        pickedUI->OnMouseExit();
+    }
+
+    _pickedUIRef = UIRendererRef();
+    _dragHandlerRef = UIRendererRef();
+    _isDragging = false;
+    _mousePressed = false;
+    _mousePressedPos = POINT();
 }
 
 UIRenderer* InputManager::PickUI()
@@ -217,6 +269,29 @@ UIRenderer* InputManager::PickUIFromTransform(Transform* transform)
     UIRenderer* uiRenderer = dynamic_cast<UIRenderer*>(renderer);
     if (uiRenderer != nullptr && uiRenderer->ContainsMouseSelf())
         return uiRenderer;
+
+    return nullptr;
+}
+
+UIRenderer* InputManager::FindDragHandler(UIRenderer* uiRenderer)
+{
+    if (uiRenderer == nullptr)
+        return nullptr;
+
+    Transform* transform = uiRenderer->GetTransform();
+    while (transform != nullptr)
+    {
+        GameObject* gameObject = transform->GetGameObject();
+        if (gameObject != nullptr && gameObject->IsActiveInHierarchy())
+        {
+            Renderer* renderer = gameObject->GetRenderer();
+            UIRenderer* candidate = dynamic_cast<UIRenderer*>(renderer);
+            if (candidate != nullptr && dynamic_cast<IDragHandler*>(candidate) != nullptr)
+                return candidate;
+        }
+
+        transform = transform->GetParent();
+    }
 
     return nullptr;
 }

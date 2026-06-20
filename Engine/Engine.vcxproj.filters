@@ -789,6 +789,9 @@
     <ClInclude Include="VerticalLayoutGroup.h">
       <Filter>04. Component\UI\LayoutGroup</Filter>
     </ClInclude>
+    <ClInclude Include="IDragHandler.h">
+      <Filter>04. Component\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1216,6 +1219,9 @@
     </ClCompile>
     <ClCompile Include="VerticalLayoutGroup.cpp">
       <Filter>04. Component\UI\LayoutGroup</Filter>
+    </ClCompile>
+    <ClCompile Include="IDragHandler.cpp">
+      <Filter>04. Component\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

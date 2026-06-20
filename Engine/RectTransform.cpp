@@ -92,6 +92,13 @@ void RectTransform::SetOffsets(const Vec2& offsetMin, const Vec2& offsetMax)
     ApplyToTransform();
 }
 
+void RectTransform::MoveOffsets(const Vec2& delta)
+{
+    _offsetMin += delta;
+    _offsetMax += delta;
+    ApplyToTransform();
+}
+
 RectTransformRect RectTransform::GetRect() const
 {
     RectTransformRect parentRect = GetParentRect();
