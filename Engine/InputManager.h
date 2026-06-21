@@ -80,7 +80,7 @@ private:
     void UpdateUIInput();
     void ClearUIInput();
     UIRenderer* PickUI();
-    UIRenderer* PickUIFromTransform(class Transform* transform);
+    UIRenderer * PickUIFromTransform(class Transform* transform, UIRenderer* maskRenderer);
     UIRenderer* FindDragHandler(UIRenderer* uiRenderer);
 
 private:

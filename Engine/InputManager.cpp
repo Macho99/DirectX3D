@@ -235,7 +235,7 @@ UIRenderer* InputManager::PickUI()
         if (rootGameObject == nullptr || !rootGameObject->IsActiveInHierarchy())
             continue;
 
-        UIRenderer* pickedUI = PickUIFromTransform(rootTransform);
+        UIRenderer* pickedUI = PickUIFromTransform(rootTransform, nullptr);
         if (pickedUI != nullptr)
             return pickedUI;
     }
@@ -243,8 +243,22 @@ UIRenderer* InputManager::PickUI()
     return nullptr;
 }
 
-UIRenderer* InputManager::PickUIFromTransform(Transform* transform)
+UIRenderer* InputManager::PickUIFromTransform(Transform* transform, UIRenderer* maskRenderer)
 {
+    GameObject* gameObject = transform->GetGameObject();
+    if (gameObject == nullptr || !gameObject->IsActiveInHierarchy())
+        return nullptr;
+
+    Renderer* renderer = gameObject->GetRenderer();
+    UIRenderer* uiRenderer = dynamic_cast<UIRenderer*>(renderer);
+    UIMaskMode maskMode = UIMaskMode::None;
+    if (uiRenderer != nullptr)
+    {
+        maskMode = uiRenderer->GetMaskMode();
+        if (maskMode == UIMaskMode::VisibleMask || maskMode == UIMaskMode::InvisibleMask)
+            maskRenderer = uiRenderer;
+    }
+
     vector<TransformRef>& children = transform->GetChildren();
     for (auto it = children.rbegin(); it != children.rend(); ++it)
     {
@@ -256,19 +270,36 @@ UIRenderer* InputManager::PickUIFromTransform(Transform* transform)
         if (childGameObject == nullptr || !childGameObject->IsActiveInHierarchy())
             continue;
 
-        UIRenderer* pickedUI = PickUIFromTransform(childTransform);
+        UIRenderer* pickedUI = PickUIFromTransform(childTransform, maskRenderer);
         if (pickedUI != nullptr)
             return pickedUI;
     }
 
-    GameObject* gameObject = transform->GetGameObject();
-    if (gameObject == nullptr || !gameObject->IsActiveInHierarchy())
-        return nullptr;
+    if (uiRenderer != nullptr)
+    {
+        if (maskMode == UIMaskMode::MaskTarget)
+        {
+            if (maskRenderer == nullptr)
+            {
+                return nullptr;
+            }
+            else
+            {
+                bool canPick = maskRenderer->ContainsMouseSelf() && uiRenderer->ContainsMouseSelf();
+                if (canPick)
+                    return uiRenderer;
 
-    Renderer* renderer = gameObject->GetRenderer();
-    UIRenderer* uiRenderer = dynamic_cast<UIRenderer*>(renderer);
-    if (uiRenderer != nullptr && uiRenderer->ContainsMouseSelf())
-        return uiRenderer;
+                return nullptr;
+            }
+        }
+        else if (maskMode == UIMaskMode::InvisibleMask)
+            return nullptr;
+        else
+        {
+            if (uiRenderer->ContainsMouseSelf())
+                return uiRenderer;
+        }
+    }
 
     return nullptr;
 }
