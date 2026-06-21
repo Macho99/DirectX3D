@@ -113,6 +113,7 @@ void SceneView::DrawTransformGizmo(Transform* selectedTransform, Camera* camera)
 
     if (ImGuizmo::IsUsing())
     {
+        gameDesc.sceneFocused = false;
         selectedTransform->SetWorldMatrix(world);
     }
 }
@@ -209,6 +210,7 @@ void SceneView::DrawRectTransformGizmo(RectTransform* selectedTransform, Camera*
 
         if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
         {
+            gameDesc.sceneFocused = false;
             Vec2 delta = GetRectTransformDragDelta(rectTransform, camera, viewport);
             if (delta.LengthSquared() > 0.f)
             {
