@@ -17,6 +17,7 @@ public:
 	ModelAnimator();
 	~ModelAnimator();
 
+    virtual void Awake() override;
 	virtual void Update() override;
 
 	void UpdateTweenData();

@@ -1,0 +1,16 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "MaterialMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 2343732674161436077,
+                    "rightId": 16092427098832885158
+                },
+                "_resourceType": 3
+            }
+        }
+    }
+}

@@ -12,14 +12,21 @@
 ModelAnimator::ModelAnimator()
 	: Super(StaticType)
 {
-	// TEST
-	_tweenDesc.next.animIndex = rand() % 3;
 	_tweenDesc.tweenSumTime += rand();
 	_tweenDesc.speed = (rand() % 50) / 10.0f + 1.0f;
+
+    _pass = 2;
+	_shader = RESOURCES->GetDefaultShader();
 }
 
 ModelAnimator::~ModelAnimator()
 {
+}
+
+void ModelAnimator::Awake()
+{
+    Transform* transform = GetTransform();
+    transform->SetLocalScale(Vec3(0.01f));
 }
 
 void ModelAnimator::Update()
@@ -35,6 +42,12 @@ void ModelAnimator::SetShader(ResourceRef<Shader> shader)
 void ModelAnimator::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
+
+    Model* modelPtr = _model.Resolve();
+    if (modelPtr == nullptr)
+        return;
+	int animCount = modelPtr->GetAnimationCount();
+	_tweenDesc.next.animIndex = rand() % animCount;
 }
 
 void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
@@ -79,19 +92,19 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	}
 	shader->PushBoneData(boneDesc);
 
-	const auto& meshes = mesh->GetMeshes();
-	for (auto& mesh : meshes)
+	const vector<shared_ptr<ModelMesh>>& meshes = mesh->GetMeshes();
+	for (const shared_ptr<ModelMesh>& modelMesh : meshes)
 	{
-        Material* material = mesh->material.Resolve();
+        Material* material = modelMesh->material.Resolve();
 		if (material)
 			material->Update();
 
-		shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
+		shader->GetScalar("BoneIndex")->SetInt(modelMesh->boneIndex);
 
-		mesh->vertexBuffer->PushData();
-		mesh->indexBuffer->PushData();
+		modelMesh->vertexBuffer->PushData();
+		modelMesh->indexBuffer->PushData();
 		buffer->PushData();
-		shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
+		shader->DrawIndexedInstanced(renderTech, _pass, modelMesh->indexBuffer->GetCount(), buffer->GetCount());
 	}
 }
 

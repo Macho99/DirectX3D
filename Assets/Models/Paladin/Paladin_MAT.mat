@@ -1,0 +1,72 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "Material",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 2,
+                "_desc": {
+                    "ambient": {
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
+                        "value.w": 1.0
+                    },
+                    "diffuse": {
+                        "value.x": 1.0,
+                        "value.y": 0.7027027010917664,
+                        "value.z": 0.7027027010917664,
+                        "value.w": 1.0
+                    },
+                    "specular": {
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
+                        "value.w": 1.0
+                    },
+                    "emissive": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0,
+                        "value.w": 1.0
+                    }
+                },
+                "_renderQueue": 0,
+                "_castShadow": true,
+                "_includeInNavMesh": false,
+                "_shader": {
+                    "assetId": {
+                        "leftId": 15309929682883623715,
+                        "rightId": 7415316241998869878
+                    }
+                },
+                "_diffuseMap": {
+                    "assetId": {
+                        "leftId": 10801179005615872255,
+                        "rightId": 17857644677451008070
+                    }
+                },
+                "_normalMap": {
+                    "assetId": {
+                        "leftId": 4203862983595931768,
+                        "rightId": 15161292348220160411
+                    }
+                },
+                "_specularMap": {
+                    "assetId": {
+                        "leftId": 13702675832800766416,
+                        "rightId": 14503261681918302220
+                    }
+                },
+                "_cubeMap": {
+                    "assetId": {
+                        "leftId": 0,
+                        "rightId": 0
+                    }
+                },
+                "_useRandomTexture": false
+            }
+        }
+    }
+}

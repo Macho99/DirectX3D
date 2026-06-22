@@ -9,7 +9,7 @@
 ModelRenderer::ModelRenderer()
 	: Super(StaticType)
 {
-
+	_pass = 1;
 }
 
 ModelRenderer::~ModelRenderer()

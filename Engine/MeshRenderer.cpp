@@ -9,7 +9,7 @@
 
 MeshRenderer::MeshRenderer() : Super(StaticType)
 {
-
+	_pass = 0;
 }
 
 MeshRenderer::~MeshRenderer()

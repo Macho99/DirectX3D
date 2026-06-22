@@ -1,0 +1,202 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 5509823839311348913,
+                    "rightId": 4828956092877756493
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 8195785387617659275,
+                            "rightId": 3811633751825101932
+                        },
+                        "fileName": "Remy_Shoes_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 8779075369851090238,
+                            "rightId": 4642390701369495001
+                        },
+                        "fileName": "Remy_Shoes_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 16041321522808588282,
+                            "rightId": 12613554433964378376
+                        },
+                        "fileName": "Remy_Shoes_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9213292742569663821,
+                            "rightId": 821304016974989231
+                        },
+                        "fileName": "Shoesmat.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 17898269354171508176,
+                            "rightId": 521808923215560118
+                        },
+                        "fileName": "Remy_Top_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 1622643979100977724,
+                            "rightId": 5633150940696993647
+                        },
+                        "fileName": "Remy_Top_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 15349370028266517473,
+                            "rightId": 5763677896975117205
+                        },
+                        "fileName": "Remy_Top_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 15813586230911114641,
+                            "rightId": 11318006816720085352
+                        },
+                        "fileName": "Topmat.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7296583142521754739,
+                            "rightId": 9483459644853406573
+                        },
+                        "fileName": "Remy_Bottom_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 840649722099821618,
+                            "rightId": 14039229007006843232
+                        },
+                        "fileName": "Remy_Bottom_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4495730069186016109,
+                            "rightId": 15855525688176488535
+                        },
+                        "fileName": "Remy_Bottom_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 10524992920697889713,
+                            "rightId": 9841404270553848994
+                        },
+                        "fileName": "Bottommat.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 1781807099389860330,
+                            "rightId": 11460752125153915579
+                        },
+                        "fileName": "Remy_Hair_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7564831354235798488,
+                            "rightId": 14866835488119808380
+                        },
+                        "fileName": "Remy_Hair_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 17121908158960174878,
+                            "rightId": 17189568594175362594
+                        },
+                        "fileName": "Remy_Hair_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 2626779224100759133,
+                            "rightId": 2820068451235804273
+                        },
+                        "fileName": "Hairmat.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 18172987072487845594,
+                            "rightId": 8462060029031670246
+                        },
+                        "fileName": "Remy_Body_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 17506238762270952900,
+                            "rightId": 9872574102471264733
+                        },
+                        "fileName": "Remy_Body_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 16944583686200878695,
+                            "rightId": 6831430500445847554
+                        },
+                        "fileName": "Remy_Body_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 2728189378482824230,
+                            "rightId": 7351731419630689204
+                        },
+                        "fileName": "Bodymat.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9549291852032115524,
+                            "rightId": 12847881496694175451
+                        },
+                        "fileName": "Eyelashmat.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 3389003813413018909,
+                            "rightId": 11689994846336368993
+                        },
+                        "fileName": "Shoes.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4357251219602573057,
+                            "rightId": 6056091500335125152
+                        },
+                        "fileName": "mixamo.com.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

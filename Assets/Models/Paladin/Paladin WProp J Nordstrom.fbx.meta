@@ -1,0 +1,66 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 5805037473696524763,
+                    "rightId": 5092110383405784020
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 1052125022856464569,
+                            "rightId": 15220404642098506795
+                        },
+                        "fileName": "Paladin_diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 5337440757820669726,
+                            "rightId": 967180253850934737
+                        },
+                        "fileName": "Paladin_specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 202543341041291215,
+                            "rightId": 13145618363281156434
+                        },
+                        "fileName": "Paladin_normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 12142485034028034815,
+                            "rightId": 7102479379924437587
+                        },
+                        "fileName": "Paladin_MAT.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 12598276437131022592,
+                            "rightId": 7940301129192267640
+                        },
+                        "fileName": "Paladin_J_Nordstrom_Shield.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9196617377370752757,
+                            "rightId": 2655815995105512295
+                        },
+                        "fileName": "mixamo.com.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

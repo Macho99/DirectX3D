@@ -257,6 +257,11 @@ ResourceRef<Material> ResourceManager::AllocateUIDefaultMaterial()
     return allocated;
 }
 
+ResourceRef<Shader> ResourceManager::GetDefaultShader() const
+{
+    return GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
+}
+
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)
