@@ -120,6 +120,10 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
 
             SubAssetInfo info = SubAssetInfo();
             wstring assetName = Utils::ToWString(animation->name) + L".clip";
+            while (assetName.find(L"|") != wstring::npos)
+            {
+                assetName.replace(assetName.find(L"|"), 1, L"_");
+            }
             wstring finalPath = artifactPath + L"\\" + assetName;
             WriteAnimationData(animation, finalPath);
             AddExported(prev, exported, assetName, ResourceType::Animation);

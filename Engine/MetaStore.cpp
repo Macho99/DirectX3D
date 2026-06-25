@@ -165,6 +165,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
     if (_creators.size() == 0)
     {
         _creators[".fbx"] = []() { return make_unique<ModelSourceMeta>(); };
+        _creators[".dae"] = []() { return make_unique<ModelSourceMeta>(); };
         _creators[".clip"] = []() { return make_unique<AnimationMeta>(); };
         _creators[".mesh"] = []() { return make_unique<MeshMeta>(); };
         _creators[".mat"] = []() { return make_unique<MaterialMeta>(); };

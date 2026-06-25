@@ -1,0 +1,42 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 6308967850083582428,
+                    "rightId": 4444503451538613835
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 4101857392454651466,
+                            "rightId": 12286513237179885729
+                        },
+                        "fileName": "Material.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 14433224697872112965,
+                            "rightId": 3634160479627703183
+                        },
+                        "fileName": "Cube.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4069625764783064840,
+                            "rightId": 15929247846590285853
+                        },
+                        "fileName": "Armature_ArmatureAction.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

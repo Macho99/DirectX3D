@@ -1,0 +1,74 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 3397664894591315142,
+                    "rightId": 7030299928863975291
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 7274692450931399241,
+                            "rightId": 15086920618641331093
+                        },
+                        "fileName": "T_Antler.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 17414465028292958967,
+                            "rightId": 17414432821166979553
+                        },
+                        "fileName": "M_DeerAntler.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7946183015041741734,
+                            "rightId": 6057225863731075352
+                        },
+                        "fileName": "T_Deer.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 13208383512647784620,
+                            "rightId": 15951003913931142318
+                        },
+                        "fileName": "M_Deer.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7784836485724702242,
+                            "rightId": 16485646727161849243
+                        },
+                        "fileName": "Deer_Antler.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 5520378935004628902,
+                            "rightId": 11689266236091405832
+                        },
+                        "fileName": "Deer_Deer_Idle.clip",
+                        "resourceType": 4
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 5794906828128408582,
+                            "rightId": 13385237627940385950
+                        },
+                        "fileName": "Deer_Deer_WalkFast_F.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}
