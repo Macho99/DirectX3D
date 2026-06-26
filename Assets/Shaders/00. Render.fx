@@ -218,8 +218,13 @@ MeshOutput VS_Animation(VertexModel input)
 
 	//output.position = mul(input.position, BoneTransforms[BoneIndex]); // Model Global
 
-	matrix m = GetAnimationMatrix(input);
-
+	//matrix m = GetAnimationMatrix(input);
+    matrix m = 0;
+    m += mul(input.blendWeights.x, BoneTransforms[input.blendIndices.x]);
+    m += mul(input.blendWeights.y, BoneTransforms[input.blendIndices.y]);
+    m += mul(input.blendWeights.z, BoneTransforms[input.blendIndices.z]);
+    m += mul(input.blendWeights.w, BoneTransforms[input.blendIndices.w]);	
+	
 	float4 worldPos = mul(input.position, m);
 	worldPos = mul(worldPos, input.world); // W
 	//output.position = mul(input.position, m);

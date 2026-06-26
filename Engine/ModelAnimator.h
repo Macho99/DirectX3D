@@ -1,5 +1,6 @@
 #pragma once
 #include "Renderer.h"
+#include "skinned_mesh.h"
 
 class Model;
 
@@ -61,5 +62,8 @@ private:
     ResourceRef<Model> _model;
 
     bool _initialized = false;
+
+private:
+	SkinnedMesh _skinnedMesh;
 };
 

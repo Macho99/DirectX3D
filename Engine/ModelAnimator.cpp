@@ -27,6 +27,7 @@ void ModelAnimator::Awake()
 {
     Transform* transform = GetTransform();
     transform->SetLocalScale(Vec3(0.01f));
+	_skinnedMesh.LoadMesh("D:\\Projects\\source\\repos\\GameCoding\\Assets\\Models\\Paladin\\Paladin WProp J Nordstrom.fbx");
 }
 
 void ModelAnimator::Update()
@@ -85,10 +86,16 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	BoneDesc boneDesc;
 
 	const uint32 boneCount = mesh->GetBoneCount();
+	vector<Matrix> boneTransforms;
+	_skinnedMesh.GetBoneTransforms(TIME->GetGameTime(), boneTransforms);
+    for (uint32 i = 0; i < boneCount; i++)
+    {
+        boneDesc.transforms[i] = boneTransforms[i];
+    }
 	for (uint32 i = 0; i < boneCount; i++)
 	{
 		shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
-		boneDesc.transforms[i] = bone->transform;
+		//boneDesc.transforms[i] = bone->transform;
 	}
 	shader->PushBoneData(boneDesc);
 
