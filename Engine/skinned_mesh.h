@@ -29,6 +29,18 @@
 class SkinnedMesh
 {
 public:
+    struct BoneInfo
+    {
+        Matrix OffsetMatrix;
+        Matrix GlobalTransformation;
+        Matrix GlobalTransformationInverse;
+        Matrix FinalTransformation; // with OffsetMatrix
+
+        Matrix BoneLocalTransform;
+        int ParentIndex;
+        vector<int> ChildrenIndices;
+    };
+
     SkinnedMesh() {};
 
     ~SkinnedMesh();
@@ -40,8 +52,37 @@ public:
         return (uint32)m_BoneNameToIndexMap.size();
     }
 
-    void GetBoneTransforms(float AnimationTimeSec, vector<Matrix>& Transforms);
+    void LoadBoneInfos(float AnimationTimeSec);
+    vector<BoneInfo>& GetBoneInfos() { return m_BoneInfo; }
     static Matrix ConvertMatrix(const aiMatrix4x4& from);
+
+    bool HasAnimations() const
+    {
+        return pScene && pScene->mNumAnimations > 0;
+    }
+
+    uint32 GetAnimationCount() const
+    {
+        return HasAnimations() ? pScene->mNumAnimations : 0;
+    }
+
+    string GetAnimationName(uint32 animationIndex) const
+    {
+        if (!HasAnimations() || animationIndex >= pScene->mNumAnimations)
+            return "";
+
+        const string name = pScene->mAnimations[animationIndex]->mName.C_Str();
+        return name.empty() ? "Animation " + to_string(animationIndex) : name;
+    }
+
+    uint32 GetAnimationFrameCount(uint32 animationIndex) const
+    {
+        if (!HasAnimations() || animationIndex >= pScene->mNumAnimations)
+            return 0;
+
+        const double duration = pScene->mAnimations[animationIndex]->mDuration;
+        return max(1u, (uint32)ceil(max(0.0, duration)) + 1u);
+    }
 
 private:
     #define MAX_NUM_BONES_PER_VERTEX 4
@@ -68,7 +109,7 @@ private:
     uint32 FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint32 FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string& NodeName);
-    void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Matrix& ParentTransform);
+    void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Matrix& ParentTransform, int parentBoneIndex);
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 
@@ -133,18 +174,6 @@ private:
     vector<VertexBoneData> m_Bones;
 
     map<string,uint32> m_BoneNameToIndexMap;
-
-    struct BoneInfo
-    {
-        Matrix OffsetMatrix;
-        Matrix FinalTransformation;
-
-        BoneInfo(const Matrix& Offset)
-        {
-            OffsetMatrix = Offset;
-            FinalTransformation = Matrix::Identity;
-        }
-    };
 
     vector<BoneInfo> m_BoneInfo;
     Matrix m_GlobalInverseTransform;

@@ -89,11 +89,11 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	BoneDesc boneDesc;
 
 	const uint32 boneCount = mesh->GetBoneCount();
-	vector<Matrix> boneTransforms;
-	_skinnedMesh.GetBoneTransforms(TIME->GetGameTime(), boneTransforms);
+	_skinnedMesh.LoadBoneInfos(TIME->GetGameTime());
+	vector<SkinnedMesh::BoneInfo>& boneInfos = _skinnedMesh.GetBoneInfos();
     for (uint32 i = 0; i < boneCount; i++)
     {
-		boneDesc.transforms[i] = boneTransforms[i];
+		boneDesc.transforms[i] = boneInfos[i].FinalTransformation;
     }
 	//for (uint32 i = 0; i < boneCount; i++)
 	//{
@@ -345,4 +345,176 @@ void ModelAnimator::UpdateTweenData()
 			desc.next.ratio = desc.next.sumTime / timePerFrame;
 		}
 	}
+}
+
+void ModelAnimator::DrawDebugWindow()
+{
+	string objectName = GetGameObject() ? GetGameObject()->GetName() : "ModelAnimator";
+	string windowTitle = "Animation Debug - " + objectName + "##ModelAnimator_" + to_string((uintptr_t)this);
+	ImGui::SetNextWindowSize(ImVec2(1050.0f, 700.0f), ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin(windowTitle.c_str(), &_showAnimationDebug))
+	{
+		ImGui::End();
+		return;
+	}
+
+	const uint32 animationCount = _skinnedMesh.GetAnimationCount();
+	if (animationCount == 0)
+	{
+		ImGui::TextDisabled("No animation is loaded in SkinnedMesh.");
+		ImGui::End();
+		return;
+	}
+
+	_debugAnimationIndex = clamp(_debugAnimationIndex, 0, (int)animationCount - 1);
+	string animationName = _skinnedMesh.GetAnimationName(_debugAnimationIndex);
+	if (ImGui::BeginCombo("Animation", animationName.c_str()))
+	{
+		for (uint32 i = 0; i < animationCount; ++i)
+		{
+			const bool selected = i == (uint32)_debugAnimationIndex;
+			string name = _skinnedMesh.GetAnimationName(i);
+			if (ImGui::Selectable(name.c_str(), selected))
+			{
+				_debugAnimationIndex = (int)i;
+				_debugFrameIndex = 0;
+				_debugNodeIndex = 0;
+			}
+			if (selected)
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
+
+	const uint32 frameCount = _skinnedMesh.GetAnimationFrameCount(_debugAnimationIndex);
+	_debugFrameIndex = clamp(_debugFrameIndex, 0, max(0, (int)frameCount - 1));
+	ImGui::SetNextItemWidth(500.0f);
+	ImGui::SliderInt("Frame", &_debugFrameIndex, 0, max(0, (int)frameCount - 1));
+
+	SkinnedMesh::AnimationDebugFrame debugFrame;
+	if (!_skinnedMesh.GetAnimationDebugFrame(_debugAnimationIndex, _debugFrameIndex, debugFrame))
+	{
+		ImGui::TextDisabled("Unable to evaluate this animation frame.");
+		ImGui::End();
+		return;
+	}
+
+	ImGui::SameLine();
+	ImGui::Text("tick %.3f / %.3f | %.3fs | %.2f ticks/s",
+		debugFrame.timeTicks,
+		debugFrame.durationTicks,
+		debugFrame.timeSeconds,
+		debugFrame.ticksPerSecond);
+	ImGui::Separator();
+
+	const float listWidth = 330.0f;
+	ImGui::BeginChild("NodeList", ImVec2(listWidth, 0.0f), true);
+	ImGui::SetNextItemWidth(-1.0f);
+	ImGui::Separator();
+
+	function<int(int)> DrawNodeTree = [&](int nodeIndex) -> int
+		{
+			const auto& node = debugFrame.nodes[nodeIndex];
+			int subtreeEnd = nodeIndex + 1;
+			while (subtreeEnd < (int)debugFrame.nodes.size() &&
+				debugFrame.nodes[subtreeEnd].depth > node.depth)
+				++subtreeEnd;
+
+			const bool hasChildren =
+				nodeIndex + 1 < (int)debugFrame.nodes.size() &&
+				debugFrame.nodes[nodeIndex + 1].depth > node.depth;
+			ImGuiTreeNodeFlags flags =
+				ImGuiTreeNodeFlags_SpanAvailWidth |
+				ImGuiTreeNodeFlags_OpenOnArrow |
+				ImGuiTreeNodeFlags_OpenOnDoubleClick;
+			if (_debugNodeIndex == nodeIndex)
+				flags |= ImGuiTreeNodeFlags_Selected;
+			if (!hasChildren)
+				flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+			string label = node.name;
+			if (node.hasAnimationChannel)
+				label += "  [A]";
+			if (node.isBone)
+				label += "  [B]";
+
+			const bool open = ImGui::TreeNodeEx((void*)(intptr_t)nodeIndex, flags, "%s", label.c_str());
+			if (ImGui::IsItemClicked())
+				_debugNodeIndex = nodeIndex;
+
+			if (hasChildren && open)
+			{
+				int childIndex = nodeIndex + 1;
+				while (childIndex < subtreeEnd)
+					childIndex = DrawNodeTree(childIndex);
+				ImGui::TreePop();
+			}
+			return subtreeEnd;
+		};
+
+	for (int nodeIndex = 0; nodeIndex < (int)debugFrame.nodes.size();)
+		nodeIndex = DrawNodeTree(nodeIndex);
+	ImGui::EndChild();
+
+	ImGui::SameLine();
+	ImGui::BeginChild("NodeDetails", ImVec2(0.0f, 0.0f), true);
+	if (!debugFrame.nodes.empty())
+	{
+		_debugNodeIndex = clamp(_debugNodeIndex, 0, (int)debugFrame.nodes.size() - 1);
+		const auto& node = debugFrame.nodes[_debugNodeIndex];
+		ImGui::Text("%s", node.name.c_str());
+		ImGui::TextDisabled("Parent: %s | Depth: %u | Animation channel: %s | Bone: %s",
+			node.parentName.empty() ? "<root>" : node.parentName.c_str(),
+			node.depth,
+			node.hasAnimationChannel ? "yes" : "no",
+			node.isBone ? "yes" : "no");
+		ImGui::Separator();
+		ImGui::Text("S  (%.5f, %.5f, %.5f)", node.scale.x, node.scale.y, node.scale.z);
+		ImGui::Text("R  quaternion (%.5f, %.5f, %.5f, %.5f)",
+			node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w);
+		ImGui::Text("T  (%.5f, %.5f, %.5f)",
+			node.translation.x, node.translation.y, node.translation.z);
+		ImGui::Spacing();
+		ImGui::TextDisabled("Local = Scale * Rotation * Translation");
+
+		DrawDebugMatrix("Source node matrix", node.sourceNodeTransform);
+		DrawDebugMatrix("Scale matrix (S)", node.scaleMatrix);
+		DrawDebugMatrix("Rotation matrix (R)", node.rotationMatrix);
+		DrawDebugMatrix("Translation matrix (T)", node.translationMatrix);
+		DrawDebugMatrix("Local matrix (S * R * T)", node.localTransform);
+		DrawDebugMatrix("Parent global matrix", node.parentTransform);
+		DrawDebugMatrix("Global matrix (Local * Parent)", node.globalTransform);
+		if (node.isBone)
+		{
+			ImGui::SeparatorText("Bone skinning");
+			ImGui::TextDisabled("Final = BoneOffset * Global * GlobalInverseRoot");
+			DrawDebugMatrix("Bone offset matrix", node.boneOffset);
+			DrawDebugMatrix("Global inverse root matrix", node.globalInverseRoot);
+			DrawDebugMatrix("Final bone matrix", node.finalBoneTransform);
+		}
+	}
+	ImGui::EndChild();
+	ImGui::End();
+}
+
+void ModelAnimator::DrawDebugMatrix(const char* label, const Matrix& matrix)
+{
+	if (!ImGui::TreeNode(label))
+		return;
+
+	if (ImGui::BeginTable("##Matrix", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchSame))
+	{
+		const float* values = &matrix._11;
+		for (int row = 0; row < 4; ++row)
+		{
+			ImGui::TableNextRow();
+			for (int column = 0; column < 4; ++column)
+			{
+				ImGui::TableSetColumnIndex(column);
+				ImGui::Text("%.5f", values[row * 4 + column]);
+			}
+		}
+		ImGui::EndTable();
+	}
+	ImGui::TreePop();
 }

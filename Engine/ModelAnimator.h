@@ -47,6 +47,8 @@ public:
 private:
 	void CreateTexture();
 	void CreateAnimationTransform(uint32 index);
+	void DrawDebugWindow();
+	void DrawDebugMatrix(const char* label, const Matrix& matrix);
 
 private:
 	vector<AnimTransform> _animTransforms;
@@ -65,5 +67,11 @@ private:
 
 private:
 	SkinnedMesh _skinnedMesh;
+
+private:
+	bool _showAnimationDebug = false;
+	int _debugAnimationIndex = 0;
+	int _debugFrameIndex = 0;
+	int _debugNodeIndex = 0;
 };
 

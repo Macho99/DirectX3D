@@ -160,7 +160,8 @@ void SkinnedMesh::LoadSingleBone(uint32 MeshIndex, const aiBone* pBone)
     int BoneId = GetBoneId(pBone);
 
     if (BoneId == m_BoneInfo.size()) {
-        BoneInfo bi(ConvertMatrix(pBone->mOffsetMatrix));
+        BoneInfo bi;
+        bi.OffsetMatrix = ConvertMatrix(pBone->mOffsetMatrix);
         m_BoneInfo.push_back(bi);
     }
 
@@ -302,7 +303,7 @@ void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTimeTi
 }
 
 
-void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiNode* pNode, const Matrix& ParentTransform)
+void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiNode* pNode, const Matrix& ParentTransform, int ParentBoneIndex)
 {
     string NodeName(pNode->mName.data);
 
@@ -334,13 +335,26 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiNode* pNod
 
     Matrix GlobalTransformation = NodeTransformation * ParentTransform;
 
-    if (m_BoneNameToIndexMap.find(NodeName) != m_BoneNameToIndexMap.end()) {
+    if (m_BoneNameToIndexMap.find(NodeName) != m_BoneNameToIndexMap.end())
+    {
         uint32 BoneIndex = m_BoneNameToIndexMap[NodeName];
-        m_BoneInfo[BoneIndex].FinalTransformation = m_BoneInfo[BoneIndex].OffsetMatrix * GlobalTransformation * m_GlobalInverseTransform;
+        BoneInfo& boneInfo = m_BoneInfo[BoneIndex];
+        boneInfo.FinalTransformation = m_BoneInfo[BoneIndex].OffsetMatrix * GlobalTransformation * m_GlobalInverseTransform;
+        boneInfo.GlobalTransformation = GlobalTransformation;
+        boneInfo.GlobalTransformationInverse = GlobalTransformation.Invert();
+        boneInfo.ParentIndex = ParentBoneIndex;
+
+        Matrix parentBoneTransformInv = Matrix::Identity;
+        if (ParentBoneIndex >= 0)
+        {
+            parentBoneTransformInv = m_BoneInfo[ParentBoneIndex].GlobalTransformationInverse;
+        }
+        boneInfo.BoneLocalTransform = GlobalTransformation * parentBoneTransformInv;
+        ParentBoneIndex = BoneIndex;
     }
 
     for (uint32 i = 0 ; i < pNode->mNumChildren ; i++) {
-        ReadNodeHierarchy(AnimationTimeTicks, pNode->mChildren[i], GlobalTransformation);
+        ReadNodeHierarchy(AnimationTimeTicks, pNode->mChildren[i], GlobalTransformation, ParentBoneIndex);
     }
 }
 
@@ -354,19 +368,26 @@ Matrix SkinnedMesh::ConvertMatrix(const aiMatrix4x4& from)
     return to;
 }
 
-
-void SkinnedMesh::GetBoneTransforms(float TimeInSeconds, vector<Matrix>& Transforms)
+void SkinnedMesh::LoadBoneInfos(float TimeInSeconds)
 {
     float TicksPerSecond = (float)(pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
     float TimeInTicks = TimeInSeconds * TicksPerSecond;
     float AnimationTimeTicks = fmod(TimeInTicks, (float)pScene->mAnimations[0]->mDuration);
 
-    ReadNodeHierarchy(AnimationTimeTicks, pScene->mRootNode, Matrix::Identity);
-    Transforms.resize(m_BoneInfo.size());
+    ReadNodeHierarchy(AnimationTimeTicks, pScene->mRootNode, Matrix::Identity, -1);
 
     for (uint32 i = 0 ; i < m_BoneInfo.size(); i++)
     {
-        Transforms[i] = m_BoneInfo[i].FinalTransformation;
+        m_BoneInfo[i].ChildrenIndices.clear();
+    }
+
+    for (uint32 i = 0; i < m_BoneInfo.size(); i++)
+    {
+        int parentIndex = m_BoneInfo[i].ParentIndex;
+        if (parentIndex >= 0)
+        {
+            m_BoneInfo[parentIndex].ChildrenIndices.push_back(i);
+        }
     }
 }
 
