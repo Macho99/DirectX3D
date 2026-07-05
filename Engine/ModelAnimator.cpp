@@ -25,6 +25,9 @@ ModelAnimator::~ModelAnimator()
 
 void ModelAnimator::Awake()
 {
+    static int awakeCount = 0;
+	if (awakeCount++ != 0)
+		return;
     Transform* transform = GetTransform();
     transform->SetLocalScale(Vec3(0.01f));
 	_skinnedMesh.LoadMesh("D:\\Projects\\source\\repos\\GameCoding\\Assets\\Models\\Paladin\\Paladin WProp J Nordstrom.fbx");
@@ -90,13 +93,13 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	_skinnedMesh.GetBoneTransforms(TIME->GetGameTime(), boneTransforms);
     for (uint32 i = 0; i < boneCount; i++)
     {
-        boneDesc.transforms[i] = boneTransforms[i];
+		boneDesc.transforms[i] = boneTransforms[i];
     }
-	for (uint32 i = 0; i < boneCount; i++)
-	{
-		shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
-		//boneDesc.transforms[i] = bone->transform;
-	}
+	//for (uint32 i = 0; i < boneCount; i++)
+	//{
+	//	shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
+	//	boneDesc.transforms[i] = bone->transform;
+	//}
 	shader->PushBoneData(boneDesc);
 
 	const vector<shared_ptr<ModelMesh>>& meshes = mesh->GetMeshes();
@@ -248,39 +251,39 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 	{
 		for (uint32 b = 0; b < mesh->GetBoneCount(); b++)
 		{
-			shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(b);
-
-			Matrix matAnim;
-
-			shared_ptr<ModelKeyframe> frame = animation->GetKeyframe(bone->name);
-			if (frame != nullptr)
-			{
-				ModelKeyframeData& data = frame->transforms[f];
-				Matrix S, R, T;
-				S = Matrix::CreateScale(data.scale);
-				R = Matrix::CreateFromQuaternion(data.rotation);
-				T = Matrix::CreateTranslation(data.translation);
-
-				matAnim = S * R * T;
-			}
-			else
-			{
-				matAnim = Matrix::Identity;
-			}
-
-			Matrix toRootMat = bone->transform;
-			Matrix invGlobal = toRootMat.Invert();
-
-			int32 parentIndex = bone->parentIndex;
-
-			Matrix matParent = Matrix::Identity;
-			if (parentIndex >= 0)
-			{
-				matParent = tempAnimBoneTransforms[parentIndex];
-			}
-
-			tempAnimBoneTransforms[b] = matAnim * matParent;
-			_animTransforms[index].transforms[f][b] = invGlobal * tempAnimBoneTransforms[b];
+			//shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(b);
+			//
+			//Matrix matAnim;
+			//
+			//shared_ptr<ModelKeyframe> frame = animation->GetKeyframe(bone->name);
+			//if (frame != nullptr)
+			//{
+			//	ModelKeyframeData& data = frame->transforms[f];
+			//	Matrix S, R, T;
+			//	S = Matrix::CreateScale(data.scale);
+			//	R = Matrix::CreateFromQuaternion(data.rotation);
+			//	T = Matrix::CreateTranslation(data.translation);
+			//
+			//	matAnim = S * R * T;
+			//}
+			//else
+			//{
+			//	matAnim = Matrix::Identity;
+			//}
+			//
+			//Matrix toRootMat = bone->transform;
+			//Matrix invGlobal = toRootMat.Invert();
+			//
+			//int32 parentIndex = bone->parentIndex;
+			//
+			//Matrix matParent = Matrix::Identity;
+			//if (parentIndex >= 0)
+			//{
+			//	matParent = tempAnimBoneTransforms[parentIndex];
+			//}
+			//
+			//tempAnimBoneTransforms[b] = matAnim * matParent;
+			//_animTransforms[index].transforms[f][b] = invGlobal * tempAnimBoneTransforms[b];
 		}
 	}
 }

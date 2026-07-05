@@ -318,6 +318,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="ImZoomSlider.h" />
+    <ClInclude Include="skinned_mesh.h" />
     <ClInclude Include="UIImage.h" />
     <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="IndexBuffer.h" />
@@ -528,6 +529,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="skinned_mesh.cpp" />
     <ClCompile Include="UIImage.cpp" />
     <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />

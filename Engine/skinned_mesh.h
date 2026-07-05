@@ -41,6 +41,7 @@ public:
     }
 
     void GetBoneTransforms(float AnimationTimeSec, vector<Matrix>& Transforms);
+    static Matrix ConvertMatrix(const aiMatrix4x4& from);
 
 private:
     #define MAX_NUM_BONES_PER_VERTEX 4
@@ -68,7 +69,6 @@ private:
     uint32 FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string& NodeName);
     void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Matrix& ParentTransform);
-    Matrix ConvertMatrix(const aiMatrix4x4& from);
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 

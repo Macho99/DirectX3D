@@ -4,11 +4,8 @@ struct ModelBone
 {
 	wstring name;
 	int32 index;
-	int32 parentIndex;
-	shared_ptr<ModelBone> parent; // Cache
-
-	Matrix transform;
-	vector<shared_ptr<ModelBone>> children; // Cache
+	Matrix offsetMatrix;
+	Matrix finalMatrix = Matrix::Identity;
 };
 
 

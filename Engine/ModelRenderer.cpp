@@ -60,7 +60,7 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	for (uint32 i = 0; i < boneCount; i++)
 	{
 		shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
-		boneDesc.transforms[i] = bone->transform;
+		boneDesc.transforms[i] = bone->finalMatrix;
 	}
 	shader->PushBoneData(boneDesc);
 
@@ -154,7 +154,7 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
 			return;
 
 		const auto& bone = mesh->bone;
-		Matrix boneMat = bone->transform;
+		Matrix boneMat = bone->finalMatrix;
         Matrix finalMat = boneMat * worldMat;
 
         const auto& vertices = mesh->geometry->GetVertices();

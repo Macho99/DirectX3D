@@ -792,6 +792,9 @@
     <ClInclude Include="IDragHandler.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
+    <ClInclude Include="skinned_mesh.h">
+      <Filter>04. Component\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1222,6 +1225,9 @@
     </ClCompile>
     <ClCompile Include="IDragHandler.cpp">
       <Filter>04. Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="skinned_mesh.cpp">
+      <Filter>04. Component\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

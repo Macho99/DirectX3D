@@ -17,15 +17,19 @@ public:
 
 public:
 	void ReadAssetFile(wstring file);
-	void ExportModelData(wstring savePath);
 	//void ExportMaterialData(wstring savePath);
 	void ExportAnimationData(wstring savePath, uint32 index = 0);
 	void TryExportAll(wstring assetPath, wstring artifactPath, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
 
 private:
-	void ReadModelData(aiNode* node, int32 index, int32 parent);
-	void ReadMeshData(aiNode* node, int32 bone);
-	void ReadSkinData();
+	//void ReadModelData(aiNode* node, int32 index, int32 parent);
+	//void ReadMeshData(aiNode* node, int32 bone);
+
+    void ReadAllMeshes(const aiScene* scene);
+	void ReadSingleMesh(uint32 meshIndex, const aiMesh* paiMesh);
+    void ReadMeshBones(uint32 meshIndex, const aiMesh* paiMesh);
+    void ReadSingleBone(uint32 meshIndex, const aiBone* pBone);
+	void ReadVertexBlendData();
 	void WriteModelFile(wstring finalPath);
 
 private:
@@ -42,7 +46,7 @@ private:
 	AssetId AddExported(const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported, wstring fileName, ResourceType resourceType);
 
 private:
-	uint32 GetBoneIndex(const string& name);
+	int GetBoneIndex(const string& name);
 		
 private:
 	shared_ptr<Assimp::Importer> _importer;

@@ -6,6 +6,7 @@
 #include "Material.h"
 #include "fstream"
 #include "ModelMeshResource.h"
+#include "skinned_mesh.h"
 
 Converter::Converter()
 {
@@ -30,48 +31,6 @@ void Converter::ReadAssetFile(wstring file)
     );
 
     assert(_scene != nullptr);
-}
-
-void Converter::ExportModelData(wstring savePath)
-{
-    wstring finalPath = savePath + ModelMeshResource::GetExtension();
-    ReadModelData(_scene->mRootNode, -1, -1);
-    ReadSkinData();
-
-    //Write CSV File
-    {
-        FILE* file;
-        ::fopen_s(&file, "../Vertices.csv", "w");
-
-        for (shared_ptr<asBone>& bone : _bones)
-        {
-            string name = bone->name;
-            ::fprintf(file, "%d,%s\n", bone->index, bone->name.c_str());
-        }
-
-        ::fprintf(file, "\n");
-
-        for (shared_ptr<asMesh>& mesh : _meshes)
-        {
-            string name = mesh->name;
-            ::printf("%s\n", name.c_str());
-
-            for (UINT i = 0; i < mesh->vertices.size(); i++)
-            {
-                Vec3 p = mesh->vertices[i].position;
-                Vec4 indices = mesh->vertices[i].blendIndices;
-                Vec4 weights = mesh->vertices[i].blendWeights;
-
-                ::fprintf(file, "%f,%f,%f,", p.x, p.y, p.z);
-                ::fprintf(file, "%f,%f,%f,%f,", indices.x, indices.y, indices.z, indices.w);
-                ::fprintf(file, "%f,%f,%f,%f\n", weights.x, weights.y, weights.z, weights.w);
-            }
-        }
-
-        ::fclose(file);
-    }
-
-    WriteModelFile(finalPath);
 }
 
 //void Converter::ExportMaterialData(wstring savePath)
@@ -101,8 +60,9 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
     }
 
     {
-        ReadModelData(_scene->mRootNode, -1, -1);
-        ReadSkinData();
+        //ReadModelData(_scene->mRootNode, -1, -1);
+        ReadAllMeshes(_scene);
+        ReadVertexBlendData();
         if (_meshes.size() > 0)
         {
             SubAssetInfo info = SubAssetInfo();
@@ -130,87 +90,87 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
         }
     }
 }
+//
+//void Converter::ReadModelData(aiNode* node, int32 index, int32 parent)
+//{
+//    shared_ptr<asBone> bone = make_shared<asBone>();
+//    bone->index = index;
+//    bone->parent = parent;
+//    bone->name = node->mName.C_Str();
+//
+//    // Relative Transform (Parent)
+//    Matrix transform(node->mTransformation[0]);
+//    bone->transform = transform.Transpose();
+//
+//    // Local Transform (Root)
+//    Matrix matParent = Matrix::Identity;
+//    if (parent >= 0)
+//    {
+//        matParent = _bones[parent]->transform;
+//    }
+//    bone->transform = bone->transform * matParent;
+//
+//    _bones.push_back(bone);
+//
+//    ReadMeshData(node, index);
+//
+//    for (uint32 i = 0; i < node->mNumChildren; ++i)
+//    {
+//        ReadModelData(node->mChildren[i], _bones.size(), index);
+//    }
+//}
+//
+//void Converter::ReadMeshData(aiNode* node, int32 bone)
+//{
+//    if (node->mNumMeshes < 1)
+//        return;
+//
+//    for (uint32 i = 0; i < node->mNumMeshes; ++i)
+//    {
+//        shared_ptr<asMesh> mesh = make_shared<asMesh>();
+//        mesh->name = node->mName.C_Str();
+//        mesh->boneIndex = bone;
+//
+//        uint32 index = node->mMeshes[i];
+//        const aiMesh* srcMesh = _scene->mMeshes[index];
+//
+//        const aiMaterial* srcMat = _scene->mMaterials[srcMesh->mMaterialIndex];
+//        mesh->materialName = srcMat->GetName().C_Str();
+//
+//        const uint32 startVertex = mesh->vertices.size();
+//
+//        for (uint32 v = 0; v < srcMesh->mNumVertices; ++v)
+//        {
+//            VertexType vertex;
+//            // Vertex
+//            ::memcpy(&vertex.position, &srcMesh->mVertices[v], sizeof(Vec3));
+//
+//            // UV
+//            if (srcMesh->HasTextureCoords(0))
+//                ::memcpy(&vertex.uv, &srcMesh->mTextureCoords[0][v], sizeof(Vec2));
+//
+//            // Normal
+//            if (srcMesh->HasNormals())
+//                ::memcpy(&vertex.normal, &srcMesh->mNormals[v], sizeof(Vec3));
+//
+//            mesh->vertices.push_back(vertex);
+//        }
+//
+//        // Index
+//        for (uint32 f = 0; f < srcMesh->mNumFaces; ++f)
+//        {
+//            aiFace& face = srcMesh->mFaces[f];
+//
+//            for (uint32 k = 0; k < face.mNumIndices; ++k)
+//            {
+//                mesh->indices.push_back(face.mIndices[k] + startVertex);
+//            }
+//        }
+//        _meshes.push_back(mesh);
+//    }
+//}
 
-void Converter::ReadModelData(aiNode* node, int32 index, int32 parent)
-{
-    shared_ptr<asBone> bone = make_shared<asBone>();
-    bone->index = index;
-    bone->parent = parent;
-    bone->name = node->mName.C_Str();
-
-    // Relative Transform (Parent)
-    Matrix transform(node->mTransformation[0]);
-    bone->transform = transform.Transpose();
-
-    // Local Transform (Root)
-    Matrix matParent = Matrix::Identity;
-    if (parent >= 0)
-    {
-        matParent = _bones[parent]->transform;
-    }
-    bone->transform = bone->transform * matParent;
-
-    _bones.push_back(bone);
-
-    ReadMeshData(node, index);
-
-    for (uint32 i = 0; i < node->mNumChildren; ++i)
-    {
-        ReadModelData(node->mChildren[i], _bones.size(), index);
-    }
-}
-
-void Converter::ReadMeshData(aiNode* node, int32 bone)
-{
-    if (node->mNumMeshes < 1)
-        return;
-
-    for (uint32 i = 0; i < node->mNumMeshes; ++i)
-    {
-        shared_ptr<asMesh> mesh = make_shared<asMesh>();
-        mesh->name = node->mName.C_Str();
-        mesh->boneIndex = bone;
-
-        uint32 index = node->mMeshes[i];
-        const aiMesh* srcMesh = _scene->mMeshes[index];
-
-        const aiMaterial* srcMat = _scene->mMaterials[srcMesh->mMaterialIndex];
-        mesh->materialName = srcMat->GetName().C_Str();
-
-        const uint32 startVertex = mesh->vertices.size();
-
-        for (uint32 v = 0; v < srcMesh->mNumVertices; ++v)
-        {
-            VertexType vertex;
-            // Vertex
-            ::memcpy(&vertex.position, &srcMesh->mVertices[v], sizeof(Vec3));
-
-            // UV
-            if (srcMesh->HasTextureCoords(0))
-                ::memcpy(&vertex.uv, &srcMesh->mTextureCoords[0][v], sizeof(Vec2));
-
-            // Normal
-            if (srcMesh->HasNormals())
-                ::memcpy(&vertex.normal, &srcMesh->mNormals[v], sizeof(Vec3));
-
-            mesh->vertices.push_back(vertex);
-        }
-
-        // Index
-        for (uint32 f = 0; f < srcMesh->mNumFaces; ++f)
-        {
-            aiFace& face = srcMesh->mFaces[f];
-
-            for (uint32 k = 0; k < face.mNumIndices; ++k)
-            {
-                mesh->indices.push_back(face.mIndices[k] + startVertex);
-            }
-        }
-        _meshes.push_back(mesh);
-    }
-}
-
-void Converter::ReadSkinData()
+void Converter::ReadVertexBlendData()
 {
     for (uint32 i = 0; i < _scene->mNumMeshes; i++)
     {
@@ -249,6 +209,81 @@ void Converter::ReadSkinData()
     }
 }
 
+void Converter::ReadAllMeshes(const aiScene* scene)
+{
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+    {
+        const aiMesh* paiMesh = scene->mMeshes[i];
+        ReadSingleMesh(i, paiMesh);
+    }
+}
+
+void Converter::ReadSingleMesh(uint32 meshIndex, const aiMesh* srcMesh)
+{
+    shared_ptr<asMesh> mesh = make_shared<asMesh>();
+    mesh->name = srcMesh->mName.C_Str();
+    mesh->boneIndex = 0;
+
+    const aiMaterial* srcMat = _scene->mMaterials[srcMesh->mMaterialIndex];
+    mesh->materialName = srcMat->GetName().C_Str();
+
+    const uint32 startVertex = mesh->vertices.size();
+
+    for (uint32 v = 0; v < srcMesh->mNumVertices; ++v)
+    {
+        VertexType vertex;
+        // Vertex
+        ::memcpy(&vertex.position, &srcMesh->mVertices[v], sizeof(Vec3));
+
+        // UV
+        if (srcMesh->HasTextureCoords(0))
+            ::memcpy(&vertex.uv, &srcMesh->mTextureCoords[0][v], sizeof(Vec2));
+
+        // Normal
+        if (srcMesh->HasNormals())
+            ::memcpy(&vertex.normal, &srcMesh->mNormals[v], sizeof(Vec3));
+
+        mesh->vertices.push_back(vertex);
+    }
+
+    // Index
+    for (uint32 f = 0; f < srcMesh->mNumFaces; ++f)
+    {
+        aiFace& face = srcMesh->mFaces[f];
+
+        for (uint32 k = 0; k < face.mNumIndices; ++k)
+        {
+            mesh->indices.push_back(face.mIndices[k] + startVertex);
+        }
+    }
+    _meshes.push_back(mesh);
+
+    ReadMeshBones(meshIndex, srcMesh);
+}
+
+void Converter::ReadMeshBones(uint32 meshIndex, const aiMesh* paiMesh)
+{
+    for (uint32 i = 0; i < paiMesh->mNumBones; i++)
+    {
+        ReadSingleBone(meshIndex, paiMesh->mBones[i]);
+    }
+}
+
+void Converter::ReadSingleBone(uint32 meshIndex, const aiBone* pBone)
+{
+    string boneName = pBone->mName.C_Str();
+    int boneIndex = GetBoneIndex(boneName);
+    if (boneIndex < 0)
+    {
+        Matrix offsetMatrix = SkinnedMesh::ConvertMatrix(pBone->mOffsetMatrix);
+        shared_ptr<asBone> bone = make_shared<asBone>();
+        bone->index = _bones.size();
+        bone->name = boneName;
+        bone->offsetMatrix = offsetMatrix;
+        _bones.push_back(bone);
+    }
+}
+
 void Converter::WriteModelFile(wstring finalPath)
 {
     auto path = filesystem::path(finalPath);
@@ -263,8 +298,7 @@ void Converter::WriteModelFile(wstring finalPath)
     {
         fileUtils->Write<int32>(bone->index);
         fileUtils->Write<string>(bone->name);
-        fileUtils->Write<int32>(bone->parent);
-        fileUtils->Write<Matrix>(bone->transform);
+        fileUtils->Write<Matrix>(bone->offsetMatrix);
     }
 
     // Mesh Data
@@ -611,7 +645,7 @@ AssetId Converter::AddExported(const vector<SubAssetInfo>& prev, OUT vector<SubA
     return assetId;
 }
 
-uint32 Converter::GetBoneIndex(const string& name)
+int Converter::GetBoneIndex(const string& name)
 {
     for (shared_ptr<asBone>& bone : _bones)
     {
@@ -619,6 +653,5 @@ uint32 Converter::GetBoneIndex(const string& name)
             return bone->index;
     }
 
-    assert(false);
-    return 0;
+    return -1;
 }

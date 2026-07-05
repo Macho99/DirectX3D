@@ -27,8 +27,7 @@ void ModelMeshResource::ReadModel(wstring fullPath)
 			shared_ptr<ModelBone> bone = make_shared<ModelBone>();
 			bone->index = file->Read<int32>();
 			bone->name = Utils::ToWString(file->Read<string>());
-			bone->parentIndex = file->Read<int32>();
-			bone->transform = file->Read<Matrix>();
+			bone->offsetMatrix = file->Read<Matrix>();
 
 			_bones.push_back(bone);
 		}
@@ -132,24 +131,5 @@ void ModelMeshResource::BindCacheInfo(vector<ResourceRef<Material>> materials)
 			continue;
 
 		mesh->bone = GetBoneByIndex(mesh->boneIndex);
-	}
-
-	// Bone 계층 정보 채우기
-	if (_root == nullptr && _bones.size() > 0)
-	{
-		_root = _bones[0];
-
-		for (const auto& bone : _bones)
-		{
-			if (bone->parentIndex >= 0)
-			{
-				bone->parent = _bones[bone->parentIndex];
-				bone->parent->children.push_back(bone);
-			}
-			else
-			{
-				bone->parent = nullptr;
-			}
-		}
 	}
 }
