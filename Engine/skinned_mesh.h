@@ -130,7 +130,8 @@ private:
     uint32 FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string& NodeName);
     void ReadNodeHierarchy(float AnimationTime, const aiAnimation* pAnimation,
-        const aiNode* pNode, const Matrix& ParentTransform, int parentBoneIndex);
+        const aiNode* pNode, const Matrix& ParentTransform, int parentBoneIndex,
+        const Matrix& PendingPreTransform);
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 

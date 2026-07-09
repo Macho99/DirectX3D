@@ -323,19 +323,33 @@ void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTimeTi
 }
 
 
+namespace
+{
+    bool IsFbxPreTransformNode(const string& NodeName)
+    {
+        return NodeName.find("$AssimpFbx$_PreRotation") != string::npos ||
+            NodeName.find("$AssimpFbx$_Rotation") != string::npos ||
+            NodeName.find("$AssimpFbx$_PreTranslation") != string::npos ||
+            NodeName.find("$AssimpFbx$_PreTranslate") != string::npos ||
+            NodeName.find("$AssimpFbx$_Translation") != string::npos;
+    }
+}
+
 void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiAnimation* pAnimation,
-    const aiNode* pNode, const Matrix& ParentTransform, int ParentBoneIndex)
+    const aiNode* pNode, const Matrix& ParentTransform, int ParentBoneIndex,
+    const Matrix& PendingPreTransform)
 {
     string NodeName(pNode->mName.data);
-
-    Matrix NodeTransformation(ConvertMatrix(pNode->mTransformation));
-    static string debugNodeName = "mixamorig:LeftUpLeg";
-    if (NodeName == debugNodeName)
+    if (NodeName.find("LeftLeg") != string::npos || NodeName.find("RightLeg") != string::npos)
     {
         int a = 0;
     }
 
+    Matrix NodeTransformation(ConvertMatrix(pNode->mTransformation));
+
     const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
+    Matrix ParentTransformForNode = ParentTransform;
+
     if (pNodeAnim) {
         // Interpolate scaling and generate scaling transformation matrix
         aiVector3D Scaling;
@@ -355,9 +369,10 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiAnimation*
 
         // Combine the above transformations
         NodeTransformation =  ScalingM * RotationM * TranslationM;
+        ParentTransformForNode = PendingPreTransform.Invert() * ParentTransform;
     }
 
-    const Matrix GlobalTransformation = NodeTransformation * ParentTransform;
+    const Matrix GlobalTransformation = NodeTransformation * ParentTransformForNode;
 
     if (m_BoneNameToIndexMap.find(NodeName) != m_BoneNameToIndexMap.end())
     {
@@ -376,9 +391,15 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiAnimation*
         ParentBoneIndex = BoneIndex;
     }
 
+    Matrix ChildPendingPreTransform = Matrix::Identity;
+    if (IsFbxPreTransformNode(NodeName))
+    {
+        ChildPendingPreTransform = NodeTransformation * PendingPreTransform;
+    }
+
     for (uint32 i = 0 ; i < pNode->mNumChildren ; i++) {
         ReadNodeHierarchy(AnimationTimeTicks, pAnimation,
-            pNode->mChildren[i], GlobalTransformation, ParentBoneIndex);
+            pNode->mChildren[i], GlobalTransformation, ParentBoneIndex, ChildPendingPreTransform);
     }
 }
 
@@ -404,7 +425,7 @@ void SkinnedMesh::LoadBoneInfos(float TimeInSeconds, uint32 AnimationIndex)
         ? fmod(TimeInTicks, (float)animation->mDuration)
         : 0.0f;
 
-    ReadNodeHierarchy(AnimationTimeTicks, animation, pScene->mRootNode, Matrix::Identity, -1);
+    ReadNodeHierarchy(AnimationTimeTicks, animation, pScene->mRootNode, Matrix::Identity, -1, Matrix::Identity);
 
     for (uint32 i = 0 ; i < m_BoneInfo.size(); i++)
     {

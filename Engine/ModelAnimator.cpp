@@ -31,7 +31,7 @@ void ModelAnimator::Awake()
 		return;
     Transform* transform = GetTransform();
     transform->SetLocalScale(Vec3(0.01f));
-	_skinnedMesh.LoadMesh("D:\\Projects\\source\\repos\\GameCoding\\Assets\\Models\\Paladin\\Paladin WProp J Nordstrom.fbx");
+	_skinnedMesh.LoadMesh("D:\\Projects\\source\\repos\\GameCoding\\Assets\\Models\\Paladin\\Sword And Shield Attack.fbx");
 }
 
 void ModelAnimator::Update()
