@@ -72,6 +72,7 @@ private:
 	bool _showAnimationDebug = false;
 	int _debugAnimationIndex = 0;
 	int _debugFrameIndex = 0;
-	int _debugNodeIndex = 0;
+    int _lastDebugFrameIndex = -1;
+	int _debugBoneIndex = 0;
 };
 

@@ -52,8 +52,9 @@ public:
         return (uint32)m_BoneNameToIndexMap.size();
     }
 
-    void LoadBoneInfos(float AnimationTimeSec);
+    void LoadBoneInfos(float AnimationTimeSec, uint32 AnimationIndex = 0);
     vector<BoneInfo>& GetBoneInfos() { return m_BoneInfo; }
+    string GetBoneName(uint32 boneIndex) const;
     static Matrix ConvertMatrix(const aiMatrix4x4& from);
 
     bool HasAnimations() const
@@ -84,6 +85,25 @@ public:
         return max(1u, (uint32)ceil(max(0.0, duration)) + 1u);
     }
 
+    float GetAnimationTicksPerSecond(uint32 animationIndex) const
+    {
+        if (!HasAnimations() || animationIndex >= pScene->mNumAnimations)
+            return 0.0f;
+
+        const double ticksPerSecond = pScene->mAnimations[animationIndex]->mTicksPerSecond;
+        return (float)(ticksPerSecond != 0.0 ? ticksPerSecond : 25.0);
+    }
+
+    float GetAnimationDuration(uint32 animationIndex) const
+    {
+        if (!HasAnimations() || animationIndex >= pScene->mNumAnimations)
+            return 0.0f;
+
+        return (float)pScene->mAnimations[animationIndex]->mDuration;
+    }
+
+    void RecalcBoneTransforms(uint32 BoneIndex);
+
 private:
     #define MAX_NUM_BONES_PER_VERTEX 4
 
@@ -109,7 +129,8 @@ private:
     uint32 FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint32 FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string& NodeName);
-    void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Matrix& ParentTransform, int parentBoneIndex);
+    void ReadNodeHierarchy(float AnimationTime, const aiAnimation* pAnimation,
+        const aiNode* pNode, const Matrix& ParentTransform, int parentBoneIndex);
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 

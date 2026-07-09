@@ -27,6 +27,10 @@ public:
     SceneView();
     ~SceneView();
 
+public:
+    void SetTransformGizmoOverride(const Matrix& matrix, function<void(const Matrix&)> onMatrixChanged);
+    void ClearTransformGizmoOverride();
+
 protected:
     void OnGUI() override;
 
@@ -38,5 +42,9 @@ private:
 
 private:
     GizmoUIState g_gizmo;
-};
 
+private:
+    bool _transformGizmoOverrided = false;
+    Matrix _overrideMatrix;
+    function<void(const Matrix&)> _onMatrixChanged;
+};

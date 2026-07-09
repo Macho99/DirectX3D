@@ -1,6 +1,7 @@
 #pragma once
 #include "DirectoryWatcherWin.h"
 class EditorWindow;
+class SceneView;
 
 enum class EditorIcon
 {
@@ -29,6 +30,9 @@ public:
     void OnDestroy();
 
 public:
+    SceneView* GetSceneView() { return _sceneView; }
+
+public:
     void GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
     void ClickTransform(const TransformRef& transformRef);
     void ClickAsset(const AssetRef& assetRef);
@@ -46,7 +50,7 @@ public:
 	bool TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
 	void FocusContentBrowserAsset(const AssetRef& assetRef);
 
-    Texture * GetEditorIconTexture(EditorIcon icon);
+    Texture* GetEditorIconTexture(EditorIcon icon);
 
     bool IsInspectorLocked() const { return _inspectorLock; }
     void SetInspectorLock(bool lock) { _inspectorLock = lock; }
@@ -67,6 +71,7 @@ private:
 
 	bool _inspectorLock = false;
 
-	vector<unique_ptr<EditorWindow>> _editorWindows; 
+	vector<unique_ptr<EditorWindow>> _editorWindows;
+	SceneView* _sceneView = nullptr;
 	char _saveSceneName[256] = "NewScene";
 };

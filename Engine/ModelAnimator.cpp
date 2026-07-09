@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "OnGUIUtils.h"
 #include "MathUtils.h"
+#include "SceneView.h"
 
 ModelAnimator::ModelAnimator()
 	: Super(StaticType)
@@ -82,14 +83,21 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	//if (lightObj)
 	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 
-	// SRV∏¶ ≈Î«ÿ ¡§∫∏ ¿¸¥ﬁ
+	// SRVÎ•º ÌÜµÌï¥ Ï†ïÎ≥¥ Ï†ÑÎã¨
 	_shader.Resolve()->GetSRV("TransformMap")->SetResource(_srv.Get());
 
 	// Bone
 	BoneDesc boneDesc;
 
 	const uint32 boneCount = mesh->GetBoneCount();
-	_skinnedMesh.LoadBoneInfos(TIME->GetGameTime());
+	if (_showAnimationDebug)
+	{
+
+	}
+	else
+	{
+		_skinnedMesh.LoadBoneInfos(TIME->GetGameTime());
+	}
 	vector<SkinnedMesh::BoneInfo>& boneInfos = _skinnedMesh.GetBoneInfos();
     for (uint32 i = 0; i < boneCount; i++)
     {
@@ -135,6 +143,16 @@ bool ModelAnimator::OnGUI()
 	changed |= OnGUIUtils::DrawInt32("Cur Anim Index", &_tweenDesc.cur.animIndex, 1.f);
 	changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animIndex, 1.f);
 	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
+	bool showAnimDebugChanged = OnGUIUtils::DrawBool("Show Animation Debug", &_showAnimationDebug);
+    changed |= showAnimDebugChanged;
+	if (showAnimDebugChanged && _showAnimationDebug == false)
+	{
+        EDITOR->GetSceneView()->ClearTransformGizmoOverride();
+	}
+
+	if (_showAnimationDebug)
+		DrawDebugWindow();
+
 	return changed;
 }
 
@@ -186,7 +204,7 @@ void ModelAnimator::CreateTexture()
 		desc.Width = MAX_MODEL_TRANSFORMS * 4;
 		desc.Height = MAX_MODEL_KEYFRAMES;
 		desc.ArraySize = model->GetAnimationCount();
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 16πŸ¿Ã∆Æ
+		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 16Î∞îÏù¥Ìä∏
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		desc.MipLevels = 1;
@@ -196,7 +214,7 @@ void ModelAnimator::CreateTexture()
 		const uint32 pageSize = dataSize * MAX_MODEL_KEYFRAMES;
 		void* mallocPtr = ::malloc(pageSize * model->GetAnimationCount());
 
-		// ∆ƒ∆Ì»≠µ» µ•¿Ã≈Õ∏¶ ¡∂∏≥«—¥Ÿ.
+		// ÌååÌé∏ÌôîÎêú Îç∞Ïù¥ÌÑ∞Î•º Ï°∞Î¶ΩÌïúÎã§.
 		for (uint32 c = 0; c < model->GetAnimationCount(); c++)
 		{
 			uint32 startOffset = c * pageSize;
@@ -210,7 +228,7 @@ void ModelAnimator::CreateTexture()
 			}
 		}
 
-		// ∏Æº“Ω∫ ∏∏µÈ±‚
+		// Î¶¨ÏÜåÏä§ ÎßåÎì§Í∏∞
 		vector<D3D11_SUBRESOURCE_DATA> subResources(model->GetAnimationCount());
 
 		for (uint32 c = 0; c < model->GetAnimationCount(); c++)
@@ -297,7 +315,7 @@ void ModelAnimator::UpdateTweenData()
 	TweenDesc& desc = _tweenDesc;
 
 	desc.cur.sumTime += DT;
-	// «ˆ¿Á æ÷¥œ∏ﬁ¿Ãº«
+	// ÌòÑÏû¨ Ïï†ÎãàÎ©îÏù¥ÏÖò
 	{
 		ModelAnimation* currentAnim = model->GetAnimationByIndex(desc.cur.animIndex);
 		if (currentAnim)
@@ -314,7 +332,7 @@ void ModelAnimator::UpdateTweenData()
 		}
 	}
 
-	// ¥Ÿ¿Ω æ÷¥œ∏ﬁ¿Ãº«¿Ã ¿÷¥Ÿ∏È
+	// Îã§Ïùå Ïï†ÎãàÎ©îÏù¥ÏÖòÏù¥ ÏûàÎã§Î©¥
 	if (desc.next.animIndex >= 0)
 	{
 		desc.tweenSumTime += DT;
@@ -327,7 +345,7 @@ void ModelAnimator::UpdateTweenData()
 		}
 		else
 		{
-			// ±≥√º¡ﬂ
+			// ÍµêÏ≤¥Ï§ë
 			desc.next.sumTime += DT;
 
 			desc.next.animIndex = std::clamp(desc.next.animIndex, 0, (int)model->GetAnimationCount() - 1);
@@ -378,7 +396,8 @@ void ModelAnimator::DrawDebugWindow()
 			{
 				_debugAnimationIndex = (int)i;
 				_debugFrameIndex = 0;
-				_debugNodeIndex = 0;
+				_debugBoneIndex = 0;
+                _lastDebugFrameIndex = -1;
 			}
 			if (selected)
 				ImGui::SetItemDefaultFocus();
@@ -391,107 +410,120 @@ void ModelAnimator::DrawDebugWindow()
 	ImGui::SetNextItemWidth(500.0f);
 	ImGui::SliderInt("Frame", &_debugFrameIndex, 0, max(0, (int)frameCount - 1));
 
-	SkinnedMesh::AnimationDebugFrame debugFrame;
-	if (!_skinnedMesh.GetAnimationDebugFrame(_debugAnimationIndex, _debugFrameIndex, debugFrame))
-	{
-		ImGui::TextDisabled("Unable to evaluate this animation frame.");
-		ImGui::End();
-		return;
-	}
+	const float ticksPerSecond = _skinnedMesh.GetAnimationTicksPerSecond(_debugAnimationIndex);
+	const float timeSeconds = ticksPerSecond > 0.0f ? _debugFrameIndex / ticksPerSecond : 0.0f;
+
+    if (_debugFrameIndex != _lastDebugFrameIndex)
+		_skinnedMesh.LoadBoneInfos(timeSeconds, _debugAnimationIndex);
+    _lastDebugFrameIndex = _debugFrameIndex;
+
+	vector<SkinnedMesh::BoneInfo>& boneInfos = _skinnedMesh.GetBoneInfos();
 
 	ImGui::SameLine();
-	ImGui::Text("tick %.3f / %.3f | %.3fs | %.2f ticks/s",
-		debugFrame.timeTicks,
-		debugFrame.durationTicks,
-		debugFrame.timeSeconds,
-		debugFrame.ticksPerSecond);
+	ImGui::Text("tick %d / %.3f | %.3fs | %.2f ticks/s",
+		_debugFrameIndex,
+		_skinnedMesh.GetAnimationDuration(_debugAnimationIndex),
+		timeSeconds,
+		ticksPerSecond);
 	ImGui::Separator();
 
 	const float listWidth = 330.0f;
-	ImGui::BeginChild("NodeList", ImVec2(listWidth, 0.0f), true);
+	ImGui::BeginChild("BoneList", ImVec2(listWidth, 0.0f), true);
 	ImGui::SetNextItemWidth(-1.0f);
 	ImGui::Separator();
 
-	function<int(int)> DrawNodeTree = [&](int nodeIndex) -> int
+	function<void(int)> DrawBoneTree = [&](int boneIndex)
 		{
-			const auto& node = debugFrame.nodes[nodeIndex];
-			int subtreeEnd = nodeIndex + 1;
-			while (subtreeEnd < (int)debugFrame.nodes.size() &&
-				debugFrame.nodes[subtreeEnd].depth > node.depth)
-				++subtreeEnd;
+			if (boneIndex < 0 || boneIndex >= (int)boneInfos.size())
+				return;
 
-			const bool hasChildren =
-				nodeIndex + 1 < (int)debugFrame.nodes.size() &&
-				debugFrame.nodes[nodeIndex + 1].depth > node.depth;
+			const SkinnedMesh::BoneInfo& boneInfo = boneInfos[boneIndex];
+			const bool hasChildren = !boneInfo.ChildrenIndices.empty();
 			ImGuiTreeNodeFlags flags =
 				ImGuiTreeNodeFlags_SpanAvailWidth |
 				ImGuiTreeNodeFlags_OpenOnArrow |
 				ImGuiTreeNodeFlags_OpenOnDoubleClick;
-			if (_debugNodeIndex == nodeIndex)
+			if (_debugBoneIndex == boneIndex)
 				flags |= ImGuiTreeNodeFlags_Selected;
 			if (!hasChildren)
 				flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			string label = node.name;
-			if (node.hasAnimationChannel)
-				label += "  [A]";
-			if (node.isBone)
-				label += "  [B]";
-
-			const bool open = ImGui::TreeNodeEx((void*)(intptr_t)nodeIndex, flags, "%s", label.c_str());
+			const string boneName = _skinnedMesh.GetBoneName(boneIndex);
+			const bool open = ImGui::TreeNodeEx(
+				(void*)(intptr_t)boneIndex, flags, "%s  [%d]", boneName.c_str(), boneIndex);
 			if (ImGui::IsItemClicked())
-				_debugNodeIndex = nodeIndex;
+				_debugBoneIndex = boneIndex;
 
 			if (hasChildren && open)
 			{
-				int childIndex = nodeIndex + 1;
-				while (childIndex < subtreeEnd)
-					childIndex = DrawNodeTree(childIndex);
+				for (int childIndex : boneInfo.ChildrenIndices)
+					DrawBoneTree(childIndex);
 				ImGui::TreePop();
 			}
-			return subtreeEnd;
 		};
 
-	for (int nodeIndex = 0; nodeIndex < (int)debugFrame.nodes.size();)
-		nodeIndex = DrawNodeTree(nodeIndex);
+	for (int boneIndex = 0; boneIndex < (int)boneInfos.size(); ++boneIndex)
+	{
+		if (boneInfos[boneIndex].ParentIndex < 0)
+			DrawBoneTree(boneIndex);
+	}
 	ImGui::EndChild();
 
 	ImGui::SameLine();
-	ImGui::BeginChild("NodeDetails", ImVec2(0.0f, 0.0f), true);
-	if (!debugFrame.nodes.empty())
+	ImGui::BeginChild("BoneDetails", ImVec2(0.0f, 0.0f), true);
+	if (!boneInfos.empty())
 	{
-		_debugNodeIndex = clamp(_debugNodeIndex, 0, (int)debugFrame.nodes.size() - 1);
-		const auto& node = debugFrame.nodes[_debugNodeIndex];
-		ImGui::Text("%s", node.name.c_str());
-		ImGui::TextDisabled("Parent: %s | Depth: %u | Animation channel: %s | Bone: %s",
-			node.parentName.empty() ? "<root>" : node.parentName.c_str(),
-			node.depth,
-			node.hasAnimationChannel ? "yes" : "no",
-			node.isBone ? "yes" : "no");
-		ImGui::Separator();
-		ImGui::Text("S  (%.5f, %.5f, %.5f)", node.scale.x, node.scale.y, node.scale.z);
-		ImGui::Text("R  quaternion (%.5f, %.5f, %.5f, %.5f)",
-			node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w);
-		ImGui::Text("T  (%.5f, %.5f, %.5f)",
-			node.translation.x, node.translation.y, node.translation.z);
-		ImGui::Spacing();
-		ImGui::TextDisabled("Local = Scale * Rotation * Translation");
+		_debugBoneIndex = clamp(_debugBoneIndex, 0, (int)boneInfos.size() - 1);
+		SkinnedMesh::BoneInfo& boneInfo = boneInfos[_debugBoneIndex];
+		const string boneName = _skinnedMesh.GetBoneName(_debugBoneIndex);
+		const string parentName = boneInfo.ParentIndex >= 0
+			? _skinnedMesh.GetBoneName(boneInfo.ParentIndex)
+			: "<root>";
 
-		DrawDebugMatrix("Source node matrix", node.sourceNodeTransform);
-		DrawDebugMatrix("Scale matrix (S)", node.scaleMatrix);
-		DrawDebugMatrix("Rotation matrix (R)", node.rotationMatrix);
-		DrawDebugMatrix("Translation matrix (T)", node.translationMatrix);
-		DrawDebugMatrix("Local matrix (S * R * T)", node.localTransform);
-		DrawDebugMatrix("Parent global matrix", node.parentTransform);
-		DrawDebugMatrix("Global matrix (Local * Parent)", node.globalTransform);
-		if (node.isBone)
-		{
-			ImGui::SeparatorText("Bone skinning");
-			ImGui::TextDisabled("Final = BoneOffset * Global * GlobalInverseRoot");
-			DrawDebugMatrix("Bone offset matrix", node.boneOffset);
-			DrawDebugMatrix("Global inverse root matrix", node.globalInverseRoot);
-			DrawDebugMatrix("Final bone matrix", node.finalBoneTransform);
-		}
+		ImGui::Text("%s  [%d]", boneName.c_str(), _debugBoneIndex);
+		ImGui::TextDisabled("Parent: %s [%d] | Children: %u",
+			parentName.c_str(),
+			boneInfo.ParentIndex,
+			(uint32)boneInfo.ChildrenIndices.size());
+		ImGui::SeparatorText("Bone transforms");
+		ImGui::TextDisabled("BoneLocal = Global * ParentGlobalInverse");
+		ImGui::TextDisabled("Final = Offset * Global * GlobalInverseRoot");
+
+		Vec3 position, eulerRotation, scale;
+        Quaternion rotation;
+        boneInfo.BoneLocalTransform.Decompose(scale, rotation, position);
+		eulerRotation = Transform::ToEulerAngles(rotation);
+        eulerRotation = MathUtils::RadToDeg(eulerRotation);
+
+        bool changed = false;
+
+		changed |= OnGUIUtils::DrawVec3("Position", &position, 0.1f, false);
+		changed |= OnGUIUtils::DrawVec3("Rotation", &eulerRotation, 0.1f, false);
+		changed |= OnGUIUtils::DrawVec3("Scale", &scale, 0.1f, false);
+        if (changed)
+        {
+            eulerRotation = MathUtils::DegToRad(eulerRotation);
+            Quaternion newRotation = Quaternion::CreateFromYawPitchRoll(eulerRotation.y, eulerRotation.x, eulerRotation.z);
+            boneInfo.BoneLocalTransform = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(newRotation) * Matrix::CreateTranslation(position);
+            _skinnedMesh.RecalcBoneTransforms(_debugBoneIndex);
+        }
+
+		DrawDebugMatrix("Bone local matrix", boneInfo.BoneLocalTransform);
+		DrawDebugMatrix("Global matrix", boneInfo.GlobalTransformation);
+		DrawDebugMatrix("Global inverse matrix", boneInfo.GlobalTransformationInverse);
+		DrawDebugMatrix("Bone offset matrix", boneInfo.OffsetMatrix);
+		DrawDebugMatrix("Final bone matrix", boneInfo.FinalTransformation);
+
+        EDITOR->GetSceneView()->SetTransformGizmoOverride(boneInfo.GlobalTransformation * GetTransform()->GetWorldMatrix(), [&](const Matrix& worldMatrix)
+            {
+                Matrix modelMatrix = worldMatrix * GetTransform()->GetWorldMatrix().Invert();
+
+                Matrix parentGlobalInverse = Matrix::Identity;
+                if (boneInfo.ParentIndex >= 0)
+                    parentGlobalInverse = boneInfos[boneInfo.ParentIndex].GlobalTransformationInverse;
+                boneInfo.BoneLocalTransform = modelMatrix * parentGlobalInverse;
+                _skinnedMesh.RecalcBoneTransforms(_debugBoneIndex);
+            });
 	}
 	ImGui::EndChild();
 	ImGui::End();

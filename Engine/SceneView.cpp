@@ -26,6 +26,19 @@ SceneView::~SceneView()
 {
 }
 
+void SceneView::SetTransformGizmoOverride(const Matrix& matrix, function<void(const Matrix&)> onMatrixChanged)
+{
+    _transformGizmoOverrided = true;
+    _overrideMatrix = matrix;
+    _onMatrixChanged = onMatrixChanged;
+}
+
+void SceneView::ClearTransformGizmoOverride()
+{
+    _transformGizmoOverrided = false;
+    _onMatrixChanged = nullptr;
+}
+
 void SceneView::OnGUI()
 {
     Super::OnGUI();
@@ -100,6 +113,10 @@ void SceneView::DrawTransformGizmo(Transform* selectedTransform, Camera* camera)
     Matrix view = camera->GetViewMatrix();
     Matrix proj = camera->GetProjectionMatrix();
     Matrix world = selectedTransform->GetWorldMatrix();
+    if (_transformGizmoOverrided)
+    {
+        world = _overrideMatrix;
+    }
 
     ImGuizmo::Manipulate(
         (float*)&view,
@@ -114,7 +131,11 @@ void SceneView::DrawTransformGizmo(Transform* selectedTransform, Camera* camera)
     if (ImGuizmo::IsUsing())
     {
         gameDesc.sceneFocused = false;
-        selectedTransform->SetWorldMatrix(world);
+
+        if (_transformGizmoOverrided)
+            _onMatrixChanged(world);
+        else
+            selectedTransform->SetWorldMatrix(world);
     }
 }
 

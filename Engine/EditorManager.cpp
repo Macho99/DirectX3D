@@ -42,7 +42,10 @@ void EditorManager::Init()
     ImGui_ImplWin32_Init(GAME->GetGameDesc().hWnd);
     ImGui_ImplDX11_Init(DEVICE.Get(), DC.Get());
 
-    _editorWindows.push_back(make_unique<SceneView>());
+    unique_ptr<SceneView> sceneView = make_unique<SceneView>();
+    _sceneView = sceneView.get();
+    _editorWindows.push_back(move(sceneView));
+    //_editorWindows.push_back(make_unique<SceneView>());
     _editorWindows.push_back(make_unique<Hierarchy>());
     _editorWindows.push_back(make_unique<Console>());
     _editorWindows.push_back(make_unique<Inspector>());
