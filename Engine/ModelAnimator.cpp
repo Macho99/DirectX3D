@@ -276,39 +276,39 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 	{
 		for (uint32 b = 0; b < mesh->GetBoneCount(); b++)
 		{
-			//shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(b);
-			//
-			//Matrix matAnim;
-			//
-			//shared_ptr<ModelKeyframe> frame = animation->GetKeyframe(bone->name);
-			//if (frame != nullptr)
-			//{
-			//	ModelKeyframeData& data = frame->transforms[f];
-			//	Matrix S, R, T;
-			//	S = Matrix::CreateScale(data.scale);
-			//	R = Matrix::CreateFromQuaternion(data.rotation);
-			//	T = Matrix::CreateTranslation(data.translation);
-			//
-			//	matAnim = S * R * T;
-			//}
-			//else
-			//{
-			//	matAnim = Matrix::Identity;
-			//}
-			//
-			//Matrix toRootMat = bone->transform;
-			//Matrix invGlobal = toRootMat.Invert();
-			//
-			//int32 parentIndex = bone->parentIndex;
-			//
-			//Matrix matParent = Matrix::Identity;
-			//if (parentIndex >= 0)
-			//{
-			//	matParent = tempAnimBoneTransforms[parentIndex];
-			//}
-			//
-			//tempAnimBoneTransforms[b] = matAnim * matParent;
-			//_animTransforms[index].transforms[f][b] = invGlobal * tempAnimBoneTransforms[b];
+			shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(b);
+			
+			Matrix matAnim;
+			
+			shared_ptr<ModelKeyframe> frame = animation->GetKeyframe(bone->name);
+			if (frame != nullptr)
+			{
+				ModelKeyframeData& data = frame->transforms[f];
+				Matrix S, R, T;
+				S = Matrix::CreateScale(data.scale);
+				R = Matrix::CreateFromQuaternion(data.rotation);
+				T = Matrix::CreateTranslation(data.translation);
+			
+				matAnim = S * R * T;
+			}
+			else
+			{
+				matAnim = Matrix::Identity;
+			}
+			
+			Matrix toRootMat = bone->globalMatrix;
+			Matrix invGlobal = toRootMat.Invert();
+			
+			int32 parentIndex = bone->parentIndex;
+			
+			Matrix matParent = Matrix::Identity;
+			if (parentIndex >= 0)
+			{
+				matParent = tempAnimBoneTransforms[parentIndex];
+			}
+			
+			tempAnimBoneTransforms[b] = matAnim * matParent;
+			_animTransforms[index].transforms[f][b] = invGlobal * tempAnimBoneTransforms[b];
 		}
 	}
 }

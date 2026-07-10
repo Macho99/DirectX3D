@@ -30,6 +30,7 @@ private:
     void ReadMeshBones(uint32 meshIndex, const aiMesh* paiMesh);
     void ReadSingleBone(uint32 meshIndex, const aiBone* pBone);
 	void ReadVertexBlendData();
+	void ReadNodeHierarchy(const unordered_map<string, int32>& boneNameToIndexMap, const aiNode* pNode, int32 parentBoneIndex, const Matrix& hierarchyTransform);
 	void WriteModelFile(wstring finalPath);
 
 private:
@@ -47,7 +48,8 @@ private:
 
 private:
 	int GetBoneIndex(const string& name);
-		
+    Matrix ConvertMatrix(const aiMatrix4x4& from);
+
 private:
 	shared_ptr<Assimp::Importer> _importer;
 	const aiScene* _scene;

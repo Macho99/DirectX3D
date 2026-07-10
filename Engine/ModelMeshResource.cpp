@@ -28,6 +28,9 @@ void ModelMeshResource::ReadModel(wstring fullPath)
 			bone->index = file->Read<int32>();
 			bone->name = Utils::ToWString(file->Read<string>());
 			bone->offsetMatrix = file->Read<Matrix>();
+            bone->localMatrix = file->Read<Matrix>();
+            bone->globalMatrix = file->Read<Matrix>();
+            bone->parentIndex = file->Read<int32>();
 
 			_bones.push_back(bone);
 		}

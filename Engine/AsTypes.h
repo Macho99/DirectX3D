@@ -7,6 +7,10 @@ struct asBone
 	string name;
 	int index;
 	Matrix offsetMatrix;
+	Matrix localMatrix;
+	Matrix globalMatrix = Matrix::Identity;
+
+	int32 parentIndex = -1;
 };
 
 struct asMesh

@@ -5,9 +5,11 @@ struct ModelBone
 	wstring name;
 	int32 index;
 	Matrix offsetMatrix;
-	Matrix finalMatrix = Matrix::Identity;
-};
+	Matrix localMatrix;
+	Matrix globalMatrix = Matrix::Identity;
 
+    int32 parentIndex = -1;
+};
 
 struct ModelMesh
 {

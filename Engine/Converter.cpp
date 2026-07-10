@@ -65,6 +65,13 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
         ReadVertexBlendData();
         if (_meshes.size() > 0)
         {
+            unordered_map<string, int32> boneNameToIndexMap;
+            for (uint32 i = 0; i < _bones.size(); ++i)
+            {
+                boneNameToIndexMap[_bones[i]->name] = _bones[i]->index;
+            }
+            ReadNodeHierarchy(boneNameToIndexMap, _scene->mRootNode, -1, Matrix::Identity);
+
             SubAssetInfo info = SubAssetInfo();
             wstring assetName = Utils::ToWString(_meshes[0]->name) + ModelMeshResource::GetExtension();
             wstring finalPath = artifactPath + L"\\" + assetName;
@@ -209,6 +216,37 @@ void Converter::ReadVertexBlendData()
     }
 }
 
+void Converter::ReadNodeHierarchy(const unordered_map<string, int32>& boneNameToIndexMap, const aiNode* pNode, int32 parentBoneIndex, const Matrix& hierarchyTransform)
+{
+    string nodeName(pNode->mName.data);
+    Matrix nodeTransformation(ConvertMatrix(pNode->mTransformation));
+
+    const Matrix globalTransformation = nodeTransformation * hierarchyTransform;
+
+    auto it = boneNameToIndexMap.find(nodeName);
+    if (it != boneNameToIndexMap.end())
+    {
+        int boneIndex = it->second;
+        shared_ptr<asBone>& bone = _bones[boneIndex];
+        bone->globalMatrix = globalTransformation;
+        bone->parentIndex = parentBoneIndex;
+
+        Matrix parentTransformation = Matrix::Identity;
+        if (parentBoneIndex >= 0)
+        {
+            parentTransformation = _bones[parentBoneIndex]->globalMatrix;
+        }
+        bone->localMatrix = globalTransformation * parentTransformation.Invert();
+
+        parentBoneIndex = boneIndex;
+    }
+
+    for (uint32 i = 0; i < pNode->mNumChildren; ++i)
+    {
+        ReadNodeHierarchy(boneNameToIndexMap, pNode->mChildren[i], parentBoneIndex, globalTransformation);
+    }
+}
+
 void Converter::ReadAllMeshes(const aiScene* scene)
 {
     for (unsigned int i = 0; i < scene->mNumMeshes; i++)
@@ -299,6 +337,9 @@ void Converter::WriteModelFile(wstring finalPath)
         fileUtils->Write<int32>(bone->index);
         fileUtils->Write<string>(bone->name);
         fileUtils->Write<Matrix>(bone->offsetMatrix);
+        fileUtils->Write<Matrix>(bone->localMatrix);
+        fileUtils->Write<Matrix>(bone->globalMatrix);
+        fileUtils->Write<int32>(bone->parentIndex);
     }
 
     // Mesh Data
@@ -654,4 +695,14 @@ int Converter::GetBoneIndex(const string& name)
     }
 
     return -1;
+}
+
+Matrix Converter::ConvertMatrix(const aiMatrix4x4& from)
+{
+    Matrix to;
+    to._11 = from.a1; to._12 = from.b1; to._13 = from.c1; to._14 = from.d1;
+    to._21 = from.a2; to._22 = from.b2; to._23 = from.c2; to._24 = from.d2;
+    to._31 = from.a3; to._32 = from.b3; to._33 = from.c3; to._34 = from.d3;
+    to._41 = from.a4; to._42 = from.b4; to._43 = from.c4; to._44 = from.d4;
+    return to;
 }
