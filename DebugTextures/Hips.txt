@@ -1,0 +1,402 @@
+Time=0
+Rotation: -19.2962, 11.7221, 2.77054
+
+Time=-1.8538e-09
+Rotation: 0.250398, -3.08931, 170.734
+
+Time=1.80017e-13
+Rotation: -175.916, 7.39752, 57.7604
+
+Time=0.7
+Rotation: -16.5213, 20.868, 3.11237
+
+Time=-1.05769e-09
+Rotation: 0.325721, -3.27149, 168.631
+
+Time=7.60816e-13
+Rotation: -178.071, 4.1402, 49.9496
+
+Time=2.6
+Rotation: -0.360526, 52.9282, 14.0589
+
+Time=-3.29268e-13
+Rotation: nan, nan, nan
+
+Time=1.89152e-10
+Rotation: -179.247, 1.87323, 43.7727
+
+Time=3.2
+Rotation: 8.91423, 64.7664, 21.2944
+
+Time=-7.4881e-15
+Rotation: 1.42611, -5.60362, 151.463
+
+Time=1.48814e-10
+Rotation: -179.542, 1.24291, 40.4703
+
+Time=3.6
+Rotation: 16.7256, 72.3148, 27.595
+
+Time=-5.12465e-16
+Rotation: 180, 4.13369e-05, 180
+
+Time=6.41011e-11
+Rotation: -179.656, 1.00658, 37.7473
+
+Time=4
+Rotation: 31.2001, 79.487, 40.9394
+
+Time=-2.51462e-16
+Rotation: -180, -7.06676e-07, -180
+
+Time=2.77459e-11
+Rotation: -179.661, 1.06704, 35.2393
+
+Time=4.4
+Rotation: 76.6539, 84.8691, 85.7247
+
+Time=-1.2709e-15
+Rotation: nan, nan, nan
+
+Time=1.04509e-11
+Rotation: -168.076, -1.97435, 32.5158
+
+Time=4.8
+Rotation: 147.679, 82.2292, 156.64
+
+Time=-1.46462e-14
+Rotation: 1.12062, -3.41984, 143.723
+
+Time=6.40046e-12
+Rotation: nan, nan, nan
+
+Time=5.2
+Rotation: 164.258, 74.8891, 174.422
+
+Time=-1.81553e-13
+Rotation: 1.23673, -3.60699, 142.16
+
+Time=1.43928e-11
+Rotation: -179.353, 2.70236, 26.9314
+
+Time=5.6
+Rotation: 167.42, 66.5825, -179.611
+
+Time=-2.89408e-12
+Rotation: 1.48711, -4.17547, 140.807
+
+Time=5.26738e-11
+Rotation: -179.283, -3.49152, -23.2008
+
+Time=6.2
+Rotation: 168.694, 55.8381, -176.059
+
+Time=6.14315e-12
+Rotation: 1.57712, 4.27711, -139.533
+
+Time=-5.2688e-11
+Rotation: -179.397, -3.36716, -20.3092
+
+Time=6.6
+Rotation: 169.839, 50.3774, -175.731
+
+Time=2.41116e-12
+Rotation: 1.30878, 3.55963, -139.636
+
+Time=-8.10145e-12
+Rotation: -179.7, -2.62481, -13.0263
+
+Time=9
+Rotation: 175.077, 20.6482, -171.761
+
+Time=7.42858e-12
+Rotation: 0.820838, 2.14567, -138.134
+
+Time=-7.80182e-14
+Rotation: -179.907, -4.65033, -2.29695
+
+Time=11
+Rotation: 173.045, -12.059, -165.781
+
+Time=2.23108e-10
+Rotation: 0.673679, 1.79327, -138.823
+
+Time=-2.71432e-13
+Rotation: 2.1759e-17, 2.79477e-18, 9.16737e-19
+
+Time=12.3
+Rotation: 167.406, -40.6961, -161.653
+
+Time=1.41133e-10
+Rotation: nan, nan, nan
+
+Time=-4.47721e-14
+Rotation: 179.258, -4.6969, 17.9549
+
+Time=12.7
+Rotation: 165.488, -50.4987, -158.944
+
+Time=1.34215e-10
+Rotation: -180, 4.95827e-11, 180
+
+Time=-2.04722e-15
+Rotation: 179.15, -4.53243, 21.2416
+
+Time=13.1
+Rotation: 162.751, -60.9949, -155.367
+
+Time=8.86346e-11
+Rotation: 0.17529, 0.559021, -145.181
+
+Time=-2.5594e-19
+Rotation: -170.151, -6.43999, 23.9794
+
+Time=13.5
+Rotation: 157.496, -72.5032, -149.175
+
+Time=3.88065e-11
+Rotation: nan, nan, nan
+
+Time=1.04187e-17
+Rotation: 179.099, -3.65579, 27.6914
+
+Time=13.9
+Rotation: 133.413, -83.4941, -124.216
+
+Time=1.3635e-11
+Rotation: -0.320807, -1.21173, -150.343
+
+Time=1.50895e-14
+Rotation: 2.22759e-17, 6.03446e-18, 6.51137e-19
+
+Time=14.8
+Rotation: 3.01387, -69.8496, 7.32602
+
+Time=4.73563e-13
+Rotation: -0.58209, -2.863, -157.02
+
+Time=5.17033e-12
+Rotation: 179.413, -1.87823, 34.6945
+
+Time=15.2
+Rotation: 0.141381, -60.6829, 10.2723
+
+Time=6.79067e-14
+Rotation: -11.199, -1.31423, -159.632
+
+Time=9.57588e-12
+Rotation: nan, nan, nan
+
+Time=15.6
+Rotation: -0.706154, -52.8223, 10.8678
+
+Time=1.27768e-14
+Rotation: nan, nan, nan
+
+Time=1.15275e-11
+Rotation: 179.628, -1.1225, 36.6983
+
+Time=16
+Rotation: -1.16168, -46.0671, 10.8138
+
+Time=1.99037e-15
+Rotation: nan, nan, nan
+
+Time=5.09699e-12
+Rotation: 179.925, -0.218465, 38.057
+
+Time=18
+Rotation: -2.79962, -25.0749, 5.03539
+
+Time=-1.13336e-17
+Rotation: nan, nan, nan
+
+Time=1.27594e-23
+Rotation: -179.627, 1.06204, 38.6995
+
+Time=20
+Rotation: -6.28683, -19.2476, 2.035
+
+Time=-2.454e-13
+Rotation: nan, nan, nan
+
+Time=1.70639e-15
+Rotation: -179.046, 2.71939, 38.6581
+
+Time=22
+Rotation: -10.7302, 1.99727, 6.52792
+
+Time=-3.12411e-11
+Rotation: nan, nan, nan
+
+Time=2.26533e-11
+Rotation: -178.67, 3.86821, 37.9352
+
+Time=24
+Rotation: -11.4274, 28.9952, 11.6069
+
+Time=-3.48866e-10
+Rotation: nan, nan, nan
+
+Time=1.18989e-09
+Rotation: -178.589, 4.41258, 35.4539
+
+Time=26
+Rotation: -5.94953, 52.676, 16.1363
+
+Time=-1.07909e-10
+Rotation: nan, nan, nan
+
+Time=1.22927e-09
+Rotation: -179.041, 3.34405, 32.0098
+
+Time=28
+Rotation: 7.0596, 73.4258, 25.4495
+
+Time=-1.12641e-11
+Rotation: 1.04105, -4.84865, 155.778
+
+Time=6.37773e-10
+Rotation: -179.196, 3.11774, 28.9161
+
+Time=31
+Rotation: -6.7277, 75.778, 8.29763
+
+Time=-2.3126e-11
+Rotation: 0.691812, -3.40877, 157.062
+
+Time=1.06129e-11
+Rotation: -179.083, 3.43279, 29.9171
+
+Time=33
+Rotation: -11.7077, 70.5062, 3.15291
+
+Time=-4.88538e-11
+Rotation: nan, nan, nan
+
+Time=5.70356e-12
+Rotation: -179.09, 3.37318, 30.1986
+
+Time=35
+Rotation: -12.0233, 70.1564, 0.872717
+
+Time=-2.22284e-11
+Rotation: 0.456632, -2.42321, 158.66
+
+Time=1.07195e-12
+Rotation: -179.195, 2.99358, 30.0793
+
+Time=37
+Rotation: -11.8125, 70.1858, -0.807179
+
+Time=-9.17622e-12
+Rotation: nan, nan, nan
+
+Time=1.29894e-13
+Rotation: -179.293, 2.6417, 29.955
+
+Time=39
+Rotation: -11.4509, 70.2079, -2.42954
+
+Time=-3.44116e-12
+Rotation: nan, nan, nan
+
+Time=0
+Rotation: nan, nan, nan
+
+Time=0
+Rotation: nan, nan, nan
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+
+Time=0
+Rotation: 88.7661, 0, 88.7661
+

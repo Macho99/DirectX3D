@@ -123,7 +123,7 @@ private:
     void LoadSingleBone(uint32 MeshIndex, const aiBone* pBone);
     int GetBoneId(const aiBone* pBone);
     void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim, const string& NodeName);
     void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint32 FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint32 FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);

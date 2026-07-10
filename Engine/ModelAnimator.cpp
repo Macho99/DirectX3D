@@ -181,6 +181,13 @@ bool ModelAnimator::TryInitialize()
     return true;
 }
 
+void ModelAnimator::OnInspectorFocusLost()
+{
+    Super::OnInspectorFocusLost();
+    _showAnimationDebug = false;
+    EDITOR->GetSceneView()->ClearTransformGizmoOverride();
+}
+
 void ModelAnimator::CreateTexture()
 {
     Model* model = _model.Resolve();
@@ -367,11 +374,11 @@ void ModelAnimator::UpdateTweenData()
 
 void ModelAnimator::DrawDebugWindow()
 {
-	string objectName = GetGameObject() ? GetGameObject()->GetName() : "ModelAnimator";
-	string windowTitle = "Animation Debug - " + objectName + "##ModelAnimator_" + to_string((uintptr_t)this);
+	string windowTitle = "Animation Debug";
 	ImGui::SetNextWindowSize(ImVec2(1050.0f, 700.0f), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin(windowTitle.c_str(), &_showAnimationDebug))
 	{
+		EDITOR->GetSceneView()->ClearTransformGizmoOverride();
 		ImGui::End();
 		return;
 	}

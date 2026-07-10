@@ -18,6 +18,7 @@
 #include "pch.h"
 #include "skinned_mesh.h"
 #include "MathUtils.h"
+#include <fstream>
 
 #define POSITION_LOCATION    0
 #define TEX_COORD_LOCATION   1
@@ -251,18 +252,43 @@ uint32 SkinnedMesh::FindRotation(float AnimationTimeTicks, const aiNodeAnim* pNo
 {
     assert(pNodeAnim->mNumRotationKeys > 0);
 
+    uint32 foundIndex = 0;
     for (uint32 i = 0 ; i < pNodeAnim->mNumRotationKeys - 1 ; i++) {
         float t = (float)pNodeAnim->mRotationKeys[i + 1].mTime;
-        if (AnimationTimeTicks < t) {
-            return i;
+        if (t < 0.1)
+        {
+            continue;
         }
+        if (AnimationTimeTicks < t) 
+        {
+            return foundIndex;
+        }
+        foundIndex = i + 1;
     }
 
     return 0;
 }
 
+namespace
+{
+    void DumpHipsRotationQuaternions(const float time,
+        const Vec3 rotation)
+    {
+#if defined(_DEBUG)
 
-void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
+        fs::create_directories("../DebugTextures");
+
+        ofstream file("../DebugTextures/HipsRotationQuaternions.txt", ios::app);
+        if (!file.is_open())
+            return;
+
+        file << "Time=" << time << '\n';
+        file << "Rotation: " << rotation.x << ", " << rotation.y << ", " << rotation.z << "\n\n";
+#endif
+    }
+}
+
+void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim, const string& NodeName)
 {
     // we need at least two values to interpolate...
     if (pNodeAnim->mNumRotationKeys == 1) {
@@ -271,7 +297,7 @@ void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTim
     }
 
     uint32 RotationIndex = FindRotation(AnimationTimeTicks, pNodeAnim);
-    uint32 NextRotationIndex = RotationIndex + 1;
+    uint32 NextRotationIndex = FindRotation(AnimationTimeTicks + 1, pNodeAnim);
     assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
     float t1 = (float)pNodeAnim->mRotationKeys[RotationIndex].mTime;
     float t2 = (float)pNodeAnim->mRotationKeys[NextRotationIndex].mTime;
@@ -282,6 +308,18 @@ void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTim
     const aiQuaternion& EndRotationQ   = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
     aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
     Out.Normalize();
+
+    //if (NodeName.find("RightUpLeg") != string::npos)
+    //{
+    //    for (int i = 0; i < pNodeAnim->mNumRotationKeys; i++)
+    //    {
+    //        const aiQuaternion& rotationQ = pNodeAnim->mRotationKeys[i].mValue;
+    //        Quaternion quat(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
+    //        Vec3 eulerRotation = Transform::ToEulerAngles(quat);
+    //        eulerRotation = MathUtils::RadToDeg(eulerRotation);
+    //        DumpHipsRotationQuaternions((float)pNodeAnim->mRotationKeys[i].mTime, eulerRotation);
+    //    }
+    //}
 }
 
 
@@ -340,10 +378,6 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiAnimation*
     const Matrix& PendingPreTransform)
 {
     string NodeName(pNode->mName.data);
-    if (NodeName.find("LeftLeg") != string::npos || NodeName.find("RightLeg") != string::npos)
-    {
-        int a = 0;
-    }
 
     Matrix NodeTransformation(ConvertMatrix(pNode->mTransformation));
 
@@ -358,7 +392,7 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiAnimation*
 
         // Interpolate rotation and generate rotation transformation matrix
         aiQuaternion RotationQ;
-        CalcInterpolatedRotation(RotationQ, AnimationTimeTicks, pNodeAnim);
+        CalcInterpolatedRotation(RotationQ, AnimationTimeTicks, pNodeAnim, NodeName);
         Quaternion quat(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w);
         Matrix RotationM = Matrix::CreateFromQuaternion(quat);
 
