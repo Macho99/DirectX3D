@@ -34,6 +34,15 @@ void ModelMeshResource::ReadModel(wstring fullPath)
 
 			_bones.push_back(bone);
 		}
+
+		for (uint32 i = 0; i < _bones.size(); i++)
+		{
+			int32 parentIdx = _bones[i]->parentIndex;
+            if (parentIdx >= 0 && parentIdx < _bones.size())
+            {
+                _bones[parentIdx]->childrenIndices.push_back(i);
+            }
+		}
 	}
 
 	// Mesh

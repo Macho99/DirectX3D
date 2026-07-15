@@ -17,7 +17,6 @@ void ModelAnimation::ReadAnimation(wstring fullPath)
 	file->Open(fullPath, FileMode::Read);
 
 	name = Utils::ToWString(file->Read<string>());
-	duration = file->Read<float>();
 	frameRate = file->Read<float>();
 	frameCount = file->Read<uint32>();
 

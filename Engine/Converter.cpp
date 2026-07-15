@@ -507,6 +507,52 @@ shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
     shared_ptr<asAnimation> animation = make_shared<asAnimation>();
     animation->name = srcAnimation->mName.C_Str();
     animation->frameRate = (float)srcAnimation->mTicksPerSecond;
+
+    uint32 duration = (uint32)srcAnimation->mDuration;
+    animation->frameCount = duration + 1;
+
+    for (uint32 i = 0; i < srcAnimation->mNumChannels; i++)
+    {
+        const aiNodeAnim* srcNode = srcAnimation->mChannels[i];
+
+        shared_ptr<asKeyframe> keyframe = make_shared<asKeyframe>();
+        keyframe->boneName = srcNode->mNodeName.C_Str();
+
+        for (uint32 captureTime = 0; captureTime <= duration; ++captureTime)
+        {
+            asKeyframeData frameData;
+            frameData.time = (float)captureTime;
+            // Position
+            aiVector3D position;
+            SkinnedMesh::CalcInterpolatedPosition(position, (float)captureTime, srcNode);
+            ::memcpy_s(&frameData.translation, sizeof(Vec3), &position, sizeof(aiVector3D));
+
+            // Rotation
+            aiQuaternion rotation;
+            SkinnedMesh::CalcInterpolatedRotation(rotation, (float)captureTime, srcNode);
+            frameData.rotation.x = rotation.x;
+            frameData.rotation.y = rotation.y;
+            frameData.rotation.z = rotation.z;
+            frameData.rotation.w = rotation.w;
+
+            // Scale
+            aiVector3D scale;
+            SkinnedMesh::CalcInterpolatedScaling(scale, (float)captureTime, srcNode);
+            ::memcpy_s(&frameData.scale, sizeof(Vec3), &scale, sizeof(aiVector3D));
+            keyframe->transforms.push_back(frameData);
+        }
+        animation->keyframes.push_back(keyframe);
+    }
+
+    return animation;
+}
+
+/*
+shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
+{
+    shared_ptr<asAnimation> animation = make_shared<asAnimation>();
+    animation->name = srcAnimation->mName.C_Str();
+    animation->frameRate = (float)srcAnimation->mTicksPerSecond;
     animation->frameCount = (uint32)srcAnimation->mDuration + 1;
 
     map<string, shared_ptr<asAnimationNode>> cacheAnimNodes;
@@ -625,7 +671,7 @@ void Converter::ReadKeyframeData(shared_ptr<asAnimation> animation, aiNode* srcN
         ReadKeyframeData(animation, srcNode->mChildren[i], cache);
     }
 }
-
+*/
 void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring finalPath)
 {
     auto path = filesystem::path(finalPath);
@@ -637,7 +683,6 @@ void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring fi
     file->Open(finalPath, FileMode::Write);
 
     file->Write<string>(animation->name);
-    file->Write<float>(animation->duration);
     file->Write<float>(animation->frameRate);
     file->Write<uint32>(animation->frameCount);
 

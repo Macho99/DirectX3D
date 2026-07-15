@@ -1,6 +1,6 @@
 #pragma once
 #include "Renderer.h"
-#include "skinned_mesh.h"
+//#include "skinned_mesh.h"
 
 class Model;
 
@@ -67,7 +67,7 @@ private:
     bool _initialized = false;
 
 private:
-	SkinnedMesh _skinnedMesh;
+	//SkinnedMesh _skinnedMesh;
 
 private:
 	bool _showAnimationDebug = false;

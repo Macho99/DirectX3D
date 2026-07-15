@@ -288,7 +288,7 @@ namespace
     }
 }
 
-void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim, const string& NodeName)
+void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
     // we need at least two values to interpolate...
     if (pNodeAnim->mNumRotationKeys == 1) {
@@ -392,7 +392,7 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiAnimation*
 
         // Interpolate rotation and generate rotation transformation matrix
         aiQuaternion RotationQ;
-        CalcInterpolatedRotation(RotationQ, AnimationTimeTicks, pNodeAnim, NodeName);
+        CalcInterpolatedRotation(RotationQ, AnimationTimeTicks, pNodeAnim);
         Quaternion quat(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w);
         Matrix RotationM = Matrix::CreateFromQuaternion(quat);
 

@@ -190,7 +190,7 @@ void RenderManager::RenderAnimRenderer(vector<GameObject*>& gameObjects)
 
 				AddData(instanceId, data);
 
-				gameObject->GetModelAnimator()->UpdateTweenData();
+				//gameObject->GetModelAnimator()->UpdateTweenData();
 				TweenDesc& desc = gameObject->GetModelAnimator()->GetTweenDesc();
 				tweenDesc->tweens[i] = desc;
 			}

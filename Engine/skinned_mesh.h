@@ -122,12 +122,16 @@ private:
     void LoadMeshBones(uint32 MeshIndex, const aiMesh* paiMesh);
     void LoadSingleBone(uint32 MeshIndex, const aiBone* pBone);
     int GetBoneId(const aiBone* pBone);
-    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim, const string& NodeName);
-    void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint32 FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint32 FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint32 FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+public:
+    static void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    static void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    static void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    static uint32 FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    static uint32 FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    static uint32 FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+private:
     const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string& NodeName);
     void ReadNodeHierarchy(float AnimationTime, const aiAnimation* pAnimation,
         const aiNode* pNode, const Matrix& ParentTransform, int parentBoneIndex,

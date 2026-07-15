@@ -7,6 +7,6 @@ public:
     ModelMeta() : Super(ResourceType::Model) {}
     ~ModelMeta() {}
 
-    virtual int GetVersion() const override { return 3; }
+    virtual int GetVersion() const override { return 4; }
 };
 

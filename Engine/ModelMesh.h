@@ -7,8 +7,8 @@ struct ModelBone
 	Matrix offsetMatrix;
 	Matrix localMatrix;
 	Matrix globalMatrix = Matrix::Identity;
-
     int32 parentIndex = -1;
+    vector<int32> childrenIndices;
 };
 
 struct ModelMesh
