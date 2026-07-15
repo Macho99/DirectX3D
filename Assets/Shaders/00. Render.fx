@@ -219,19 +219,19 @@ MeshOutput VS_Animation(VertexModel input)
 	//output.position = mul(input.position, BoneTransforms[BoneIndex]); // Model Global
 
 	matrix m = GetAnimationMatrix(input);
+    matrix worldMat = mul(m, input.world);
 	
-	float4 worldPos = mul(input.position, m);
-	worldPos = mul(worldPos, input.world); // W
+    float4 worldPos = mul(input.position, worldMat);
 	//output.position = mul(input.position, m);
 	//output.position = mul(output.position, input.world); // W
 	output.position = worldPos;
 	output.worldPosition = output.position;
 	output.position = mul(output.position, VP);
 	output.uv = input.uv;
-	output.normal = mul(input.normal, (float3x3)input.world);
+    output.normal = mul(input.normal, (float3x3) worldMat);
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
-    output.tangent = mul(input.tangent, (float3x3) input.world);
+    output.tangent = mul(input.tangent, (float3x3) worldMat);
     output.viewZ = output.positionV.z;
     output.ssaoPosH = mul(worldPos, VPT);
 

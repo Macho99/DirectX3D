@@ -1,0 +1,98 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 14527466250829825214,
+                    "rightId": 17580865492419202318
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 1384999013883987013,
+                            "rightId": 7694935675158476655
+                        },
+                        "fileName": "Ch10_1001_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 6249179291611814802,
+                            "rightId": 15611827121440818228
+                        },
+                        "fileName": "Ch10_1001_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 662888797704564102,
+                            "rightId": 538920438632208449
+                        },
+                        "fileName": "Ch10_1001_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9558001416262745664,
+                            "rightId": 14163099044217430971
+                        },
+                        "fileName": "Ch10_body.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 8291713221618810839,
+                            "rightId": 11004060712059889354
+                        },
+                        "fileName": "Ch10_1002_Diffuse.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4437438367246753760,
+                            "rightId": 774661928387009148
+                        },
+                        "fileName": "Ch10_1002_Specular.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 18065459611531235701,
+                            "rightId": 8875834702219265237
+                        },
+                        "fileName": "Ch10_1002_Normal.png",
+                        "resourceType": 2
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4380103272258857311,
+                            "rightId": 7096512340643446532
+                        },
+                        "fileName": "Ch10_body1.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 109471692586515348,
+                            "rightId": 4029582041837989117
+                        },
+                        "fileName": "Ch10.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 14111835477216241546,
+                            "rightId": 15895300707212670619
+                        },
+                        "fileName": "mixamo.com.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}
