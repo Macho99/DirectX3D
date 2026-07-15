@@ -497,7 +497,7 @@ void ModelAnimator::DrawDebugWindow()
         shared_ptr<ModelBone> curSelectBone = mesh->GetBoneByIndex(_debugBoneIndex);
 
 		Matrix boneFinalMatrix = _animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][_debugBoneIndex];
-        Matrix boneGlobalMatrix = boneFinalMatrix * curSelectBone->offsetMatrix.Invert();
+        Matrix boneGlobalMatrix = curSelectBone->offsetMatrix.Invert() * boneFinalMatrix;
         Matrix boneParentGlobalInverse = Matrix::Identity;
         if (curSelectBone->parentIndex >= 0)
             boneParentGlobalInverse = mesh->GetBoneByIndex(curSelectBone->parentIndex)->globalMatrix.Invert();
