@@ -300,7 +300,7 @@ float4 PS(DomainOut pin) : SV_Target
 
 	float4 litColor = texColor;
     float shadow = CalcCascadeShadowFactor(pin.PosW, pin.viewZ);
-    litColor = ComputeLight(normalW, litColor, pin.PosW, pin.ssaoPosH, shadow);
+    litColor = ComputeLight(normalW, pin.Tex, litColor, pin.PosW, pin.ssaoPosH, shadow);
     if (brushRadius > 0.01f)
     {
         float2 brushUV;

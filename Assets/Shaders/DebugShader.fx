@@ -7,7 +7,7 @@ float4 PS(MeshOutput input) : SV_TARGET
     float4 litcolor = float4(input.tangent, 0.3f);
 	
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    //float4 color = ComputeLight(input.normal, litcolor, input.worldPosition, input.ssaoPosH, shadow);
+    //float4 color = ComputeLitAndLight(input.normal, litcolor, input.worldPosition, input.ssaoPosH, shadow);
     return litcolor;
 }
 

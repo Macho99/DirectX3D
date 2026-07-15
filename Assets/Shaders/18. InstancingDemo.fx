@@ -145,7 +145,7 @@ VS_OUT VS(VS_IN input)
 
 float4 PS(VS_OUT input) : SV_TARGET
 {
-	//float4 color = ComputeLight(input.normal, input.uv, input.worldPosition);
+	//float4 color = ComputeLitAndLight(input.normal, input.uv, input.worldPosition);
 	float4 color = DiffuseMap.Sample(LinearSampler, input.uv);
 	return color;
 }

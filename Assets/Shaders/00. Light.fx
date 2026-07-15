@@ -71,12 +71,12 @@ float GetSpecularValue(float3 worldPosition, float3 worldNormal)
     float3 E = normalize(cameraPosition - worldPosition);
 
     float value = saturate(dot(R, E)); // clamp(0~1)
-    float specular = pow(value, 10);
+    float specular = pow(value, 3);
 
     return specular;
 }
 
-float4 ComputeLight(float3 normal, float4 litColor, float3 worldPosition, float4 ssaoPosH, float shadow = 1)
+float4 ComputeLight(float3 normal, float2 uv, float4 litColor, float3 worldPosition, float4 ssaoPosH, float shadow /*= 1*/)
 {
     float4 ambientColor = 0;
     float4 diffuseColor = 0;
@@ -101,9 +101,13 @@ float4 ComputeLight(float3 normal, float4 litColor, float3 worldPosition, float4
         value = saturate(value);
         diffuseColor = color * value * GlobalLight.diffuse * Material.diffuse;
     }
-
+    
 	// Specular
-    specularColor = GlobalLight.specular * Material.specular * GetSpecularValue(worldPosition, normal);
+    {
+        float specularValue = GetSpecularValue(worldPosition, normal);
+        float4 sampledSpecular = SpecularMap.Sample(LinearSampler, uv);
+        specularColor = sampledSpecular * GlobalLight.specular * Material.specular * specularValue;
+    }
 
 	// Emissive
 	{
@@ -126,10 +130,10 @@ float4 ComputeLight(float3 normal, float4 litColor, float3 worldPosition, float4
     return color;
 }
 
-float4 ComputeLight(float3 normal, float2 uv, float3 worldPosition, float4 ssaoPosH, float shadow = 1)
+float4 ComputeLitAndLight(float3 normal, float2 uv, float3 worldPosition, float4 ssaoPosH, float shadow = 1)
 {
     float4 litColor = DiffuseMap.Sample(LinearSampler, uv);
-    return ComputeLight(normal, litColor, worldPosition, ssaoPosH, shadow);
+    return ComputeLight(normal, uv, litColor, worldPosition, ssaoPosH, shadow);
 }
 
 float3 ComputeNormalMapping(float3 normal, float3 tangent, float2 uv)

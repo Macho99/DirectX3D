@@ -43,7 +43,7 @@ float4 AlphaClipPS(MeshOutput input,
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
     if (isFrontFace == false)
         input.normal = -input.normal;
-    float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
+    float4 color = ComputeLight(input.normal, input.uv, litColor, input.worldPosition, input.ssaoPosH, shadow);
 	
     return color;
 }

@@ -176,7 +176,7 @@ float4 AlphaClipPS(GrassOutput input) : SV_TARGET
         discard;
     
     float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    float4 color = ComputeLight(input.normal, litColor, input.worldPosition, input.ssaoPosH, shadow);
+    float4 color = ComputeLight(input.normal, input.uv, litColor, input.worldPosition, input.ssaoPosH, shadow);
     color = lerp(color, input.terrainColor, 0.4f);
     
     return color;

@@ -63,6 +63,10 @@ void Material::Update()
 	{
 		_specularEffectBuffer->SetResource(specularMap->GetComPtr().Get());
 	}
+	else
+	{
+        _specularEffectBuffer->SetResource(RESOURCES->GetDummyTexture().Resolve()->GetComPtr().Get());
+	}
 
 	if (_useRandomTexture)
 	{

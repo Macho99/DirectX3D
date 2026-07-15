@@ -8,22 +8,22 @@
                 "_version": 2,
                 "_desc": {
                     "ambient": {
-                        "value.x": 2.0,
-                        "value.y": 2.0,
-                        "value.z": 2.0,
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0,
                         "value.w": 1.0
                     },
                     "diffuse": {
-                        "value.x": 1.0,
-                        "value.y": 1.0,
-                        "value.z": 1.0,
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0,
                         "value.w": 1.0
                     },
                     "specular": {
-                        "value.x": 1.0,
-                        "value.y": 1.0,
-                        "value.z": 1.0,
-                        "value.w": 20.0
+                        "value.x": 10.0,
+                        "value.y": 10.0,
+                        "value.z": 10.0,
+                        "value.w": 10.0
                     },
                     "emissive": {
                         "value.x": 0.0,

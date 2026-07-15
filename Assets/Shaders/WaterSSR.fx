@@ -133,7 +133,7 @@ float4 PS(MeshOutput input) : SV_TARGET
     //float reflectivity = saturate(ReflectionStrength * (1.0f - Roughness));
     
     float shadowFactor = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-    float3 waterColor = ComputeLight(worldNormal, Material.diffuse, input.worldPosition, input.ssaoPosH, shadowFactor).rgb;
+    float3 waterColor = ComputeLight(worldNormal, input.uv, Material.diffuse, input.worldPosition, input.ssaoPosH, shadowFactor).rgb;
     
     float2 sceneUv = GetUVFromViewPos(input.positionV);
     float sceneDepth = DepthMap.SampleLevel(PointSampler, sceneUv, 0).r;
