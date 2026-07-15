@@ -7,6 +7,7 @@
 #include "fstream"
 #include "ModelMeshResource.h"
 #include "skinned_mesh.h"
+#include "MathUtils.h"
 
 Converter::Converter()
 {
@@ -83,7 +84,8 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
     {
         for (uint32 index = 0; index < _scene->mNumAnimations; ++index)
         {
-            shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
+            DumpAnimationData(_scene->mAnimations[index], artifactPath + L"\\" + L"AnimDump");
+            shared_ptr<asAnimation> animation = ReadAnimationData_New(_scene->mAnimations[index]);
 
             SubAssetInfo info = SubAssetInfo();
             wstring assetName = Utils::ToWString(animation->name) + L".clip";
@@ -502,7 +504,7 @@ ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetP
     }
 }
 
-shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
+shared_ptr<asAnimation> Converter::ReadAnimationData_New(aiAnimation* srcAnimation)
 {
     shared_ptr<asAnimation> animation = make_shared<asAnimation>();
     animation->name = srcAnimation->mName.C_Str();
@@ -518,27 +520,62 @@ shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
         shared_ptr<asKeyframe> keyframe = make_shared<asKeyframe>();
         keyframe->boneName = srcNode->mNodeName.C_Str();
 
-        for (uint32 captureTime = 0; captureTime <= duration; ++captureTime)
+        for (uint32 time = 0; time <= duration; time++)
         {
             asKeyframeData frameData;
-            frameData.time = (float)captureTime;
-            // Position
-            aiVector3D position;
-            SkinnedMesh::CalcInterpolatedPosition(position, (float)captureTime, srcNode);
-            ::memcpy_s(&frameData.translation, sizeof(Vec3), &position, sizeof(aiVector3D));
+            frameData.time = time;
 
-            // Rotation
-            aiQuaternion rotation;
-            SkinnedMesh::CalcInterpolatedRotation(rotation, (float)captureTime, srcNode);
-            frameData.rotation.x = rotation.x;
-            frameData.rotation.y = rotation.y;
-            frameData.rotation.z = rotation.z;
-            frameData.rotation.w = rotation.w;
+            {
+                float positionDiff = FLT_MAX;
+                uint32 positionIndex = 0;
+                for (uint32 k = 0; k < srcNode->mNumPositionKeys; k++)
+                {
+                    float diff = ::fabsf((float)srcNode->mPositionKeys[k].mTime - (float)time);
+                    if (diff < positionDiff)
+                    {
+                        positionDiff = diff;
+                        positionIndex = k;
+                    }
+                }
+                aiVectorKey key = srcNode->mPositionKeys[positionIndex];
+                ::memcpy_s(&frameData.translation, sizeof(Vec3), &key.mValue, sizeof(aiVector3D));
+            }
 
-            // Scale
-            aiVector3D scale;
-            SkinnedMesh::CalcInterpolatedScaling(scale, (float)captureTime, srcNode);
-            ::memcpy_s(&frameData.scale, sizeof(Vec3), &scale, sizeof(aiVector3D));
+            {
+                float rotationDiff = FLT_MAX;
+                uint32 rotationIndex = 0;
+                for (uint32 k = 0; k < srcNode->mNumRotationKeys; k++)
+                {
+                    float diff = ::fabsf((float)srcNode->mRotationKeys[k].mTime - (float)time);
+                    if (diff < rotationDiff)
+                    {
+                        rotationDiff = diff;
+                        rotationIndex = k;
+                    }
+                }
+                aiQuatKey key = srcNode->mRotationKeys[rotationIndex];
+                frameData.rotation.x = key.mValue.x;
+                frameData.rotation.y = key.mValue.y;
+                frameData.rotation.z = key.mValue.z;
+                frameData.rotation.w = key.mValue.w;
+            }
+
+            {
+                float scaleDiff = FLT_MAX;
+                uint32 scaleIndex = 0;
+                for (uint32 k = 0; k < srcNode->mNumScalingKeys; k++)
+                {
+                    float diff = ::fabsf((float)srcNode->mScalingKeys[k].mTime - (float)time);
+                    if (diff < scaleDiff)
+                    {
+                        scaleDiff = diff;
+                        scaleIndex = k;
+                    }
+                }
+                aiVectorKey key = srcNode->mScalingKeys[scaleIndex];
+                ::memcpy_s(&frameData.scale, sizeof(Vec3), &key.mValue, sizeof(aiVector3D));
+            }
+
             keyframe->transforms.push_back(frameData);
         }
         animation->keyframes.push_back(keyframe);
@@ -547,7 +584,48 @@ shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
     return animation;
 }
 
-/*
+void Converter::DumpAnimationData(aiAnimation* srcAnimation, const fs::path& path)
+{
+    fs::create_directories(path);
+
+    for (int channelIdx = 0; channelIdx < srcAnimation->mNumChannels; channelIdx++)
+    {
+        aiNodeAnim* channel = srcAnimation->mChannels[channelIdx];
+
+        string boneName = channel->mNodeName.C_Str();
+        auto it = boneName.find(":");
+        if(it != string::npos)
+            boneName.replace(boneName.find(":"), 1, "_");
+        fs::path filePath = path / (boneName + string(".txt"));
+
+        ofstream file(filePath);
+        if (!file.is_open())
+            continue;
+
+        for (int positionIdx = 0; positionIdx < channel->mNumPositionKeys; positionIdx++)
+        {
+            auto positionKey = channel->mPositionKeys[positionIdx];
+
+            file << "Time=" << positionKey.mTime << '\n';
+            file << "Position: " << positionKey.mValue.x << ", " << positionKey.mValue.y << ", " << positionKey.mValue.z << "\n\n";
+        }
+
+        file << "============================" << "\n\n";
+
+        for (int rotationIdx = 0; rotationIdx < channel->mNumRotationKeys; rotationIdx++)
+        {
+            auto rotationKey = channel->mRotationKeys[rotationIdx];
+            Vec3 eulerRotation = Transform::ToEulerAngles(Quaternion(rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z, rotationKey.mValue.w));
+            eulerRotation = MathUtils::RadToDeg(eulerRotation);
+            file << "Time=" << rotationKey.mTime << '\n';
+            file << "Rotation Quaternion: " << rotationKey.mValue.x << ", " << rotationKey.mValue.y << ", " << rotationKey.mValue.z << ", " << rotationKey.mValue.w << "\n";
+            file << "Euler Rotation: " << eulerRotation.x << ", " << eulerRotation.y << ", " << eulerRotation.z << "\n\n";
+        }
+
+        file.close();
+    }
+}
+
 shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
 {
     shared_ptr<asAnimation> animation = make_shared<asAnimation>();
@@ -563,9 +641,6 @@ shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
 
         // 애니메이션 노드 파싱
         shared_ptr<asAnimationNode> node = ParseAnimationNode(animation, srcNode);
-
-        // 현재 찾은 노드 중에 제일 긴 시간으로 애니메이션 시간 갱신
-        animation->duration = max(animation->duration, node->keyframe.back().time);
 
         cacheAnimNodes[srcNode->mNodeName.C_Str()] = node;
     }
@@ -671,7 +746,7 @@ void Converter::ReadKeyframeData(shared_ptr<asAnimation> animation, aiNode* srcN
         ReadKeyframeData(animation, srcNode->mChildren[i], cache);
     }
 }
-*/
+
 void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring finalPath)
 {
     auto path = filesystem::path(finalPath);

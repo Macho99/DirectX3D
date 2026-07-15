@@ -124,4 +124,10 @@ struct asAnimation
 	uint32 frameCount;
 	float frameRate;
 	vector<shared_ptr<asKeyframe>> keyframes;
+}; 
+
+struct asAnimationNode
+{
+	aiString name;
+	vector<asKeyframeData> keyframe;
 };
