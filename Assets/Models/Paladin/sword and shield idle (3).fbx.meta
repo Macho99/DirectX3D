@@ -1,0 +1,26 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 1990096358434921877,
+                    "rightId": 2327296933785837679
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 12739465974103400271,
+                            "rightId": 17787135855963755185
+                        },
+                        "fileName": "mixamo.com.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

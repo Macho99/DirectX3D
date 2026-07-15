@@ -126,5 +126,33 @@ bool Model::OnGUI(bool isReadOnly)
         string label = "Animation " + to_string(i);
         changed |= OnGUIUtils::DrawResourceRef(label.c_str(), _animations[i], isReadOnly);
     }
+
+    if (ImGui::Button("Auto Animation Setting"))
+    {
+        _animations.clear();
+        fs::path folderPath(_path);
+        folderPath = folderPath.parent_path();
+
+        for (const auto& entry : fs::directory_iterator(folderPath))
+        {
+            if (entry.is_regular_file())
+            {
+                fs::path filePath = entry.path();
+                if (filePath.extension() == ".fbx")
+                {
+                    Model* model = RESOURCES->GetResourceRefByAbsPath<Model>(filePath.wstring()).Resolve();
+                    const vector<ResourceRef<ModelAnimation>>& animations = model->GetAnimations();
+                    for (const ResourceRef<ModelAnimation>& animRef : animations)
+                    {
+                        _animations.push_back(animRef);
+                    }
+                }
+            }
+        }
+
+        changed = true;
+    }
+
+
     return changed;
 }

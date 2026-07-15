@@ -214,9 +214,11 @@ int SkinnedMesh::GetBoneId(const aiBone* pBone)
 
 uint32 SkinnedMesh::FindPosition(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
-    for (uint32 i = 0 ; i < pNodeAnim->mNumPositionKeys - 1 ; i++) {
+    for (uint32 i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++)
+    {
         float t = (float)pNodeAnim->mPositionKeys[i + 1].mTime;
-        if (AnimationTimeTicks < t) {
+        if (AnimationTimeTicks <= t)
+        {
             return i;
         }
     }
@@ -227,9 +229,11 @@ uint32 SkinnedMesh::FindPosition(float AnimationTimeTicks, const aiNodeAnim* pNo
 
 void SkinnedMesh::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
+    int lastIndex = pNodeAnim->mNumPositionKeys - 1;
     // we need at least two values to interpolate...
-    if (pNodeAnim->mNumPositionKeys == 1) {
-        Out = pNodeAnim->mPositionKeys[0].mValue;
+    if (lastIndex == 0 || pNodeAnim->mPositionKeys[lastIndex].mTime <= AnimationTimeTicks)
+    {
+        Out = pNodeAnim->mPositionKeys[lastIndex].mValue;
         return;
     }
 
@@ -238,9 +242,9 @@ void SkinnedMesh::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTimeT
     assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
     float t1 = (float)pNodeAnim->mPositionKeys[PositionIndex].mTime;
     float t2 = (float)pNodeAnim->mPositionKeys[NextPositionIndex].mTime;
-    float DeltaTime = t2 - t1 + ai_epsilon;
+    float DeltaTime = t2 - t1;
     float Factor = (AnimationTimeTicks - t1) / DeltaTime;
-    Factor = clamp(Factor, 0.f, 1.f);
+    assert(Factor >= 0.0f && Factor <= 1.0f);
     const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
     const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
     aiVector3D Delta = End - Start;
@@ -252,74 +256,41 @@ uint32 SkinnedMesh::FindRotation(float AnimationTimeTicks, const aiNodeAnim* pNo
 {
     assert(pNodeAnim->mNumRotationKeys > 0);
 
-    uint32 foundIndex = 0;
-    for (uint32 i = 0 ; i < pNodeAnim->mNumRotationKeys - 1 ; i++) {
+    for (uint32 i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++)
+    {
         float t = (float)pNodeAnim->mRotationKeys[i + 1].mTime;
-        if (t < 0.1)
+        if (AnimationTimeTicks <= t)
         {
-            continue;
+            return i;
         }
-        if (AnimationTimeTicks < t) 
-        {
-            return foundIndex;
-        }
-        foundIndex = i + 1;
     }
 
     return 0;
 }
 
-namespace
-{
-    void DumpHipsRotationQuaternions(const float time,
-        const Vec3 rotation)
-    {
-#if defined(_DEBUG)
-
-        fs::create_directories("../DebugTextures");
-
-        ofstream file("../DebugTextures/HipsRotationQuaternions.txt", ios::app);
-        if (!file.is_open())
-            return;
-
-        file << "Time=" << time << '\n';
-        file << "Rotation: " << rotation.x << ", " << rotation.y << ", " << rotation.z << "\n\n";
-#endif
-    }
-}
 
 void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
+    int lastIndex = pNodeAnim->mNumRotationKeys - 1;
     // we need at least two values to interpolate...
-    if (pNodeAnim->mNumRotationKeys == 1) {
-        Out = pNodeAnim->mRotationKeys[0].mValue;
+    if (lastIndex == 0 || pNodeAnim->mRotationKeys[lastIndex].mTime <= AnimationTimeTicks)
+    {
+        Out = pNodeAnim->mRotationKeys[lastIndex].mValue;
         return;
     }
 
     uint32 RotationIndex = FindRotation(AnimationTimeTicks, pNodeAnim);
-    uint32 NextRotationIndex = FindRotation(AnimationTimeTicks + 1, pNodeAnim);
+    uint32 NextRotationIndex = RotationIndex + 1;
     assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
     float t1 = (float)pNodeAnim->mRotationKeys[RotationIndex].mTime;
     float t2 = (float)pNodeAnim->mRotationKeys[NextRotationIndex].mTime;
-    float DeltaTime = t2 - t1 + ai_epsilon;
+    float DeltaTime = t2 - t1;
     float Factor = (AnimationTimeTicks - t1) / DeltaTime;
-    Factor = clamp(Factor, 0.f, 1.f);
+    assert(Factor >= 0.0f && Factor <= 1.0f);
     const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
-    const aiQuaternion& EndRotationQ   = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
+    const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
     aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
     Out.Normalize();
-
-    //if (NodeName.find("RightUpLeg") != string::npos)
-    //{
-    //    for (int i = 0; i < pNodeAnim->mNumRotationKeys; i++)
-    //    {
-    //        const aiQuaternion& rotationQ = pNodeAnim->mRotationKeys[i].mValue;
-    //        Quaternion quat(rotationQ.x, rotationQ.y, rotationQ.z, rotationQ.w);
-    //        Vec3 eulerRotation = Transform::ToEulerAngles(quat);
-    //        eulerRotation = MathUtils::RadToDeg(eulerRotation);
-    //        DumpHipsRotationQuaternions((float)pNodeAnim->mRotationKeys[i].mTime, eulerRotation);
-    //    }
-    //}
 }
 
 
@@ -327,9 +298,11 @@ uint32 SkinnedMesh::FindScaling(float AnimationTimeTicks, const aiNodeAnim* pNod
 {
     assert(pNodeAnim->mNumScalingKeys > 0);
 
-    for (uint32 i = 0 ; i < pNodeAnim->mNumScalingKeys - 1 ; i++) {
+    for (uint32 i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++)
+    {
         float t = (float)pNodeAnim->mScalingKeys[i + 1].mTime;
-        if (AnimationTimeTicks < t) {
+        if (AnimationTimeTicks <= t)
+        {
             return i;
         }
     }
@@ -340,9 +313,11 @@ uint32 SkinnedMesh::FindScaling(float AnimationTimeTicks, const aiNodeAnim* pNod
 
 void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
+    int lastIndex = pNodeAnim->mNumScalingKeys - 1;
     // we need at least two values to interpolate...
-    if (pNodeAnim->mNumScalingKeys == 1) {
-        Out = pNodeAnim->mScalingKeys[0].mValue;
+    if (lastIndex == 0 || pNodeAnim->mScalingKeys[lastIndex].mTime <= AnimationTimeTicks)
+    {
+        Out = pNodeAnim->mScalingKeys[lastIndex].mValue;
         return;
     }
 
@@ -351,11 +326,11 @@ void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTimeTi
     assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
     float t1 = (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime;
     float t2 = (float)pNodeAnim->mScalingKeys[NextScalingIndex].mTime;
-    float DeltaTime = t2 - t1 + ai_epsilon;
+    float DeltaTime = t2 - t1;
     float Factor = (AnimationTimeTicks - (float)t1) / DeltaTime;
-    Factor = clamp(Factor, 0.f, 1.f);
+    assert(Factor >= 0.0f && Factor <= 1.0f);
     const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
-    const aiVector3D& End   = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
+    const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
     aiVector3D Delta = End - Start;
     Out = Start + Factor * Delta;
 }

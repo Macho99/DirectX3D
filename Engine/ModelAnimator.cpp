@@ -141,6 +141,27 @@ bool ModelAnimator::OnGUI()
     changed |= OnGUIUtils::DrawFloat("Tween Ratio", &_tweenDesc.tweenRatio, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Tween SumTime", &_tweenDesc.tweenSumTime, 0.01f);
 	changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animIndex, 1.f);
+    Model* model = _model.Resolve();
+	if (model != nullptr)
+	{
+		if (ImGui::Button("Prev Anim"))
+		{
+			_tweenDesc.next.animIndex = (_tweenDesc.cur.animIndex - 1) % model->GetAnimationCount();
+			changed = true;
+		}
+        ImGui::SameLine();
+        if (ImGui::Button("Next Anim"))
+        {
+            _tweenDesc.next.animIndex = (_tweenDesc.cur.animIndex + 1) % model->GetAnimationCount();
+            changed = true;
+        }
+		ImGui::SameLine();
+        if (ImGui::Button("Random Anim"))
+        {
+            _tweenDesc.next.animIndex = rand() % model->GetAnimationCount();
+            changed = true;
+        }
+	}
 
     ImGui::Separator();
 	changed |= OnGUIUtils::DrawInt32("Cur Anim Index", &_tweenDesc.cur.animIndex, 1.f);

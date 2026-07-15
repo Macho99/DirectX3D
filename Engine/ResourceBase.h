@@ -34,8 +34,8 @@ public:
 		ar(CEREAL_NVP(_version));
     }
 
-protected:
-	virtual void Load(const wstring& path) { }
+public:
+	virtual void Load(const wstring& path) { _path = path; }
 	virtual void Save(const wstring& path) { }
 
 protected:

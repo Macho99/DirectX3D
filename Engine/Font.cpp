@@ -12,7 +12,7 @@ Font::~Font()
 
 void Font::Load(const wstring& path)
 {
-    _path = path;
+    Super::Load(path);
 
     std::ifstream file(path);
 

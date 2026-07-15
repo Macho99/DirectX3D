@@ -13,46 +13,6 @@
                 "_subAssets": [
                     {
                         "assetId": {
-                            "leftId": 17060637205634807325,
-                            "rightId": 15067668601685988312
-                        },
-                        "fileName": "Paladin_diffuse.png",
-                        "resourceType": 2
-                    },
-                    {
-                        "assetId": {
-                            "leftId": 10417298479890418132,
-                            "rightId": 16828589753759390415
-                        },
-                        "fileName": "Paladin_specular.png",
-                        "resourceType": 2
-                    },
-                    {
-                        "assetId": {
-                            "leftId": 13448720212473326054,
-                            "rightId": 12015064001617734680
-                        },
-                        "fileName": "Paladin_normal.png",
-                        "resourceType": 2
-                    },
-                    {
-                        "assetId": {
-                            "leftId": 12897588277898134313,
-                            "rightId": 6154226786343086924
-                        },
-                        "fileName": "Paladin_MAT.mat",
-                        "resourceType": 3
-                    },
-                    {
-                        "assetId": {
-                            "leftId": 207704849207282663,
-                            "rightId": 4478221599720049609
-                        },
-                        "fileName": "Paladin_J_Nordstrom_Shield.modelmesh",
-                        "resourceType": 8
-                    },
-                    {
-                        "assetId": {
                             "leftId": 7725902559128975825,
                             "rightId": 1180561642700904976
                         },

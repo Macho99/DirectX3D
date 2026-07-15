@@ -53,6 +53,9 @@ public:
 	ResourceRef<T> GetResourceRefByPath(const fs::path& assetsPath) const;
 
 	template<typename T>
+	ResourceRef<T> GetResourceRefByAbsPath(const fs::path& absPath) const;
+
+	template<typename T>
 	ResourceRef<T> AllocateTempResource(unique_ptr<T> resource)
 	{
 		AssetRef assetRef = _assetSlot.Register(std::move(resource));
@@ -150,4 +153,25 @@ ResourceRef<T> ResourceManager::GetResourceRefByPath(const fs::path& assetsPath)
 		return ResourceRef<T>();
 	}
 	return resourceRef;
+}
+
+template<typename T>
+ResourceRef<T> ResourceManager::GetResourceRefByAbsPath(const fs::path& absPath) const
+{
+	fs::path result;
+	bool foundAssets = false;
+
+	for (const fs::path& part : absPath.lexically_normal())
+	{
+		if (foundAssets)
+		{
+			result /= part;
+		}
+		else if (part == "Assets")
+		{
+			foundAssets = true;
+		}
+	}
+
+    return GetResourceRefByPath<T>(result);
 }

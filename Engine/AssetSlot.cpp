@@ -84,6 +84,12 @@ Handle AssetSlot::Register(AssetId assetId)
     if (obj != nullptr)
     {
         obj->SetId(assetId);
+        fs::path assetPath;
+        if (RESOURCES->TryGetPathByAssetId(assetId, OUT assetPath))
+        {
+            obj->Load(assetPath);
+        }
+
         slot.ptr = std::move(obj);
     }
 
