@@ -150,7 +150,7 @@ float3 ComputeNormalMapping(float3 normal, float3 tangent, float2 uv)
 
 	// [0,1] 범위에서 [-1,1] 범위로 변환
 	float3 tangentSpaceNormal = (map.rgb * 2.0f - 1.0f);
-	return mul(tangentSpaceNormal, TBN);
+    return normalize(mul(tangentSpaceNormal, TBN));
 }
 
 static const float SMAP_SIZE = 4096.0f;

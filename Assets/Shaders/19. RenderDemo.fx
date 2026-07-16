@@ -4,8 +4,9 @@
 
 float4 PS(MeshOutput input) : SV_TARGET
 {
+    float3 worldNormal = ComputeNormalMapping(input.normal, input.tangent, input.uv);
 	float shadow = CalcCascadeShadowFactor(input.worldPosition, input.viewZ);
-	float4 color = ComputeLitAndLight(input.normal, input.uv, input.worldPosition, input.ssaoPosH, shadow);
+    float4 color = ComputeLitAndLight(worldNormal, input.uv, input.worldPosition, input.ssaoPosH, shadow);
 	//float4 color = DiffuseMap.Sample(LinearSampler, input.uv);
 	
 	return color;
@@ -13,8 +14,9 @@ float4 PS(MeshOutput input) : SV_TARGET
 
 float4 NormalDepthPS(MeshOutput input) : SV_TARGET
 {
-    input.normalV = normalize(input.normalV);
-    return float4(input.normalV, input.position.z);
+    float3 worldNormal = ComputeNormalMapping(input.normal, input.tangent, input.uv);
+    float3 viewNormal = mul(worldNormal, (float3x3) V);
+    return float4(viewNormal, input.position.z);
 }
 
 technique11 Draw

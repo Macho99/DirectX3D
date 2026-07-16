@@ -283,6 +283,12 @@ void Converter::ReadSingleMesh(uint32 meshIndex, const aiMesh* srcMesh)
         if (srcMesh->HasNormals())
             ::memcpy(&vertex.normal, &srcMesh->mNormals[v], sizeof(Vec3));
 
+        if (srcMesh->HasTangentsAndBitangents())
+        {
+            ::memcpy(&vertex.tangent, &srcMesh->mTangents[v], sizeof(Vec3));
+            //::memcpy(&vertex.bitangent, &srcMesh->mBitangents[v], sizeof(Vec3));
+        }
+
         mesh->vertices.push_back(vertex);
     }
 

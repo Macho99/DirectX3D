@@ -44,8 +44,6 @@ void Material::Update()
 
 	InitializeEffectBuffers();
 
-	shader->PushMaterialData(_desc);
-
     Texture* diffuseMap = _diffuseMap.Resolve();
 	if (diffuseMap)
 	{
@@ -57,6 +55,12 @@ void Material::Update()
 	{
 		_normalEffectBuffer->SetResource(normalMap->GetComPtr().Get());
 	}
+	else
+	{
+		_normalEffectBuffer->SetResource(RESOURCES->GetDummyTexture().Resolve()->GetComPtr().Get());
+	}
+
+	shader->PushMaterialData(_desc);
 
     Texture* specularMap = _specularMap.Resolve();
 	if (specularMap)
