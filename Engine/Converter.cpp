@@ -41,15 +41,6 @@ void Converter::ReadAssetFile(wstring file)
 //	WriteMaterialData(finalPath);
 //}
 
-void Converter::ExportAnimationData(wstring savePath, uint32 index)
-{
-    wstring finalPath = savePath + L".clip";
-    assert(index < _scene->mNumAnimations);
-
-    shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
-    WriteAnimationData(animation, finalPath);
-}
-
 void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported)
 {
     {
@@ -85,10 +76,17 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
         for (uint32 index = 0; index < _scene->mNumAnimations; ++index)
         {
             DumpAnimationData(_scene->mAnimations[index], artifactPath + L"\\" + L"AnimDump");
-            shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
+            wstring animName = Utils::ToWString(_scene->mAnimations[index]->mName.C_Str());
+            if (animName.empty() || animName == L"mixamo.com")
+            {
+                fs::path filePath = assetPath;
+                animName = filePath.stem().wstring();
+            }
+
+            shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index], animName);
 
             SubAssetInfo info = SubAssetInfo();
-            wstring assetName = Utils::ToWString(animation->name) + L".clip";
+            wstring assetName = animName + L".clip";
             while (assetName.find(L"|") != wstring::npos)
             {
                 assetName.replace(assetName.find(L"|"), 1, L"_");
@@ -510,10 +508,10 @@ ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetP
     }
 }
 
-shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
+shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation, wstring animationName)
 {
     shared_ptr<asAnimation> animation = make_shared<asAnimation>();
-    animation->name = srcAnimation->mName.C_Str();
+    animation->name = Utils::ToString(animationName);
     animation->frameRate = (float)srcAnimation->mTicksPerSecond;
 
     uint32 duration = (uint32)srcAnimation->mDuration;

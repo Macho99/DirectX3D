@@ -18,7 +18,6 @@ public:
 public:
 	void ReadAssetFile(wstring file);
 	//void ExportMaterialData(wstring savePath);
-	void ExportAnimationData(wstring savePath, uint32 index = 0);
 	void TryExportAll(wstring assetPath, wstring artifactPath, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
 
 private:
@@ -39,7 +38,7 @@ private:
 	ResourceRef<Texture> WriteTexture(string file, const fs::path& assetPath, const fs::path& artifactFolder, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
 
 private:
-	shared_ptr<asAnimation> ReadAnimationData(aiAnimation* srcAnimation);
+	shared_ptr<asAnimation> ReadAnimationData(aiAnimation* srcAnimation, wstring animationName);
     void DumpAnimationData(aiAnimation* srcAnimation, const fs::path& path);
 	//shared_ptr<asAnimation> ReadAnimationData(aiAnimation* srcAnimation);
 	//shared_ptr<asAnimationNode> ParseAnimationNode(shared_ptr<asAnimation> animation, aiNodeAnim* srcNode);
