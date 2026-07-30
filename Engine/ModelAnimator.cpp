@@ -9,6 +9,9 @@
 #include "OnGUIUtils.h"
 #include "MathUtils.h"
 #include "SceneView.h"
+#include "../MathLibrary/Geometry2D.h"
+
+#include <cfloat>
 
 ModelAnimator::ModelAnimator()
 	: Super(StaticType)
@@ -47,12 +50,53 @@ void ModelAnimator::SetShader(ResourceRef<Shader> shader)
 void ModelAnimator::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
+	// 모델이 바뀌면 유효한 애니메이션 인덱스 범위도 달라질 수 있다.
+	_blendSpaceTriangulationDirty = true;
 
     Model* modelPtr = _model.Resolve();
-    if (modelPtr == nullptr)
-        return;
+	if (modelPtr == nullptr)
+		return;
 	int animCount = modelPtr->GetAnimationCount();
-	_tweenDesc.next.animIndex = rand() % animCount;
+	// 애니메이션이 없는 모델에서 rand() % 0이 발생하지 않도록 보호한다.
+	if (animCount > 0)
+		_tweenDesc.next.animIndex = rand() % animCount;
+}
+
+// 좌표와 애니메이션을 한 쌍으로 추가한다.
+int ModelAnimator::AddBlendSpacePoint(const Vec2& position, int32 animIndex)
+{
+	Model* model = _model.Resolve();
+	// 모델이 준비된 경우 유효한 애니메이션 인덱스로 제한한다.
+	if (model != nullptr && model->GetAnimationCount() > 0)
+		animIndex = clamp(animIndex, 0, static_cast<int32>(model->GetAnimationCount()) - 1);
+
+	_blendSpacePoints.push_back({ position, animIndex });
+	_blendSpaceTriangulationDirty = true;
+	return static_cast<int>(_blendSpacePoints.size()) - 1;
+}
+
+// 지정한 지점을 제거하고 에디터 선택 인덱스를 함께 보정한다.
+bool ModelAnimator::RemoveBlendSpacePoint(int index)
+{
+	if (index < 0 || index >= static_cast<int>(_blendSpacePoints.size()))
+		return false;
+
+	_blendSpacePoints.erase(_blendSpacePoints.begin() + index);
+	_blendSpaceTriangulationDirty = true;
+	if (_selectedBlendSpacePoint == index)
+		_selectedBlendSpacePoint = -1;
+	else if (_selectedBlendSpacePoint > index)
+		--_selectedBlendSpacePoint;
+	return true;
+}
+
+// 모든 지점과 현재 선택 상태를 초기화한다.
+void ModelAnimator::ClearBlendSpace()
+{
+	_blendSpacePoints.clear();
+	_selectedBlendSpacePoint = -1;
+	_blendSpaceTriangles.clear();
+	_blendSpaceTriangulationDirty = false;
 }
 
 void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
@@ -172,6 +216,8 @@ bool ModelAnimator::OnGUI()
     ImGui::Separator();
 
 	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
+	ImGui::SeparatorText("XY Blend Space");
+	changed |= DrawBlendSpaceEditor();
 	bool showAnimDebugChanged = OnGUIUtils::DrawBool("Show Animation Debug", &_showAnimationDebug);
     changed |= showAnimDebugChanged;
 	if (showAnimDebugChanged && _showAnimationDebug == false)
@@ -337,6 +383,336 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 			_animTransforms[index].transforms[f][b] = bone->offsetMatrix * tempAnimBoneTransforms[b];
 		}
 	}
+}
+
+void ModelAnimator::UpdateBlendSpaceTriangulation()
+{
+	Model* model = _model.Resolve();
+	const int animationCount = model != nullptr ? static_cast<int>(model->GetAnimationCount()) : 0;
+
+	// 모델의 애니메이션 개수가 바뀐 경우에도 유효한 점 목록을 다시 계산한다.
+	if (_blendSpaceCachedAnimationCount != animationCount)
+		_blendSpaceTriangulationDirty = true;
+
+	if (!_blendSpaceTriangulationDirty)
+		return;
+
+	vector<Geometry2D::Point> points;
+	points.reserve(_blendSpacePoints.size());
+	vector<int> validIndices;
+	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
+	{
+		const BlendSpacePoint& point = _blendSpacePoints[i];
+		points.emplace_back(point.position.x, point.position.y);
+		if (point.animIndex >= 0 && point.animIndex < animationCount)
+			validIndices.push_back(i);
+	}
+
+	const vector<Geometry2D::TriangleIndices> triangles =
+		Geometry2D::DelaunayTriangulate(points, validIndices);
+
+	_blendSpaceTriangles.clear();
+	_blendSpaceTriangles.reserve(triangles.size());
+	for (const Geometry2D::TriangleIndices& triangle : triangles)
+		_blendSpaceTriangles.push_back(triangle.indices);
+
+	_blendSpaceCachedAnimationCount = animationCount;
+	_blendSpaceTriangulationDirty = false;
+}
+
+ModelAnimator::BlendSpaceSample ModelAnimator::EvaluateBlendSpace()
+{
+	// 유효한 샘플을 찾지 못하면 요청한 입력 좌표와 0 가중치를 반환한다.
+	BlendSpaceSample result;
+	result.sampledPosition = _blendSpaceInput;
+
+	Model* model = _model.Resolve();
+	if (model == nullptr)
+		return result;
+
+	vector<Geometry2D::Point> points;
+	points.reserve(_blendSpacePoints.size());
+	vector<int> validIndices;
+	// 좌표는 모두 보존하되, 실제 모델에 존재하는 애니메이션을 가진 점만 계산에 사용한다.
+	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
+	{
+		const BlendSpacePoint& point = _blendSpacePoints[i];
+		points.emplace_back(point.position.x, point.position.y);
+		if (point.animIndex >= 0 && point.animIndex < static_cast<int>(model->GetAnimationCount()))
+			validIndices.push_back(i);
+	}
+
+	if (validIndices.empty())
+		return result;
+
+	// 삼각분할은 dirty 상태일 때만 갱신하고 평소에는 캐시된 인덱스를 사용한다.
+	UpdateBlendSpaceTriangulation();
+	const Geometry2D::Point query(_blendSpaceInput.x, _blendSpaceInput.y);
+
+	float bestDistanceSquared = FLT_MAX;
+	Geometry2D::TriangleIndices bestTriangle;
+	Geometry2D::Point bestPoint;
+	bool foundTriangle = false;
+
+	// 입력이 삼각망 밖에 있으면 각 삼각형의 최근접점을 비교해 외곽에 투영한다.
+	for (const array<int, 3>& triangle : _blendSpaceTriangles)
+	{
+		const Geometry2D::Point closest = Geometry2D::ClosestPointOnTriangle(
+			query,
+			points[triangle[0]],
+			points[triangle[1]],
+			points[triangle[2]]);
+		const float distanceSquared = Geometry2D::LengthSquared(query - closest);
+		if (distanceSquared < bestDistanceSquared)
+		{
+			bestDistanceSquared = distanceSquared;
+			bestTriangle.indices = triangle;
+			bestPoint = closest;
+			foundTriangle = true;
+		}
+	}
+
+	if (foundTriangle)
+	{
+		// 선택된 삼각형 안에서 세 꼭짓점의 미리보기 가중치를 계산한다.
+		Geometry2D::BarycentricCoordinates barycentric;
+		if (Geometry2D::TryGetBarycentricCoordinates(
+			bestPoint,
+			points[bestTriangle.indices[0]],
+			points[bestTriangle.indices[1]],
+			points[bestTriangle.indices[2]],
+			barycentric))
+		{
+			result.pointIndices = bestTriangle.indices;
+			result.weights =
+			{
+				max(0.0f, barycentric.a),
+				max(0.0f, barycentric.b),
+				max(0.0f, barycentric.c)
+			};
+			const float weightSum = result.weights[0] + result.weights[1] + result.weights[2];
+			// 부동소수점 오차를 제거해 세 가중치의 합을 1로 맞춘다.
+			if (weightSum > 0.0f)
+			{
+				for (float& weight : result.weights)
+					weight /= weightSum;
+			}
+			result.sampledPosition = Vec2(bestPoint.x, bestPoint.y);
+			return result;
+		}
+	}
+
+	if (validIndices.size() == 1)
+	{
+		// 점이 하나뿐이면 해당 애니메이션의 가중치를 100%로 표시한다.
+		result.pointIndices[0] = validIndices[0];
+		result.weights[0] = 1.0f;
+		result.sampledPosition = _blendSpacePoints[validIndices[0]].position;
+		return result;
+	}
+
+	// 점이 두 개이거나 모두 일직선이면 삼각형을 만들 수 없으므로
+	// 입력과 가장 가까운 두 점의 선분 위에서 가중치를 계산한다.
+	bestDistanceSquared = FLT_MAX;
+	for (size_t i = 0; i < validIndices.size(); ++i)
+	{
+		for (size_t j = i + 1; j < validIndices.size(); ++j)
+		{
+			const int first = validIndices[i];
+			const int second = validIndices[j];
+			const Geometry2D::Point closest =
+				Geometry2D::ClosestPointOnSegment(query, points[first], points[second]);
+			const float distanceSquared = Geometry2D::LengthSquared(query - closest);
+			if (distanceSquared >= bestDistanceSquared)
+				continue;
+
+			const Geometry2D::Point edge = points[second] - points[first];
+			const float edgeLengthSquared = Geometry2D::LengthSquared(edge);
+			const float t = edgeLengthSquared > Geometry2D::DefaultEpsilon
+				? clamp(Geometry2D::Dot(closest - points[first], edge) / edgeLengthSquared, 0.0f, 1.0f)
+				: 0.0f;
+			bestDistanceSquared = distanceSquared;
+			result.pointIndices = { first, second, -1 };
+			result.weights = { 1.0f - t, t, 0.0f };
+			result.sampledPosition = Vec2(closest.x, closest.y);
+		}
+	}
+
+	return result;
+}
+
+bool ModelAnimator::DrawBlendSpaceEditor()
+{
+	bool changed = false;
+
+	// 입력 좌표와 그래프에 표시할 XY 축 범위를 편집한다.
+	changed |= ImGui::DragFloat2("Input", &_blendSpaceInput.x, 0.01f);
+	changed |= ImGui::DragFloat2("Axis Min", &_blendSpaceMin.x, 0.01f);
+	changed |= ImGui::DragFloat2("Axis Max", &_blendSpaceMax.x, 0.01f);
+	_blendSpaceMax.x = max(_blendSpaceMax.x, _blendSpaceMin.x + 0.001f);
+	_blendSpaceMax.y = max(_blendSpaceMax.y, _blendSpaceMin.y + 0.001f);
+
+	Model* model = _model.Resolve();
+	const int animationCount = model != nullptr ? static_cast<int>(model->GetAnimationCount()) : 0;
+
+	// 현재 입력 좌표에 새 지점을 추가하거나 전체 지점을 삭제한다.
+	if (ImGui::Button("Add Point") && animationCount > 0)
+	{
+		_selectedBlendSpacePoint = AddBlendSpacePoint(_blendSpaceInput, 0);
+		changed = true;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Clear Points") && !_blendSpacePoints.empty())
+	{
+		ClearBlendSpace();
+		changed = true;
+	}
+
+	// 각 지점의 좌표와 연결할 애니메이션을 편집한다.
+	int removeIndex = -1;
+	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
+	{
+		BlendSpacePoint& point = _blendSpacePoints[i];
+		ImGui::PushID(i);
+		const bool open = ImGui::TreeNodeEx(
+			"Point",
+			ImGuiTreeNodeFlags_DefaultOpen | (_selectedBlendSpacePoint == i ? ImGuiTreeNodeFlags_Selected : 0),
+			"Point %d", i);
+		if (ImGui::IsItemClicked())
+			_selectedBlendSpacePoint = i;
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Remove"))
+			removeIndex = i;
+
+		if (open)
+		{
+			if (ImGui::DragFloat2("Coordinate", &point.position.x, 0.01f))
+			{
+				_blendSpaceTriangulationDirty = true;
+				changed = true;
+			}
+			const char* preview = "<invalid>";
+			string previewStorage;
+			if (model != nullptr && point.animIndex >= 0 && point.animIndex < animationCount)
+			{
+				previewStorage = to_string(point.animIndex) + " : " +
+					Utils::ToString(model->GetAnimationByIndex(point.animIndex)->GetName());
+				preview = previewStorage.c_str();
+			}
+			if (ImGui::BeginCombo("Animation", preview))
+			{
+				for (int animationIndex = 0; animationIndex < animationCount; ++animationIndex)
+				{
+					const string name = to_string(animationIndex) + " : " +
+						Utils::ToString(model->GetAnimationByIndex(animationIndex)->GetName());
+					if (ImGui::Selectable(name.c_str(), point.animIndex == animationIndex))
+					{
+						point.animIndex = animationIndex;
+						_blendSpaceTriangulationDirty = true;
+						changed = true;
+					}
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+	}
+	if (removeIndex >= 0)
+	{
+		RemoveBlendSpacePoint(removeIndex);
+		changed = true;
+	}
+
+	// 블렌드 스페이스 그래프가 그려질 ImGui 캔버스를 준비한다.
+    const float canvasWidth = clamp(ImGui::GetContentRegionAvail().x - 20.f, 100.f, 260.f);
+	const ImVec2 canvasSize(canvasWidth, canvasWidth);
+	const ImVec2 canvasMin = ImGui::GetCursorScreenPos();
+	const ImVec2 canvasMax(canvasMin.x + canvasSize.x, canvasMin.y + canvasSize.y);
+	ImGui::InvisibleButton("##BlendSpaceCanvas", canvasSize);
+	ImDrawList* drawList = ImGui::GetWindowDrawList();
+	drawList->AddRectFilled(canvasMin, canvasMax, IM_COL32(24, 27, 32, 255));
+	drawList->AddRect(canvasMin, canvasMax, IM_COL32(100, 110, 125, 255));
+
+	// 블렌드 좌표와 ImGui 화면 좌표를 서로 변환한다.
+	auto ToScreen = [&](const Vec2& point)
+	{
+		const float u = (point.x - _blendSpaceMin.x) / (_blendSpaceMax.x - _blendSpaceMin.x);
+		const float v = (point.y - _blendSpaceMin.y) / (_blendSpaceMax.y - _blendSpaceMin.y);
+		return ImVec2(
+			canvasMin.x + clamp(u, 0.0f, 1.0f) * canvasSize.x,
+			canvasMax.y - clamp(v, 0.0f, 1.0f) * canvasSize.y);
+	};
+	auto FromScreen = [&](const ImVec2& point)
+	{
+		const float u = clamp((point.x - canvasMin.x) / canvasSize.x, 0.0f, 1.0f);
+		const float v = clamp((canvasMax.y - point.y) / canvasSize.y, 0.0f, 1.0f);
+		return Vec2(
+			_blendSpaceMin.x + u * (_blendSpaceMax.x - _blendSpaceMin.x),
+			_blendSpaceMin.y + v * (_blendSpaceMax.y - _blendSpaceMin.y));
+	};
+
+	// 현재 축 범위 안에 원점이 포함되면 X/Y 기준선을 표시한다.
+	if (_blendSpaceMin.x <= 0.0f && _blendSpaceMax.x >= 0.0f)
+	{
+		const float x = ToScreen(Vec2(0.0f, 0.0f)).x;
+		drawList->AddLine(ImVec2(x, canvasMin.y), ImVec2(x, canvasMax.y), IM_COL32(65, 70, 80, 255));
+	}
+	if (_blendSpaceMin.y <= 0.0f && _blendSpaceMax.y >= 0.0f)
+	{
+		const float y = ToScreen(Vec2(0.0f, 0.0f)).y;
+		drawList->AddLine(ImVec2(canvasMin.x, y), ImVec2(canvasMax.x, y), IM_COL32(65, 70, 80, 255));
+	}
+
+	// 유효한 지점으로 생성해 둔 Delaunay 삼각망 캐시를 표시한다.
+	UpdateBlendSpaceTriangulation();
+	for (const array<int, 3>& triangle : _blendSpaceTriangles)
+	{
+		const ImVec2 a = ToScreen(_blendSpacePoints[triangle[0]].position);
+		const ImVec2 b = ToScreen(_blendSpacePoints[triangle[1]].position);
+		const ImVec2 c = ToScreen(_blendSpacePoints[triangle[2]].position);
+		drawList->AddTriangleFilled(a, b, c, IM_COL32(45, 90, 125, 55));
+		drawList->AddTriangle(a, b, c, IM_COL32(75, 155, 210, 180), 1.5f);
+	}
+
+	// 지점과 현재 선택 상태를 원으로 표시한다.
+	const BlendSpaceSample sample = EvaluateBlendSpace();
+	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
+	{
+		const ImVec2 position = ToScreen(_blendSpacePoints[i].position);
+		const bool selected = i == _selectedBlendSpacePoint;
+		drawList->AddCircleFilled(position, selected ? 7.0f : 5.0f,
+			selected ? IM_COL32(255, 190, 55, 255) : IM_COL32(215, 220, 230, 255));
+		drawList->AddText(ImVec2(position.x + 7.0f, position.y - 8.0f),
+			IM_COL32(225, 225, 225, 255), to_string(i).c_str());
+	}
+
+	// 요청 입력은 주황색, 삼각망에 투영된 샘플 위치는 초록색으로 표시한다.
+	const ImVec2 sampledScreen = ToScreen(sample.sampledPosition);
+	const ImVec2 inputScreen = ToScreen(_blendSpaceInput);
+	drawList->AddLine(inputScreen, sampledScreen, IM_COL32(255, 170, 50, 150), 1.0f);
+	drawList->AddCircle(sampledScreen, 6.0f, IM_COL32(80, 220, 150, 255), 0, 2.0f);
+	drawList->AddCircleFilled(inputScreen, 3.5f, IM_COL32(255, 120, 70, 255));
+
+	// 캔버스를 드래그하면 화면 좌표를 블렌드 입력 좌표로 변환한다.
+	if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+	{
+		_blendSpaceInput = FromScreen(ImGui::GetIO().MousePos);
+		changed = true;
+	}
+
+	// 현재 미리보기에 참여하는 지점별 가중치를 텍스트로 표시한다.
+	ImGui::TextDisabled("Drag in the graph to set input. Green: sampled position, orange: requested input.");
+	for (int i = 0; i < 3; ++i)
+	{
+		if (sample.pointIndices[i] < 0 || sample.weights[i] <= 0.0001f)
+			continue;
+		const BlendSpacePoint& point = _blendSpacePoints[sample.pointIndices[i]];
+		ImGui::Text("Point %d / Anim %d: %.1f%%",
+			sample.pointIndices[i], point.animIndex, sample.weights[i] * 100.0f);
+	}
+
+	return changed;
 }
 
 void ModelAnimator::UpdateTweenData()

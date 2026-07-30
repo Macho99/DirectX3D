@@ -4,6 +4,23 @@
 
 class Model;
 
+// 블렌드 스페이스의 한 샘플 지점.
+// position은 XY 좌표, animIndex는 Model에 등록된 애니메이션 인덱스를 가리킨다.
+struct BlendSpacePoint
+{
+	Vec2 position = Vec2::Zero;
+	int32 animIndex = -1;
+
+	template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(
+			cereal::make_nvp("x", position.x),
+			cereal::make_nvp("y", position.y),
+			CEREAL_NVP(animIndex));
+	}
+};
+
 struct AnimTransform
 {
 	using TransformArrayType = array<Matrix, MAX_MODEL_TRANSFORMS>;
@@ -30,6 +47,14 @@ public:
 	InstanceID GetInstanceID();
 	TweenDesc& GetTweenDesc() { return _tweenDesc; }
 
+	// 외부 게임 로직에서 미리보기 입력 좌표와 샘플 지점을 관리할 때 사용하는 API.
+	void SetBlendSpaceInput(const Vec2& input) { _blendSpaceInput = input; }
+	const Vec2& GetBlendSpaceInput() const { return _blendSpaceInput; }
+	int AddBlendSpacePoint(const Vec2& position, int32 animIndex);
+	bool RemoveBlendSpacePoint(int index);
+	void ClearBlendSpace();
+	const vector<BlendSpacePoint>& GetBlendSpacePoints() const { return _blendSpacePoints; }
+
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 	virtual void OnInspectorFocusLost() override;
@@ -41,13 +66,39 @@ public:
 		ar(
 			CEREAL_NVP(_shader),
 			CEREAL_NVP(_model),
-			CEREAL_NVP(_keyframeDesc)
+			CEREAL_NVP(_keyframeDesc),
+			// 블렌드 스페이스 편집 결과를 컴포넌트와 함께 저장한다.
+			cereal::make_nvp("blendSpaceInputX", _blendSpaceInput.x),
+			cereal::make_nvp("blendSpaceInputY", _blendSpaceInput.y),
+			cereal::make_nvp("blendSpaceMinX", _blendSpaceMin.x),
+			cereal::make_nvp("blendSpaceMinY", _blendSpaceMin.y),
+			cereal::make_nvp("blendSpaceMaxX", _blendSpaceMax.x),
+			cereal::make_nvp("blendSpaceMaxY", _blendSpaceMax.y),
+			CEREAL_NVP(_blendSpacePoints)
 			);
+
+		if constexpr (Archive::is_loading::value)
+			_blendSpaceTriangulationDirty = true;
 	}
 
 private:
+	// 현재 입력 좌표에서 선택된 최대 3개 지점과 미리보기 가중치.
+	// 아직 GPU나 실제 애니메이션 재생 상태에는 전달하지 않는다.
+	struct BlendSpaceSample
+	{
+		array<int, 3> pointIndices = { -1, -1, -1 };
+		array<float, 3> weights = { 0.0f, 0.0f, 0.0f };
+		Vec2 sampledPosition = Vec2::Zero;
+	};
+
 	void CreateTexture();
 	void CreateAnimationTransform(uint32 index);
+	// 최초 사용 또는 점/애니메이션 변경 시에만 Delaunay 삼각망 캐시를 갱신한다.
+	void UpdateBlendSpaceTriangulation();
+	// Delaunay 삼각망에서 입력 좌표가 속하거나 가장 가까운 삼각형을 찾는다.
+	BlendSpaceSample EvaluateBlendSpace();
+	// 점 편집과 삼각망/가중치 미리보기를 그린다.
+	bool DrawBlendSpaceEditor();
 	void DrawDebugWindow();
 	void DrawDebugMatrix(const char* label, const Matrix& matrix);
 
@@ -59,6 +110,18 @@ private:
 private:
 	KeyframeDesc _keyframeDesc;
 	TweenDesc _tweenDesc;
+
+	// 블렌드 스페이스 편집 상태.
+	Vec2 _blendSpaceInput = Vec2::Zero;
+	Vec2 _blendSpaceMin = Vec2(-1.0f, -1.0f);
+	Vec2 _blendSpaceMax = Vec2(1.0f, 1.0f);
+	vector<BlendSpacePoint> _blendSpacePoints;
+	int _selectedBlendSpacePoint = -1;
+
+	// 매 프레임 삼각분할하지 않도록 인덱스 결과를 캐시한다.
+	vector<array<int, 3>> _blendSpaceTriangles;
+	bool _blendSpaceTriangulationDirty = true;
+	int _blendSpaceCachedAnimationCount = -1;
 
 private:
 	ResourceRef<Shader> _shader;
