@@ -133,7 +133,6 @@
     </Lib>
     <PreBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)Engine\*.h" "$(SolutionDir)Libraries\Include\Engine"
-xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"
 xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\Engine\cereal\" 
 </Command>
     </PreBuildEvent>
@@ -163,7 +162,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     </Lib>
     <PreBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)Engine\*.h" "$(SolutionDir)Libraries\Include\Engine"
-xcopy /Y "$(SolutionDir)Engine\*.inl" "$(SolutionDir)Libraries\Include\Engine"
 xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\Engine\cereal\" 
 </Command>
     </PreBuildEvent>
@@ -371,7 +369,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="SceneView.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderMeta.h" />
-    <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="SlotManager.h" />
     <ClInclude Include="SnowBillboard.h" />
@@ -587,7 +584,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderMeta.cpp" />
-    <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SlotManager.cpp" />
     <ClCompile Include="SnowBillboard.cpp" />
@@ -631,7 +627,6 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
   <ItemGroup>
     <None Include="cereal\external\rapidxml\manual.html" />
     <None Include="cpp.hint" />
-    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MathLibrary\MathLibrary.vcxproj">

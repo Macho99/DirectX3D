@@ -102,9 +102,6 @@
     <ClInclude Include="Types.h">
       <Filter>99. Headers</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleMath.h">
-      <Filter>98. Utils</Filter>
-    </ClInclude>
     <ClInclude Include="tinyxml2.h">
       <Filter>98. Utils</Filter>
     </ClInclude>
@@ -800,9 +797,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>99. Headers</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleMath.cpp">
-      <Filter>98. Utils</Filter>
-    </ClCompile>
     <ClCompile Include="tinyxml2.cpp">
       <Filter>98. Utils</Filter>
     </ClCompile>
@@ -1231,9 +1225,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SimpleMath.inl">
-      <Filter>98. Utils</Filter>
-    </None>
     <None Include="cereal\external\rapidxml\manual.html">
       <Filter>98. Utils\cereal</Filter>
     </None>

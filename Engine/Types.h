@@ -1,7 +1,7 @@
 #pragma once
 #include <windows.h>
 #include "DirectXMath.h"
-#include "SimpleMath.h"
+#include "../MathLibrary/SimpleMath.h"
 #include "cereal/cereal.hpp"
 
 using int8 = __int8;

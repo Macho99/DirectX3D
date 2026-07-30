@@ -31,7 +31,7 @@ using uint32 = unsigned __int32;
 using uint64 = unsigned __int64;
 
 #include "DirectXMath.h"
-#include "SimpleMath.h"
+#include "../MathLibrary/SimpleMath.h"
 using Vec3 = DirectX::SimpleMath::Vector3;
 
 using namespace std;
