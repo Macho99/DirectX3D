@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{137ea01d-8485-4055-aa21-05cc5d9c9dcf}</ProjectGuid>
-    <RootNamespace>NavBuild</RootNamespace>
+    <ProjectGuid>{082cabff-8484-4194-a4a0-c0d4990cc649}</ProjectGuid>
+    <RootNamespace>MathLibrary</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>NavBuild</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,21 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Libraries\Lib\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Libraries\Lib\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Libraries\Lib\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Libraries\Lib\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Configuration)\</IntDir>
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)Libraries\Lib\MathLibrary\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\MathLibrary\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,6 +82,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -112,6 +100,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -158,52 +147,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CompactHeightField.h" />
-    <ClInclude Include="Contours.h" />
-    <ClInclude Include="DetailMeshField.h" />
-    <ClInclude Include="NavFileUtils.h" />
+    <ClInclude Include="Geometry2D.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="HeightField.h" />
-    <ClInclude Include="HeightFieldBase.h" />
-    <ClInclude Include="NavMeshBuilder.h" />
-    <ClInclude Include="NavMeshQuery.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PolyMeshField.h" />
-    <ClInclude Include="SimpleMath.h" />
-    <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CompactHeightField.cpp" />
-    <ClCompile Include="Contours.cpp" />
-    <ClCompile Include="DetailMeshField.cpp" />
-    <ClCompile Include="NavFileUtils.cpp" />
-    <ClCompile Include="HeightField.cpp" />
-    <ClCompile Include="HeightFieldBase.cpp" />
-    <ClCompile Include="NavMeshBuilder.cpp" />
-    <ClCompile Include="NavMeshQuery.cpp" />
+    <ClCompile Include="Geometry2D.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PolyMeshField.cpp" />
-    <ClCompile Include="SimpleMath.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Types.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
-    <None Include="SimpleMath.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MathLibrary\MathLibrary.vcxproj">
-      <Project>{082cabff-8484-4194-a4a0-c0d4990cc649}</Project>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>if not exist "$(SolutionDir)Libraries\Include\MathLibrary" mkdir "$(SolutionDir)Libraries\Include\MathLibrary"
+xcopy /Y "$(ProjectDir)Geometry2D.h" "$(SolutionDir)Libraries\Include\MathLibrary\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "HeightFieldBase.h"
+#include "../MathLibrary/Geometry2D.h"
                                     //하, 우, 상, 좌
 const int HeightFieldBase::_dx[4] = { 0 , 1, 0, -1 };
 const int HeightFieldBase::_dz[4] = { 1, 0, -1, 0 };
@@ -114,14 +115,11 @@ bool HeightFieldBase::PointInTri2D(const Vertex& p, const Vertex& a, const Verte
 
 bool HeightFieldBase::PointInTri2D(const Vec3& p, const Vec3& a, const Vec3& b, const Vec3& c) const
 {
-    float c1 = Cross2D(a, b, p);
-    float c2 = Cross2D(b, c, p);
-    float c3 = Cross2D(c, a, p);
-
-    bool hasNeg = (c1 < 0) || (c2 < 0) || (c3 < 0);
-    bool hasPos = (c1 > 0) || (c2 > 0) || (c3 > 0);
-
-    return !(hasNeg && hasPos);
+    return Geometry2D::ContainsPoint(
+        { p.x, p.z },
+        { a.x, a.z },
+        { b.x, b.z },
+        { c.x, c.z });
 }
 
 float HeightFieldBase::GetTriY(float x, float z, const Vec3& v0, const Vec3& v1, const Vec3& v2) const
@@ -158,17 +156,12 @@ bool HeightFieldBase::IsPointInPoly(const Vec3& point, const vector<Vertex>& ver
 
 bool HeightFieldBase::IsPointInTriangle(const Vec3& point, const vector<Vec3>& verts, const Triangle& tri) const
 {
-    bool contains = true;
-    for (int i = 0; i < tri.vertCount; ++i)
-    {
-        const Vec3& a = verts[tri.indices[i]];
-        const Vec3& b = verts[tri.indices[(i + 1) % tri.vertCount]];
-        // Triangle은 시계 방향
-        if (Cross2D(a, b, point) > 0)
-        {
-            contains = false;
-            break;
-        }
-    }
-    return contains;
+    const Vec3& a = verts[tri.indices[0]];
+    const Vec3& b = verts[tri.indices[1]];
+    const Vec3& c = verts[tri.indices[2]];
+    return Geometry2D::ContainsPoint(
+        { point.x, point.z },
+        { a.x, a.z },
+        { b.x, b.z },
+        { c.x, c.z });
 }

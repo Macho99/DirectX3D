@@ -64,11 +64,13 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "FX11/Effects11d.lib")
 #pragma comment(lib, "Assimp/assimp-vc143-mtd.lib")
 #pragma comment(lib, "NavBuild/Debug/NavBuild.lib")
+#pragma comment(lib, "MathLibrary/Debug/MathLibrary.lib")
 #else
 #pragma comment(lib, "DirectXTex/DirectXTex.lib")
 #pragma comment(lib, "FX11/Effects11.lib")
 #pragma comment(lib, "Assimp/assimp-vc143-mt.lib")
 #pragma comment(lib, "NavBuild/Release/NavBuild.lib")
+#pragma comment(lib, "MathLibrary/Release/MathLibrary.lib")
 #endif
 
 inline void Assert(bool condition, const char* expr, const char* file, int line)

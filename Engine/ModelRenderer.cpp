@@ -153,9 +153,13 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
 		if (material == nullptr || material->IsIncludeInNavMesh() == false)
 			return;
 
-		const auto& bone = mesh->bone;
-		Matrix boneMat = bone->globalMatrix;
-        Matrix finalMat = boneMat * worldMat;
+        Matrix finalMat = worldMat;
+		if (mesh->bone != nullptr)
+		{
+			const auto& bone = mesh->bone;
+			Matrix boneMat = bone->globalMatrix;
+			finalMat = boneMat * worldMat;
+		}
 
         const auto& vertices = mesh->geometry->GetVertices();
         const auto& indices = mesh->geometry->GetIndices();

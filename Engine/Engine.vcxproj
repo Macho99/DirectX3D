@@ -633,6 +633,12 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <None Include="cpp.hint" />
     <None Include="SimpleMath.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MathLibrary\MathLibrary.vcxproj">
+      <Project>{082cabff-8484-4194-a4a0-c0d4990cc649}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
