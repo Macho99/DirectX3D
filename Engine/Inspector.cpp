@@ -3,6 +3,7 @@
 #include "EditorManager.h"
 #include "MonoBehaviour.h"
 #include "ComponentRegistry.h"
+#include "MetaStore.h"
 
 Inspector::Inspector()
     :Super("Inspector")
@@ -130,7 +131,11 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
     {
         RESOURCES->SaveAsset(assetRef.GetAssetId());
     }
-    DrawCard(typeid(*meta).name(), &meta, [&]() { return meta->OnGUI(); }, [&]() { return meta->OnMenu(); });
+    bool metaChanged = DrawCard(typeid(*meta).name(), &meta, [&]() { return meta->OnGUI(); }, [&]() { return meta->OnMenu(); });
+    if (metaChanged)
+    {
+        RESOURCES->SaveMeta(assetRef.GetAssetId());
+    }
 }
 
 bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()> onGui, function<void()> onMenu)

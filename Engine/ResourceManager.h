@@ -42,6 +42,7 @@ public:
 	}
 
     void SaveAsset(const AssetId & assetId);
+    void SaveMeta(const AssetId& assetId);
 
 	AssetDatabase& GetAssetDatabase() { return assetDatabase; }
 	AssetSlot& GetAssetSlot() { return _assetSlot; }

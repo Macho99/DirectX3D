@@ -40,6 +40,8 @@ public:
 
     void GetOwnerAssetId(const AssetId & srcAssetId, OUT AssetId& ownerAssetId, OUT int& subAssetIdx) const;
 
+    void SaveMeta(const AssetId& assetId);
+
 private:
     void Rename(const fs::path& oldAbsPath, const fs::path& newAbsPath);
     void ExtensionRename(const fs::path& oldAbsPath, const fs::path& newAbsPath);

@@ -64,9 +64,9 @@ unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
     return meta;
 }
 
-void MetaStore::Save(const fs::path& metaAbs, const MetaFile& meta)
+void MetaStore::Save(const unique_ptr<MetaFile>& meta)
 {
-    std::ofstream os(metaAbs);
+    std::ofstream os(meta->GetMetaPath());
     cereal::JSONOutputArchive archive(os);
     archive(meta);
 }

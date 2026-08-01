@@ -408,3 +408,15 @@ void AssetDatabase::GetOwnerAssetId(const AssetId& srcAssetId, OUT AssetId& owne
     }
     ownerAssetId = meta->GetAssetId();
 }
+
+void AssetDatabase::SaveMeta(const AssetId& assetId)
+{
+    MetaFile* meta = nullptr;
+    if (TryGetMetaByAssetId(assetId, OUT meta) == false)
+    {
+        DBG->LogErrorW(L"[AssetDB] SaveMeta: assetId not found: " + assetId.ToWString());
+        return;
+    }
+    std::lock_guard lock(_mtx);
+    MetaStore::Save(_assetIdToMeta[assetId]);
+}

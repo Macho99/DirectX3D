@@ -193,6 +193,11 @@ void ResourceManager::SaveAsset(const AssetId& assetId)
 	_assetSlot.SaveAsset(assetId, assetPath);
 }
 
+void ResourceManager::SaveMeta(const AssetId& assetId)
+{
+    assetDatabase.SaveMeta(assetId);
+}
+
 Texture* ResourceManager::GetEditorTexture(string key, const fs::path& loadPath)
 {
 	auto it = _editorResources.find(key);
