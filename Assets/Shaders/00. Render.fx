@@ -184,14 +184,29 @@ matrix LoadKeyframeMatrix(KeyframeDesc keyframe, float boneIndex)
 matrix GetAnimationMatrix(VertexModel input)
 {
 	TweenFrameDesc tween = TweenFrames[input.instanceID];
-	matrix skinningTransform = 0;
+    matrix skinningTransform = 0;
+	
+    bool hasNextAnimation = false;
+
+    for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
+    {
+        if (tween.next.animations[i].animIndex >= 0 &&
+        tween.next.blendWeights[i] > 0.0f)
+        {
+            hasNextAnimation = true;
+            break;
+        }
+    }
 
 	for (int influenceIndex = 0; influenceIndex < 4; ++influenceIndex)
 	{
 		matrix blendedAnimation = LoadKeyframeMatrix(tween.curr, input.blendIndices[influenceIndex]);
-		if (tween.next.animations[0].animIndex >= 0)
-			blendedAnimation = lerp(blendedAnimation,
+		
+        if (hasNextAnimation)
+        {
+            blendedAnimation = lerp(blendedAnimation,
 				LoadKeyframeMatrix(tween.next, input.blendIndices[influenceIndex]), tween.tweenRatio);
+        }
 		skinningTransform += input.blendWeights[influenceIndex] * blendedAnimation;
 	}
 
