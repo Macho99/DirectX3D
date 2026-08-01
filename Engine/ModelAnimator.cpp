@@ -437,12 +437,32 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
                 matAnim = bone->localMatrix;
 			}
 			
-			int32 parentIndex = bone->parentIndex;
+			const int32 parentIndex = bone->parentIndex;
 			
 			Matrix matParent = Matrix::Identity;
 			if (parentIndex >= 0)
 			{
 				matParent = tempAnimBoneTransforms[parentIndex];
+			}
+			else // Root
+			{
+				if (animation->GetAnimationClipImportSetting().extractRootMotion)
+				{
+                    Vec3 scale, position;
+                    Quaternion rotation;
+                    matAnim.Decompose(scale, rotation, position);
+
+                    Vec3 positionY = position;
+                    positionY.x = 0.f;
+                    positionY.z = 0.f;
+
+                    matAnim = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(positionY);
+
+                    position.y = 0.f;
+                    Matrix matRoot = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(position);
+
+                    _animTransforms[index].rootTransforms[f] = matRoot;
+				}
 			}
 			
 			tempAnimBoneTransforms[b] = matAnim * matParent;
@@ -889,10 +909,13 @@ void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const Blend
 			frame = {};
 			continue;
 		}
+		
+		// 처음과 끝 애니메이션은 동일하므로 끝 애니메이션은 생략
+        const uint32 modFrameCount = animation->GetFrameCount() - 1;
 
-		const float framePosition = normalizedTime * animation->GetFrameCount();
-		frame.curFrame = static_cast<uint32>(framePosition) % animation->GetFrameCount();
-		frame.nextFrame = (frame.curFrame + 1) % animation->GetFrameCount();
+		const float framePosition = normalizedTime * modFrameCount;
+		frame.curFrame = static_cast<uint32>(framePosition) % modFrameCount;
+		frame.nextFrame = (frame.curFrame + 1) % modFrameCount;
 		frame.ratio = framePosition - floor(framePosition);
 	}
 }

@@ -25,6 +25,7 @@ struct AnimTransform
 {
 	using TransformArrayType = array<Matrix, MAX_MODEL_TRANSFORMS>;
 	array<TransformArrayType, MAX_MODEL_KEYFRAMES> transforms;
+    array<Matrix, MAX_MODEL_KEYFRAMES> rootTransforms;
 };
 
 class ModelAnimator : public Renderer
@@ -67,12 +68,8 @@ public:
 			CEREAL_NVP(_shader),
 			CEREAL_NVP(_model),
 			// 블렌드 스페이스 편집 결과를 컴포넌트와 함께 저장한다.
-			cereal::make_nvp("blendSpaceInputX", _blendSpaceInput.x),
-			cereal::make_nvp("blendSpaceInputY", _blendSpaceInput.y),
-			cereal::make_nvp("blendSpaceMinX", _blendSpaceMin.x),
-			cereal::make_nvp("blendSpaceMinY", _blendSpaceMin.y),
-			cereal::make_nvp("blendSpaceMaxX", _blendSpaceMax.x),
-			cereal::make_nvp("blendSpaceMaxY", _blendSpaceMax.y),
+            CEREAL_NVP(_blendSpaceMin),
+            CEREAL_NVP(_blendSpaceMax),
 			CEREAL_NVP(_blendSpacePoints)
 			);
 
