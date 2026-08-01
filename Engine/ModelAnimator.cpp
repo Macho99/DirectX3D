@@ -123,7 +123,6 @@ void ModelAnimator::ClearBlendSpace()
 	_blendSpacePoints.clear();
 	_selectedBlendSpacePoint = -1;
 	_blendSpaceTriangles.clear();
-	_blendSpaceLongestDuration = 0.f;
 	_blendSpaceTriangulationDirty = false;
 }
 
@@ -486,7 +485,6 @@ void ModelAnimator::UpdateBlendSpaceTriangulation()
 	vector<Geometry2D::Point> points;
 	points.reserve(_blendSpacePoints.size());
 	vector<int> validIndices;
-	_blendSpaceLongestDuration = 0.f;
 	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
 	{
 		const BlendSpacePoint& point = _blendSpacePoints[i];
@@ -494,13 +492,6 @@ void ModelAnimator::UpdateBlendSpaceTriangulation()
 		if (point.animIndex >= 0 && point.animIndex < animationCount)
 		{
 			validIndices.push_back(i);
-			// 블렌드 공간 전체에서 가장 긴 클립을 공통 재생 주기의 기준으로 사용한다.
-			ModelAnimation* animation = model->GetAnimationByIndex(point.animIndex);
-			if (animation != nullptr && animation->GetFrameRate() > 0.f)
-			{
-				const float duration = animation->GetFrameCount() / animation->GetFrameRate();
-				_blendSpaceLongestDuration = max(_blendSpaceLongestDuration, duration);
-			}
 		}
 	}
 
@@ -882,14 +873,33 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const BlendSpaceSample& sample)
 {
 	Model* model = _model.Resolve();
-	if (model == nullptr || _blendSpaceLongestDuration <= 0.f)
+	if (model == nullptr)
 		return;
 
     keyframe.isBlendSpace = true;
 
-	// 모든 클립이 최장 클립과 같은 시간에 한 바퀴 돌도록 공통 정규화 시간을 사용한다.
-	keyframe.sumTime = fmod(keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f), _blendSpaceLongestDuration);
-	const float normalizedTime = keyframe.sumTime / _blendSpaceLongestDuration;
+	// 포즈는 같은 정규화 위상에서 샘플링하되, 위상 진행 속도는 각 클립의
+	// 원래 사이클 빈도(frameRate / cycleFrameCount)를 가중 보간한다.
+	float blendedCycleFrequency = 0.f;
+	for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
+	{
+		const int pointIndex = sample.pointIndices[i];
+		if (pointIndex < 0 || sample.weights[i] <= 0.f)
+			continue;
+
+		const int animIndex = _blendSpacePoints[pointIndex].animIndex;
+		ModelAnimation* animation = model->GetAnimationByIndex(animIndex);
+		if (animation == nullptr || animation->GetFrameCount() <= 1 || animation->GetFrameRate() <= 0.f)
+			continue;
+
+		const float cycleFrameCount = static_cast<float>(animation->GetFrameCount() - 1);
+		blendedCycleFrequency += sample.weights[i] * animation->GetFrameRate() / cycleFrameCount;
+	}
+
+	keyframe.sumTime = fmod(
+		keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f) * blendedCycleFrequency,
+		1.f);
+	const float normalizedTime = keyframe.sumTime;
 	keyframe.blendWeights = Vec3(sample.weights[0], sample.weights[1], sample.weights[2]);
 
 	for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
@@ -904,7 +914,7 @@ void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const Blend
 
 		frame.animIndex = _blendSpacePoints[pointIndex].animIndex;
 		ModelAnimation* animation = model->GetAnimationByIndex(frame.animIndex);
-		if (animation == nullptr || animation->GetFrameCount() == 0)
+		if (animation == nullptr || animation->GetFrameCount() <= 1)
 		{
 			frame = {};
 			continue;

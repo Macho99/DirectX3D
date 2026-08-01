@@ -93,7 +93,7 @@ private:
 	void UpdateBlendSpaceTriangulation();
 	// 일반 애니메이션 한 개의 프레임 상태를 갱신한다.
 	void UpdateRegularKeyframe(KeyframeDesc& keyframe);
-	// 최대 3개 블렌드 애니메이션을 최장 클립의 재생 시간에 맞춰 갱신한다.
+	// 최대 3개 블렌드 애니메이션의 위상을 동기화하되 원래 사이클 속도는 가중 보간한다.
 	void UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const BlendSpaceSample& sample);
 	// Delaunay 삼각망에서 입력 좌표가 속하거나 가장 가까운 삼각형을 찾는다.
 	BlendSpaceSample EvaluateBlendSpace();
@@ -109,7 +109,6 @@ private:
 
 private:
 	TweenDesc _tweenDesc;
-	float _blendSpaceLongestDuration = 0.f;
 	int32 _nextAnimIndex = 0;
 
 	// 블렌드 스페이스 편집 상태.
