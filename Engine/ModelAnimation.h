@@ -1,5 +1,6 @@
 #pragma once
 #include "ResourceBase.h"
+#include "AnimationImportSetting.h"
 
 struct ModelKeyframeData
 {
@@ -30,10 +31,15 @@ public:
     float GetFrameRate() { return frameRate; }
     uint32 GetFrameCount() { return frameCount; }
 
+    void SetAnimationClipImportSetting(const AnimationClipImportSetting& setting) { clipImportSetting = setting; }
+    AnimationClipImportSetting GetAnimationClipImportSetting() const { return clipImportSetting; }
+
 private:
 	wstring name = L"empty";
 	float frameRate = 0.f;
 	uint32 frameCount = 0;
 	unordered_map<wstring, shared_ptr<ModelKeyframe>> keyframes;
+
+    AnimationClipImportSetting clipImportSetting;
 };
 

@@ -84,3 +84,4 @@ crashlytics-build.properties
 /Client/Intermediate/Debug
 /Artifact/*
 /Assets/Models/Zombie/Ch10_nonPBR.fbx
+Client/imgui.ini

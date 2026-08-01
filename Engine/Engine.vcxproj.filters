@@ -792,6 +792,9 @@
     <ClInclude Include="skinned_mesh.h">
       <Filter>04. Component\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationImportSetting.h">
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1222,6 +1225,9 @@
     </ClCompile>
     <ClCompile Include="skinned_mesh.cpp">
       <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationImportSetting.cpp">
+      <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

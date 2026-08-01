@@ -1,5 +1,6 @@
 #pragma once
 #include "SubAssetMetaFile.h"
+
 class ModelSourceMeta : public SubAssetMetaFile
 {
     using Super = SubAssetMetaFile;
