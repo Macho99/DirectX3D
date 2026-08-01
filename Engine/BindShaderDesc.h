@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ConstantBuffer.h"
 
 struct GlobalDesc
@@ -56,9 +56,10 @@ struct MaterialDesc
 };
 
 // Bone
-#define MAX_MODEL_TRANSFORMS 250
+#define MAX_MODEL_TRANSFORMS 100
 #define MAX_MODEL_KEYFRAMES 500
-#define MAX_MODEL_INSTANCE 500
+#define MAX_MODEL_INSTANCE 200
+#define MAX_BLEND_ANIMATIONS 3
 
 struct BoneDesc
 {
@@ -66,56 +67,61 @@ struct BoneDesc
 };
 
 // Animation
-struct KeyframeDesc
+struct AnimationFrameDesc
 {
-	int32 animIndex = 0;
+	int32 animIndex = -1;
 	uint32 curFrame = 0;
-
-	// TODO
 	uint32 nextFrame = 0;
 	float ratio = 0.f;
-	float sumTime = 0.f;
-	Vec3 padding;
+};
 
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(CEREAL_NVP(animIndex));
-    }
+// ì¼ë°˜ ì• ë‹ˆë©”ì´ì…˜ í•˜ë‚˜ ë˜ëŠ” ë¸”ë Œë“œ ì• ë‹ˆë©”ì´ì…˜ ìµœëŒ€ 3ê°œì˜ í”„ë ˆì„ ìƒíƒœë¥¼ ë‹´ëŠ”ë‹¤.
+struct KeyframeDesc
+{
+	array<AnimationFrameDesc, MAX_BLEND_ANIMATIONS> animations;
+	Vec3 blendWeights = Vec3(1.f, 0.f, 0.f);
+	float sumTime = 0.f;
+	uint32 isBlendSpace = 0;
+	uint32 padding[3] = {};
+
+	void SetSingleAnimation(int32 animIndex)
+	{
+		*this = {};
+		animations[0].animIndex = animIndex;
+		blendWeights = Vec3(1.f, 0.f, 0.f);
+	}
+
+	bool HasAnimation() const
+	{
+		for (const AnimationFrameDesc& animation : animations)
+		{
+			if (animation.animIndex >= 0)
+				return true;
+		}
+		return false;
+	}
 };
 
 struct TweenDesc
 {
 	TweenDesc()
 	{
-		cur.animIndex = 0;
-		next.animIndex = -1;
+		cur.SetSingleAnimation(0);
 	}
 
 	void ClearNextAnim()
 	{
-		next.animIndex = -1;
-		next.curFrame = 0;
-		next.nextFrame = 0;
-		next.sumTime = 0;
+		next = {};
 		tweenSumTime = 0.f;
 		tweenRatio = 0.f;
 	}
 
-	float tweenDuration = 1.0f;
+	float tweenDuration = 0.1f;
 	float tweenRatio = 0.f;
 	float tweenSumTime = 0.f;
 	float speed = 1.f;
 	KeyframeDesc cur;
 	KeyframeDesc next;
-
-    template<typename Archive>
-    void serialize(Archive& archive)
-    {
-        archive(CEREAL_NVP(speed));
-        archive(CEREAL_NVP(cur));
-        archive(CEREAL_NVP(next));
-    }
 };
 
 struct InstancedTweenDesc
@@ -213,16 +219,16 @@ struct TerrainDesc
 
 struct WindDesc
 {
-	Vec3 windDirection = Vec3(1.f,0.f,0.f); // ¹Ù¶÷ ¹æÇâ (Á¤±ÔÈ­µÈ º¤ÅÍ)
-	float windStrength = 1.f; // ¹Ù¶÷ °­µµ (Èçµé¸² Á¤µµ Á¶Àı)
-	float waveFrequency = 1.f; // Èçµé¸² ÆÄµ¿ÀÇ ºóµµ
+	Vec3 windDirection = Vec3(1.f,0.f,0.f); // ë°”ëŒ ë°©í–¥ (ì •ê·œí™”ëœ ë²¡í„°)
+	float windStrength = 1.f; // ë°”ëŒ ê°•ë„ (í”ë“¤ë¦¼ ì •ë„ ì¡°ì ˆ)
+	float waveFrequency = 1.f; // í”ë“¤ë¦¼ íŒŒë™ì˜ ë¹ˆë„
 };
 
 struct FoliageDesc
 {
-	float time; // ÇöÀç ½Ã°£ (¾Ö´Ï¸ŞÀÌ¼Ç ±¸µ¿¿ë)
-    WindDesc wind; // ¹Ù¶÷ Á¤º¸
-	float bendFactor = 1.f; // ¼öÇ® ÇÏ´Ü °íÁ¤/»ó´Ü Èçµé¸² Á¤µµ Á¶Àı
+	float time; // í˜„ì¬ ì‹œê°„ (ì• ë‹ˆë©”ì´ì…˜ êµ¬ë™ìš©)
+    WindDesc wind; // ë°”ëŒ ì •ë³´
+	float bendFactor = 1.f; // ìˆ˜í’€ í•˜ë‹¨ ê³ ì •/ìƒë‹¨ í”ë“¤ë¦¼ ì •ë„ ì¡°ì ˆ
 	float stiffness;
 };
 
@@ -233,3 +239,5 @@ struct ShadowDesc
 	float farLength;
 	float shaodwPadding[3];
 };
+
+static_assert(sizeof(InstancedTweenDesc) <= 65536, "Tween ìƒìˆ˜ ë²„í¼ê°€ D3D11ì˜ 64KB ì œí•œì„ ì´ˆê³¼í•©ë‹ˆë‹¤.");

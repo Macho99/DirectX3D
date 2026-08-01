@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Renderer.h"
 //#include "skinned_mesh.h"
 
@@ -66,7 +66,6 @@ public:
 		ar(
 			CEREAL_NVP(_shader),
 			CEREAL_NVP(_model),
-			CEREAL_NVP(_keyframeDesc),
 			// 블렌드 스페이스 편집 결과를 컴포넌트와 함께 저장한다.
 			cereal::make_nvp("blendSpaceInputX", _blendSpaceInput.x),
 			cereal::make_nvp("blendSpaceInputY", _blendSpaceInput.y),
@@ -78,12 +77,12 @@ public:
 			);
 
 		if constexpr (Archive::is_loading::value)
+		{
 			_blendSpaceTriangulationDirty = true;
+		}
 	}
 
 private:
-	// 현재 입력 좌표에서 선택된 최대 3개 지점과 미리보기 가중치.
-	// 아직 GPU나 실제 애니메이션 재생 상태에는 전달하지 않는다.
 	struct BlendSpaceSample
 	{
 		array<int, 3> pointIndices = { -1, -1, -1 };
@@ -95,6 +94,10 @@ private:
 	void CreateAnimationTransform(uint32 index);
 	// 최초 사용 또는 점/애니메이션 변경 시에만 Delaunay 삼각망 캐시를 갱신한다.
 	void UpdateBlendSpaceTriangulation();
+	// 일반 애니메이션 한 개의 프레임 상태를 갱신한다.
+	void UpdateRegularKeyframe(KeyframeDesc& keyframe);
+	// 최대 3개 블렌드 애니메이션을 최장 클립의 재생 시간에 맞춰 갱신한다.
+	void UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const BlendSpaceSample& sample);
 	// Delaunay 삼각망에서 입력 좌표가 속하거나 가장 가까운 삼각형을 찾는다.
 	BlendSpaceSample EvaluateBlendSpace();
 	// 점 편집과 삼각망/가중치 미리보기를 그린다.
@@ -108,8 +111,9 @@ private:
 	ComPtr<ID3D11ShaderResourceView> _srv;
 
 private:
-	KeyframeDesc _keyframeDesc;
 	TweenDesc _tweenDesc;
+	float _blendSpaceLongestDuration = 0.f;
+	int32 _nextAnimIndex = 0;
 
 	// 블렌드 스페이스 편집 상태.
 	Vec2 _blendSpaceInput = Vec2::Zero;

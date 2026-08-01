@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ModelAnimator.h"
 #include "Material.h"
 #include "ModelMesh.h"
@@ -35,6 +35,26 @@ void ModelAnimator::Awake()
     Transform* transform = GetTransform();
     transform->SetLocalScale(Vec3(0.01f));
 	//_skinnedMesh.LoadMesh("D:\\Projects\\source\\repos\\GameCoding\\Assets\\Models\\Paladin\\Sword And Shield Attack.fbx");
+
+	if (_blendSpacePoints.size() == 0)
+	{
+		BlendSpacePoint center = { Vec2(0.f, 0.f), 27 };
+		_blendSpacePoints.push_back(center);
+        BlendSpacePoint left = { Vec2(-1.0f, 0.0f), 43 };
+		_blendSpacePoints.push_back(left);
+        BlendSpacePoint right = { Vec2(1.0f, 0.0f), 46 };
+        _blendSpacePoints.push_back(right);
+        BlendSpacePoint top = { Vec2(0.0f, 1.0f), 50 };
+        _blendSpacePoints.push_back(top);
+		BlendSpacePoint bottom = { Vec2(0.0f, -1.0f), 49 };
+        _blendSpacePoints.push_back(bottom);
+	}
+
+	if (_tweenDesc.cur.HasAnimation() == false)
+	{
+        const BlendSpaceSample sample = EvaluateBlendSpace();
+        UpdateBlendSpaceKeyframe(_tweenDesc.cur, sample);
+	}
 }
 
 void ModelAnimator::Update()
@@ -57,9 +77,7 @@ void ModelAnimator::SetModel(ResourceRef<Model> model)
 	if (modelPtr == nullptr)
 		return;
 	int animCount = modelPtr->GetAnimationCount();
-	// 애니메이션이 없는 모델에서 rand() % 0이 발생하지 않도록 보호한다.
-	if (animCount > 0)
-		_tweenDesc.next.animIndex = rand() % animCount;
+	_tweenDesc.ClearNextAnim();
 }
 
 // 좌표와 애니메이션을 한 쌍으로 추가한다.
@@ -96,6 +114,7 @@ void ModelAnimator::ClearBlendSpace()
 	_blendSpacePoints.clear();
 	_selectedBlendSpacePoint = -1;
 	_blendSpaceTriangles.clear();
+	_blendSpaceLongestDuration = 0.f;
 	_blendSpaceTriangulationDirty = false;
 }
 
@@ -184,35 +203,45 @@ bool ModelAnimator::OnGUI()
     changed |= OnGUIUtils::DrawFloat("Tween Duration", &_tweenDesc.tweenDuration, 0.1f);
     changed |= OnGUIUtils::DrawFloat("Tween Ratio", &_tweenDesc.tweenRatio, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Tween SumTime", &_tweenDesc.tweenSumTime, 0.01f);
-	changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animIndex, 1.f);
+	//changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animations[0].animIndex, 1.f);
     Model* model = _model.Resolve();
-	if (model != nullptr)
+	if (model != nullptr && model->GetAnimationCount() > 0)
 	{
-		if (ImGui::Button("Prev Anim"))
+		const int animCount = model->GetAnimationCount();
+		string nextAnimName = Utils::ToString(model->GetAnimationByIndex(_nextAnimIndex)->GetName());
+        nextAnimName = to_string(_nextAnimIndex) + " : " + nextAnimName;
+		if (ImGui::BeginCombo("Animation", nextAnimName.c_str()))
 		{
-			_tweenDesc.next.animIndex = (_tweenDesc.cur.animIndex - 1) % model->GetAnimationCount();
-			changed = true;
+			for (int animationIndex = 0; animationIndex < animCount; ++animationIndex)
+			{
+				const string name = to_string(animationIndex) + " : " +
+					Utils::ToString(model->GetAnimationByIndex(animationIndex)->GetName());
+				if (ImGui::Selectable(name.c_str(), _nextAnimIndex == animationIndex))
+				{
+					_nextAnimIndex = animationIndex;
+                    _tweenDesc.next.SetSingleAnimation(_nextAnimIndex);
+					changed = true;
+				}
+                if (_nextAnimIndex == animationIndex)
+                    ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
 		}
-        ImGui::SameLine();
-        if (ImGui::Button("Next Anim"))
+
+        if (ImGui::Button("To BlendSpace"))
         {
-            _tweenDesc.next.animIndex = (_tweenDesc.cur.animIndex + 1) % model->GetAnimationCount();
-            changed = true;
-        }
-		ImGui::SameLine();
-        if (ImGui::Button("Random Anim"))
-        {
-            _tweenDesc.next.animIndex = rand() % model->GetAnimationCount();
+            const BlendSpaceSample sample = EvaluateBlendSpace();
+			UpdateBlendSpaceKeyframe(_tweenDesc.next, sample);
             changed = true;
         }
 	}
 
     ImGui::Separator();
-	changed |= OnGUIUtils::DrawInt32("Cur Anim Index", &_tweenDesc.cur.animIndex, 1.f);
-    changed |= OnGUIUtils::DrawUInt32("Cur Frame Index", &_tweenDesc.cur.curFrame, 1.f);
-    changed |= OnGUIUtils::DrawUInt32("Next Frame Index", &_tweenDesc.cur.nextFrame, 1.f);
-    changed |= OnGUIUtils::DrawFloat("Sum Time", &_tweenDesc.cur.sumTime, 1.f);
-    changed |= OnGUIUtils::DrawFloat("Ratio", &_tweenDesc.cur.ratio, 1.f);
+	changed |= OnGUIUtils::DrawInt32("Cur Anim Index", &_tweenDesc.cur.animations[0].animIndex, 1.f);
+	changed |= OnGUIUtils::DrawUInt32("Cur Frame Index", &_tweenDesc.cur.animations[0].curFrame, 1.f);
+	changed |= OnGUIUtils::DrawUInt32("Next Frame Index", &_tweenDesc.cur.animations[0].nextFrame, 1.f);
+	changed |= OnGUIUtils::DrawFloat("Sum Time", &_tweenDesc.cur.sumTime, 1.f);
+	changed |= OnGUIUtils::DrawFloat("Ratio", &_tweenDesc.cur.animations[0].ratio, 1.f);
     ImGui::Separator();
 
 	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
@@ -400,12 +429,22 @@ void ModelAnimator::UpdateBlendSpaceTriangulation()
 	vector<Geometry2D::Point> points;
 	points.reserve(_blendSpacePoints.size());
 	vector<int> validIndices;
+	_blendSpaceLongestDuration = 0.f;
 	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
 	{
 		const BlendSpacePoint& point = _blendSpacePoints[i];
 		points.emplace_back(point.position.x, point.position.y);
 		if (point.animIndex >= 0 && point.animIndex < animationCount)
+		{
 			validIndices.push_back(i);
+			// 블렌드 공간 전체에서 가장 긴 클립을 공통 재생 주기의 기준으로 사용한다.
+			ModelAnimation* animation = model->GetAnimationByIndex(point.animIndex);
+			if (animation != nullptr && animation->GetFrameRate() > 0.f)
+			{
+				const float duration = animation->GetFrameCount() / animation->GetFrameRate();
+				_blendSpaceLongestDuration = max(_blendSpaceLongestDuration, duration);
+			}
+		}
 	}
 
 	const vector<Geometry2D::TriangleIndices> triangles =
@@ -576,7 +615,7 @@ bool ModelAnimator::DrawBlendSpaceEditor()
 		ImGui::PushID(i);
 		const bool open = ImGui::TreeNodeEx(
 			"Point",
-			ImGuiTreeNodeFlags_DefaultOpen | (_selectedBlendSpacePoint == i ? ImGuiTreeNodeFlags_Selected : 0),
+			(_selectedBlendSpacePoint == i ? ImGuiTreeNodeFlags_Selected : 0),
 			"Point %d", i);
 		if (ImGui::IsItemClicked())
 			_selectedBlendSpacePoint = i;
@@ -611,6 +650,8 @@ bool ModelAnimator::DrawBlendSpaceEditor()
 						_blendSpaceTriangulationDirty = true;
 						changed = true;
 					}
+                    if (point.animIndex == animationIndex)
+                        ImGui::SetItemDefaultFocus();
 				}
 				ImGui::EndCombo();
 			}
@@ -720,60 +761,98 @@ void ModelAnimator::UpdateTweenData()
 	if (_showAnimationDebug)
 		return;
 
-    Model* model = _model.Resolve();
-    if (model == nullptr)
-        return;
+	Model* model = _model.Resolve();
+	if (model == nullptr || model->GetAnimationCount() == 0)
+		return;
 
-	TweenDesc& desc = _tweenDesc;
+	UpdateBlendSpaceTriangulation();
+	const BlendSpaceSample sample = EvaluateBlendSpace();
 
-	desc.cur.sumTime += DT;
-	// 현재 애니메이션
+	// 현재 애니메이션 업데이트
+    if (_tweenDesc.cur.isBlendSpace)
+        UpdateBlendSpaceKeyframe(_tweenDesc.cur, sample);
+    else
+        UpdateRegularKeyframe(_tweenDesc.cur);
+
+    // 다음 애니메이션이 존재하면 업데이트 및 트윈 비율 계산
+	if (_tweenDesc.next.HasAnimation())
 	{
-		ModelAnimation* currentAnim = model->GetAnimationByIndex(desc.cur.animIndex);
-		if (currentAnim)
+		_tweenDesc.tweenSumTime += DT;
+		_tweenDesc.tweenRatio = clamp(_tweenDesc.tweenSumTime / _tweenDesc.tweenDuration, 0.f, 1.f);
+		if (_tweenDesc.tweenRatio >= 1.f)
 		{
-			float timePerFrame = 1 / (currentAnim->GetFrameRate() * desc.speed);
-			if (desc.cur.sumTime >= timePerFrame)
-			{
-				desc.cur.sumTime = 0;
-				desc.cur.curFrame = (desc.cur.curFrame + 1) % currentAnim->GetFrameCount();
-				desc.cur.nextFrame = (desc.cur.curFrame + 1) % currentAnim->GetFrameCount();
-			}
-
-			desc.cur.ratio = (desc.cur.sumTime / timePerFrame);
+			_tweenDesc.cur = _tweenDesc.next;
+			_tweenDesc.ClearNextAnim();
+			return;
 		}
-	}
 
-	// 다음 애니메이션이 있다면
-	if (desc.next.animIndex >= 0)
-	{
-		desc.tweenSumTime += DT;
-		desc.tweenRatio = desc.tweenSumTime / desc.tweenDuration;
-
-		if (desc.tweenRatio >= 1.f)
-		{
-			desc.cur = desc.next;
-			desc.ClearNextAnim();
-		}
+		if (_tweenDesc.next.isBlendSpace)
+			UpdateBlendSpaceKeyframe(_tweenDesc.next, sample);
 		else
+			UpdateRegularKeyframe(_tweenDesc.next);
+	}
+}
+
+void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
+{
+	Model* model = _model.Resolve();
+	if (model == nullptr || model->GetAnimationCount() == 0)
+		return;
+
+	AnimationFrameDesc& frame = keyframe.animations[0];
+	frame.animIndex = clamp(frame.animIndex, 0, static_cast<int>(model->GetAnimationCount()) - 1);
+	keyframe.blendWeights = Vec3(1.f, 0.f, 0.f);
+	keyframe.animations[1] = {};
+	keyframe.animations[2] = {};
+
+	ModelAnimation* animation = model->GetAnimationByIndex(frame.animIndex);
+	if (animation == nullptr || animation->GetFrameCount() == 0 || animation->GetFrameRate() <= 0.f)
+		return;
+
+	// 일반 애니메이션은 기존 speed 배율로 독립 재생한다.
+	const float duration = animation->GetFrameCount() / animation->GetFrameRate();
+	keyframe.sumTime = fmod(keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f), duration);
+	const float framePosition = keyframe.sumTime * animation->GetFrameRate();
+	frame.curFrame = static_cast<uint32>(framePosition) % animation->GetFrameCount();
+	frame.nextFrame = (frame.curFrame + 1) % animation->GetFrameCount();
+	frame.ratio = framePosition - floor(framePosition);
+}
+
+void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const BlendSpaceSample& sample)
+{
+	Model* model = _model.Resolve();
+	if (model == nullptr || _blendSpaceLongestDuration <= 0.f)
+		return;
+
+    keyframe.isBlendSpace = true;
+
+	// 모든 클립이 최장 클립과 같은 시간에 한 바퀴 돌도록 공통 정규화 시간을 사용한다.
+	keyframe.sumTime = fmod(keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f), _blendSpaceLongestDuration);
+	const float normalizedTime = keyframe.sumTime / _blendSpaceLongestDuration;
+	keyframe.blendWeights = Vec3(sample.weights[0], sample.weights[1], sample.weights[2]);
+
+	for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
+	{
+		AnimationFrameDesc& frame = keyframe.animations[i];
+		const int pointIndex = sample.pointIndices[i];
+		if (pointIndex < 0 || sample.weights[i] <= 0.f)
 		{
-			// 교체중
-			desc.next.sumTime += DT;
-
-			desc.next.animIndex = std::clamp(desc.next.animIndex, 0, (int)model->GetAnimationCount() - 1);
-			ModelAnimation* nextAnim = model->GetAnimationByIndex(desc.next.animIndex);
-			float timePerFrame = 1.f / (nextAnim->GetFrameRate() * desc.speed);
-
-			if (desc.next.ratio >= 1.f)
-			{
-				desc.next.sumTime = 0;
-
-				desc.next.curFrame = (desc.next.curFrame + 1) % nextAnim->GetFrameCount();
-				desc.next.nextFrame = (desc.next.curFrame + 1) % nextAnim->GetFrameCount();
-			}
-
-			desc.next.ratio = desc.next.sumTime / timePerFrame;
+			frame = {};
+			continue;
 		}
+
+		frame.animIndex = _blendSpacePoints[pointIndex].animIndex;
+		ModelAnimation* animation = model->GetAnimationByIndex(frame.animIndex);
+		if (animation == nullptr || animation->GetFrameCount() == 0)
+		{
+			frame = {};
+			continue;
+		}
+
+		const float framePosition = normalizedTime * animation->GetFrameCount();
+		frame.curFrame = static_cast<uint32>(framePosition) % animation->GetFrameCount();
+		frame.nextFrame = (frame.curFrame + 1) % animation->GetFrameCount();
+		frame.ratio = framePosition - floor(framePosition);
 	}
 }
 
@@ -830,10 +909,11 @@ void ModelAnimator::DrawDebugWindow()
 	ImGui::SetNextItemWidth(500.0f);
 	ImGui::SliderInt("Frame", &_debugFrameIndex, 0, max(0, (int)frameCount - 1));
 
-    _tweenDesc.cur.animIndex = _debugAnimationIndex;
-    _tweenDesc.cur.curFrame = _debugFrameIndex;
-    _tweenDesc.cur.nextFrame = (_debugFrameIndex + 1) % frameCount;
-    _tweenDesc.cur.ratio = 0.0f;
+	// 디버그 모드에서는 첫 번째 슬롯만 사용하는 일반 KeyframeDesc로 고정한다.
+	_tweenDesc.cur.SetSingleAnimation(_debugAnimationIndex);
+	_tweenDesc.cur.animations[0].curFrame = _debugFrameIndex;
+	_tweenDesc.cur.animations[0].nextFrame = (_debugFrameIndex + 1) % frameCount;
+	_tweenDesc.cur.animations[0].ratio = 0.0f;
     _tweenDesc.cur.sumTime = 0.0f;
 
 	const float ticksPerSecond = animation->GetFrameRate();

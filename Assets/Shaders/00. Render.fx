@@ -4,9 +4,10 @@
 #include "00. Global.fx"
 #include "00. Light.fx"
 
-#define MAX_MODEL_TRANSFORMS 250
+#define MAX_MODEL_TRANSFORMS 100
 #define MAX_MODEL_KEYFRAMES 500
-#define MAX_MODEL_INSTANCE 500
+#define MAX_MODEL_INSTANCE 200
+#define MAX_BLEND_ANIMATIONS 3
 
 // ************** MeshRender ****************
 
@@ -118,15 +119,22 @@ MeshOutput VS_Model(VertexModel input)
 
 // ************** AnimRender ****************
 
-struct KeyframeDesc
+struct AnimationFrameDesc
 {
 	int animIndex;
 	uint currFrame;
 	uint nextFrame;
 	float ratio;
+};
+
+struct KeyframeDesc
+{
+	// 한 재생 상태에서 최대 3개 애니메이션을 좌표 가중치로 합성한다.
+	AnimationFrameDesc animations[MAX_BLEND_ANIMATIONS];
+	float3 blendWeights;
 	float sumTime;
-	float speed;
-	float2 padding;
+    uint isBlendSpace;
+    uint3 padding;
 };
 
 struct TweenFrameDesc
@@ -146,71 +154,48 @@ cbuffer TweenBuffer
 
 Texture2DArray TransformMap;
 
+matrix LoadAnimationMatrix(AnimationFrameDesc animation, float boneIndex)
+{
+	float4 c0 = TransformMap.Load(int4(boneIndex * 4 + 0, animation.currFrame, animation.animIndex, 0));
+	float4 c1 = TransformMap.Load(int4(boneIndex * 4 + 1, animation.currFrame, animation.animIndex, 0));
+	float4 c2 = TransformMap.Load(int4(boneIndex * 4 + 2, animation.currFrame, animation.animIndex, 0));
+	float4 c3 = TransformMap.Load(int4(boneIndex * 4 + 3, animation.currFrame, animation.animIndex, 0));
+	
+	float4 n0 = TransformMap.Load(int4(boneIndex * 4 + 0, animation.nextFrame, animation.animIndex, 0));
+	float4 n1 = TransformMap.Load(int4(boneIndex * 4 + 1, animation.nextFrame, animation.animIndex, 0));
+	float4 n2 = TransformMap.Load(int4(boneIndex * 4 + 2, animation.nextFrame, animation.animIndex, 0));
+	float4 n3 = TransformMap.Load(int4(boneIndex * 4 + 3, animation.nextFrame, animation.animIndex, 0));
+	
+	return lerp(matrix(c0, c1, c2, c3), matrix(n0, n1, n2, n3), animation.ratio);
+}
+
+matrix LoadKeyframeMatrix(KeyframeDesc keyframe, float boneIndex)
+{
+	// 슬롯 번호별 하드코딩 없이 유효한 애니메이션만 순회하여 합성한다.
+	matrix result = 0;
+	for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
+	{
+		if (keyframe.animations[i].animIndex >= 0 && keyframe.blendWeights[i] > 0.0f)
+			result += keyframe.blendWeights[i] * LoadAnimationMatrix(keyframe.animations[i], boneIndex);
+	}
+	return result;
+}
+
 matrix GetAnimationMatrix(VertexModel input)
 {
-	float indices[4] = { input.blendIndices.x, input.blendIndices.y, input.blendIndices.z, input.blendIndices.w };
-	float weights[4] = { input.blendWeights.x, input.blendWeights.y, input.blendWeights.z, input.blendWeights.w };
+	TweenFrameDesc tween = TweenFrames[input.instanceID];
+	matrix skinningTransform = 0;
 
-	int animIndex[2];
-	int currFrame[2];
-	int nextFrame[2];
-	float ratio[2];
-
-	animIndex[0] = TweenFrames[input.instanceID].curr.animIndex;
-	currFrame[0] = TweenFrames[input.instanceID].curr.currFrame;
-	nextFrame[0] = TweenFrames[input.instanceID].curr.nextFrame;
-	ratio[0] = TweenFrames[input.instanceID].curr.ratio;
-
-	animIndex[1] = TweenFrames[input.instanceID].next.animIndex;
-	currFrame[1] = TweenFrames[input.instanceID].next.currFrame;
-	nextFrame[1] = TweenFrames[input.instanceID].next.nextFrame;
-	ratio[1] = TweenFrames[input.instanceID].next.ratio;
-
-	float4 c0, c1, c2, c3;
-	float4 n0, n1, n2, n3;
-	matrix curr = 0;
-	matrix next = 0;
-	matrix transform = 0;
-
-	for (int i = 0; i < 4; i++)
+	for (int influenceIndex = 0; influenceIndex < 4; ++influenceIndex)
 	{
-		c0 = TransformMap.Load(int4(indices[i] * 4 + 0, currFrame[0], animIndex[0], 0));
-		c1 = TransformMap.Load(int4(indices[i] * 4 + 1, currFrame[0], animIndex[0], 0));
-		c2 = TransformMap.Load(int4(indices[i] * 4 + 2, currFrame[0], animIndex[0], 0));
-		c3 = TransformMap.Load(int4(indices[i] * 4 + 3, currFrame[0], animIndex[0], 0));
-		curr = matrix(c0, c1, c2, c3);
-
-		n0 = TransformMap.Load(int4(indices[i] * 4 + 0, nextFrame[0], animIndex[0], 0));
-		n1 = TransformMap.Load(int4(indices[i] * 4 + 1, nextFrame[0], animIndex[0], 0));
-		n2 = TransformMap.Load(int4(indices[i] * 4 + 2, nextFrame[0], animIndex[0], 0));
-		n3 = TransformMap.Load(int4(indices[i] * 4 + 3, nextFrame[0], animIndex[0], 0));
-		next = matrix(n0, n1, n2, n3);
-
-		matrix result = lerp(curr, next, ratio[0]);
-
-		// ���� �ִϸ��̼�
-		if (animIndex[1] >= 0)
-		{
-			c0 = TransformMap.Load(int4(indices[i] * 4 + 0, currFrame[1], animIndex[1], 0));
-			c1 = TransformMap.Load(int4(indices[i] * 4 + 1, currFrame[1], animIndex[1], 0));
-			c2 = TransformMap.Load(int4(indices[i] * 4 + 2, currFrame[1], animIndex[1], 0));
-			c3 = TransformMap.Load(int4(indices[i] * 4 + 3, currFrame[1], animIndex[1], 0));
-			curr = matrix(c0, c1, c2, c3);
-
-			n0 = TransformMap.Load(int4(indices[i] * 4 + 0, nextFrame[1], animIndex[1], 0));
-			n1 = TransformMap.Load(int4(indices[i] * 4 + 1, nextFrame[1], animIndex[1], 0));
-			n2 = TransformMap.Load(int4(indices[i] * 4 + 2, nextFrame[1], animIndex[1], 0));
-			n3 = TransformMap.Load(int4(indices[i] * 4 + 3, nextFrame[1], animIndex[1], 0));
-			next = matrix(n0, n1, n2, n3);
-
-			matrix nextResult = lerp(curr, next, ratio[1]);
-			result = lerp(result, nextResult, TweenFrames[input.instanceID].tweenRatio);
-		}
-
-		transform += mul(weights[i], result);
+		matrix blendedAnimation = LoadKeyframeMatrix(tween.curr, input.blendIndices[influenceIndex]);
+		if (tween.next.animations[0].animIndex >= 0)
+			blendedAnimation = lerp(blendedAnimation,
+				LoadKeyframeMatrix(tween.next, input.blendIndices[influenceIndex]), tween.tweenRatio);
+		skinningTransform += input.blendWeights[influenceIndex] * blendedAnimation;
 	}
 
-	return transform;
+	return skinningTransform;
 }
 
 MeshOutput VS_Animation(VertexModel input)
