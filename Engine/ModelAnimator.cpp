@@ -16,9 +16,6 @@
 ModelAnimator::ModelAnimator()
 	: Super(StaticType)
 {
-	_tweenDesc.tweenSumTime += rand();
-	_tweenDesc.speed = (rand() % 50) / 10.0f + 1.0f;
-
     _pass = 2;
 	_shader = RESOURCES->GetDefaultShader();
 }
@@ -203,13 +200,50 @@ bool ModelAnimator::OnGUI()
     changed |= OnGUIUtils::DrawFloat("Tween Duration", &_tweenDesc.tweenDuration, 0.1f);
     changed |= OnGUIUtils::DrawFloat("Tween Ratio", &_tweenDesc.tweenRatio, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Tween SumTime", &_tweenDesc.tweenSumTime, 0.01f);
-	//changed |= OnGUIUtils::DrawInt32("Next Anim Index", &_tweenDesc.next.animations[0].animIndex, 1.f);
-    Model* model = _model.Resolve();
+
+    ImGui::Separator();
+	if (ImGui::TreeNode("Current Animation"))
+	{
+        for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
+        {
+            ImGui::PushID(i);
+            ImGui::Text("Slot %d", i);
+            changed |= OnGUIUtils::DrawInt32("Anim Index", &_tweenDesc.cur.animations[i].animIndex, 1.f);
+            changed |= OnGUIUtils::DrawUInt32("Cur Frame Index", &_tweenDesc.cur.animations[i].curFrame, 1.f);
+            changed |= OnGUIUtils::DrawUInt32("Next Frame Index", &_tweenDesc.cur.animations[i].nextFrame, 1.f);
+            changed |= OnGUIUtils::DrawFloat("Cur Ratio", &_tweenDesc.cur.animations[i].ratio, 0.1f);
+			ImGui::PopID();
+			ImGui::Separator();
+        }
+		ImGui::TreePop();
+	}
+    if (ImGui::TreeNode("Next Animation"))
+    {
+        for (int i = 0; i < MAX_BLEND_ANIMATIONS; ++i)
+        {
+            ImGui::PushID(i);
+            ImGui::Text("Slot %d", i);
+            changed |= OnGUIUtils::DrawInt32("Anim Index", &_tweenDesc.next.animations[i].animIndex, 1.f);
+            changed |= OnGUIUtils::DrawUInt32("Cur Frame Index", &_tweenDesc.next.animations[i].curFrame, 1.f);
+            changed |= OnGUIUtils::DrawUInt32("Next Frame Index", &_tweenDesc.next.animations[i].nextFrame, 1.f);
+            changed |= OnGUIUtils::DrawFloat("Cur Ratio", &_tweenDesc.next.animations[i].ratio, 0.1f);
+            ImGui::PopID();
+            ImGui::Separator();
+        }
+        ImGui::TreePop();
+    }
+	changed |= OnGUIUtils::DrawFloat("Sum Time", &_tweenDesc.cur.sumTime, 1.f);
+	changed |= OnGUIUtils::DrawFloat("Ratio", &_tweenDesc.cur.animations[0].ratio, 1.f);
+    ImGui::Separator();
+
+	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
+
+	Model* model = _model.Resolve();
 	if (model != nullptr && model->GetAnimationCount() > 0)
 	{
 		const int animCount = model->GetAnimationCount();
 		string nextAnimName = Utils::ToString(model->GetAnimationByIndex(_nextAnimIndex)->GetName());
-        nextAnimName = to_string(_nextAnimIndex) + " : " + nextAnimName;
+		nextAnimName = to_string(_nextAnimIndex) + " : " + nextAnimName;
 		if (ImGui::BeginCombo("Animation", nextAnimName.c_str()))
 		{
 			for (int animationIndex = 0; animationIndex < animCount; ++animationIndex)
@@ -219,32 +253,23 @@ bool ModelAnimator::OnGUI()
 				if (ImGui::Selectable(name.c_str(), _nextAnimIndex == animationIndex))
 				{
 					_nextAnimIndex = animationIndex;
-                    _tweenDesc.next.SetSingleAnimation(_nextAnimIndex);
+					_tweenDesc.next.SetSingleAnimation(_nextAnimIndex);
 					changed = true;
 				}
-                if (_nextAnimIndex == animationIndex)
-                    ImGui::SetItemDefaultFocus();
+				if (_nextAnimIndex == animationIndex)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
 
-        if (ImGui::Button("To BlendSpace"))
-        {
-            const BlendSpaceSample sample = EvaluateBlendSpace();
+		if (ImGui::Button("To BlendSpace"))
+		{
+			const BlendSpaceSample sample = EvaluateBlendSpace();
 			UpdateBlendSpaceKeyframe(_tweenDesc.next, sample);
-            changed = true;
-        }
+			changed = true;
+		}
 	}
 
-    ImGui::Separator();
-	changed |= OnGUIUtils::DrawInt32("Cur Anim Index", &_tweenDesc.cur.animations[0].animIndex, 1.f);
-	changed |= OnGUIUtils::DrawUInt32("Cur Frame Index", &_tweenDesc.cur.animations[0].curFrame, 1.f);
-	changed |= OnGUIUtils::DrawUInt32("Next Frame Index", &_tweenDesc.cur.animations[0].nextFrame, 1.f);
-	changed |= OnGUIUtils::DrawFloat("Sum Time", &_tweenDesc.cur.sumTime, 1.f);
-	changed |= OnGUIUtils::DrawFloat("Ratio", &_tweenDesc.cur.animations[0].ratio, 1.f);
-    ImGui::Separator();
-
-	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
 	ImGui::SeparatorText("XY Blend Space");
 	changed |= DrawBlendSpaceEditor();
 	bool showAnimDebugChanged = OnGUIUtils::DrawBool("Show Animation Debug", &_showAnimationDebug);
@@ -609,55 +634,59 @@ bool ModelAnimator::DrawBlendSpaceEditor()
 
 	// 각 지점의 좌표와 연결할 애니메이션을 편집한다.
 	int removeIndex = -1;
-	for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
+	if (ImGui::TreeNode("BlendSpacePoints", "Blend Space Points (%d)", static_cast<int>(_blendSpacePoints.size())))
 	{
-		BlendSpacePoint& point = _blendSpacePoints[i];
-		ImGui::PushID(i);
-		const bool open = ImGui::TreeNodeEx(
-			"Point",
-			(_selectedBlendSpacePoint == i ? ImGuiTreeNodeFlags_Selected : 0),
-			"Point %d", i);
-		if (ImGui::IsItemClicked())
-			_selectedBlendSpacePoint = i;
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Remove"))
-			removeIndex = i;
-
-		if (open)
+		for (int i = 0; i < static_cast<int>(_blendSpacePoints.size()); ++i)
 		{
-			if (ImGui::DragFloat2("Coordinate", &point.position.x, 0.01f))
+			BlendSpacePoint& point = _blendSpacePoints[i];
+			ImGui::PushID(i);
+			const bool open = ImGui::TreeNodeEx(
+				"Point",
+				(_selectedBlendSpacePoint == i ? ImGuiTreeNodeFlags_Selected : 0),
+				"Point %d", i);
+			if (ImGui::IsItemClicked())
+				_selectedBlendSpacePoint = i;
+			ImGui::SameLine();
+			if (ImGui::SmallButton("Remove"))
+				removeIndex = i;
+
+			if (open)
 			{
-				_blendSpaceTriangulationDirty = true;
-				changed = true;
-			}
-			const char* preview = "<invalid>";
-			string previewStorage;
-			if (model != nullptr && point.animIndex >= 0 && point.animIndex < animationCount)
-			{
-				previewStorage = to_string(point.animIndex) + " : " +
-					Utils::ToString(model->GetAnimationByIndex(point.animIndex)->GetName());
-				preview = previewStorage.c_str();
-			}
-			if (ImGui::BeginCombo("Animation", preview))
-			{
-				for (int animationIndex = 0; animationIndex < animationCount; ++animationIndex)
+				if (ImGui::DragFloat2("Coordinate", &point.position.x, 0.01f))
 				{
-					const string name = to_string(animationIndex) + " : " +
-						Utils::ToString(model->GetAnimationByIndex(animationIndex)->GetName());
-					if (ImGui::Selectable(name.c_str(), point.animIndex == animationIndex))
-					{
-						point.animIndex = animationIndex;
-						_blendSpaceTriangulationDirty = true;
-						changed = true;
-					}
-                    if (point.animIndex == animationIndex)
-                        ImGui::SetItemDefaultFocus();
+					_blendSpaceTriangulationDirty = true;
+					changed = true;
 				}
-				ImGui::EndCombo();
+				const char* preview = "<invalid>";
+				string previewStorage;
+				if (model != nullptr && point.animIndex >= 0 && point.animIndex < animationCount)
+				{
+					previewStorage = to_string(point.animIndex) + " : " +
+						Utils::ToString(model->GetAnimationByIndex(point.animIndex)->GetName());
+					preview = previewStorage.c_str();
+				}
+				if (ImGui::BeginCombo("Animation", preview))
+				{
+					for (int animationIndex = 0; animationIndex < animationCount; ++animationIndex)
+					{
+						const string name = to_string(animationIndex) + " : " +
+							Utils::ToString(model->GetAnimationByIndex(animationIndex)->GetName());
+						if (ImGui::Selectable(name.c_str(), point.animIndex == animationIndex))
+						{
+							point.animIndex = animationIndex;
+							_blendSpaceTriangulationDirty = true;
+							changed = true;
+						}
+						if (point.animIndex == animationIndex)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::TreePop();
 			}
-			ImGui::TreePop();
+			ImGui::PopID();
 		}
-		ImGui::PopID();
+		ImGui::TreePop();
 	}
 	if (removeIndex >= 0)
 	{
