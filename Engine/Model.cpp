@@ -133,20 +133,44 @@ bool Model::OnGUI(bool isReadOnly)
         fs::path folderPath(_path);
         folderPath = folderPath.parent_path();
 
+        vector<fs::path> filePaths;
         for (const auto& entry : fs::directory_iterator(folderPath))
         {
             if (entry.is_regular_file())
+                filePaths.push_back(entry.path());
+        }
+
+        for (const fs::path& filePath : filePaths)
+        {
+            if (_wcsicmp(filePath.extension().c_str(), L".clip") == 0)
             {
-                fs::path filePath = entry.path();
-                if (filePath.extension() == ".fbx")
+                _animations.push_back(
+                    RESOURCES->GetResourceRefByAbsPath<ModelAnimation>(filePath));
+                continue;
+            }
+
+            if (_wcsicmp(filePath.extension().c_str(), L".fbx") != 0)
+                continue;
+
+            const bool hasSameNameClip = any_of(
+                filePaths.begin(), filePaths.end(),
+                [&filePath](const fs::path& otherPath)
                 {
-                    Model* model = RESOURCES->GetResourceRefByAbsPath<Model>(filePath.wstring()).Resolve();
-                    const vector<ResourceRef<ModelAnimation>>& animations = model->GetAnimations();
-                    for (const ResourceRef<ModelAnimation>& animRef : animations)
-                    {
-                        _animations.push_back(animRef);
-                    }
-                }
+                    return _wcsicmp(otherPath.extension().c_str(), L".clip") == 0
+                        && _wcsicmp(otherPath.stem().c_str(), filePath.stem().c_str()) == 0;
+                });
+
+            if (hasSameNameClip)
+                continue;
+
+            Model* model = RESOURCES->GetResourceRefByAbsPath<Model>(filePath).Resolve();
+            if (model == nullptr)
+                continue;
+
+            const vector<ResourceRef<ModelAnimation>>& animations = model->GetAnimations();
+            for (const ResourceRef<ModelAnimation>& animRef : animations)
+            {
+                _animations.push_back(animRef);
             }
         }
 

@@ -31,20 +31,32 @@ void ModelAnimator::Awake()
 		return;
     Transform* transform = GetTransform();
     transform->SetLocalScale(Vec3(0.01f));
-	//_skinnedMesh.LoadMesh("D:\\Projects\\source\\repos\\GameCoding\\Assets\\Models\\Paladin\\Sword And Shield Attack.fbx");
 
 	if (_blendSpacePoints.size() == 0)
 	{
 		BlendSpacePoint center = { Vec2(0.f, 0.f), 27 };
 		_blendSpacePoints.push_back(center);
-        BlendSpacePoint left = { Vec2(-1.0f, 0.0f), 43 };
-		_blendSpacePoints.push_back(left);
-        BlendSpacePoint right = { Vec2(1.0f, 0.0f), 46 };
-        _blendSpacePoints.push_back(right);
-        BlendSpacePoint top = { Vec2(0.0f, 1.0f), 50 };
-        _blendSpacePoints.push_back(top);
-		BlendSpacePoint bottom = { Vec2(0.0f, -1.0f), 49 };
-        _blendSpacePoints.push_back(bottom);
+		{
+			BlendSpacePoint left = { Vec2(-1.0f, 0.0f), 43 };
+			_blendSpacePoints.push_back(left);
+			BlendSpacePoint right = { Vec2(1.0f, 0.0f), 46 };
+			_blendSpacePoints.push_back(right);
+			BlendSpacePoint top = { Vec2(0.0f, 1.0f), 50 };
+			_blendSpacePoints.push_back(top);
+			BlendSpacePoint bottom = { Vec2(0.0f, -1.0f), 49 };
+			_blendSpacePoints.push_back(bottom);
+		}
+
+		{
+			BlendSpacePoint left = { Vec2(-2.0f, 0.0f), 44 };
+            _blendSpacePoints.push_back(left);
+            BlendSpacePoint right = { Vec2(2.0f, 0.0f), 45 };
+            _blendSpacePoints.push_back(right);
+            BlendSpacePoint top = { Vec2(0.0f, 2.0f), 37 };
+            _blendSpacePoints.push_back(top);
+            BlendSpacePoint bottom = { Vec2(0.0f, -2.0f), 36 };
+            _blendSpacePoints.push_back(bottom);
+		}
 	}
 
 	if (_tweenDesc.cur.HasAnimation() == false)

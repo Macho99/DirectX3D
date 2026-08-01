@@ -117,8 +117,8 @@ private:
 
 	// 블렌드 스페이스 편집 상태.
 	Vec2 _blendSpaceInput = Vec2::Zero;
-	Vec2 _blendSpaceMin = Vec2(-1.0f, -1.0f);
-	Vec2 _blendSpaceMax = Vec2(1.0f, 1.0f);
+	Vec2 _blendSpaceMin = Vec2(-2.0f, -2.0f);
+	Vec2 _blendSpaceMax = Vec2(2.0f, 2.0f);
 	vector<BlendSpacePoint> _blendSpacePoints;
 	int _selectedBlendSpacePoint = -1;
 

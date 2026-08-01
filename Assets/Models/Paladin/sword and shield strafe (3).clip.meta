@@ -1,0 +1,22 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "AnimationMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 6820217880067776440,
+                    "rightId": 2921655813147538316
+                },
+                "_resourceType": 4,
+                "clipImportSetting": {
+                    "extractRootMotion": false,
+                    "applyRootPositionXZ": false,
+                    "applyRootPositionY": false,
+                    "applyRootRotation": false
+                }
+            }
+        }
+    }
+}
