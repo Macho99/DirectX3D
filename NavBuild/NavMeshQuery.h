@@ -19,6 +19,13 @@ public:
     bool TryFindPath(const Vec3& start, const Vec3& end, MoveInfo& moveInfo) const;
     bool MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, float deltaTime) const;
 
+    /// <summary>
+    /// 현재 위치가 네비게이션 메시 안에 있는지 확인하고, 위치를 보정한다.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <returns> if true: validatedPos를 새로 적용해야함 </returns>
+    bool ValidatePosition(ValidatePositionInfo& info) const;
+
 private:
     vector<PolyPath> FindPolyPath(const PolyRef& startPoly, const PolyRef& goalPoly, const Vec3& startPos, const Vec3& goalPos) const;
     vector<Vec3> FunnelSmooth(const vector<PolyPath>& polyPath, const Vec3& startPos, const Vec3& endPos) const;

@@ -28,17 +28,38 @@ void NavAgent::Update()
         return;
 
     Transform* transform = GetTransform();
-    _moveInfo.position = GetTransform()->GetPosition();
+    const Vec3 position = transform->GetPosition();
+    _moveInfo.position = position;
     Vec3 rotation = GetTransform()->GetRotation();
     rotation.y -= _offsetY;
     _moveInfo.rotationY = rotation.y;
-    if (_navMesh.Resolve()->MoveAlongPath(_moveConfig, _moveInfo, TIME->GetDeltaTime()) == false)
+    NavMesh* navMesh = _navMesh.Resolve();
+    if (navMesh->MoveAlongPath(_moveConfig, _moveInfo, TIME->GetDeltaTime()) == false)
+    {
         return;
+    }
 
     transform->SetPosition(_moveInfo.position);
     rotation.y = _moveInfo.rotationY;
     rotation.y += _offsetY;
     transform->SetRotation(rotation);
+}
+
+void NavAgent::LateUpdate()
+{
+    NavMesh* navMesh = _navMesh.Resolve();
+    if (navMesh == nullptr)
+        return;
+
+    Transform* transform = GetTransform();
+    const Vec3 position = transform->GetPosition();
+    _validatePositionInfo.curPosition = position;
+    bool needToRemap = navMesh->ValidatePosition(_validatePositionInfo);
+
+    if (needToRemap)
+    {
+        transform->SetPosition(_validatePositionInfo.validatedPosition);
+    }
 }
 
 bool NavAgent::OnGUI()

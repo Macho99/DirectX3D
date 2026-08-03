@@ -48,6 +48,12 @@ public:
             return false;
         return _builder.MoveAlongPath(config, moveInfo, deltaTime);
     }
+    bool ValidatePosition(ValidatePositionInfo& info) const
+    {
+        if (_builder.IsBuilt() == false)
+            return false;
+        return _builder.ValidatePosition(info);
+    }
 
 private:
     Vec3 GetDebugColor(int id);

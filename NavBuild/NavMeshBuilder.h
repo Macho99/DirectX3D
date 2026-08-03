@@ -19,6 +19,7 @@ public:
     bool Build(NavBuildInput input, const fs::path& savePath);
     bool TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, MoveInfo& moveInfo) const;
     bool MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, float deltaTime) const;
+    bool ValidatePosition(ValidatePositionInfo& info) const;
     
     bool IsBuilt() const { return _navMeshQuery != nullptr; }
 

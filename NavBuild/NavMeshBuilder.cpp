@@ -83,6 +83,15 @@ bool NavMeshBuilder::MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo,
         return false;
     return _navMeshQuery->MoveAlongPath(config, moveInfo, deltaTime);
 }
+
+bool NavMeshBuilder::ValidatePosition(ValidatePositionInfo& info) const
+{
+    if (_navMeshQuery == nullptr)
+        return true;
+
+    return _navMeshQuery->ValidatePosition(info);
+}
+
 Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)
 {
     Vec3 e0 = tri.v1 - tri.v0;

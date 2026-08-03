@@ -205,7 +205,7 @@ void AssetSerializeDemo::Init()
     {
         auto parentObjRef = CUR_SCENE->Add("Towers");
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
-        parentTransformRef.Resolve()->SetScale(Vec3(3.f, 1.f, 3.f));
+        //parentTransformRef.Resolve()->SetScale(Vec3(3.f, 1.f, 3.f));
 
         // Model
         ResourceRef<Model> model = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tower\\Tower.fbx");
@@ -213,8 +213,8 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Tower" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, baseHeight - 1, rand() % 100));
-            obj->GetTransform()->SetScale(Vec3(0.02f));
+            obj->GetTransform()->SetPosition(Vec3(rand() % 100, baseHeight, rand() % 100));
+            obj->GetTransform()->SetLocalRotation(Vec3(90.f, 0.f, 0.f));
             obj->GetTransform()->SetParent(parentTransformRef);
 
             auto modelRenderer = make_unique<ModelRenderer>();

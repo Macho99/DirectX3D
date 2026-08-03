@@ -287,5 +287,12 @@ struct MoveInfo
     }
 };
 
+struct ValidatePositionInfo
+{
+    Vec3 validatedPosition;
+    Vec3 curPosition;
+    PolyRef lastPolyRef;
+};
+
 constexpr float kEps = 1e-6f;
 constexpr float PI = 3.14159265358979323846f;

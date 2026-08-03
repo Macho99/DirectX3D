@@ -16,6 +16,7 @@ public:
 
     virtual void Start() override;
     virtual void Update() override;
+    virtual void LateUpdate() override;
     virtual bool OnGUI() override;
 
     void FindPath();
@@ -35,5 +36,6 @@ private:
 
     MoveConfig _moveConfig;
     MoveInfo _moveInfo;
+    ValidatePositionInfo _validatePositionInfo;
     float _offsetY = 180.f;
 };
