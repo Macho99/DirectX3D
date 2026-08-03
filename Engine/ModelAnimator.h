@@ -102,6 +102,8 @@ private:
 	bool DrawBlendSpaceEditor();
 	void DrawDebugWindow();
 	void DrawDebugMatrix(const char* label, const Matrix& matrix);
+    float GetNormalizedTime(const AnimationFrameDesc& animFrame);
+    float GetLeftTime(const AnimationFrameDesc& animFrame);
 
 private:
 	vector<AnimTransform> _animTransforms;

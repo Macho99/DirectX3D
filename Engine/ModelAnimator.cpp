@@ -59,11 +59,8 @@ void ModelAnimator::Awake()
 		}
 	}
 
-	if (_tweenDesc.cur.HasAnimation() == false)
-	{
-        const BlendSpaceSample sample = EvaluateBlendSpace();
-        UpdateBlendSpaceKeyframe(_tweenDesc.cur, sample);
-	}
+	const BlendSpaceSample sample = EvaluateBlendSpace();
+	UpdateBlendSpaceKeyframe(_tweenDesc.cur, sample);
 }
 
 void ModelAnimator::Update()
@@ -71,6 +68,16 @@ void ModelAnimator::Update()
     const TweenDesc prevTweenDesc = _tweenDesc;
 	UpdateTweenData();
 	UpdateRootMotion(prevTweenDesc);
+
+	if (_tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
+	{
+		float leftTime = GetLeftTime(_tweenDesc.cur.animations[0]);
+		if (leftTime < _tweenDesc.tweenDuration && _tweenDesc.next.HasAnimation() == false)
+		{
+			const BlendSpaceSample sample = EvaluateBlendSpace();
+            UpdateBlendSpaceKeyframe(_tweenDesc.next, sample);
+		}
+	}
 }
 
 void ModelAnimator::SetShader(ResourceRef<Shader> shader)
@@ -1215,4 +1222,32 @@ void ModelAnimator::DrawDebugMatrix(const char* label, const Matrix& matrix)
 		ImGui::EndTable();
 	}
 	ImGui::TreePop();
+}
+
+float ModelAnimator::GetNormalizedTime(const AnimationFrameDesc& animFrame)
+{
+    Model* model = _model.Resolve();
+    if (model == nullptr)
+        return 0.f;
+    ModelAnimation* animation = model->GetAnimationByIndex(animFrame.animIndex);
+    if (animation == nullptr || animation->GetFrameCount() <= 1)
+        return 0.f;
+    const uint32 modFrameCount = animation->GetFrameCount() - 1;
+    const float framePosition = animFrame.curFrame + animFrame.ratio;
+    return framePosition / modFrameCount;
+}
+
+float ModelAnimator::GetLeftTime(const AnimationFrameDesc& animFrame)
+{
+    Model* model = _model.Resolve();
+    if (model == nullptr)
+        return 0.f;
+    ModelAnimation* animation = model->GetAnimationByIndex(animFrame.animIndex);
+    if (animation == nullptr || animation->GetFrameCount() <= 1)
+        return 0.f;
+
+    const uint32 modFrameCount = animation->GetFrameCount() - 1;
+    const float framePosition = animFrame.curFrame + animFrame.ratio;
+    const float leftFrames = modFrameCount - framePosition;
+    return leftFrames / animation->GetFrameRate();
 }

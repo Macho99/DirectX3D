@@ -185,14 +185,14 @@ void AssetSerializeDemo::Init()
         //animShader->SetTechNum(RenderTech::NormalDepth, -1);
         // Animation
         ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Paladin\\New Model.model");
-        auto parentObjRef = CUR_SCENE->Add("Kachujins");
+        auto parentObjRef = CUR_SCENE->Add("Paladins");
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
         for (int32 i = 0; i < 1; i++)
         {
-            auto objRef = CUR_SCENE->Add("Kachujin" + std::to_string(i));
+            auto objRef = CUR_SCENE->Add("Paladin" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
             //obj->GetTransform()->SetPosition(Vec3(rand() % 10, baseHeight, rand() % 10));
-            obj->GetTransform()->SetScale(Vec3(0.01f));
+            obj->GetTransform()->SetScale(Vec3(0.02f));
             obj->GetTransform()->SetParent(parentTransformRef);
             obj->AddComponent(make_unique<ModelAnimator>());
             {

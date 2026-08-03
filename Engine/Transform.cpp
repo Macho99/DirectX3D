@@ -72,7 +72,18 @@ void Transform::UpdateTransform()
 
 	Quaternion quat;
 	_matWorld.Decompose(_scale, quat, _position);
-	_rotation = ToEulerAngles(quat);
+	Vec3 rotation = ToEulerAngles(quat);
+	const float halfTurnTolerance = XMConvertToRadians(0.01f);
+	const bool isZHalfTurn = fabsf(fabsf(rotation.z) - XM_PI) < halfTurnTolerance;
+	if (isZHalfTurn)
+	{
+		rotation.x += rotation.x < 0.f ? XM_PI : -XM_PI;
+		rotation.y = XM_PI - rotation.y;
+		if (rotation.y > XM_PI)
+			rotation.y -= XM_2PI;
+		rotation.z = 0.f;
+	}
+	_rotation = rotation;
 
 	// Children
 	for (const TransformRef& child : _children)
