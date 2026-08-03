@@ -39,6 +39,7 @@ public:
     virtual void Awake() override;
 	virtual void Update() override;
 
+	void UpdateRootMotion(const TweenDesc prevTweenDesc);
 	void UpdateTweenData();
 
     void SetShader(ResourceRef<Shader> shader);

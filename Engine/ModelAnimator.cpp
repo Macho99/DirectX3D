@@ -68,7 +68,9 @@ void ModelAnimator::Awake()
 
 void ModelAnimator::Update()
 {
+    const TweenDesc prevTweenDesc = _tweenDesc;
 	UpdateTweenData();
+	UpdateRootMotion(prevTweenDesc);
 }
 
 void ModelAnimator::SetShader(ResourceRef<Shader> shader)
@@ -445,7 +447,8 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 			}
 			else // Root
 			{
-				if (animation->GetAnimationClipImportSetting().extractRootMotion)
+                const AnimationClipImportSetting& importSetting = animation->GetAnimationClipImportSetting();
+				if (importSetting.extractRootMotion)
 				{
                     Vec3 scale, position;
                     Quaternion rotation;
@@ -458,7 +461,7 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
                     matAnim = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(positionY);
 
                     position.y = 0.f;
-                    Matrix matRoot = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(position);
+                    Matrix matRoot = Matrix::CreateTranslation(position);
 
                     _animTransforms[index].rootTransforms[f] = matRoot;
 				}
@@ -806,6 +809,92 @@ bool ModelAnimator::DrawBlendSpaceEditor()
 	}
 
 	return changed;
+}
+
+void ModelAnimator::UpdateRootMotion(const TweenDesc prevTweenDesc)
+{
+    auto updateRootMotion = [&](const KeyframeDesc& keyframe, Model* model)
+        {
+			// 모델이나 일반 애니메이션이 유효하지 않으면 루트모션을 계산하지 않는다.
+			if (model == nullptr || keyframe.HasAnimation() == false || keyframe.isBlendSpace == true)
+				return;
+
+            const int animIndex = keyframe.animations[0].animIndex;
+			// 잘못된 애니메이션 인덱스로 캐시를 참조하지 않도록 방어한다.
+			if (animIndex < 0 || model->GetAnimationCount() <= animIndex || _animTransforms.size() <= static_cast<size_t>(animIndex))
+                return;
+
+			ModelAnimation* animation = model->GetAnimationByIndex(animIndex);
+			// 프레임이 없는 애니메이션은 샘플링할 수 없다.
+			if (animation == nullptr || animation->GetFrameCount() == 0)
+				return;
+
+			const AnimationClipImportSetting& importSetting = animation->GetAnimationClipImportSetting();
+            if (importSetting.extractRootMotion == false)
+                return;
+
+			bool containInPrevTween = false;
+
+            const KeyframeDesc* prevKeyframe = &prevTweenDesc.cur;
+			if (prevKeyframe->HasAnimation() && prevKeyframe->isBlendSpace == false && prevKeyframe->animations[0].animIndex == animIndex)
+			{
+                containInPrevTween = true;
+			}
+			else
+			{
+                prevKeyframe = &prevTweenDesc.next;
+				if (prevKeyframe->HasAnimation() && prevKeyframe->isBlendSpace == false && prevKeyframe->animations[0].animIndex == animIndex)
+				{
+                    containInPrevTween = true;
+				}
+			}
+
+			if (containInPrevTween == false)
+				return;
+            const AnimationFrameDesc& prevAnimFrame = prevKeyframe->animations[0];
+            const AnimationFrameDesc& curAnimFrame = keyframe.animations[0];
+			const uint32 frameCount = animation->GetFrameCount();
+
+            const AnimTransform& animTransform = _animTransforms[animIndex];
+			// 마지막 프레임에서 0번 프레임으로 보간하면 루트가 원점으로 되감기므로
+			// 루프 경계에서는 마지막 프레임의 루트 위치를 그대로 유지한다.
+			auto sampleRootMotion = [&](const AnimationFrameDesc& frame)
+				{
+					const Matrix& rootMotion1 = animTransform.rootTransforms[frame.curFrame];
+					if (frame.nextFrame < frame.curFrame)
+						return rootMotion1;
+
+					const Matrix& rootMotion2 = animTransform.rootTransforms[frame.nextFrame];
+					return Matrix::Lerp(rootMotion1, rootMotion2, frame.ratio);
+				};
+
+			Matrix prevRootMotion = sampleRootMotion(prevAnimFrame);
+			Matrix curRootMotion = sampleRootMotion(curAnimFrame);
+			Matrix rootMotionDelta;
+			// sumTime이 감소했다면 이번 업데이트에서 애니메이션 루프를 통과한 것이다.
+			// 이전 위치에서 클립 끝까지, 클립 시작에서 현재 위치까지의 이동량을 이어 붙인다.
+			if (keyframe.sumTime < prevKeyframe->sumTime)
+			{
+				const Matrix& startRootMotion = animTransform.rootTransforms[0];
+				const Matrix& endRootMotion = animTransform.rootTransforms[frameCount - 1];
+				const Matrix deltaToEnd = endRootMotion * prevRootMotion.Invert();
+				const Matrix deltaFromStart = curRootMotion * startRootMotion.Invert();
+				rootMotionDelta = deltaFromStart * deltaToEnd;
+			}
+			else
+			{
+				rootMotionDelta = curRootMotion * prevRootMotion.Invert();
+			}
+
+            Matrix gameObjectMatrix = GetTransform()->GetWorldMatrix();
+            rootMotionDelta = rootMotionDelta * gameObjectMatrix;
+            GetTransform()->SetWorldMatrix(rootMotionDelta);
+        };
+
+	Model* model = _model.Resolve();
+
+    updateRootMotion(_tweenDesc.cur, model);
+    updateRootMotion(_tweenDesc.next, model);
 }
 
 void ModelAnimator::UpdateTweenData()

@@ -32,7 +32,7 @@ public:
     uint32 GetFrameCount() { return frameCount; }
 
     void SetAnimationClipImportSetting(const AnimationClipImportSetting& setting) { clipImportSetting = setting; }
-    AnimationClipImportSetting GetAnimationClipImportSetting() const { return clipImportSetting; }
+    const AnimationClipImportSetting& GetAnimationClipImportSetting() const { return clipImportSetting; }
 
 private:
 	wstring name = L"empty";
