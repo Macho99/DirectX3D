@@ -47,6 +47,8 @@
 #include "Font.h"
 #include "Text.h"
 #include "UIImage.h"
+#include "ThirdPersonCamMove.h"
+#include "TargetFollower.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -57,13 +59,12 @@ void AssetSerializeDemo::Init()
     const float baseHeight = 8.f;
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
+    GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
+    GameObject* camera = cameraRef.Resolve();
     {
-        GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
-        GameObject* camera = cameraRef.Resolve();
-        camera->GetTransform()->SetPosition(Vec3{ -4.f, baseHeight + 5, 65.f });
-        camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
+        //camera->GetTransform()->SetPosition(Vec3{ -4.f, baseHeight + 5, 65.f });
+        //camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
         camera->AddComponent(make_unique<Camera>());
-        camera->AddComponent(make_unique<CameraMove>());
         camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
         camera->GetCamera()->SetFar(500.f);
     }
@@ -187,17 +188,46 @@ void AssetSerializeDemo::Init()
         ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Paladin\\New Model.model");
         auto parentObjRef = CUR_SCENE->Add("Paladins");
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
-        for (int32 i = 0; i < 1; i++)
+
+        auto objRef = CUR_SCENE->Add("Paladin");
+        GameObject* obj = objRef.Resolve();
         {
-            auto objRef = CUR_SCENE->Add("Paladin" + std::to_string(i));
-            GameObject* obj = objRef.Resolve();
-            //obj->GetTransform()->SetPosition(Vec3(rand() % 10, baseHeight, rand() % 10));
-            obj->GetTransform()->SetScale(Vec3(0.02f));
-            obj->GetTransform()->SetParent(parentTransformRef);
+            Transform* objTransform = obj->GetTransform();
+            objTransform->SetPosition(Vec3{ -4.f, baseHeight, 65.f });
+            objTransform->SetRotation(Vec3{ 0.f, 90.f, 0.f });
+            objTransform->SetScale(Vec3(0.02f));
+            objTransform->SetParent(parentTransformRef);
             obj->AddComponent(make_unique<ModelAnimator>());
             {
                 obj->GetModelAnimator()->SetModel(modelRef);
                 obj->GetModelAnimator()->SetPass(2);
+            }
+        }
+        
+        {
+            auto followerObjRef = CUR_SCENE->Add("TargetFollower");
+            GameObject* followerObj = followerObjRef.Resolve();
+
+            followerObj->GetTransform()->SetParent(parentTransformRef);
+            Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
+            TransformRef followerTransformRef = followerTransform->GetRef();
+            camera->GetTransform()->SetParent(followerTransformRef);
+            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
+
+            {
+                unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
+                targetFollower->SetTarget(obj->GetTransform());
+                targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
+                targetFollower->SetFollowPositionX(true);
+                targetFollower->SetFollowPositionY(true);
+                targetFollower->SetFollowPositionZ(true);
+                followerObj->AddComponent(std::move(targetFollower));
+            }
+            
+            {
+                unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
+                thirdPersonCamMove->SetTarget(obj->GetTransformRef());
+                camera->AddComponent(std::move(thirdPersonCamMove));
             }
         }
     }

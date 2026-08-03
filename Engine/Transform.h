@@ -52,6 +52,7 @@ public:
 	Transform* GetParent() { return _parent.Resolve(); }
 	Transform* GetParent() const { return _parent.Resolve(); }
 	void SetParent(TransformRef& parent);
+    void SetParent(Transform* parent);
 	void SetSiblingIndex(int index);
 
 	vector<TransformRef>& GetChildren() { return _children; }

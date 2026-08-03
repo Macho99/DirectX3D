@@ -385,6 +385,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="TerrainData.h" />
     <ClInclude Include="TerrainDataMeta.h" />
     <ClInclude Include="TessTerrain.h" />
+    <ClInclude Include="TargetFollower.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureBuffer.h" />
@@ -601,6 +602,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="TerrainData.cpp" />
     <ClCompile Include="TerrainDataMeta.cpp" />
     <ClCompile Include="TessTerrain.cpp" />
+    <ClCompile Include="TargetFollower.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureBuffer.cpp" />

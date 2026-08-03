@@ -265,6 +265,14 @@ void Transform::SetParent(TransformRef& newParentRef)
     gameObject->UpdateActiveInHierarchy(parentActive, false);
 }
 
+void Transform::SetParent(Transform* parent)
+{
+    TransformRef newParentRef;
+    if (parent != nullptr)
+        newParentRef = parent->GetRef();
+    SetParent(newParentRef);
+}
+
 void Transform::SetSiblingIndex(int index)
 {
 	vector<TransformRef>* siblings;

@@ -747,6 +747,9 @@
     <ClInclude Include="NavAgent.h">
       <Filter>04. Component\Navigation</Filter>
     </ClInclude>
+    <ClInclude Include="TargetFollower.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
     <ClInclude Include="SsReflection.h">
       <Filter>01. Graphics\PostProcess</Filter>
     </ClInclude>
@@ -1180,6 +1183,9 @@
     </ClCompile>
     <ClCompile Include="NavAgent.cpp">
       <Filter>04. Component\Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="TargetFollower.cpp">
+      <Filter>04. Component</Filter>
     </ClCompile>
     <ClCompile Include="SsReflection.cpp">
       <Filter>01. Graphics\PostProcess</Filter>

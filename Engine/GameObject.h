@@ -42,6 +42,9 @@ public:
 	template<class T>
     ComponentRef<T> GetFixedComponentRef();
 
+	template<class T>
+	T* GetFixedComponent();
+
 	Transform* GetTransform();
     TransformRef GetTransformRef();
 	Camera* GetCamera();
@@ -117,4 +120,16 @@ inline ComponentRef<T> GameObject::GetFixedComponentRef()
         return ComponentRef<T>();
     }
     return ComponentRef<T>(_components[static_cast<uint8>(type)]);
+}
+
+template<class T>
+inline T* GameObject::GetFixedComponent()
+{
+    ComponentType type = T::StaticType;
+    if (type >= ComponentType::End)
+    {
+        ASSERT(false, "type out of range");
+        return nullptr;
+    }
+    return static_cast<T*>(_components[static_cast<uint8>(type)].Resolve());
 }
