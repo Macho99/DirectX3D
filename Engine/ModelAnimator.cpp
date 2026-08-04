@@ -63,6 +63,15 @@ void ModelAnimator::Awake()
             _blendSpacePoints.push_back(top);
             BlendSpacePoint bottom = { Vec2(0.0f, -2.0f), 36 };
             _blendSpacePoints.push_back(bottom);
+
+            BlendSpacePoint leftTop = { Vec2(-1.41f, 1.41f), 57 };
+            _blendSpacePoints.push_back(leftTop);
+            BlendSpacePoint rightTop = { Vec2(1.41f, 1.41f), 58 };
+            _blendSpacePoints.push_back(rightTop);
+            BlendSpacePoint leftBottom = { Vec2(-1.41f, -1.41f), 55 };
+            _blendSpacePoints.push_back(leftBottom);
+            BlendSpacePoint rightBottom = { Vec2(1.41f, -1.41f), 56 };
+            _blendSpacePoints.push_back(rightBottom);
 		}
 	}
 

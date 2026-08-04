@@ -1,0 +1,45 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "AnimationOverrideMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 13575534812742745454,
+                    "rightId": 1510403089473798112
+                },
+                "_resourceType": 4,
+                "clipImportSetting": {
+                    "extractRootMotion": true,
+                    "applyRootPositionXZ": true,
+                    "applyRootPositionY": false,
+                    "applyRootRotation": false
+                },
+                "_model": {
+                    "assetId": {
+                        "leftId": 10037314994476070737,
+                        "rightId": 11976977594341372555
+                    }
+                },
+                "_baseAnimation": {
+                    "assetId": {
+                        "leftId": 14672628668485030673,
+                        "rightId": 4961348930126175475
+                    }
+                },
+                "_overrideLayers": [
+                    {
+                        "rootBoneName": "mixamorig:Spine",
+                        "animation": {
+                            "assetId": {
+                                "leftId": 14758811200480023956,
+                                "rightId": 4845132861534664003
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
