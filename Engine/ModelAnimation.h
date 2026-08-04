@@ -36,6 +36,8 @@ public:
 
     void SetAnimationClipImportSetting(const AnimationClipImportSetting& setting) { clipImportSetting = setting; }
     const AnimationClipImportSetting& GetAnimationClipImportSetting() const { return clipImportSetting; }
+    void SetAnimationEvents(const vector<AnimationEvent>& events) { animationEvents = events; }
+    const vector<AnimationEvent>& GetAnimationEvents() const { return animationEvents; }
 
 protected:
     void ResetAnimation(
@@ -51,6 +53,7 @@ private:
 	unordered_map<wstring, shared_ptr<ModelKeyframe>> keyframes;
 
     AnimationClipImportSetting clipImportSetting;
+    vector<AnimationEvent> animationEvents;
 
     friend class AnimationOverrideMeta;
 };

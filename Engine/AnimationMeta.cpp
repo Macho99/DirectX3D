@@ -30,3 +30,8 @@ bool AnimationMeta::OnGUI()
 
     return changed;
 }
+
+int AnimationMeta::GetVersion() const
+{
+    return 2;
+}
