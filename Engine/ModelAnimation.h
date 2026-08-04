@@ -16,6 +16,8 @@ struct ModelKeyframe
 	vector<ModelKeyframeData> transforms;
 };
 
+class AnimationOverrideMeta;
+
 class ModelAnimation : public ResourceBase
 {
     using Super = ResourceBase;
@@ -27,12 +29,20 @@ public:
 	void ReadAnimation(wstring filename);
 
 	shared_ptr<ModelKeyframe> GetKeyframe(const wstring& name);
-	wstring GetName() { return name; }
-    float GetFrameRate() { return frameRate; }
-    uint32 GetFrameCount() { return frameCount; }
+	shared_ptr<const ModelKeyframe> GetKeyframe(const wstring& name) const;
+	const wstring& GetName() const { return name; }
+    float GetFrameRate() const { return frameRate; }
+    uint32 GetFrameCount() const { return frameCount; }
 
     void SetAnimationClipImportSetting(const AnimationClipImportSetting& setting) { clipImportSetting = setting; }
     const AnimationClipImportSetting& GetAnimationClipImportSetting() const { return clipImportSetting; }
+
+protected:
+    void ResetAnimation(
+        const wstring& animationName,
+        float animationFrameRate,
+        uint32 animationFrameCount);
+    void SetKeyframe(const shared_ptr<ModelKeyframe>& keyframe);
 
 private:
 	wstring name = L"empty";
@@ -41,5 +51,7 @@ private:
 	unordered_map<wstring, shared_ptr<ModelKeyframe>> keyframes;
 
     AnimationClipImportSetting clipImportSetting;
+
+    friend class AnimationOverrideMeta;
 };
 

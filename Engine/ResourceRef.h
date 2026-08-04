@@ -15,7 +15,7 @@ protected:
     ResourceRef(const AssetId& assetId) : AssetRef(assetId) {}
 
 public:
-    T* Resolve()
+    T* Resolve() const
     {
         return static_cast<T*>(Super::Resolve());
     }

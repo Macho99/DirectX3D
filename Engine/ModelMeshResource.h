@@ -21,6 +21,7 @@ public:
 
 	uint32 GetBoneCount() { return static_cast<uint32>(_bones.size()); }
 	vector<shared_ptr<ModelBone>>& GetBones() { return _bones; }
+	const vector<shared_ptr<ModelBone>>& GetBones() const { return _bones; }
 	shared_ptr<ModelBone> GetBoneByIndex(uint32 index) { return (index < 0 || index >= _bones.size() ? nullptr : _bones[index]); }
 	shared_ptr<ModelBone> GetBoneByName(const wstring& name);
 

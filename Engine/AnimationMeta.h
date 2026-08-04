@@ -19,6 +19,6 @@ public:
         ar(CEREAL_NVP(clipImportSetting));
     }
 
-private:
+protected:
     AnimationClipImportSetting clipImportSetting;
 };

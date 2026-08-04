@@ -185,7 +185,7 @@ void AssetSerializeDemo::Init()
     {
         //animShader->SetTechNum(RenderTech::NormalDepth, -1);
         // Animation
-        ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Paladin\\New Model.model");
+        ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Paladin\\Paladin.model");
         auto parentObjRef = CUR_SCENE->Add("Paladins");
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
 

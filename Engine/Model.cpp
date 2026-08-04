@@ -8,6 +8,7 @@
 #include "ModelMesh.h"
 #include "ModelAnimation.h"
 #include "OnGUIUtils.h"
+#include "AnimationOverrideMeta.h"
 
 Model::Model()
     : Super(StaticType)
@@ -140,24 +141,40 @@ bool Model::OnGUI(bool isReadOnly)
                 filePaths.push_back(entry.path());
         }
 
+        vector<wstring> priorityExtensions = { L".clip", Utils::ToWString(AnimationOverrideMeta::GetExtension()) };
+
         for (const fs::path& filePath : filePaths)
         {
-            if (_wcsicmp(filePath.extension().c_str(), L".clip") == 0)
+            const wstring extension = filePath.extension().wstring();
+            bool isPriorityExtension = false;
+            for (const wstring& priorityExt : priorityExtensions)
             {
-                _animations.push_back(
-                    RESOURCES->GetResourceRefByAbsPath<ModelAnimation>(filePath));
-                continue;
+                if (extension == priorityExt)
+                {
+                    _animations.push_back(
+                        RESOURCES->GetResourceRefByAbsPath<ModelAnimation>(filePath));
+                    isPriorityExtension = true;
+                }
             }
+            if (isPriorityExtension)
+                continue;
 
-            if (_wcsicmp(filePath.extension().c_str(), L".fbx") != 0)
+            if (extension != L".fbx")
                 continue;
 
             const bool hasSameNameClip = any_of(
                 filePaths.begin(), filePaths.end(),
-                [&filePath](const fs::path& otherPath)
+                [&](const fs::path& otherPath)
                 {
-                    return _wcsicmp(otherPath.extension().c_str(), L".clip") == 0
-                        && _wcsicmp(otherPath.stem().c_str(), filePath.stem().c_str()) == 0;
+                    for (const wstring& priorityExt : priorityExtensions)
+                    {
+                        if (otherPath.extension() == priorityExt.c_str()
+                            && otherPath.stem() == filePath.stem())
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
                 });
 
             if (hasSameNameClip)

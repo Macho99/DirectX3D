@@ -28,7 +28,7 @@ public:
 
     bool IsValid() const { return assetId.IsValid(); }
 
-    ResourceBase* Resolve();
+    ResourceBase* Resolve() const;
 
     AssetId GetAssetId() const { return assetId; }
 

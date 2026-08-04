@@ -170,6 +170,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="AABBBoxCollider.h" />
     <ClInclude Include="AnimationImportSetting.h" />
     <ClInclude Include="AnimationMeta.h" />
+    <ClInclude Include="AnimationOverrideMeta.h" />
     <ClInclude Include="AssetDatabase.h" />
     <ClInclude Include="AssetId.h" />
     <ClInclude Include="AssetSlot.h" />
@@ -408,6 +409,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="AABBBoxCollider.cpp" />
     <ClCompile Include="AnimationImportSetting.cpp" />
     <ClCompile Include="AnimationMeta.cpp" />
+    <ClCompile Include="AnimationOverrideMeta.cpp" />
     <ClCompile Include="AssetDatabase.cpp" />
     <ClCompile Include="AssetId.cpp" />
     <ClCompile Include="AssetSlot.cpp" />

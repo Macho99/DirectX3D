@@ -48,6 +48,10 @@ void ModelAnimator::Awake()
             _blendSpacePoints.push_back(leftTop);
             BlendSpacePoint rightTop = { Vec2(0.71f, 0.71f), 54 };
             _blendSpacePoints.push_back(rightTop);
+            BlendSpacePoint leftBottom = { Vec2(-0.71f, -0.71f), 51 };
+            _blendSpacePoints.push_back(leftBottom);
+            BlendSpacePoint rightBottom = { Vec2(0.71f, -0.71f), 52 };
+            _blendSpacePoints.push_back(rightBottom);
 		}
 
 		{
@@ -423,6 +427,9 @@ void ModelAnimator::CreateAnimationTransform(uint32 index)
 
 	vector<Matrix> tempAnimBoneTransforms(MAX_MODEL_TRANSFORMS, Matrix::Identity);
 	ModelAnimation* animation = model->GetAnimationByIndex(index);
+
+    if (animation == nullptr)
+        return;
 
 	for (uint32 f = 0; f < animation->GetFrameCount(); f++)
 	{

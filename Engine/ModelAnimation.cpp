@@ -13,6 +13,8 @@ ModelAnimation::~ModelAnimation()
 
 void ModelAnimation::ReadAnimation(wstring fullPath)
 {
+	keyframes.clear();
+
 	shared_ptr<FileUtils> file = make_shared<FileUtils>();
 	file->Open(fullPath, FileMode::Read);
 
@@ -51,4 +53,35 @@ shared_ptr<ModelKeyframe> ModelAnimation::GetKeyframe(const wstring& name)
 	}
 
 	return findIt->second;
+}
+
+shared_ptr<const ModelKeyframe> ModelAnimation::GetKeyframe(const wstring& name) const
+{
+	auto findIt = keyframes.find(name);
+
+	if (findIt == keyframes.end())
+	{
+		return nullptr;
+	}
+
+	return findIt->second;
+}
+
+void ModelAnimation::ResetAnimation(
+	const wstring& animationName,
+	float animationFrameRate,
+	uint32 animationFrameCount)
+{
+	name = animationName;
+	frameRate = animationFrameRate;
+	frameCount = animationFrameCount;
+	keyframes.clear();
+}
+
+void ModelAnimation::SetKeyframe(const shared_ptr<ModelKeyframe>& keyframe)
+{
+	if (keyframe == nullptr)
+		return;
+
+	keyframes[keyframe->boneName] = keyframe;
 }

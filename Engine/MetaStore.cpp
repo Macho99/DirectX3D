@@ -16,6 +16,7 @@
 #include "SceneMeta.h"
 #include "ModelMeta.h"
 #include "FontMeta.h"
+#include "AnimationOverrideMeta.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -174,6 +175,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         _creators[".model"] = []() { return make_unique<ModelMeta>(); };
         _creators[TerrainData::GetExtension()] = []() { return make_unique<TerrainDataMeta>(); };
         _creators[".fnt"] = []() { return make_unique<FontMeta>(); };
+        _creators[AnimationOverrideMeta::GetExtension()] = []() { return make_unique<AnimationOverrideMeta>(); };
 
         {
             function<unique_ptr<MetaFile>()> texCreator = []() { return make_unique<TextureMeta>(); };

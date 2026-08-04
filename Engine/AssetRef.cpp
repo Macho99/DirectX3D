@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "AssetRef.h"
 
-ResourceBase* AssetRef::Resolve()
+ResourceBase* AssetRef::Resolve() const
 {
     if (!assetId.IsValid())
         return nullptr;

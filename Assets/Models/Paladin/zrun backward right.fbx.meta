@@ -1,0 +1,26 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 876468722802346767,
+                    "rightId": 977842038057713369
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 4935625644190302386,
+                            "rightId": 14021452159133799276
+                        },
+                        "fileName": "zrun backward right.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

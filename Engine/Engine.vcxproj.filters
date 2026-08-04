@@ -798,6 +798,9 @@
     <ClInclude Include="AnimationImportSetting.h">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationOverrideMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1234,6 +1237,9 @@
     </ClCompile>
     <ClCompile Include="AnimationImportSetting.cpp">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationOverrideMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,7 @@
 #include "TerrainData.h"
 #include "Scene.h"
 #include "Model.h"
+#include "AnimationOverrideMeta.h"
 
 ContentBrowser::ContentBrowser()
     : Super("ContentBrower")
@@ -263,6 +264,13 @@ void ContentBrowser::DrawEmptySpaceContextMenu()
                 {
                     unique_ptr<ResourceBase> newModel = make_unique<Model>();
                     FileUtils::SaveResourceToJson(newPath, newModel);
+                }
+            }
+            if (ImGui::MenuItem("Animation Override"))
+            {
+                if (TryGetNewFilePath(_currentFolder, "New Animation Override", AnimationOverrideMeta::GetExtension(), OUT newPath))
+                {
+                    std::ofstream os(newPath);
                 }
             }
 
