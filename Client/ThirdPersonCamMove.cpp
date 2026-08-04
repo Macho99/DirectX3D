@@ -159,7 +159,6 @@ void ThirdPersonCamMove::MoveTarget(float dt)
         Vec2 blendInput = Vec2(localVelocity.x, localVelocity.z);
         blendInput /= _moveSpeed;
         blendInput = -blendInput; // Invert Y for forward/backward
-        DBG->Log("Blend Input: " + std::to_string(blendInput.x) + ", " + std::to_string(blendInput.y));
         animator->SetBlendSpaceInput(blendInput);
     }
 

@@ -1,0 +1,26 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_assetId": {
+                    "leftId": 7379131603336387938,
+                    "rightId": 16304174106334636934
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 17840032325655919884,
+                            "rightId": 2506792380887187174
+                        },
+                        "fileName": "walk backward right.clip",
+                        "resourceType": 4
+                    }
+                ]
+            }
+        }
+    }
+}

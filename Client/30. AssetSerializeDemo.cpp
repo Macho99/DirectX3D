@@ -212,12 +212,12 @@ void AssetSerializeDemo::Init()
             Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
             TransformRef followerTransformRef = followerTransform->GetRef();
             camera->GetTransform()->SetParent(followerTransformRef);
-            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
+            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -8.f));
 
             {
                 unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
                 targetFollower->SetTarget(obj->GetTransform());
-                targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
+                targetFollower->SetPositionOffset(Vec3(0.f, 3.f, 0.f));
                 targetFollower->SetFollowPositionX(true);
                 targetFollower->SetFollowPositionY(true);
                 targetFollower->SetFollowPositionZ(true);

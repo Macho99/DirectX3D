@@ -29,8 +29,6 @@ void ModelAnimator::Awake()
     static int awakeCount = 0;
 	if (awakeCount++ != 0)
 		return;
-    Transform* transform = GetTransform();
-    transform->SetLocalScale(Vec3(0.01f));
 
 	if (_blendSpacePoints.size() == 0)
 	{
@@ -45,6 +43,11 @@ void ModelAnimator::Awake()
 			_blendSpacePoints.push_back(top);
 			BlendSpacePoint bottom = { Vec2(0.0f, -1.0f), 49 };
 			_blendSpacePoints.push_back(bottom);
+
+            BlendSpacePoint leftTop = { Vec2(-0.71f, 0.71f), 53 };
+            _blendSpacePoints.push_back(leftTop);
+            BlendSpacePoint rightTop = { Vec2(0.71f, 0.71f), 54 };
+            _blendSpacePoints.push_back(rightTop);
 		}
 
 		{
