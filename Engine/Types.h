@@ -101,6 +101,15 @@ namespace cereal
 	}
 
 	template <class Archive>
+    void serialize(Archive& ar, DirectX::XMFLOAT4X4& value)
+    {
+        ar(CEREAL_NVP(value._11), CEREAL_NVP(value._12), CEREAL_NVP(value._13), CEREAL_NVP(value._14),
+            CEREAL_NVP(value._21), CEREAL_NVP(value._22), CEREAL_NVP(value._23), CEREAL_NVP(value._24),
+            CEREAL_NVP(value._31), CEREAL_NVP(value._32), CEREAL_NVP(value._33), CEREAL_NVP(value._34),
+            CEREAL_NVP(value._41), CEREAL_NVP(value._42), CEREAL_NVP(value._43), CEREAL_NVP(value._44));
+    }
+
+	template <class Archive>
     void serialize(Archive& ar, RECT& value)
     {
         ar(CEREAL_NVP(value.left), CEREAL_NVP(value.top), CEREAL_NVP(value.right), CEREAL_NVP(value.bottom));

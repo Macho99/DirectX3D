@@ -60,8 +60,9 @@ public:
 	void ClearBlendSpace();
 	const vector<BlendSpacePoint>& GetBlendSpacePoints() const { return _blendSpacePoints; }
 
-    void PlayAnimation(uint32 animIndex);
+	void PlayAnimation(uint32 animIndex);
     void PlayAnimation(string animName);
+	bool TryGetModelSocketWorldMatrix(const string& socketName, OUT Matrix& worldMatrix);
 
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
@@ -106,7 +107,7 @@ private:
 	BlendSpaceSample EvaluateBlendSpace();
 	// 점 편집과 삼각망/가중치 미리보기를 그린다.
 	bool DrawBlendSpaceEditor();
-	void DrawDebugWindow();
+	bool DrawDebugWindow();
 	void DrawDebugMatrix(const char* label, const Matrix& matrix);
     float GetNormalizedTime(const AnimationFrameDesc& animFrame);
     float GetLeftTime(const AnimationFrameDesc& animFrame);
@@ -147,5 +148,6 @@ private:
 	int _debugFrameIndex = 0;
     int _lastDebugFrameIndex = -1;
 	int _debugBoneIndex = 0;
+	int _debugSocketIndex = -1;
 };
 

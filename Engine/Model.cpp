@@ -27,6 +27,11 @@ Model::~Model()
 
 }
 
+int Model::GetVersion() const
+{
+    return 2;
+}
+
 void Model::BindCache()
 {
     ModelMeshResource* mesh = _mesh.Resolve();
@@ -76,6 +81,20 @@ int32 Model::GetAnimationIndexByName(wstring name) const
             return i;
     }
     return -1;
+}
+
+ModelSocket* Model::GetModelSocketByName(const string& name)
+{
+	auto it = find_if(_modelSockets.begin(), _modelSockets.end(),
+		[&](const ModelSocket& socket) { return socket.name == name; });
+	return it != _modelSockets.end() ? &(*it) : nullptr;
+}
+
+const ModelSocket* Model::GetModelSocketByName(const string& name) const
+{
+	auto it = find_if(_modelSockets.begin(), _modelSockets.end(),
+		[&](const ModelSocket& socket) { return socket.name == name; });
+	return it != _modelSockets.end() ? &(*it) : nullptr;
 }
 
 bool Model::OnGUI(bool isReadOnly)
@@ -205,6 +224,79 @@ bool Model::OnGUI(bool isReadOnly)
         changed = true;
     }
 
+    ImGui::SeparatorText("Model Sockets");
+    ModelMeshResource* mesh = GetMesh();
+    if (!isReadOnly && ImGui::Button("Add Model Socket"))
+    {
+        ModelSocket socket;
+        const string baseName = socket.name;
+        int suffix = 1;
+        while (GetModelSocketByName(socket.name) != nullptr)
+            socket.name = baseName + to_string(suffix++);
+        _modelSockets.push_back(socket);
+        changed = true;
+    }
+
+    int removeSocketIndex = -1;
+    for (int i = 0; i < static_cast<int>(_modelSockets.size()); ++i)
+    {
+        ModelSocket& socket = _modelSockets[i];
+        ImGui::PushID(i);
+        const string header = socket.name.empty() ? "Unnamed Socket" : socket.name;
+        if (ImGui::TreeNodeEx("Socket", ImGuiTreeNodeFlags_DefaultOpen, "%d : %s", i, header.c_str()))
+        {
+            char nameBuffer[256] = {};
+            strncpy_s(nameBuffer, socket.name.c_str(), _TRUNCATE);
+            if (ImGui::InputText("Name", nameBuffer, IM_ARRAYSIZE(nameBuffer),
+                isReadOnly ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None))
+            {
+                socket.name = nameBuffer;
+                changed = true;
+            }
+
+            string bonePreview = "Unassigned";
+            if (mesh != nullptr && socket.boneIndex >= 0 && socket.boneIndex < static_cast<int32>(mesh->GetBoneCount()))
+                bonePreview = to_string(socket.boneIndex) + " : " + Utils::ToString(mesh->GetBoneByIndex(socket.boneIndex)->name);
+            else if (socket.boneIndex >= 0)
+                bonePreview = "Missing bone (" + to_string(socket.boneIndex) + ")";
+
+            if (isReadOnly)
+                ImGui::BeginDisabled();
+            if (ImGui::BeginCombo("Bone", bonePreview.c_str()))
+            {
+                if (ImGui::Selectable("Unassigned", socket.boneIndex < 0))
+                {
+                    socket.boneIndex = -1;
+                    changed = true;
+                }
+                if (mesh != nullptr)
+                {
+                    for (uint32 boneIndex = 0; boneIndex < mesh->GetBoneCount(); ++boneIndex)
+                    {
+                        const string boneLabel = to_string(boneIndex) + " : " + Utils::ToString(mesh->GetBoneByIndex(boneIndex)->name);
+                        if (ImGui::Selectable(boneLabel.c_str(), socket.boneIndex == static_cast<int32>(boneIndex)))
+                        {
+                            socket.boneIndex = static_cast<int32>(boneIndex);
+                            changed = true;
+                        }
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            if (isReadOnly)
+                ImGui::EndDisabled();
+
+            if (!isReadOnly && ImGui::Button("Remove Socket"))
+                removeSocketIndex = i;
+            ImGui::TreePop();
+        }
+        ImGui::PopID();
+    }
+    if (removeSocketIndex >= 0)
+    {
+        _modelSockets.erase(_modelSockets.begin() + removeSocketIndex);
+        changed = true;
+    }
 
     return changed;
 }

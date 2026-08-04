@@ -251,6 +251,63 @@ void ModelAnimator::PlayAnimation(string animName)
     _tweenDesc.next.SetSingleAnimation(animIndex);
 }
 
+bool ModelAnimator::TryGetModelSocketWorldMatrix(const string& socketName, OUT Matrix& worldMatrix)
+{
+	Model* model = _model.Resolve();
+	if (model == nullptr)
+		return false;
+
+	const ModelSocket* socket = model->GetModelSocketByName(socketName);
+	ModelMeshResource* mesh = model->GetMesh();
+	if (socket == nullptr || mesh == nullptr || socket->boneIndex < 0 ||
+		socket->boneIndex >= static_cast<int32>(mesh->GetBoneCount()))
+		return false;
+
+	if (_animTransforms.size() != model->GetAnimationCount())
+		CreateTexture();
+	if (_animTransforms.size() != model->GetAnimationCount())
+		return false;
+
+	auto sampleKeyframe = [&](const KeyframeDesc& keyframe, OUT Matrix& result)
+		{
+			ZeroMemory(&result, sizeof(result));
+			bool sampled = false;
+			const float* weights = &keyframe.blendWeights.x;
+			for (int slot = 0; slot < MAX_BLEND_ANIMATIONS; ++slot)
+			{
+				const AnimationFrameDesc& frame = keyframe.animations[slot];
+				if (frame.animIndex < 0 || frame.animIndex >= static_cast<int32>(_animTransforms.size()) || weights[slot] <= 0.f)
+					continue;
+				ModelAnimation* animation = model->GetAnimationByIndex(frame.animIndex);
+				if (animation == nullptr || frame.curFrame >= animation->GetFrameCount() || frame.nextFrame >= animation->GetFrameCount())
+					continue;
+
+				const AnimTransform& transforms = _animTransforms[frame.animIndex];
+				const Matrix sampledMatrix = Matrix::Lerp(
+					transforms.transforms[frame.curFrame][socket->boneIndex],
+					transforms.transforms[frame.nextFrame][socket->boneIndex],
+					frame.ratio);
+				float* destination = &result._11;
+				const float* source = &sampledMatrix._11;
+				for (int valueIndex = 0; valueIndex < 16; ++valueIndex)
+					destination[valueIndex] += source[valueIndex] * weights[slot];
+				sampled = true;
+			}
+			return sampled;
+		};
+
+	Matrix boneFinal;
+	if (!sampleKeyframe(_tweenDesc.cur, OUT boneFinal))
+		return false;
+	Matrix nextBoneFinal;
+	if (sampleKeyframe(_tweenDesc.next, OUT nextBoneFinal))
+		boneFinal = Matrix::Lerp(boneFinal, nextBoneFinal, _tweenDesc.tweenRatio);
+
+	const Matrix boneGlobal = mesh->GetBoneByIndex(socket->boneIndex)->offsetMatrix.Invert() * boneFinal;
+	worldMatrix = socket->localMatrix * boneGlobal * GetTransform()->GetWorldMatrix();
+	return true;
+}
+
 bool ModelAnimator::OnGUI()
 {
 	bool changed = false;
@@ -340,7 +397,7 @@ bool ModelAnimator::OnGUI()
 	}
 
 	if (_showAnimationDebug)
-		DrawDebugWindow();
+		changed |= DrawDebugWindow();
 
 	return changed;
 }
@@ -1076,19 +1133,21 @@ void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const Blend
 	}
 }
 
-void ModelAnimator::DrawDebugWindow()
+bool ModelAnimator::DrawDebugWindow()
 {
+	bool changed = false;
     Model* model = _model.Resolve();
     if (model == nullptr)
-        return;
+        return false;
 
+    bool wasOpen = _showAnimationDebug;
 	string windowTitle = "Animation Debug";
 	ImGui::SetNextWindowSize(ImVec2(1050.0f, 700.0f), ImGuiCond_FirstUseEver);
 	if (!ImGui::Begin(windowTitle.c_str(), &_showAnimationDebug))
 	{
 		EDITOR->GetSceneView()->ClearTransformGizmoOverride();
 		ImGui::End();
-		return;
+		return false;
 	}
 
 	const uint32 animationCount = model->GetAnimationCount();
@@ -1096,13 +1155,25 @@ void ModelAnimator::DrawDebugWindow()
 	{
 		ImGui::TextDisabled("No animation is loaded in SkinnedMesh.");
 		ImGui::End();
-		return;
+		return false;
 	}
 
-    ModelAnimation* animation = model->GetAnimationByIndex(_debugAnimationIndex);
 	ModelMeshResource* mesh = model->GetMesh();
+	if (mesh == nullptr || mesh->GetBoneCount() == 0)
+	{
+		ImGui::TextDisabled("No skeleton is loaded in Model.");
+		ImGui::End();
+		return false;
+	}
 
 	_debugAnimationIndex = clamp(_debugAnimationIndex, 0, (int)animationCount - 1);
+	ModelAnimation* animation = model->GetAnimationByIndex(_debugAnimationIndex);
+	if (animation == nullptr || animation->GetFrameCount() == 0)
+	{
+		ImGui::TextDisabled("The selected animation has no frames.");
+		ImGui::End();
+		return false;
+	}
 	string animationName = Utils::ToString(animation->GetName());
 	if (ImGui::BeginCombo("Animation", animationName.c_str()))
 	{
@@ -1116,6 +1187,7 @@ void ModelAnimator::DrawDebugWindow()
 				_debugAnimationIndex = (int)i;
 				_debugFrameIndex = 0;
 				_debugBoneIndex = 0;
+				_debugSocketIndex = -1;
                 _lastDebugFrameIndex = -1;
 			}
 			if (selected)
@@ -1190,7 +1262,7 @@ void ModelAnimator::DrawDebugWindow()
 	ImGui::BeginChild("BoneDetails", ImVec2(0.0f, 0.0f), true);
 
 	{
-		_debugBoneIndex = clamp(_debugBoneIndex, 0, static_cast<int>(mesh->GetBoneCount()));
+		_debugBoneIndex = clamp(_debugBoneIndex, 0, static_cast<int>(mesh->GetBoneCount()) - 1);
         shared_ptr<ModelBone> curSelectBone = mesh->GetBoneByIndex(_debugBoneIndex);
 
 		Matrix boneFinalMatrix = _animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][_debugBoneIndex];
@@ -1220,36 +1292,111 @@ void ModelAnimator::DrawDebugWindow()
 		eulerRotation = Transform::ToEulerAngles(rotation);
         eulerRotation = MathUtils::RadToDeg(eulerRotation);
 
-        bool changed = false;
-
-		changed |= OnGUIUtils::DrawVec3("Position", &position, 0.1f, false);
-		changed |= OnGUIUtils::DrawVec3("Rotation", &eulerRotation, 0.1f, false);
-		changed |= OnGUIUtils::DrawVec3("Scale", &scale, 0.1f, false);
-        if (changed)
-        {
-            //eulerRotation = MathUtils::DegToRad(eulerRotation);
-            //Quaternion newRotation = Quaternion::CreateFromYawPitchRoll(eulerRotation.y, eulerRotation.x, eulerRotation.z);
-            //curSelectBone.BoneLocalTransform = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(newRotation) * Matrix::CreateTranslation(position);
-            //_skinnedMesh.RecalcBoneTransforms(_debugBoneIndex);
-        }
+		OnGUIUtils::DrawVec3("Position", &position, 0.1f, true);
+		OnGUIUtils::DrawVec3("Rotation", &eulerRotation, 0.1f, true);
+		OnGUIUtils::DrawVec3("Scale", &scale, 0.1f, true);
 
 		DrawDebugMatrix("Bone local matrix", boneLocalMatrix);
 		DrawDebugMatrix("Global matrix", boneGlobalMatrix);
 		DrawDebugMatrix("Bone offset matrix", curSelectBone->offsetMatrix);
 
-        EDITOR->GetSceneView()->SetTransformGizmoOverride(boneGlobalMatrix * GetTransform()->GetWorldMatrix(), [&](const Matrix& worldMatrix)
-            {
-                //Matrix modelMatrix = worldMatrix * GetTransform()->GetWorldMatrix().Invert();
-				//
-                //Matrix parentGlobalInverse = Matrix::Identity;
-                //if (curSelectBone->parentIndex >= 0)
-                //    parentGlobalInverse = boneInfos[curSelectBone.ParentIndex].GlobalTransformationInverse;
-                //curSelectBone.BoneLocalTransform = modelMatrix * parentGlobalInverse;
-                //_skinnedMesh.RecalcBoneTransforms(_debugBoneIndex);
-            });
+
+		ImGui::SeparatorText("Model Socket SRT");
+		vector<ModelSocket>& sockets = model->GetModelSockets();
+		if (_debugSocketIndex >= static_cast<int>(sockets.size()))
+			_debugSocketIndex = -1;
+
+		string socketPreview = "None";
+		if (_debugSocketIndex >= 0)
+			socketPreview = to_string(_debugSocketIndex) + " : " + sockets[_debugSocketIndex].name;
+		if (ImGui::BeginCombo("Socket", socketPreview.c_str()))
+		{
+			if (ImGui::Selectable("None", _debugSocketIndex < 0))
+				_debugSocketIndex = -1;
+			for (int socketIndex = 0; socketIndex < static_cast<int>(sockets.size()); ++socketIndex)
+			{
+				const ModelSocket& socket = sockets[socketIndex];
+				string socketLabel = to_string(socketIndex) + " : " + socket.name;
+				if (socket.boneIndex >= 0 && socket.boneIndex < static_cast<int32>(mesh->GetBoneCount()))
+					socketLabel += " (" + Utils::ToString(mesh->GetBoneByIndex(socket.boneIndex)->name) + ")";
+				if (ImGui::Selectable(socketLabel.c_str(), _debugSocketIndex == socketIndex))
+					_debugSocketIndex = socketIndex;
+			}
+			ImGui::EndCombo();
+		}
+
+		if (_debugSocketIndex >= 0)
+		{
+			bool socketSrtChanged = false;
+			ModelSocket& socket = sockets[_debugSocketIndex];
+			if (ImGui::Button("Assign To Selected Bone"))
+			{
+				socket.boneIndex = _debugBoneIndex;
+				socketSrtChanged = true;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Reset SRT"))
+			{
+				socket.localMatrix = Matrix::Identity;
+				socketSrtChanged = true;
+			}
+
+			Vec3 socketPosition, socketScale, socketRotation;
+			Quaternion socketQuaternion;
+			socket.localMatrix.Decompose(socketScale, socketQuaternion, socketPosition);
+			socketRotation = MathUtils::RadToDeg(Transform::ToEulerAngles(socketQuaternion));
+			socketSrtChanged |= OnGUIUtils::DrawVec3("Socket Position", &socketPosition, 0.1f, false);
+			socketSrtChanged |= OnGUIUtils::DrawVec3("Socket Rotation", &socketRotation, 0.1f, false);
+			socketSrtChanged |= OnGUIUtils::DrawVec3("Socket Scale", &socketScale, 0.1f, false);
+			if (socketSrtChanged)
+			{
+				const Vec3 radians = MathUtils::DegToRad(socketRotation);
+				Matrix rotationMatrix = Matrix::CreateRotationX(radians.x);
+				rotationMatrix *= Matrix::CreateRotationY(radians.y);
+				rotationMatrix *= Matrix::CreateRotationZ(radians.z);
+				socket.localMatrix = Matrix::CreateScale(socketScale) * rotationMatrix * Matrix::CreateTranslation(socketPosition);
+				changed = true;
+			}
+
+			if (ImGui::Button("Save Socket"))
+			{
+				RESOURCES->SaveAsset(_model.GetAssetId());
+			}
+
+			if (socket.boneIndex >= 0 && socket.boneIndex < static_cast<int32>(mesh->GetBoneCount()))
+			{
+				const Matrix socketBoneFinal = _animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][socket.boneIndex];
+				const Matrix socketBoneGlobal = mesh->GetBoneByIndex(socket.boneIndex)->offsetMatrix.Invert() * socketBoneFinal;
+				const Matrix socketWorld = socket.localMatrix * socketBoneGlobal * GetTransform()->GetWorldMatrix();
+				EDITOR->GetSceneView()->SetTransformGizmoOverride(socketWorld,
+					[this, model, socketIndex = _debugSocketIndex, socketBoneGlobal](const Matrix& worldMatrix)
+					{
+						vector<ModelSocket>& targetSockets = model->GetModelSockets();
+						if (socketIndex < 0 || socketIndex >= static_cast<int>(targetSockets.size()))
+							return;
+						Matrix localMatrix = worldMatrix * GetTransform()->GetWorldMatrix().Invert() * socketBoneGlobal.Invert();
+						targetSockets[socketIndex].localMatrix = localMatrix;
+					});
+			}
+			else
+			{
+				ImGui::TextDisabled("Assign this socket to a valid bone to preview its gizmo.");
+				EDITOR->GetSceneView()->ClearTransformGizmoOverride();
+			}
+		}
+		else
+		{
+			EDITOR->GetSceneView()->SetTransformGizmoOverride(
+				boneGlobalMatrix * GetTransform()->GetWorldMatrix(), [](const Matrix&) {});
+		}
 	}
 	ImGui::EndChild();
 	ImGui::End();
+
+    if (wasOpen && _showAnimationDebug == false)
+        EDITOR->GetSceneView()->ClearTransformGizmoOverride();
+
+	return changed;
 }
 
 void ModelAnimator::DrawDebugMatrix(const char* label, const Matrix& matrix)
