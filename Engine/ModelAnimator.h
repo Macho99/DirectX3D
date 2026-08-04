@@ -60,6 +60,9 @@ public:
 	void ClearBlendSpace();
 	const vector<BlendSpacePoint>& GetBlendSpacePoints() const { return _blendSpacePoints; }
 
+    void PlayAnimation(uint32 animIndex);
+    void PlayAnimation(string animName);
+
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 	virtual void OnInspectorFocusLost() override;

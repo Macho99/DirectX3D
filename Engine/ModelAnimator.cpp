@@ -227,6 +227,30 @@ InstanceID ModelAnimator::GetInstanceID()
 	return make_pair((uint64)_model.GetAssetId().GetLeftId(), (uint64)_shader.GetAssetId().GetLeftId());
 }
 
+void ModelAnimator::PlayAnimation(uint32 animIndex)
+{
+    Model* model = _model.Resolve();
+    if (model == nullptr || model->GetAnimationCount() <= animIndex)
+        return;
+
+    _tweenDesc.next.SetSingleAnimation(animIndex);
+}
+
+void ModelAnimator::PlayAnimation(string animName)
+{
+    Model* model = _model.Resolve();
+    if (model == nullptr)
+        return;
+    int animIndex = model->GetAnimationIndexByName(Utils::ToWString(animName));
+    if (animIndex < 0)
+        return;
+	
+	if (_tweenDesc.cur.GetSingleAnimationIndex() == animIndex)
+		return;
+
+    _tweenDesc.next.SetSingleAnimation(animIndex);
+}
+
 bool ModelAnimator::OnGUI()
 {
 	bool changed = false;

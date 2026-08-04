@@ -100,6 +100,16 @@ struct KeyframeDesc
 		}
 		return false;
 	}
+
+    int32 GetSingleAnimationIndex() const
+    {
+        if (!HasAnimation())
+            return -1;
+        if (isBlendSpace)
+            return -1;
+
+        return animations[0].animIndex;
+    }
 };
 
 struct TweenDesc

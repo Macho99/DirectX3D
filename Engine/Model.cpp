@@ -67,6 +67,17 @@ ModelAnimation* Model::GetAnimationByName(wstring name)
 	return nullptr;
 }
 
+int32 Model::GetAnimationIndexByName(wstring name) const
+{
+    for (int32 i = 0; i < _animations.size(); ++i)
+    {
+        ModelAnimation* anim = _animations[i].Resolve();
+        if (anim != nullptr && anim->GetName() == name)
+            return i;
+    }
+    return -1;
+}
+
 bool Model::OnGUI(bool isReadOnly)
 {
 	bool changed = false;

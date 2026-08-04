@@ -25,6 +25,7 @@ public:
 	vector<ResourceRef<ModelAnimation>>& GetAnimations() { return _animations; }
 	ModelAnimation* GetAnimationByIndex(UINT index);
 	ModelAnimation* GetAnimationByName(wstring name);
+    int32 GetAnimationIndexByName(wstring name) const;
 	void AddAnimation(ResourceRef<ModelAnimation> animation) { _animations.push_back(animation); }
 
     ModelMeshResource* GetMesh() { return _mesh.Resolve(); }

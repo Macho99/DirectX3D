@@ -37,6 +37,7 @@ enum class KEY_TYPE
 
 	LSHIFT = VK_LSHIFT,
 	LCTRL = VK_LCONTROL,
+	SPACE = VK_SPACE,
 };
 
 enum class KEY_STATE

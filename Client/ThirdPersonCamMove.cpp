@@ -160,6 +160,11 @@ void ThirdPersonCamMove::MoveTarget(float dt)
         blendInput /= _moveSpeed;
         blendInput = -blendInput; // Invert Y for forward/backward
         animator->SetBlendSpaceInput(blendInput);
+
+        if (INPUT->GetButton(KEY_TYPE::SPACE))
+        {
+            animator->PlayAnimation("sword and shield jump");
+        }
     }
 
     target->SetPosition(target->GetPosition() + _velocity * dt);
