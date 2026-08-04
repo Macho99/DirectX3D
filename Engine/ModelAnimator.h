@@ -6,10 +6,12 @@ class Model;
 
 // 블렌드 스페이스의 한 샘플 지점.
 // position은 XY 좌표, animIndex는 Model에 등록된 애니메이션 인덱스를 가리킨다.
+// speed는 해당 애니메이션의 재생 속도 배율이다.
 struct BlendSpacePoint
 {
 	Vec2 position = Vec2::Zero;
 	int32 animIndex = -1;
+	float speed = 1.f;
 
 	template<typename Archive>
 	void serialize(Archive& ar)
@@ -17,7 +19,8 @@ struct BlendSpacePoint
 		ar(
 			cereal::make_nvp("x", position.x),
 			cereal::make_nvp("y", position.y),
-			CEREAL_NVP(animIndex));
+			CEREAL_NVP(animIndex),
+			CEREAL_NVP(speed));
 	}
 };
 
@@ -52,7 +55,7 @@ public:
 	// 외부 게임 로직에서 미리보기 입력 좌표와 샘플 지점을 관리할 때 사용하는 API.
 	void SetBlendSpaceInput(const Vec2& input) { _blendSpaceInput = input; }
 	const Vec2& GetBlendSpaceInput() const { return _blendSpaceInput; }
-	int AddBlendSpacePoint(const Vec2& position, int32 animIndex);
+	int AddBlendSpacePoint(const Vec2& position, int32 animIndex, float speed = 1.f);
 	bool RemoveBlendSpacePoint(int index);
 	void ClearBlendSpace();
 	const vector<BlendSpacePoint>& GetBlendSpacePoints() const { return _blendSpacePoints; }

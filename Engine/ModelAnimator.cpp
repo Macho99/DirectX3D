@@ -64,13 +64,13 @@ void ModelAnimator::Awake()
             BlendSpacePoint bottom = { Vec2(0.0f, -2.0f), 36 };
             _blendSpacePoints.push_back(bottom);
 
-            BlendSpacePoint leftTop = { Vec2(-1.41f, 1.41f), 57 };
+            BlendSpacePoint leftTop = { Vec2(-1.41f, 1.41f), 57, 0.7f };
             _blendSpacePoints.push_back(leftTop);
-            BlendSpacePoint rightTop = { Vec2(1.41f, 1.41f), 58 };
+            BlendSpacePoint rightTop = { Vec2(1.41f, 1.41f), 58, 0.7f };
             _blendSpacePoints.push_back(rightTop);
-            BlendSpacePoint leftBottom = { Vec2(-1.41f, -1.41f), 55 };
+            BlendSpacePoint leftBottom = { Vec2(-1.41f, -1.41f), 55, 0.7f };
             _blendSpacePoints.push_back(leftBottom);
-            BlendSpacePoint rightBottom = { Vec2(1.41f, -1.41f), 56 };
+            BlendSpacePoint rightBottom = { Vec2(1.41f, -1.41f), 56, 0.7f };
             _blendSpacePoints.push_back(rightBottom);
 		}
 	}
@@ -115,14 +115,14 @@ void ModelAnimator::SetModel(ResourceRef<Model> model)
 }
 
 // 좌표와 애니메이션을 한 쌍으로 추가한다.
-int ModelAnimator::AddBlendSpacePoint(const Vec2& position, int32 animIndex)
+int ModelAnimator::AddBlendSpacePoint(const Vec2& position, int32 animIndex, float speed)
 {
 	Model* model = _model.Resolve();
 	// 모델이 준비된 경우 유효한 애니메이션 인덱스로 제한한다.
 	if (model != nullptr && model->GetAnimationCount() > 0)
 		animIndex = clamp(animIndex, 0, static_cast<int32>(model->GetAnimationCount()) - 1);
 
-	_blendSpacePoints.push_back({ position, animIndex });
+	_blendSpacePoints.push_back({ position, animIndex, max(speed, 0.f) });
 	_blendSpaceTriangulationDirty = true;
 	return static_cast<int>(_blendSpacePoints.size()) - 1;
 }
@@ -734,6 +734,11 @@ bool ModelAnimator::DrawBlendSpaceEditor()
 					}
 					ImGui::EndCombo();
 				}
+				if (ImGui::DragFloat("Speed", &point.speed, 0.01f, 0.f, FLT_MAX))
+				{
+					point.speed = max(point.speed, 0.f);
+					changed = true;
+				}
 				ImGui::TreePop();
 			}
 			ImGui::PopID();
@@ -1002,13 +1007,15 @@ void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const Blend
 		if (pointIndex < 0 || sample.weights[i] <= 0.f)
 			continue;
 
-		const int animIndex = _blendSpacePoints[pointIndex].animIndex;
+		const BlendSpacePoint& point = _blendSpacePoints[pointIndex];
+		const int animIndex = point.animIndex;
 		ModelAnimation* animation = model->GetAnimationByIndex(animIndex);
 		if (animation == nullptr || animation->GetFrameCount() <= 1 || animation->GetFrameRate() <= 0.f)
 			continue;
 
 		const float cycleFrameCount = static_cast<float>(animation->GetFrameCount() - 1);
-		blendedCycleFrequency += sample.weights[i] * animation->GetFrameRate() / cycleFrameCount;
+		blendedCycleFrequency += sample.weights[i] * max(point.speed, 0.f) *
+			animation->GetFrameRate() / cycleFrameCount;
 	}
 
 	keyframe.sumTime = fmod(

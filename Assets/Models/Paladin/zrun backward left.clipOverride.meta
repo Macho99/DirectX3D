@@ -30,7 +30,7 @@
                 },
                 "_overrideLayers": [
                     {
-                        "rootBoneName": "mixamorig:Spine",
+                        "rootBoneName": "mixamorig:Spine2",
                         "animation": {
                             "assetId": {
                                 "leftId": 14758811200480023956,
