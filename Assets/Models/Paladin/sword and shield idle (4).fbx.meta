@@ -5,6 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
+                "_version": 1,
                 "_assetId": {
                     "leftId": 14206039198760305032,
                     "rightId": 11842468694608485492

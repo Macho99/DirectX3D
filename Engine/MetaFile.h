@@ -53,11 +53,16 @@ public:
     template<class Archive>
     void serialize(Archive& ar)
     {
+        if (Archive::is_saving::value)
+            _version = GetVersion();
+
+        ar(CEREAL_NVP(_version));
         ar(CEREAL_NVP(_assetId));
         ar(CEREAL_NVP(_resourceType));
     }
     
 protected:
+    int _version = 1;
     AssetId _assetId;
     ResourceType _resourceType;
 
