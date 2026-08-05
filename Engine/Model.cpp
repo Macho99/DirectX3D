@@ -245,14 +245,7 @@ bool Model::OnGUI(bool isReadOnly)
         const string header = socket.name.empty() ? "Unnamed Socket" : socket.name;
         if (ImGui::TreeNodeEx("Socket", ImGuiTreeNodeFlags_DefaultOpen, "%d : %s", i, header.c_str()))
         {
-            char nameBuffer[256] = {};
-            strncpy_s(nameBuffer, socket.name.c_str(), _TRUNCATE);
-            if (ImGui::InputText("Name", nameBuffer, IM_ARRAYSIZE(nameBuffer),
-                isReadOnly ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None))
-            {
-                socket.name = nameBuffer;
-                changed = true;
-            }
+            OnGUIUtils::DrawString("Name", &socket.name, isReadOnly);
 
             string bonePreview = "Unassigned";
             if (mesh != nullptr && socket.boneIndex >= 0 && socket.boneIndex < static_cast<int32>(mesh->GetBoneCount()))

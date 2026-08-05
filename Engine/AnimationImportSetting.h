@@ -39,4 +39,6 @@ struct AnimationEvent
             CEREAL_NVP(frame)
         );
     }
+
+    bool OnGUI();
 };

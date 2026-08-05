@@ -44,6 +44,7 @@ public:
 
 	void UpdateRootMotion(const TweenDesc prevTweenDesc);
 	void UpdateTweenData();
+	void UpdateAnimEvent();
 
     void SetShader(ResourceRef<Shader> shader);
 	void SetModel(ResourceRef<Model> model);

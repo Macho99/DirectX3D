@@ -98,6 +98,21 @@ bool OnGUIUtils::DrawRect(const char* label, RECT* rect, float dragSpeed, bool i
     return changed;
 }
 
+bool OnGUIUtils::DrawString(const char* label, string* value, bool isReadOnly)
+{
+    bool changed = false;
+    char nameBuffer[256] = {};
+    strncpy_s(nameBuffer, value->c_str(), _TRUNCATE);
+    if (ImGui::InputText(label, nameBuffer, IM_ARRAYSIZE(nameBuffer),
+        isReadOnly ? ImGuiInputTextFlags_ReadOnly : ImGuiInputTextFlags_None))
+    {
+        *value = nameBuffer;
+        changed = true;
+    }
+
+    return changed;
+}
+
 bool OnGUIUtils::DrawEnableButton(const char* label, bool value, bool isReadOnly)
 {
     return DrawEnableButton(label, value, true, false, isReadOnly);

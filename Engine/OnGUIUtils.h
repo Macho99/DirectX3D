@@ -17,6 +17,7 @@ public:
     static bool DrawVec3(const char* label, Vec3* value, float dragSpeed = FLOAT_DRAG_SPEED, bool isReadOnly = false);
     static bool DrawColor(const char* label, Color* color, bool isReadOnly = false);
     static bool DrawRect(const char* label, RECT* rect, float dragSpeed = 1.0f, bool isReadOnly = false);
+    static bool DrawString(const char* label, string* value, bool isReadOnly = false);
     
     template<typename TEnum>
     static bool DrawEnumCombo(const char* label, TEnum& value, const char* const* names, int count, bool isReadOnly = false);

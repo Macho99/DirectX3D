@@ -84,6 +84,7 @@ void ModelAnimator::Update()
     const TweenDesc prevTweenDesc = _tweenDesc;
 	UpdateTweenData();
 	UpdateRootMotion(prevTweenDesc);
+	UpdateAnimEvent();
 
 	if (_tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
 	{
@@ -1044,6 +1045,11 @@ void ModelAnimator::UpdateTweenData()
 		else
 			UpdateRegularKeyframe(_tweenDesc.next);
 	}
+}
+
+void ModelAnimator::UpdateAnimEvent()
+{
+
 }
 
 void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)

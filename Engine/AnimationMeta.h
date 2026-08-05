@@ -19,7 +19,8 @@ public:
         Super::serialize(ar);
         ar(CEREAL_NVP(clipImportSetting));
 
-        //if(_version)
+        if(_version >= 2)
+            ar(CEREAL_NVP(animationEvents));
     }
 
 protected:

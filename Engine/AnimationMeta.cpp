@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "AnimationMeta.h"
 #include "ModelAnimation.h"
+#include "OnGUIUtils.h"
 
 unique_ptr<ResourceBase> AnimationMeta::LoadResource(AssetId assetId) const
 {
@@ -27,6 +28,32 @@ bool AnimationMeta::OnGUI()
     bool changed = Super::OnGUI();
 
     changed |= clipImportSetting.OnGUI();
+
+    uint32 eventCount = static_cast<uint32>(animationEvents.size());
+    if (OnGUIUtils::DrawUInt32("Event Count", &eventCount, 1.f))
+    {
+        animationEvents.resize(eventCount);
+        changed = true;
+    }
+
+    for (int eventIndex = 0; eventIndex < animationEvents.size(); ++eventIndex)
+    {
+        AnimationEvent& animationEvent = animationEvents[eventIndex];
+        ImGui::PushID(eventIndex);
+
+        string header = to_string(eventIndex);
+        if (!animationEvent.eventName.empty())
+            header += ": " + animationEvent.eventName;
+        header += "###AnimationEvent";
+
+        if (ImGui::TreeNodeEx(header.c_str()))
+        {
+            changed |= animationEvent.OnGUI();
+            ImGui::TreePop();
+        }
+
+        ImGui::PopID();
+    }
 
     return changed;
 }
