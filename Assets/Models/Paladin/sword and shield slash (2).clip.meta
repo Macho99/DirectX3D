@@ -23,7 +23,42 @@
                         "boolParam": true,
                         "intParam": 0,
                         "floatParam": 0.0,
-                        "frame": 121
+                        "frame": 19
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 24
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": true,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 35
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 41
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": true,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 71
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 78
                     }
                 ]
             }

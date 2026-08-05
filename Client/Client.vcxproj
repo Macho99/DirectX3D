@@ -28,6 +28,7 @@
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PlayerAnimEventHandler.h" />
     <ClInclude Include="ThirdPersonCamMove.h" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PlayerAnimEventHandler.cpp" />
     <ClCompile Include="ThirdPersonCamMove.cpp" />
   </ItemGroup>
   <ItemGroup>

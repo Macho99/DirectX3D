@@ -31,6 +31,9 @@
     <Filter Include="Shaders\MyShader">
       <UniqueIdentifier>{61098872-9bbc-4651-90fe-522bacaa1001}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Main\Player">
+      <UniqueIdentifier>{627e0810-c9bc-4813-bb6d-9b929ecae9e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -63,6 +66,9 @@
     <ClCompile Include="ThirdPersonCamMove.cpp">
       <Filter>Main\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerAnimEventHandler.cpp">
+      <Filter>Main\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -94,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="ThirdPersonCamMove.h">
       <Filter>Main\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerAnimEventHandler.h">
+      <Filter>Main\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

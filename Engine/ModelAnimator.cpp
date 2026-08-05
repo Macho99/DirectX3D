@@ -1078,9 +1078,10 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 		if (animationEvent.eventName.empty() || animationEvent.frame >= animation->GetFrameCount())
 			continue;
 
+		const uint32 animFrameTarget = animationEvent.frame;
 		const bool framePassed = prevFrame <= frame.curFrame
-			? animationEvent.frame > prevFrame && animationEvent.frame <= frame.curFrame
-			: animationEvent.frame > prevFrame || animationEvent.frame <= frame.curFrame;
+			? animFrameTarget > prevFrame && animFrameTarget <= frame.curFrame
+			: animFrameTarget > prevFrame || animFrameTarget <= frame.curFrame;
 		if (!framePassed && !(animationStarted && animationEvent.frame == 0))
 			continue;
 
