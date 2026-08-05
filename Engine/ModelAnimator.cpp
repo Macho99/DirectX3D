@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "OnGUIUtils.h"
 #include "MathUtils.h"
+#include "MonoBehaviour.h"
 #include "SceneView.h"
 #include "../MathLibrary/Geometry2D.h"
 
@@ -84,7 +85,6 @@ void ModelAnimator::Update()
     const TweenDesc prevTweenDesc = _tweenDesc;
 	UpdateTweenData();
 	UpdateRootMotion(prevTweenDesc);
-	UpdateAnimEvent();
 
 	if (_tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
 	{
@@ -1047,11 +1047,6 @@ void ModelAnimator::UpdateTweenData()
 	}
 }
 
-void ModelAnimator::UpdateAnimEvent()
-{
-
-}
-
 void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 {
 	Model* model = _model.Resolve();
@@ -1069,12 +1064,33 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 		return;
 
 	// 일반 애니메이션은 기존 speed 배율로 독립 재생한다.
+	const uint32 prevFrame = frame.curFrame;
+	const bool animationStarted = frame.curFrame == 0 && frame.nextFrame == 0;
 	const float duration = animation->GetFrameCount() / animation->GetFrameRate();
 	keyframe.sumTime = fmod(keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f), duration);
 	const float framePosition = keyframe.sumTime * animation->GetFrameRate();
 	frame.curFrame = static_cast<uint32>(framePosition) % animation->GetFrameCount();
 	frame.nextFrame = (frame.curFrame + 1) % animation->GetFrameCount();
 	frame.ratio = framePosition - floor(framePosition);
+
+	for (const AnimationEvent& animationEvent : animation->GetAnimationEvents())
+	{
+		if (animationEvent.eventName.empty() || animationEvent.frame >= animation->GetFrameCount())
+			continue;
+
+		const bool framePassed = prevFrame <= frame.curFrame
+			? animationEvent.frame > prevFrame && animationEvent.frame <= frame.curFrame
+			: animationEvent.frame > prevFrame || animationEvent.frame <= frame.curFrame;
+		if (!framePassed && !(animationStarted && animationEvent.frame == 0))
+			continue;
+
+		for (const ComponentRef<MonoBehaviour>& scriptRef : GetGameObject()->GetScripts())
+		{
+			MonoBehaviour* script = scriptRef.Resolve();
+			if (script != nullptr)
+				script->OnAnimationEvent(animationEvent);
+		}
+	}
 }
 
 void ModelAnimator::UpdateBlendSpaceKeyframe(KeyframeDesc& keyframe, const BlendSpaceSample& sample)

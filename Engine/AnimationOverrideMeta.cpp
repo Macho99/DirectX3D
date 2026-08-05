@@ -158,6 +158,7 @@ bool AnimationOverrideMeta::BuildAnimation(
     }
 
     output.SetAnimationClipImportSetting(clipImportSetting);
+    output.SetAnimationEvents(animationEvents);
     return true;
 }
 

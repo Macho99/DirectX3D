@@ -1,6 +1,8 @@
 #pragma once
 #include "Component.h"
 
+struct AnimationEvent;
+
 class MonoBehaviour : public Component
 {
 	using Super = Component;
@@ -11,7 +13,7 @@ public:
 
 	virtual void Awake() override;
 	virtual void Update() override;
-
+	virtual void OnAnimationEvent(const AnimationEvent& animationEvent) { }
 };
 
 #define DECLARE_MONO_BEHAVIOUR(TYPE)                                 \

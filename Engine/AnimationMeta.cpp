@@ -20,6 +20,7 @@ unique_ptr<ResourceBase> AnimationMeta::LoadResource(AssetId assetId) const
 
     ModelAnimation* modelAnimation = static_cast<ModelAnimation*>(animation.get());
     modelAnimation->SetAnimationClipImportSetting(clipImportSetting);
+    modelAnimation->SetAnimationEvents(animationEvents);
     return animation;
 }
 
