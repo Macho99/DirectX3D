@@ -52,15 +52,7 @@
     <FxCompile Include="..\Assets\Shaders\00. GrassCommon.fx" />
     <FxCompile Include="..\Assets\Shaders\00. Light.fx" />
     <FxCompile Include="..\Assets\Shaders\00. Render.fx" />
-    <FxCompile Include="..\Assets\Shaders\14. ModelDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\15. AnimationDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\16. TweenDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\17. SkyBoxDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\18. InstancingDemo.fx" />
     <FxCompile Include="..\Assets\Shaders\19. RenderDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\20. RawBufferDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\21. TextureBufferDemo.fx" />
-    <FxCompile Include="..\Assets\Shaders\22. StructuredBufferDemo.fx" />
     <FxCompile Include="..\Assets\Shaders\23. BillboardDemo.fx" />
     <FxCompile Include="..\Assets\Shaders\24. SnowDemo.fx" />
     <FxCompile Include="..\Assets\Shaders\Bloom.fx" />
@@ -80,6 +72,7 @@
     <FxCompile Include="..\Assets\Shaders\Ssao.fx" />
     <FxCompile Include="..\Assets\Shaders\Terrain.fx" />
     <FxCompile Include="..\Assets\Shaders\ToneMapping.fx" />
+    <FxCompile Include="..\Assets\Shaders\Trail.fx" />
     <FxCompile Include="..\Assets\Shaders\UIDefault.fx" />
     <FxCompile Include="..\Assets\Shaders\WaterSSR.fx" />
   </ItemGroup>

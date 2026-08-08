@@ -21,69 +21,71 @@ class UIImage;
 class GameObject
 {
 public:
-	GameObject(string name = "GameObject");
-	~GameObject();
+    GameObject(string name = "GameObject");
+    ~GameObject();
 
-	void Awake();
-	void Start();
-	void Update();
-	void LateUpdate();
-	void FixedUpdate();
+    void Awake();
+    void Start();
+    void Update();
+    void LateUpdate();
+    void FixedUpdate();
     void OnDestroy();
 
     void OnEnable();
     void OnDisable();
 
-	void OnInspectorFocus();
+    void OnInspectorFocus();
     void OnInspectorFocusLost();
 
-	Component* GetFixedComponent(ComponentType type);
+    Component* GetFixedComponent(ComponentType type);
 
-	template<class T>
+    template<class T>
     ComponentRef<T> GetFixedComponentRef();
 
-	template<class T>
-	T* GetFixedComponent();
+    template<class T>
+    T* GetFixedComponent();
 
-	Transform* GetTransform();
+    Transform* GetTransform();
     TransformRef GetTransformRef();
-	Camera* GetCamera();
-	Light* GetLight();
-	MeshRenderer* GetMeshRenderer();
-	ModelRenderer* GetModelRenderer();
-	ModelAnimator* GetModelAnimator();
-	Renderer* GetRenderer();
-	BaseCollider* GetCollider();
-	Terrain* GetTerrain();
-	Button* GetButton();
+    Camera* GetCamera();
+    Light* GetLight();
+    MeshRenderer* GetMeshRenderer();
+    ModelRenderer* GetModelRenderer();
+    ModelAnimator* GetModelAnimator();
+    Renderer* GetRenderer();
+    BaseCollider* GetCollider();
+    Terrain* GetTerrain();
+    Button* GetButton();
     UIImage* GetUIImage();
-	Billboard* GetBillboard();
-	SnowBillboard* GetSnowBillboard();
+    Billboard* GetBillboard();
+    SnowBillboard* GetSnowBillboard();
 
-	void AddComponent(unique_ptr<Component> component);
+    template<class T>
+    ComponentRef<T> AddComponent();
+    void AddComponent(unique_ptr<Component> component);
     array<ComponentRefBase, FIXED_COMPONENT_COUNT>& GetAllFixedComponents() { return _components; }
     vector<ComponentRef<MonoBehaviour>>& GetScripts() { return _scripts; }
 
-	void SetLayerIndex(uint8 layer) { _layerIndex = layer; }
-	uint8 GetLayerIndex() const { return _layerIndex; }
+    void SetLayerIndex(uint8 layer) { _layerIndex = layer; }
+    uint8 GetLayerIndex() const { return _layerIndex; }
 
-	template<typename T>
-	T* GetFixedComponent(ComponentType type)
-	{
-		return static_cast<T*>(GetFixedComponent(type));
-	}
+    template<typename T>
+    T* GetFixedComponent(ComponentType type)
+    {
+        return static_cast<T*>(GetFixedComponent(type));
+    }
 
-	string GetName() const { return _name; }
-	void SetName(string name) { _name = name; }
-	bool IsActiveInHierarchy() const { return _isActive; }
+    string GetName() const { return _name; }
+    void SetName(string name) { _name = name; }
+    bool IsActiveInHierarchy() const { return _isActive; }
     bool IsActiveInLocal() const { return _localActive; }
-	void SetActive(bool active);
+    void SetActive(bool active);
     void UpdateActiveInHierarchy(bool parentActive, bool forceUpdate = false);
 
-	void OnGUI();
+    void OnGUI();
 
     Guid GetGuid() const { return _guid; }
-	void SetGuid(const Guid& guid) { _guid = guid; }
+    void SetGuid(const Guid& guid) { _guid = guid; }
 
     static GameObjectRef GetGameObjectRefByGuid(const Guid& guid);
 
@@ -99,14 +101,14 @@ public:
     }
 
 private:
-	bool _isActive = true;
-	bool _localActive = true;
-	
-	array<ComponentRefBase, FIXED_COMPONENT_COUNT> _components;
-	vector<ComponentRef<MonoBehaviour>> _scripts;
+    bool _isActive = true;
+    bool _localActive = true;
 
-	uint8 _layerIndex = 0;
-	string _name;
+    array<ComponentRefBase, FIXED_COMPONENT_COUNT> _components;
+    vector<ComponentRef<MonoBehaviour>> _scripts;
+
+    uint8 _layerIndex = 0;
+    string _name;
     Guid _guid;
 };
 
@@ -132,4 +134,19 @@ inline T* GameObject::GetFixedComponent()
         return nullptr;
     }
     return static_cast<T*>(_components[static_cast<uint8>(type)].Resolve());
+}
+
+template<class T>
+inline ComponentRef<T> GameObject::AddComponent()
+{
+    ComponentType type = T::StaticType;
+    if (type >= ComponentType::End)
+    {
+        ASSERT(false, "type out of range");
+        return ComponentRef<T>();
+    }
+    unique_ptr<T> component = make_unique<T>();
+    T* componentPtr = component.get();
+    AddComponent(std::move(component));
+    return ComponentRef<T>(componentPtr);
 }

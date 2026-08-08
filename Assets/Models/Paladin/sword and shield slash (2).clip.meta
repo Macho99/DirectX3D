@@ -30,7 +30,7 @@
                         "boolParam": false,
                         "intParam": 0,
                         "floatParam": 0.0,
-                        "frame": 24
+                        "frame": 27
                     },
                     {
                         "eventName": "Attack",
@@ -44,7 +44,7 @@
                         "boolParam": false,
                         "intParam": 0,
                         "floatParam": 0.0,
-                        "frame": 41
+                        "frame": 43
                     },
                     {
                         "eventName": "Attack",
@@ -58,7 +58,7 @@
                         "boolParam": false,
                         "intParam": 0,
                         "floatParam": 0.0,
-                        "frame": 78
+                        "frame": 82
                     }
                 ]
             }

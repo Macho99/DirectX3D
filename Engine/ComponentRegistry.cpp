@@ -31,6 +31,7 @@
 #include "UIImage.h"
 #include "RectTransform.h"
 #include "TargetFollower.h"
+#include "TrailRenderer.h"
 
 static void ForceRegisterEngineComponents()
 {
@@ -63,6 +64,7 @@ static void ForceRegisterEngineComponents()
     Text::EnsureAutoRegister();
     UIImage::EnsureAutoRegister();
     TargetFollower::EnsureAutoRegister();
+    TrailRenderer::EnsureAutoRegister();
 }
 
 void ComponentRegistry::Init()
@@ -172,3 +174,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ScrollView);
 
 CEREAL_REGISTER_TYPE(TargetFollower);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, TargetFollower);
+
+CEREAL_REGISTER_TYPE(TrailRenderer);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, TrailRenderer);

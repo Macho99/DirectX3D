@@ -9,6 +9,7 @@
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
 #include "LineRenderer.h"
+#include "TrailRenderer.h"
 #include "Terrain.h"
 #include "Button.h"
 #include "UIImage.h"
@@ -245,6 +246,8 @@ Renderer* GameObject::GetRenderer()
         renderer = GetFixedComponent(ComponentType::GrassRenderer);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::LineRenderer);
+	if (renderer == nullptr)
+		renderer = GetFixedComponent(ComponentType::TrailRenderer);
 	if (renderer == nullptr)
 		renderer = GetFixedComponent(ComponentType::SsrRenderer);
 

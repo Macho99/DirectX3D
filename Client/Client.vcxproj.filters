@@ -19,12 +19,6 @@
     <Filter Include="Game\Week3">
       <UniqueIdentifier>{66bfbbee-65e7-4b15-8d23-2499373bda8a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Week3">
-      <UniqueIdentifier>{65eb1f50-7710-4da9-947d-5b91d873912a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Week4">
-      <UniqueIdentifier>{92e3061e-1718-43cd-8c3d-3a8645381f5a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\Week5">
       <UniqueIdentifier>{c04f508e-dec0-40bd-966f-45e13a0b2c2a}</UniqueIdentifier>
     </Filter>
@@ -124,33 +118,6 @@
     <FxCompile Include="..\Assets\Shaders\24. SnowDemo.fx">
       <Filter>Shaders\Week5</Filter>
     </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\22. StructuredBufferDemo.fx">
-      <Filter>Shaders\Week4</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\20. RawBufferDemo.fx">
-      <Filter>Shaders\Week4</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\21. TextureBufferDemo.fx">
-      <Filter>Shaders\Week4</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\19. RenderDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\14. ModelDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\15. AnimationDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\16. TweenDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\17. SkyBoxDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Assets\Shaders\18. InstancingDemo.fx">
-      <Filter>Shaders\Week3</Filter>
-    </FxCompile>
     <FxCompile Include="..\Assets\Shaders\ToneMapping.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
@@ -206,6 +173,12 @@
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
     <FxCompile Include="..\Assets\Shaders\UIDefault.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\19. RenderDemo.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\Trail.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -49,6 +49,7 @@
 #include "UIImage.h"
 #include "ThirdPersonCamMove.h"
 #include "TargetFollower.h"
+#include "PlayerAnimEventHandler.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -202,6 +203,7 @@ void AssetSerializeDemo::Init()
                 obj->GetModelAnimator()->SetModel(modelRef);
                 obj->GetModelAnimator()->SetPass(2);
             }
+            obj->AddComponent(make_unique<PlayerAnimEventHandler>());
         }
         
         {

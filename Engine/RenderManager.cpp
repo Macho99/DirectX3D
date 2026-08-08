@@ -11,6 +11,7 @@
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
 #include "LineRenderer.h"
+#include "TrailRenderer.h"
 
 void RenderManager::OnDestroy()
 {
@@ -53,6 +54,10 @@ void RenderManager::Render(vector<GameObject*>& gameObjects, RenderTech renderTe
 		LineRenderer* lineRenderer = gameObject->GetFixedComponent<LineRenderer>(ComponentType::LineRenderer);
 		if (lineRenderer != nullptr)
 			lineRenderer->Render(_renderTech);
+
+		TrailRenderer* trailRenderer = gameObject->GetFixedComponent<TrailRenderer>(ComponentType::TrailRenderer);
+		if (trailRenderer != nullptr)
+			trailRenderer->Render(_renderTech);
 
         //SsrRenderer는 포스트 프로세싱에서 렌더링
 	}

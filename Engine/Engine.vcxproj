@@ -328,6 +328,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="GridLayoutGroup.h" />
     <ClInclude Include="HorizontalLayoutGroup.h" />
     <ClInclude Include="LineRenderer.h" />
+    <ClInclude Include="TrailRenderer.h" />
     <ClInclude Include="LayoutGroup.h" />
     <ClInclude Include="MaterialMeta.h" />
     <ClInclude Include="MeshMeta.h" />
@@ -541,6 +542,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="GridLayoutGroup.cpp" />
     <ClCompile Include="HorizontalLayoutGroup.cpp" />
     <ClCompile Include="LineRenderer.cpp" />
+    <ClCompile Include="TrailRenderer.cpp" />
     <ClCompile Include="LayoutGroup.cpp" />
     <ClCompile Include="MaterialMeta.cpp" />
     <ClCompile Include="MeshMeta.cpp" />

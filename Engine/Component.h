@@ -36,6 +36,7 @@ enum class ComponentType : uint8
     GridLayoutGroup,
     ScrollView,
 	TargetFollower,
+	TrailRenderer,
 	// ...
 	Script,
 

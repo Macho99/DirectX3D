@@ -744,6 +744,9 @@
     <ClInclude Include="LineRenderer.h">
       <Filter>04. Component\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="TrailRenderer.h">
+      <Filter>04. Component\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="NavAgent.h">
       <Filter>04. Component\Navigation</Filter>
     </ClInclude>
@@ -1182,6 +1185,9 @@
       <Filter>04. Component\Navigation</Filter>
     </ClCompile>
     <ClCompile Include="LineRenderer.cpp">
+      <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="TrailRenderer.cpp">
       <Filter>04. Component\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="NavAgent.cpp">
