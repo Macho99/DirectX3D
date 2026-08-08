@@ -10,13 +10,8 @@ void PlayerAnimEventHandler::Awake()
     TrailRenderer* trailRenderer = _trailRenderer.Resolve();
     if (trailRenderer == nullptr)
     {
-        _trailRenderer = GetGameObject()->GetFixedComponentRef<TrailRenderer>();
-        trailRenderer = _trailRenderer.Resolve();
-    }
-
-    if (trailRenderer == nullptr)
-    {
-        _trailRenderer = GetGameObject()->AddComponent<TrailRenderer>();
+        GameObjectRef trailObjRef = CUR_SCENE->Add("PlayerWeaponTrail", GetTransform());
+        _trailRenderer = trailObjRef.Resolve()->AddComponent<TrailRenderer>();
         trailRenderer = _trailRenderer.Resolve();
     }
 

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TrailRenderer.h"
 #include "Material.h"
+#include "OnGUIUtils.h"
 
 TrailRenderer::TrailRenderer()
     : Super(StaticType)
@@ -14,12 +15,17 @@ TrailRenderer::~TrailRenderer()
 void TrailRenderer::SetPoints(const vector<TrailPoint>& points)
 {
     _points = points;
+
+    const float spawnTime = TIME->GetGameTime();
+    for (TrailPoint& point : _points)
+        point.spawnTime = spawnTime;
+
     _dirty = true;
 }
 
 void TrailRenderer::AddPoint(const Vec3& base, const Vec3& tip)
 {
-    _points.push_back({ base, tip });
+    _points.push_back({ base, tip, TIME->GetGameTime() });
     _dirty = true;
 }
 
@@ -28,7 +34,7 @@ bool TrailRenderer::SetPoint(uint32 index, const Vec3& base, const Vec3& tip)
     if (index >= _points.size())
         return false;
 
-    _points[index] = { base, tip };
+    _points[index] = { base, tip, TIME->GetGameTime() };
     _dirty = true;
     return true;
 }
@@ -49,9 +55,38 @@ void TrailRenderer::ClearPoints()
     _dirty = true;
 }
 
+void TrailRenderer::SetLifetime(float lifetime)
+{
+    _lifetime = max(lifetime, 0.001f);
+    _dirty = true;
+}
+
+void TrailRenderer::Update()
+{
+    const float gameTime = TIME->GetGameTime();
+    const auto firstAlive = std::find_if(_points.begin(), _points.end(), [&](const TrailPoint& point)
+    {
+        return gameTime - point.spawnTime < _lifetime;
+    });
+
+    if (firstAlive != _points.begin())
+    {
+        _points.erase(_points.begin(), firstAlive);
+        _dirty = true;
+    }
+}
+
 bool TrailRenderer::OnGUI()
 {
-    return Super::OnGUI();
+    bool changed = Super::OnGUI();
+
+    if (OnGUIUtils::DrawFloat("Lifetime", &_lifetime, 0.01f))
+    {
+        SetLifetime(_lifetime);
+        changed = true;
+    }
+
+    return changed;
 }
 
 void TrailRenderer::InnerRender(RenderTech renderTech)
@@ -108,20 +143,24 @@ void TrailRenderer::RebuildBuffers()
             ? distances[i] / totalDistance
             : static_cast<float>(i) / static_cast<float>(_points.size() - 1);
 
-        VertexTextureNormalTangentData vertexBase;
+        TrailVertexData vertexBase;
         vertexBase.position = _points[i].base;
-        vertexBase.uv = Vec2(0.f, trailRatio);
+        vertexBase.uv = Vec2(trailRatio, 0.f);
+        vertexBase.spawnTime = _points[i].spawnTime;
+        vertexBase.lifetime = _lifetime;
         _vertices.push_back(vertexBase);
 
-        VertexTextureNormalTangentData vertexTip;
+        TrailVertexData vertexTip;
         vertexTip.position = _points[i].tip;
-        vertexTip.uv = Vec2(1.f, trailRatio);
+        vertexTip.uv = Vec2(trailRatio, 1.f);
+        vertexTip.spawnTime = _points[i].spawnTime;
+        vertexTip.lifetime = _lifetime;
         _vertices.push_back(vertexTip);
     }
 
     for (uint32 i = 0; i < _points.size() - 1; ++i)
     {
-        const uint32 currentBase = i;
+        const uint32 currentBase = i * 2;
         const uint32 currentTip = currentBase + 1;
         const uint32 nextBase = currentBase + 2;
         const uint32 nextTip = currentBase + 3;

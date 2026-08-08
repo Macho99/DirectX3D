@@ -2,36 +2,55 @@
 #include "00. Light.fx"
 #include "00. Render.fx"
 
-MeshOutput VS_Trail(VertexMesh input)
+struct TrailVertex
 {
-    MeshOutput output;
+    float4 position : POSITION;
+    float2 uv : TEXCOORD0;
+    float spawnTime : TEXCOORD1;
+    float lifetime : TEXCOORD2;
+};
 
-    float4 worldPos = input.position;
-    output.position = worldPos; // W
-    output.worldPosition = output.position;
-    output.position = mul(output.position, VP);
+struct TrailOutput
+{
+    float4 position : SV_POSITION;
+    float2 uv : TEXCOORD0;
+    float spawnTime : TEXCOORD1;
+    float lifetime : TEXCOORD2;
+};
+
+TrailOutput VS_Trail(TrailVertex input)
+{
+    TrailOutput output;
+
+    output.position = mul(input.position, VP);
     output.uv = input.uv;
-	
-    output.normal = mul(input.normal, (float3x3) input.world);
-    output.normalV = mul(output.normal, (float3x3) V);
-    output.positionV = mul(worldPos, V);
-    output.viewZ = output.positionV.z;
-    output.ssaoPosH = mul(worldPos, VPT);
-	
-    output.tangent = mul(input.tangent, (float3x3) W);
-	
+    output.spawnTime = input.spawnTime;
+    output.lifetime = input.lifetime;
+
     return output;
 }
 
-float4 PS(MeshOutput input) : SV_TARGET
+float4 PS(TrailOutput input) : SV_TARGET
 {
 	float4 color = DiffuseMap.Sample(LinearSampler, input.uv);
+    color = color * Material.diffuse;
+    float age = max(Time - input.spawnTime, 0.f);
+    float opacity = saturate(1.f - age / max(input.lifetime, 0.001f));
+    color.a *= opacity;
+
     return color;
 }
 
 technique11 Draw
 {
-	PASS_RS_VP(P0, NoCull, VS_Trail, PS)
+	pass P0
+	{
+		SetRasterizerState(NoCull);
+		SetBlendState(AlphaBlend, float4(0, 0, 0, 0), 0xFF);
+		SetDepthStencilState(NoDepthWrites, 0);
+		SetVertexShader(CompileShader(vs_5_0, VS_Trail()));
+		SetPixelShader(CompileShader(ps_5_0, PS()));
+	}
 };
 
 technique11 Shadow
@@ -41,5 +60,5 @@ technique11 Shadow
 
 technique11 NormalDepth
 {
-	PASS_RS_VP(P0, NoCull, VS_Trail, PS)
+	PASS_RS_BS_VP(P0, NoCull, AlphaBlend, VS_Trail, PS)
 };

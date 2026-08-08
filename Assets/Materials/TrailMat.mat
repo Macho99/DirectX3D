@@ -14,9 +14,9 @@
                         "value.w": 1.0
                     },
                     "diffuse": {
-                        "value.x": 1.0,
-                        "value.y": 1.0,
-                        "value.z": 1.0,
+                        "value.x": 10.0,
+                        "value.y": 10.0,
+                        "value.z": 10.0,
                         "value.w": 1.0
                     },
                     "specular": {
@@ -43,8 +43,8 @@
                 },
                 "_diffuseMap": {
                     "assetId": {
-                        "leftId": 7794267101039785583,
-                        "rightId": 12079723140135847321
+                        "leftId": 3622359359974537701,
+                        "rightId": 8139065987822675482
                     }
                 },
                 "_normalMap": {

@@ -321,6 +321,16 @@ pass name											\
     SetPixelShader(CompileShader(ps_5_0, ps()));	\
 }
 
+#define PASS_RS_BS_VP(name, rs, bs, vs, ps)			\
+pass name											\
+{													\
+    SetRasterizerState(rs);							\
+	SetBlendState(bs, float4(0, 0, 0, 0), 0xFF);	\
+    SetVertexShader(CompileShader(vs_5_0, vs()));	\
+    SetPixelShader(CompileShader(ps_5_0, ps()));	\
+}
+
+
 #define PI 3.14159265359
 #define NUM_SHADOW_CASCADES 3
 
