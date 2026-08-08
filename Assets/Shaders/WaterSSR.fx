@@ -8,6 +8,8 @@ const float MaxThickness = 8.f;
 const float MaxRayDistance = 300.f;
 const float MaxDeepness = 30.f;
 const float MinDeepness = 5.f;
+const float DistortionStrength = 1.f;
+const float RefractionDepthBias = 0.01f;
 const int MaxSteps = 64;
 
 #define SceneMap DiffuseMap
@@ -77,9 +79,9 @@ float3 BinarySearch(float3 rayPos, float3 reflDir, float stepDistance)
         hitResult = HitTest(mid);
         
         if (hitResult.hit)
-            hi = mid; // ³Ê¹« ±íÀ½ ¡æ µÇµ¹¾Æ°¡±â
+            hi = mid; // ë„ˆë¬´ ê¹ŠìŒ â†’ ë˜ëŒì•„ê°€ê¸°
         else
-            lo = mid; // ¾ÆÁ÷ ¾È µé¾î°¨ ¡æ ´õ ÀüÁø
+            lo = mid; // ì•„ì§ ì•ˆ ë“¤ì–´ê° â†’ ë” ì „ì§„
     } 
     
     float2 edgeFade = smoothstep(0.0f, EdgeFade, hitResult.uv)
@@ -138,13 +140,15 @@ float4 PS(MeshOutput input) : SV_TARGET
     float2 sceneUv = GetUVFromViewPos(input.positionV);
     float sceneDepth = DepthMap.SampleLevel(PointSampler, sceneUv, 0).r;
     float sceneViewZ = DepthToViewZ(sceneDepth);
-    float sceneDepthDiff = abs(sceneViewZ - input.positionV.z);
+    float sceneDepthDiff = max(sceneViewZ - input.positionV.z, 0.f);
     
-    float2 distortionUv = sceneUv + (worldNormal.xz * saturate(sceneDepthDiff / MinDeepness));
+    float2 distortionUv = sceneUv + (worldNormal.xz * DistortionStrength * saturate(sceneDepthDiff / MinDeepness));
     distortionUv = clamp(distortionUv, float2(0.01f, 0.01f), float2(0.99f, 0.99f));
     float distortionDepth = DepthMap.SampleLevel(PointSampler, distortionUv, 0).r;
     float distortionViewZ = DepthToViewZ(distortionDepth);
-    float depthDiff = abs(distortionViewZ - input.positionV.z);
+    bool isBehindWater = distortionViewZ > input.positionV.z + RefractionDepthBias;
+    float2 refractionUv = isBehindWater ? distortionUv : sceneUv;
+    float depthDiff = isBehindWater ? distortionViewZ - input.positionV.z : sceneDepthDiff;
     waterColor = lerp(waterColor, float3(0.f, 0.f, 0.f), saturate(depthDiff / MaxDeepness));
     
     float reflectivity = Reflectivity + fresnel;
@@ -153,7 +157,7 @@ float4 PS(MeshOutput input) : SV_TARGET
     
     float alpha = min(Material.diffuse.a, saturate(depthDiff / MinDeepness + 0.2f));
     
-    float3 sceneColor = SceneMap.Sample(LinearSampler, distortionUv).rgb;
+    float3 sceneColor = SceneMap.Sample(LinearSampler, refractionUv).rgb;
     
     float3 finalColor = lerp(sceneColor, waterColor, alpha);
     //float specularValue = GetSpecularValue(input.worldPosition, worldNormal);

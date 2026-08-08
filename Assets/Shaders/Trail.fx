@@ -37,6 +37,9 @@ float4 PS(TrailOutput input) : SV_TARGET
     float age = max(Time - input.spawnTime, 0.f);
     float opacity = saturate(1.f - age / max(input.lifetime, 0.001f));
     color.a *= opacity;
+    
+    if (color.a < 0.01f)
+        discard;
 
     return color;
 }
@@ -47,7 +50,7 @@ technique11 Draw
 	{
 		SetRasterizerState(NoCull);
 		SetBlendState(AlphaBlend, float4(0, 0, 0, 0), 0xFF);
-		SetDepthStencilState(NoDepthWrites, 0);
+		//SetDepthStencilState(NoDepthWrites, 0);
 		SetVertexShader(CompileShader(vs_5_0, VS_Trail()));
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}

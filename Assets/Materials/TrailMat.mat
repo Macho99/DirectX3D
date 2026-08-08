@@ -14,9 +14,9 @@
                         "value.w": 1.0
                     },
                     "diffuse": {
-                        "value.x": 10.0,
-                        "value.y": 10.0,
-                        "value.z": 10.0,
+                        "value.x": 8.0,
+                        "value.y": 8.0,
+                        "value.z": 8.0,
                         "value.w": 1.0
                     },
                     "specular": {
