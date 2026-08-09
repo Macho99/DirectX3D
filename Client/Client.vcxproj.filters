@@ -136,6 +136,9 @@
     <FxCompile Include="..\Assets\Shaders\DownSample.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Assets\Shaders\Distortion.fx">
+      <Filter>Shaders\MyShader</Filter>
+    </FxCompile>
     <FxCompile Include="..\Assets\Shaders\Foliage.fx">
       <Filter>Shaders\MyShader</Filter>
     </FxCompile>

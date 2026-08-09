@@ -15,6 +15,7 @@ public:
 
     ComPtr<ID3D11Texture2D> GetTexture2D() const;
     void SetSRV(ComPtr<ID3D11ShaderResourceView> srv);
+    ComPtr<ID3D11ShaderResourceView> GetSRV() const { return _shaderResourveView; }
 
     bool SetDynamic();
     bool Save();

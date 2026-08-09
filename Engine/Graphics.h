@@ -86,6 +86,15 @@ private:
 		Vec3(-1.0f, -1.0f, 1.0f),
 	};
 
+	
+public:
+    int32 GetBloomIdx() const { return _bloomIdx; }
+    int32 GetDistortionIdx() const { return _distortionIdx; }
+
+private:
+	int32 _bloomIdx = -1;
+	int32 _distortionIdx = -1;
+
 private:
 	HWND _hwnd = {};
 

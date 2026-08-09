@@ -56,7 +56,8 @@ void EditorManager::Init()
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("NormalDepthMap", []() { return GRAPHICS->GetNormalDepthMap().Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("SsaoMap", []() { return GRAPHICS->GetSsaoMap().Resolve(); }));
-    _editorWindows.push_back(make_unique<DebugTexWindow>("PostProcess", []() { return GRAPHICS->GetPostProcessDebugTexture(1).Resolve(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("Bloom", []() { return GRAPHICS->GetPostProcessDebugTexture(GRAPHICS->GetBloomIdx()).Resolve(); }));
+    _editorWindows.push_back(make_unique<DebugTexWindow>("Distortion", []() { return GRAPHICS->GetPostProcessDebugTexture(GRAPHICS->GetDistortionIdx()).Resolve(); }));
 
     for (unique_ptr<EditorWindow>& editorWindow : _editorWindows)
     {

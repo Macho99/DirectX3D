@@ -309,6 +309,9 @@
     <ClInclude Include="ToneMapping.h">
       <Filter>01. Graphics\PostProcess</Filter>
     </ClInclude>
+    <ClInclude Include="DistortionPostProcess.h">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClInclude>
     <ClInclude Include="Blur.h">
       <Filter>01. Graphics</Filter>
     </ClInclude>
@@ -1011,6 +1014,9 @@
       <Filter>01. Graphics\PostProcess</Filter>
     </ClCompile>
     <ClCompile Include="ToneMapping.cpp">
+      <Filter>01. Graphics\PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="DistortionPostProcess.cpp">
       <Filter>01. Graphics\PostProcess</Filter>
     </ClCompile>
     <ClCompile Include="Blur.cpp">

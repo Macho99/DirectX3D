@@ -3,6 +3,7 @@
 #include "Ssao.h"
 #include "Viewport.h"
 #include "SsReflection.h"
+#include "DistortionPostProcess.h"
 #include "Bloom.h"
 #include "ToneMapping.h"
 #include "Camera.h"
@@ -28,7 +29,13 @@ void Graphics::Start()
 	_distortionMap = RESOURCES->AllocateTempResource(make_unique<Texture>());
 
     _postProcesses.push_back(make_shared<SsReflection>());
+	
+    _distortionIdx = _postProcesses.size();
+	_postProcesses.push_back(make_shared<DistortionPostProcess>());
+
+	_bloomIdx = _postProcesses.size();
 	_postProcesses.push_back(make_shared<Bloom>());
+
 	//_postProcesses[0]->SetEnabled(false);
 	_postProcesses.push_back(make_shared<ToneMapping>());
 
