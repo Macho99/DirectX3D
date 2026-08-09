@@ -30,38 +30,38 @@ TrailOutput VS_Trail(TrailVertex input)
     return output;
 }
 
-float4 PS(TrailOutput input) : SV_TARGET
+float4 PS_Distortion(TrailOutput input) : SV_TARGET
 {
-	float4 color = DiffuseMap.Sample(LinearSampler, input.uv);
-    color = color * Material.diffuse;
+    float mask = DiffuseMap.Sample(LinearSampler, input.uv).a;
     float age = max(Time - input.spawnTime, 0.f);
     float opacity = saturate(1.f - age / max(input.lifetime, 0.001f));
-    color.a *= opacity;
-    
-    if (color.a < 0.01f)
+    mask *= opacity;
+
+    if (mask < 0.01f)
         discard;
 
-    return color;
+    float2 trailTangent = float2(ddx(input.uv.x), ddy(input.uv.x));
+    float tangentLength = length(trailTangent);
+    if (tangentLength < 0.00001f)
+        discard;
+
+    float2 trailNormal = float2(-trailTangent.y, trailTangent.x) / tangentLength;
+    float signedDistanceFromCenter = input.uv.y * 2.f - 1.f;
+    float strength = Material.diffuse.x * 0.001f;
+    float2 offset = trailNormal * signedDistanceFromCenter * strength;
+	float2 encodedOffset = saturate(offset / (MaxDistortionOffset * 2.f) + 0.5f);
+
+    return float4(encodedOffset, 0.f, mask);
 }
 
-technique11 Draw
+technique11 Distortion
 {
 	pass P0
 	{
 		SetRasterizerState(NoCull);
 		SetBlendState(AlphaBlend, float4(0, 0, 0, 0), 0xFF);
-		//SetDepthStencilState(NoDepthWrites, 0);
+		SetDepthStencilState(NoDepthWrites, 0);
 		SetVertexShader(CompileShader(vs_5_0, VS_Trail()));
-		SetPixelShader(CompileShader(ps_5_0, PS()));
+		SetPixelShader(CompileShader(ps_5_0, PS_Distortion()));
 	}
-};
-
-technique11 Shadow
-{
-	PASS_SHADOW_V(P0, VS_Trail)
-};
-
-technique11 NormalDepth
-{
-	PASS_RS_BS_VP(P0, NoCull, AlphaBlend, VS_Trail, PS)
 };

@@ -250,7 +250,7 @@ void Graphics::SetDistortionRenderTarget()
 {
 	ClearShaderResources();
 	_vp.RSSetViewport();
-	const float clearColor[4] = {};
+	const float clearColor[4] = { 0.5f, 0.5f, 0.f, 0.f };
 	_deviceContext->ClearRenderTargetView(_distortionRTV.Get(), clearColor);
 	_deviceContext->OMSetRenderTargets(1, _distortionRTV.GetAddressOf(), _readonlyDepthStencilView.Get());
 }

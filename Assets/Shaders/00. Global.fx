@@ -333,6 +333,7 @@ pass name											\
 
 #define PI 3.14159265359
 #define NUM_SHADOW_CASCADES 3
+static const float MaxDistortionOffset = 0.01f;
 
 ////////////////
 /// Function

@@ -24,7 +24,8 @@ VertexOut VS(VertexTextureNormalTangent input)
 
 float4 PS(VertexOut input) : SV_Target
 {
-    float2 offset = SpecularMap.SampleLevel(PointSampler, input.uv, 0).rg;
+    float2 encodedOffset = SpecularMap.SampleLevel(PointSampler, input.uv, 0).rg;
+    float2 offset = (encodedOffset * 2.f - 1.f) * MaxDistortionOffset;
     float2 distortedUv = saturate(input.uv + offset);
     return DiffuseMap.Sample(LinearClampSampler, distortedUv);
 }
