@@ -25,6 +25,7 @@ void Graphics::Init(HWND hwnd)
 void Graphics::Start()
 {
 	_depthStencilMap = RESOURCES->AllocateTempResource(make_unique<Texture>());
+	_distortionMap = RESOURCES->AllocateTempResource(make_unique<Texture>());
 
     _postProcesses.push_back(make_shared<SsReflection>());
 	_postProcesses.push_back(make_shared<Bloom>());
@@ -72,6 +73,10 @@ void Graphics::OnDestroy()
 	_hdrRTV.Reset();
 	_hdrSRV.Reset();
 	_hdrTexture.Reset();
+
+	_distortionRTV.Reset();
+	_distortionSRV.Reset();
+	_distortionTexture.Reset();
 	
 	// =========================
 	// PostProcess buffers
@@ -232,6 +237,15 @@ void Graphics::SetNormalDepthRenderTarget()
 {
 	_vp.RSSetViewport();
 	_ssao->SetNormalDepthRenderTarget(_depthStencilView.Get());
+}
+
+void Graphics::SetDistortionRenderTarget()
+{
+	ClearShaderResources();
+	_vp.RSSetViewport();
+	const float clearColor[4] = {};
+	_deviceContext->ClearRenderTargetView(_distortionRTV.Get(), clearColor);
+	_deviceContext->OMSetRenderTargets(1, _distortionRTV.GetAddressOf(), _readonlyDepthStencilView.Get());
 }
 
 void Graphics::DrawSsaoMap(bool clearOnly)
@@ -463,6 +477,25 @@ void Graphics::CreateRenderTargetView()
 	}
 
 	DX_CREATE_RTV(_backBufferTexture.Get(), nullptr, _renderTargetView);
+
+	{
+		D3D11_TEXTURE2D_DESC texDesc = {};
+		texDesc.Width = static_cast<uint32>(sceneWidth);
+		texDesc.Height = static_cast<uint32>(sceneHeight);
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+
+		DX_CREATE_TEXTURE2D(&texDesc, nullptr, _distortionTexture);
+		DX_CREATE_SRV(_distortionTexture.Get(), nullptr, _distortionSRV);
+		DX_CREATE_RTV(_distortionTexture.Get(), nullptr, _distortionRTV);
+
+		_distortionMap.Resolve()->SetSRV(_distortionSRV);
+		_distortionMap.Resolve()->SetSize({ sceneWidth, sceneHeight });
+	}
 
 	{
 		D3D11_TEXTURE2D_DESC texDesc;

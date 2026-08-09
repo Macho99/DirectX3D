@@ -29,6 +29,8 @@ Shader::Shader(wstring file) : Super(StaticType), _file(file)
 			renderTech = RenderTech::Draw;
 		else if (technique.name == L"NormalDepth")
 			renderTech = RenderTech::NormalDepth;
+		else if (technique.name == L"Distortion")
+			renderTech = RenderTech::Distortion;
 		else
 			continue;
 

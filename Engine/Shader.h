@@ -15,6 +15,7 @@ enum class RenderTech
 	Shadow = 0,
 	Draw,
 	NormalDepth,
+	Distortion,
 	Max
 };
 

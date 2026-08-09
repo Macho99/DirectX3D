@@ -146,6 +146,7 @@ float4 PS(MeshOutput input) : SV_TARGET
     distortionUv = clamp(distortionUv, float2(0.01f, 0.01f), float2(0.99f, 0.99f));
     float distortionDepth = DepthMap.SampleLevel(PointSampler, distortionUv, 0).r;
     float distortionViewZ = DepthToViewZ(distortionDepth);
+    
     bool isBehindWater = distortionViewZ > input.positionV.z + RefractionDepthBias;
     float2 refractionUv = isBehindWater ? distortionUv : sceneUv;
     float depthDiff = isBehindWater ? distortionViewZ - input.positionV.z : sceneDepthDiff;

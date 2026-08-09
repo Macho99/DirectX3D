@@ -32,11 +32,13 @@ public:
 	void SetShadowDepthStencilView(int index);
 
 	void SetNormalDepthRenderTarget();
+	void SetDistortionRenderTarget();
 	void DrawSsaoMap(bool clearOnly);
     void SsaoOnSize(float width, float height, float fovY, float farZ);
 
 	ResourceRef<Texture> GetNormalDepthMap();
     ResourceRef<Texture> GetDepthStencilMap() { return _depthStencilMap; }
+	ResourceRef<Texture> GetDistortionMap() { return _distortionMap; }
 	ResourceRef<Texture> GetSsaoMap();
 	void SetRTVAndDSV();
     void SetBackBufferRenderTarget();
@@ -59,6 +61,7 @@ public:
     ComPtr<ID3D11DepthStencilView> GetReadOnlyDepthStencilView() { return _readonlyDepthStencilView; }
     ComPtr<ID3D11ShaderResourceView> GetSceneViewSRV() { return _sceneSRV; }
     ComPtr<ID3D11ShaderResourceView> GetShadowArraySRV() { return _shadowArraySRV; }
+	ComPtr<ID3D11RenderTargetView> GetDistortionRTV() { return _distortionRTV; }
 	ResourceRef<Texture> GetShadowMap(int index) { return _shadowMap[index]; }
 	ResourceRef<Texture> GetPostProcessDebugTexture(int index) { return _ppDebugTextures[index]; }
 
@@ -99,6 +102,11 @@ private:
 	ComPtr<ID3D11Texture2D> _sceneTexture;
 	ComPtr<ID3D11RenderTargetView> _sceneRTV;
 	ComPtr<ID3D11ShaderResourceView> _sceneSRV;
+
+	ComPtr<ID3D11Texture2D> _distortionTexture;
+	ComPtr<ID3D11RenderTargetView> _distortionRTV;
+	ComPtr<ID3D11ShaderResourceView> _distortionSRV;
+	ResourceRef<Texture> _distortionMap;
 
 	// DSV
 	ComPtr<ID3D11Texture2D> _depthStencilTexture;

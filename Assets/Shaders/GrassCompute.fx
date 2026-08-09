@@ -179,6 +179,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     float4 uvMinMax = uvs[uvIndex];
     float3 scaleBase = float3(uvMinMax.z - uvMinMax.x, uvMinMax.y - uvMinMax.w, 1);
     scaleBase *= 8.f;
+    scaleBase.y *= 0.7f;
     if (distSq < 120)
     {
         [unroll]
@@ -198,7 +199,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
             positionOffset *= 0.1f;
             positionOffset.y = 0;
             
-            float4x4 S = ScaleMatrix(scaleBase);
+            float4x4 S = ScaleMatrix(scale);
             float4x4 R = RotationMatrixXYZ(rotation);
             float4x4 T = TranslationMatrix(position + positionOffset);
         

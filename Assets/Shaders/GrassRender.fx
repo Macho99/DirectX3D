@@ -228,19 +228,19 @@ technique11 Shadow
     }
 };
 
-technique11 NormalDepth
-{
-    pass P0
-    {
-        SetRasterizerState(NoCull);
-        SetVertexShader(CompileShader(vs_5_0, NearbyVS()));
-        SetPixelShader(CompileShader(ps_5_0, AlphaClipNormalDepthPS()));
-    }
-    pass P1
-    {
-        SetRasterizerState(NoCull);
-        SetVertexShader(CompileShader(vs_5_0, DistantVS()));
-        SetGeometryShader(CompileShader(gs_5_0, GS()));
-        SetPixelShader(CompileShader(ps_5_0, AlphaClipNormalDepthPS()));
-    }
-};
+//technique11 NormalDepth
+//{
+//    pass P0
+//    {
+//        SetRasterizerState(NoCull);
+//        SetVertexShader(CompileShader(vs_5_0, NearbyVS()));
+//        SetPixelShader(CompileShader(ps_5_0, AlphaClipNormalDepthPS()));
+//    }
+//    pass P1
+//    {
+//        SetRasterizerState(NoCull);
+//        SetVertexShader(CompileShader(vs_5_0, DistantVS()));
+//        SetGeometryShader(CompileShader(gs_5_0, GS()));
+//        SetPixelShader(CompileShader(ps_5_0, AlphaClipNormalDepthPS()));
+//    }
+//};

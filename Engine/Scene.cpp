@@ -208,6 +208,14 @@ void Scene::RenderGameCamera(Camera* cam)
 	if (_sky)
 		_sky->Render(cam);
 	cam->Render_Backward(RenderTech::Draw);
+
+	////////////////////////////////////////////
+	//				Distortion
+	////////////////////////////////////////////
+	GRAPHICS->SetDistortionRenderTarget();
+	cam->Render_Forward(RenderTech::Distortion);
+	cam->Render_Backward(RenderTech::Distortion);
+
 	GRAPHICS->DrawPostProcesses();
 }
 
