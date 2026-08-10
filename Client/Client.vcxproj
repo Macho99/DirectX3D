@@ -70,6 +70,7 @@
     <FxCompile Include="..\Assets\Shaders\Line.fx" />
     <FxCompile Include="..\Assets\Shaders\ParticleSystem.fx" />
     <FxCompile Include="..\Assets\Shaders\Sky.fx" />
+    <FxCompile Include="..\Assets\Shaders\ShockwaveDistortion.fx" />
     <FxCompile Include="..\Assets\Shaders\Ssao.fx" />
     <FxCompile Include="..\Assets\Shaders\Terrain.fx" />
     <FxCompile Include="..\Assets\Shaders\ToneMapping.fx" />

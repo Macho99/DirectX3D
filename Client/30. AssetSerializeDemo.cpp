@@ -351,6 +351,17 @@ void AssetSerializeDemo::Init()
         camera->SetCullingMaskAll();
         camera->SetCullingMaskLayerOnOff(Layer_UI, false);
     }
+
+    {
+        auto objRef = CUR_SCENE->Add("Impulse");
+        GameObject* obj = objRef.Resolve();
+        MeshRenderer* meshRenderer = obj->AddComponent<MeshRenderer>().Resolve();
+        meshRenderer->SetMesh(RESOURCES->GetSphereMesh());
+        meshRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ImpulseMat.mat"));
+        Transform* transform = obj->GetTransform();
+        transform->SetPosition(Vec3(0.f, baseHeight + 4.f, 67.f));
+        transform->SetScale(Vec3(10.f));
+    }
 }
 
 void AssetSerializeDemo::Update()
