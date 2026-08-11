@@ -41,7 +41,7 @@
                         "name": "ShockwaveSpeed",
                         "type": 0,
                         "float4Value": {
-                            "value.x": 2.428999900817871,
+                            "value.x": 2.005000114440918,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
@@ -52,7 +52,7 @@
                         "name": "RingInnerWidth",
                         "type": 0,
                         "float4Value": {
-                            "value.x": 0.14300000667572022,
+                            "value.x": 0.10000000149011612,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
@@ -63,7 +63,7 @@
                         "name": "RingOuterWidth",
                         "type": 0,
                         "float4Value": {
-                            "value.x": 0.16599999368190766,
+                            "value.x": 0.13699999451637269,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0

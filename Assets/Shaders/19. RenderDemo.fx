@@ -16,7 +16,7 @@ float4 NormalDepthPS(MeshOutput input) : SV_TARGET
 {
     float3 worldNormal = ComputeNormalMapping(input.normal, input.tangent, input.uv);
     float3 viewNormal = mul(worldNormal, (float3x3) V);
-    return float4(viewNormal, input.position.z);
+    return float4(viewNormal, input.positionV.z);
 }
 
 technique11 Draw
