@@ -3,6 +3,44 @@
 #include "Utils.h"
 #include "Camera.h"
 
+namespace
+{
+	bool GetBoolAnnotation(ID3DX11EffectVariable* variable, const char* name, bool& value)
+	{
+		ID3DX11EffectVariable* annotation = variable->GetAnnotationByName(name);
+		if (annotation == nullptr || annotation->IsValid() == false)
+			return false;
+
+		ID3DX11EffectScalarVariable* scalar = annotation->AsScalar();
+		return scalar != nullptr && scalar->IsValid() && SUCCEEDED(scalar->GetBool(&value));
+	}
+
+	bool GetFloatAnnotation(ID3DX11EffectVariable* variable, const char* name, float& value)
+	{
+		ID3DX11EffectVariable* annotation = variable->GetAnnotationByName(name);
+		if (annotation == nullptr || annotation->IsValid() == false)
+			return false;
+
+		ID3DX11EffectScalarVariable* scalar = annotation->AsScalar();
+		return scalar != nullptr && scalar->IsValid() && SUCCEEDED(scalar->GetFloat(&value));
+	}
+
+	bool GetStringAnnotation(ID3DX11EffectVariable* variable, const char* name, string& value)
+	{
+		ID3DX11EffectVariable* annotation = variable->GetAnnotationByName(name);
+		if (annotation == nullptr || annotation->IsValid() == false)
+			return false;
+
+		ID3DX11EffectStringVariable* stringVariable = annotation->AsString();
+		LPCSTR text = nullptr;
+		if (stringVariable == nullptr || stringVariable->IsValid() == false || FAILED(stringVariable->GetString(&text)) || text == nullptr)
+			return false;
+
+		value = text;
+		return true;
+	}
+}
+
 Shader::Shader(wstring file) : Super(StaticType), _file(file)
 {
 	_initialStateBlock = make_shared<StateBlock>();
@@ -99,6 +137,63 @@ void Shader::CreateEffect()
 
 		D3DX11_EFFECT_VARIABLE_DESC vDesc;
 		effectVariable->GetDesc(&vDesc);
+
+		bool isMaterialProperty = false;
+		if (GetBoolAnnotation(effectVariable, "MaterialProperty", isMaterialProperty) == false || isMaterialProperty == false)
+			continue;
+
+		D3DX11_EFFECT_TYPE_DESC typeDesc = {};
+		if (FAILED(effectVariable->GetType()->GetDesc(&typeDesc)) || typeDesc.Type != D3D_SVT_FLOAT)
+			continue;
+
+		ShaderPropertyDesc property;
+		property.name = vDesc.Name;
+		property.displayName = property.name;
+		property.effectVariable = effectVariable;
+		GetStringAnnotation(effectVariable, "UIName", property.displayName);
+
+		string uiType;
+		GetStringAnnotation(effectVariable, "UIType", uiType);
+		if (typeDesc.Class == D3D_SVC_SCALAR)
+		{
+			property.type = ShaderPropertyType::Float;
+			if (FAILED(effectVariable->AsScalar()->GetFloat(&property.defaultValue.x)))
+				continue;
+		}
+		else if (typeDesc.Class == D3D_SVC_VECTOR && typeDesc.Columns == 4 && uiType == "Color")
+		{
+			property.type = ShaderPropertyType::Color;
+			if (FAILED(effectVariable->AsVector()->GetFloatVector(&property.defaultValue.x)))
+				continue;
+		}
+		else
+		{
+			continue;
+		}
+
+		const bool hasMin = GetFloatAnnotation(effectVariable, "UIMin", property.minValue);
+		const bool hasMax = GetFloatAnnotation(effectVariable, "UIMax", property.maxValue);
+		property.hasRange = hasMin && hasMax && property.minValue < property.maxValue;
+		_materialProperties.push_back(property);
+	}
+}
+
+void Shader::ApplyMaterialProperties(const vector<MaterialPropertyValue>& properties)
+{
+	for (const ShaderPropertyDesc& desc : _materialProperties)
+	{
+		auto iter = find_if(properties.begin(), properties.end(), [&desc](const MaterialPropertyValue& property)
+		{
+			return property.name == desc.name && property.type == desc.type;
+		});
+
+		if (iter == properties.end())
+			continue;
+
+		if (desc.type == ShaderPropertyType::Float)
+			desc.effectVariable->AsScalar()->SetFloat(iter->value.x);
+		else if (desc.type == ShaderPropertyType::Color)
+			desc.effectVariable->AsVector()->SetFloatVector(&iter->value.x);
 	}
 }
 

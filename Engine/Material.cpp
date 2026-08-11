@@ -14,6 +14,7 @@ Material::~Material()
 void Material::SetShader(ResourceRef<Shader> shader)
 {
 	_shader = shader;
+	_initializedEffectBuffers = false;
 }
 
 void Material::SetDiffuseMap(ResourceRef<Texture> diffuseMap)
@@ -42,6 +43,7 @@ void Material::Update()
 	if (shader == nullptr)
 		return;
 
+	SyncShaderProperties();
 	InitializeEffectBuffers();
 
     Texture* diffuseMap = _diffuseMap.Resolve();
@@ -61,6 +63,7 @@ void Material::Update()
 	}
 
 	shader->PushMaterialData(_desc);
+	shader->ApplyMaterialProperties(_shaderProperties);
 
     Texture* specularMap = _specularMap.Resolve();
 	if (specularMap)
@@ -93,7 +96,7 @@ void Material::Update()
         _layerMapArrayEffectBuffer->SetResource(_layerMapArraySRV.Get());
     }
 
-	// TODO: ÇÊ¿äÇÒ¶§¸¸ ¾÷µ¥ÀÌÆ®ÇÏ±â
+	// TODO: í•„ìš”í• ë•Œë§Œ ì—…ë°ì´íŠ¸í•˜ê¸°
 	if(Camera::S_ProjectionType == ProjectionType::Perspective)
 		_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap().Resolve()->GetComPtr().Get());
 	else
@@ -119,8 +122,61 @@ bool Material::OnGUI(bool isReadOnly)
 	changed |= OnGUIUtils::DrawColor("Diffuse", &_desc.diffuse, isReadOnly);
 	changed |= OnGUIUtils::DrawColor("Specular", &_desc.specular, isReadOnly);
 	changed |= OnGUIUtils::DrawColor("Emissive", &_desc.emissive, isReadOnly);
-    changed |= OnGUIUtils::DrawEnumCombo("RenderQueue", _renderQueue, RenderQueueNames, (int)RenderQueue::Max, isReadOnly);
+	changed |= OnGUIUtils::DrawEnumCombo("RenderQueue", _renderQueue, RenderQueueNames, (int)RenderQueue::Max, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("Shader", _shader, isReadOnly);
+
+	SyncShaderProperties();
+	Shader* shader = _shader.Resolve();
+	if (shader && _shaderProperties.empty() == false)
+	{
+		ImGui::Separator();
+		ImGui::TextUnformatted("Shader Properties");
+
+		const vector<ShaderPropertyDesc>& propertyDescs = shader->GetMaterialProperties();
+		ImGui::SameLine();
+		if (isReadOnly)
+			ImGui::BeginDisabled();
+		if (ImGui::Button("ê¸°ë³¸ê°’ìœ¼ë¡œ ì´ˆê¸°í™”"))
+		{
+			for (size_t i = 0; i < propertyDescs.size(); i++)
+				_shaderProperties[i].value = propertyDescs[i].defaultValue;
+			changed = true;
+		}
+		if (isReadOnly)
+			ImGui::EndDisabled();
+
+		for (size_t i = 0; i < propertyDescs.size(); i++)
+		{
+			const ShaderPropertyDesc& desc = propertyDescs[i];
+			MaterialPropertyValue& property = _shaderProperties[i];
+
+			if (desc.type == ShaderPropertyType::Color)
+			{
+				changed |= OnGUIUtils::DrawColor(desc.displayName.c_str(), &property.value, isReadOnly);
+				continue;
+			}
+
+			if (desc.hasRange == false)
+			{
+				changed |= OnGUIUtils::DrawFloat(desc.displayName.c_str(), &property.value.x, 0.1f, isReadOnly);
+				continue;
+			}
+
+			ImGui::PushID(desc.name.c_str());
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(desc.displayName.c_str());
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(200.f);
+			if (isReadOnly)
+				ImGui::BeginDisabled();
+			changed |= ImGui::SliderFloat("##value", &property.value.x, desc.minValue, desc.maxValue);
+			if (isReadOnly)
+				ImGui::EndDisabled();
+			ImGui::PopID();
+		}
+		ImGui::Separator();
+	}
+
 	changed |= OnGUIUtils::DrawResourceRef("DiffuseMap", _diffuseMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("NormalMap", _normalMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("SpecularMap", _specularMap, isReadOnly);
@@ -138,7 +194,8 @@ void Material::Clone(Material* other)
     _renderQueue = other->_renderQueue;
     _castShadow = other->_castShadow;
     _includeInNavMesh = other->_includeInNavMesh;
-    _shader = other->_shader;
+	_shader = other->_shader;
+	_shaderProperties = other->_shaderProperties;
     _diffuseMap = other->_diffuseMap;
     _normalMap = other->_normalMap;
     _specularMap = other->_specularMap;
@@ -152,7 +209,49 @@ void Material::Clone(Material* other)
     _shadowMapEffectBuffer = other->_shadowMapEffectBuffer;
     _ssaoMapEffectBuffer = other->_ssaoMapEffectBuffer;
     _layerMapArrayEffectBuffer = other->_layerMapArrayEffectBuffer;
-    _initializedEffectBuffers = other->_initializedEffectBuffers;
+	_initializedEffectBuffers = other->_initializedEffectBuffers;
+}
+
+void Material::SyncShaderProperties()
+{
+	Shader* shader = _shader.Resolve();
+	if (shader == nullptr)
+		return;
+
+	const vector<ShaderPropertyDesc>& descs = shader->GetMaterialProperties();
+	bool isSynchronized = _shaderProperties.size() == descs.size();
+	if (isSynchronized)
+	{
+		for (size_t i = 0; i < descs.size(); i++)
+		{
+			if (_shaderProperties[i].name != descs[i].name || _shaderProperties[i].type != descs[i].type)
+			{
+				isSynchronized = false;
+				break;
+			}
+		}
+	}
+
+	if (isSynchronized)
+		return;
+
+	vector<MaterialPropertyValue> synchronizedProperties;
+	synchronizedProperties.reserve(descs.size());
+	for (const ShaderPropertyDesc& desc : descs)
+	{
+		auto iter = find_if(_shaderProperties.begin(), _shaderProperties.end(), [&desc](const MaterialPropertyValue& property)
+		{
+			return property.name == desc.name && property.type == desc.type;
+		});
+
+		MaterialPropertyValue property;
+		property.name = desc.name;
+		property.type = desc.type;
+		property.value = iter != _shaderProperties.end() ? iter->value : desc.defaultValue;
+		synchronizedProperties.push_back(property);
+	}
+
+	_shaderProperties = move(synchronizedProperties);
 }
 
 void Material::InitializeEffectBuffers()

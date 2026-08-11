@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 2,
+                "_version": 4,
                 "_desc": {
                     "ambient": {
                         "value.x": 1.0,
@@ -35,6 +35,85 @@
                 "_renderQueue": 0,
                 "_castShadow": true,
                 "_includeInNavMesh": true,
+                "_shaderProperties": [
+                    {
+                        "_version": 1,
+                        "name": "ShockwaveSpeed",
+                        "type": 0,
+                        "value": {
+                            "value.x": 0.9779999852180481,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 1,
+                        "name": "RingInnerWidth",
+                        "type": 0,
+                        "value": {
+                            "value.x": 0.07999999821186066,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 1,
+                        "name": "RingOuterWidth",
+                        "type": 0,
+                        "value": {
+                            "value.x": 0.11999999731779099,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 1,
+                        "name": "FresnelStrength",
+                        "type": 0,
+                        "value": {
+                            "value.x": 0.3499999940395355,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 1,
+                        "name": "FresnelPower",
+                        "type": 0,
+                        "value": {
+                            "value.x": 4.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 1,
+                        "name": "DistortionStrength",
+                        "type": 0,
+                        "value": {
+                            "value.x": 1.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 1,
+                        "name": "DistortionOpacity",
+                        "type": 0,
+                        "value": {
+                            "value.x": 1.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    }
+                ],
                 "_shader": {
                     "assetId": {
                         "leftId": 11849372064189530726,

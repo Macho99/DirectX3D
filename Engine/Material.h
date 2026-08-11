@@ -1,5 +1,8 @@
 #pragma once
 #include "ResourceBase.h"
+#include "BindShaderDesc.h"
+#include "cereal/types/string.hpp"
+#include "cereal/types/vector.hpp"
 
 #define RENDER_QUEUE_LIST \
     X(Opaque) \
@@ -29,7 +32,7 @@ public:
 	Material();
 	~Material();
 
-    virtual int GetVersion() const override { return 2; }
+	virtual int GetVersion() const override { return 4; }
 
 	Shader* GetShader() { return _shader.Resolve(); }
 
@@ -75,6 +78,11 @@ public:
 			ar(CEREAL_NVP(_includeInNavMesh));
 		}
 
+		if (Archive::is_saving::value || _version >= 4)
+		{
+			ar(CEREAL_NVP(_shaderProperties));
+		}
+
         ar(CEREAL_NVP(_shader));
         ar(CEREAL_NVP(_diffuseMap));
         ar(CEREAL_NVP(_normalMap));
@@ -84,6 +92,7 @@ public:
     }
 private:
     void InitializeEffectBuffers();
+	void SyncShaderProperties();
 
 private:
 	friend class MeshRenderer;
@@ -101,6 +110,7 @@ private:
     ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 
 	bool _useRandomTexture = false;
+	vector<MaterialPropertyValue> _shaderProperties;
 
 	// Cache
     bool _initializedEffectBuffers = false;

@@ -2,11 +2,54 @@
 #include "00. Light.fx"
 #include "00. Render.fx"
 
-// 충격파 링이 구의 중심에서 외곽까지 퍼져 나가는 속도
-static const float ShockwaveSpeed = 0.8f;
-// 안쪽 경계는 선명하게, 바깥쪽 경계는 부드럽게 감쇠시키기 위한 링 두께
-static const float RingInnerWidth = 0.08f;
-static const float RingOuterWidth = 0.12f;
+float ShockwaveSpeed <
+    bool MaterialProperty = true;
+    string UIName = "충격파 속도";
+    float UIMin = 0.f;
+    float UIMax = 3.f;
+> = 0.8f;
+
+float RingInnerWidth <
+    bool MaterialProperty = true;
+    string UIName = "링 안쪽 두께";
+    float UIMin = 0.001f;
+    float UIMax = 0.5f;
+> = 0.08f;
+
+float RingOuterWidth <
+    bool MaterialProperty = true;
+    string UIName = "링 바깥쪽 두께";
+    float UIMin = 0.001f;
+    float UIMax = 0.5f;
+> = 0.12f;
+
+float FresnelStrength <
+    bool MaterialProperty = true;
+    string UIName = "프레넬 강도";
+    float UIMin = 0.f;
+    float UIMax = 1.f;
+> = 0.35f;
+
+float FresnelPower <
+    bool MaterialProperty = true;
+    string UIName = "프레넬 지수";
+    float UIMin = 1.f;
+    float UIMax = 10.f;
+> = 4.f;
+
+float DistortionStrength <
+    bool MaterialProperty = true;
+    string UIName = "디스토션 강도";
+    float UIMin = 0.f;
+    float UIMax = 1.f;
+> = 1.f;
+
+float DistortionOpacity <
+    bool MaterialProperty = true;
+    string UIName = "디스토션 투명도";
+    float UIMin = 0.f;
+    float UIMax = 1.f;
+> = 1.f;
 
 float4 PS_ShockwaveDistortion(MeshOutput input) : SV_TARGET
 {
@@ -25,9 +68,9 @@ float4 PS_ShockwaveDistortion(MeshOutput input) : SV_TARGET
     float ring = 1.f - smoothstep(RingInnerWidth, RingOuterWidth, ringDistance);
 
     // 충격파 링이 지나간 뒤에도 실루엣에 약한 디스토션이 남도록 프레넬을 더한다.
-    // Material.diffuse.a로 최종 디스토션 마스크의 투명도를 조절한다.
-    float fresnel = pow(1.f - facing, 4.f);
-    float mask = saturate(max(ring, fresnel * 0.35f) * Material.diffuse.a);
+    // DistortionOpacity로 최종 디스토션 마스크의 투명도를 조절한다.
+    float fresnel = pow(1.f - facing, FresnelPower);
+    float mask = saturate(max(ring, fresnel * FresnelStrength) * DistortionOpacity);
     if (mask < 0.001f)
         discard;
 
@@ -44,10 +87,9 @@ float4 PS_ShockwaveDistortion(MeshOutput input) : SV_TARGET
     pixelDirection /= directionLength;
     float2 uvDirection = float2(pixelDirection.x / aspectRatio, pixelDirection.y);
 
-    // Material.diffuse.x를 0~1 범위의 디스토션 강도로 사용한다.
     // R16G16_FLOAT 디스토션 타깃은 (0.5, 0.5)를 오프셋이 없는 중립값으로 사용하므로,
     // 부호가 있는 UV 오프셋을 중립값을 기준으로 인코딩한다.
-    float strength = saturate(Material.diffuse.x) * MaxDistortionOffset;
+    float strength = saturate(DistortionStrength) * MaxDistortionOffset;
     float2 offset = uvDirection * strength;
     float2 encodedOffset = saturate(offset / (MaxDistortionOffset * 2.f) + 0.5f);
 

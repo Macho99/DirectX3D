@@ -19,6 +19,18 @@ enum class RenderTech
 	Max
 };
 
+struct ShaderPropertyDesc
+{
+	string name;
+	string displayName;
+	ShaderPropertyType type = ShaderPropertyType::Float;
+	Color defaultValue = Color(0.f, 0.f, 0.f, 0.f);
+	float minValue = 0.f;
+	float maxValue = 1.f;
+	bool hasRange = false;
+	ID3DX11EffectVariable* effectVariable = nullptr;
+};
+
 class Shader : public ResourceBase
 {
     using Super = ResourceBase;
@@ -55,6 +67,8 @@ public:
 	ComPtr<ID3DX11EffectRenderTargetViewVariable> GetRTV(string name);
 	ComPtr<ID3DX11EffectDepthStencilViewVariable> GetDSV(string name);
 	ComPtr<ID3DX11EffectUnorderedAccessViewVariable> GetUAV(string name);
+	const vector<ShaderPropertyDesc>& GetMaterialProperties() const { return _materialProperties; }
+	void ApplyMaterialProperties(const vector<MaterialPropertyValue>& properties);
 	ComPtr<ID3DX11EffectConstantBuffer> GetConstantBuffer(string name);
 	ComPtr<ID3DX11EffectShaderVariable> GetShader(string name);
 	ComPtr<ID3DX11EffectBlendVariable> GetBlend(string name);
@@ -72,6 +86,7 @@ private:
 	D3DX11_EFFECT_DESC _effectDesc;
 	shared_ptr<StateBlock> _initialStateBlock;
 	vector<Technique> _techniques;
+	vector<ShaderPropertyDesc> _materialProperties;
 
 public:
 	void PushGlobalData(const Matrix& view, const Matrix& projection);
