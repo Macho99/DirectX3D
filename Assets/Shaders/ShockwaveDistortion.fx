@@ -23,6 +23,13 @@ float RingOuterWidth <
     float UIMax = 0.5f;
 > = 0.12f;
 
+int RingCount <
+    bool MaterialProperty = true;
+    string UIName = "링 개수";
+    int UIMin = 1;
+    int UIMax = 8;
+> = 1;
+
 float FresnelStrength <
     bool MaterialProperty = true;
     string UIName = "프레넬 강도";
@@ -36,6 +43,11 @@ float FresnelPower <
     float UIMin = 1.f;
     float UIMax = 10.f;
 > = 4.f;
+
+bool EnableFresnel <
+    bool MaterialProperty = true;
+    string UIName = "프레넬 사용";
+> = true;
 
 float DistortionStrength <
     bool MaterialProperty = true;
@@ -64,12 +76,18 @@ float4 PS_ShockwaveDistortion(MeshOutput input) : SV_TARGET
 
     // 시간에 따라 구의 정면에서 실루엣으로 반복해서 확장되는 링을 만든다.
     float wavePosition = frac(Time * ShockwaveSpeed);
-    float ringDistance = abs(radialPosition - wavePosition);
-    float ring = 1.f - smoothstep(RingInnerWidth, RingOuterWidth, ringDistance);
+    int ringCount = max(RingCount, 1);
+    float ring = 0.f;
+    for (int i = 0; i < ringCount; i++)
+    {
+        float ringPosition = frac(wavePosition + (float)i / ringCount);
+        float ringDistance = abs(radialPosition - ringPosition);
+        ring = max(ring, 1.f - smoothstep(RingInnerWidth, RingOuterWidth, ringDistance));
+    }
 
     // 충격파 링이 지나간 뒤에도 실루엣에 약한 디스토션이 남도록 프레넬을 더한다.
     // DistortionOpacity로 최종 디스토션 마스크의 투명도를 조절한다.
-    float fresnel = pow(1.f - facing, FresnelPower);
+    float fresnel = EnableFresnel ? pow(1.f - facing, FresnelPower) : 0.f;
     float mask = saturate(max(ring, fresnel * FresnelStrength) * DistortionOpacity);
     if (mask < 0.001f)
         discard;

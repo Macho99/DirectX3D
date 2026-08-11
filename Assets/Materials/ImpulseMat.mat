@@ -37,18 +37,20 @@
                 "_includeInNavMesh": true,
                 "_shaderProperties": [
                     {
-                        "_version": 1,
+                        "_version": 2,
                         "name": "ShockwaveSpeed",
                         "type": 0,
                         "value": {
-                            "value.x": 0.9779999852180481,
+                            "value.x": 0.800000011920929,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     },
                     {
-                        "_version": 1,
+                        "_version": 2,
                         "name": "RingInnerWidth",
                         "type": 0,
                         "value": {
@@ -56,10 +58,12 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     },
                     {
-                        "_version": 1,
+                        "_version": 2,
                         "name": "RingOuterWidth",
                         "type": 0,
                         "value": {
@@ -67,10 +71,25 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     },
                     {
-                        "_version": 1,
+                        "_version": 2,
+                        "name": "RingCount",
+                        "type": 2,
+                        "value": {
+                            "value.x": 0.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        },
+                        "intValue": 1,
+                        "boolValue": false
+                    },
+                    {
+                        "_version": 2,
                         "name": "FresnelStrength",
                         "type": 0,
                         "value": {
@@ -78,10 +97,12 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     },
                     {
-                        "_version": 1,
+                        "_version": 2,
                         "name": "FresnelPower",
                         "type": 0,
                         "value": {
@@ -89,10 +110,25 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     },
                     {
-                        "_version": 1,
+                        "_version": 2,
+                        "name": "EnableFresnel",
+                        "type": 3,
+                        "value": {
+                            "value.x": 0.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        },
+                        "intValue": 0,
+                        "boolValue": true
+                    },
+                    {
+                        "_version": 2,
                         "name": "DistortionStrength",
                         "type": 0,
                         "value": {
@@ -100,10 +136,12 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     },
                     {
-                        "_version": 1,
+                        "_version": 2,
                         "name": "DistortionOpacity",
                         "type": 0,
                         "value": {
@@ -111,7 +149,9 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        }
+                        },
+                        "intValue": 0,
+                        "boolValue": false
                     }
                 ],
                 "_shader": {

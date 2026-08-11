@@ -136,10 +136,15 @@ bool Material::OnGUI(bool isReadOnly)
 		ImGui::SameLine();
 		if (isReadOnly)
 			ImGui::BeginDisabled();
-		if (ImGui::Button("기본값으로 초기화"))
+
+		if (ImGui::Button("Reset"))
 		{
 			for (size_t i = 0; i < propertyDescs.size(); i++)
+			{
 				_shaderProperties[i].value = propertyDescs[i].defaultValue;
+				_shaderProperties[i].intValue = propertyDescs[i].defaultIntValue;
+				_shaderProperties[i].boolValue = propertyDescs[i].defaultBoolValue;
+			}
 			changed = true;
 		}
 		if (isReadOnly)
@@ -153,6 +158,34 @@ bool Material::OnGUI(bool isReadOnly)
 			if (desc.type == ShaderPropertyType::Color)
 			{
 				changed |= OnGUIUtils::DrawColor(desc.displayName.c_str(), &property.value, isReadOnly);
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Bool)
+			{
+				changed |= OnGUIUtils::DrawBool(desc.displayName.c_str(), &property.boolValue, isReadOnly);
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Int)
+			{
+				if (desc.hasRange == false)
+				{
+					changed |= OnGUIUtils::DrawInt32(desc.displayName.c_str(), &property.intValue, 1.f, isReadOnly);
+					continue;
+				}
+
+				ImGui::PushID(desc.name.c_str());
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(desc.displayName.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(200.f);
+				if (isReadOnly)
+					ImGui::BeginDisabled();
+				changed |= ImGui::SliderInt("##value", &property.intValue, desc.minIntValue, desc.maxIntValue);
+				if (isReadOnly)
+					ImGui::EndDisabled();
+				ImGui::PopID();
 				continue;
 			}
 
@@ -247,7 +280,18 @@ void Material::SyncShaderProperties()
 		MaterialPropertyValue property;
 		property.name = desc.name;
 		property.type = desc.type;
-		property.value = iter != _shaderProperties.end() ? iter->value : desc.defaultValue;
+		if (iter != _shaderProperties.end())
+		{
+			property.value = iter->value;
+			property.intValue = iter->intValue;
+			property.boolValue = iter->boolValue;
+		}
+		else
+		{
+			property.value = desc.defaultValue;
+			property.intValue = desc.defaultIntValue;
+			property.boolValue = desc.defaultBoolValue;
+		}
 		synchronizedProperties.push_back(property);
 	}
 

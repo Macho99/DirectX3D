@@ -116,18 +116,21 @@ enum class ShaderPropertyType : uint8
 {
 	Float,
 	Color,
+	Int,
+	Bool,
 };
 
 // 머티리얼마다 저장되는 셰이더 프로퍼티 값이다.
-// 1차 버전에서는 float와 Color를 모두 Color 하나로 보관하여 직렬화를 단순화한다.
 struct MaterialPropertyValue
 {
-	static constexpr int CurrentVersion = 1;
+	static constexpr int CurrentVersion = 2;
 
 	int _version = CurrentVersion;
 	string name;
 	ShaderPropertyType type = ShaderPropertyType::Float;
 	Color value = Color(0.f, 0.f, 0.f, 0.f);
+	int32 intValue = 0;
+	bool boolValue = false;
 
 	template<typename Archive>
 	void serialize(Archive& archive)
@@ -139,6 +142,12 @@ struct MaterialPropertyValue
 		archive(CEREAL_NVP(name));
 		archive(CEREAL_NVP(type));
 		archive(CEREAL_NVP(value));
+
+		if (Archive::is_saving::value || _version >= 2)
+		{
+			archive(CEREAL_NVP(intValue));
+			archive(CEREAL_NVP(boolValue));
+		}
 	}
 };
 

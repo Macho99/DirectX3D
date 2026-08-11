@@ -25,8 +25,12 @@ struct ShaderPropertyDesc
 	string displayName;
 	ShaderPropertyType type = ShaderPropertyType::Float;
 	Color defaultValue = Color(0.f, 0.f, 0.f, 0.f);
+	int32 defaultIntValue = 0;
+	bool defaultBoolValue = false;
 	float minValue = 0.f;
 	float maxValue = 1.f;
+	int32 minIntValue = 0;
+	int32 maxIntValue = 100;
 	bool hasRange = false;
 	ID3DX11EffectVariable* effectVariable = nullptr;
 };

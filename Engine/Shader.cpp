@@ -25,6 +25,16 @@ namespace
 		return scalar != nullptr && scalar->IsValid() && SUCCEEDED(scalar->GetFloat(&value));
 	}
 
+	bool GetIntAnnotation(ID3DX11EffectVariable* variable, const char* name, int32& value)
+	{
+		ID3DX11EffectVariable* annotation = variable->GetAnnotationByName(name);
+		if (annotation == nullptr || annotation->IsValid() == false)
+			return false;
+
+		ID3DX11EffectScalarVariable* scalar = annotation->AsScalar();
+		return scalar != nullptr && scalar->IsValid() && SUCCEEDED(scalar->GetInt(&value));
+	}
+
 	bool GetStringAnnotation(ID3DX11EffectVariable* variable, const char* name, string& value)
 	{
 		ID3DX11EffectVariable* annotation = variable->GetAnnotationByName(name);
@@ -143,7 +153,7 @@ void Shader::CreateEffect()
 			continue;
 
 		D3DX11_EFFECT_TYPE_DESC typeDesc = {};
-		if (FAILED(effectVariable->GetType()->GetDesc(&typeDesc)) || typeDesc.Type != D3D_SVT_FLOAT)
+		if (FAILED(effectVariable->GetType()->GetDesc(&typeDesc)))
 			continue;
 
 		ShaderPropertyDesc property;
@@ -154,16 +164,28 @@ void Shader::CreateEffect()
 
 		string uiType;
 		GetStringAnnotation(effectVariable, "UIType", uiType);
-		if (typeDesc.Class == D3D_SVC_SCALAR)
+		if (typeDesc.Class == D3D_SVC_SCALAR && typeDesc.Type == D3D_SVT_FLOAT)
 		{
 			property.type = ShaderPropertyType::Float;
 			if (FAILED(effectVariable->AsScalar()->GetFloat(&property.defaultValue.x)))
 				continue;
 		}
-		else if (typeDesc.Class == D3D_SVC_VECTOR && typeDesc.Columns == 4 && uiType == "Color")
+		else if (typeDesc.Class == D3D_SVC_VECTOR && typeDesc.Type == D3D_SVT_FLOAT && typeDesc.Columns == 4 && uiType == "Color")
 		{
 			property.type = ShaderPropertyType::Color;
 			if (FAILED(effectVariable->AsVector()->GetFloatVector(&property.defaultValue.x)))
+				continue;
+		}
+		else if (typeDesc.Class == D3D_SVC_SCALAR && typeDesc.Type == D3D_SVT_INT)
+		{
+			property.type = ShaderPropertyType::Int;
+			if (FAILED(effectVariable->AsScalar()->GetInt(&property.defaultIntValue)))
+				continue;
+		}
+		else if (typeDesc.Class == D3D_SVC_SCALAR && typeDesc.Type == D3D_SVT_BOOL)
+		{
+			property.type = ShaderPropertyType::Bool;
+			if (FAILED(effectVariable->AsScalar()->GetBool(&property.defaultBoolValue)))
 				continue;
 		}
 		else
@@ -171,9 +193,18 @@ void Shader::CreateEffect()
 			continue;
 		}
 
-		const bool hasMin = GetFloatAnnotation(effectVariable, "UIMin", property.minValue);
-		const bool hasMax = GetFloatAnnotation(effectVariable, "UIMax", property.maxValue);
-		property.hasRange = hasMin && hasMax && property.minValue < property.maxValue;
+		if (property.type == ShaderPropertyType::Float)
+		{
+			const bool hasMin = GetFloatAnnotation(effectVariable, "UIMin", property.minValue);
+			const bool hasMax = GetFloatAnnotation(effectVariable, "UIMax", property.maxValue);
+			property.hasRange = hasMin && hasMax && property.minValue < property.maxValue;
+		}
+		else if (property.type == ShaderPropertyType::Int)
+		{
+			const bool hasMin = GetIntAnnotation(effectVariable, "UIMin", property.minIntValue);
+			const bool hasMax = GetIntAnnotation(effectVariable, "UIMax", property.maxIntValue);
+			property.hasRange = hasMin && hasMax && property.minIntValue < property.maxIntValue;
+		}
 		_materialProperties.push_back(property);
 	}
 }
@@ -194,6 +225,10 @@ void Shader::ApplyMaterialProperties(const vector<MaterialPropertyValue>& proper
 			desc.effectVariable->AsScalar()->SetFloat(iter->value.x);
 		else if (desc.type == ShaderPropertyType::Color)
 			desc.effectVariable->AsVector()->SetFloatVector(&iter->value.x);
+		else if (desc.type == ShaderPropertyType::Int)
+			desc.effectVariable->AsScalar()->SetInt(iter->intValue);
+		else if (desc.type == ShaderPropertyType::Bool)
+			desc.effectVariable->AsScalar()->SetBool(iter->boolValue);
 	}
 }
 
