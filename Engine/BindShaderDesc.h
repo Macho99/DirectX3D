@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include "ConstantBuffer.h"
+#include "ResourceRef.h"
+
+class Texture;
 
 struct GlobalDesc
 {
@@ -118,12 +121,13 @@ enum class ShaderPropertyType : uint8
 	Color,
 	Int,
 	Bool,
+	Texture2D,
 };
 
 // 머티리얼마다 저장되는 셰이더 프로퍼티 값이다.
 struct MaterialPropertyValue
 {
-	static constexpr int CurrentVersion = 2;
+	static constexpr int CurrentVersion = 3;
 
 	int _version = CurrentVersion;
 	string name;
@@ -131,6 +135,7 @@ struct MaterialPropertyValue
 	Color value = Color(0.f, 0.f, 0.f, 0.f);
 	int32 intValue = 0;
 	bool boolValue = false;
+	ResourceRef<Texture> textureValue;
 
 	template<typename Archive>
 	void serialize(Archive& archive)
@@ -143,10 +148,17 @@ struct MaterialPropertyValue
 		archive(CEREAL_NVP(type));
 		archive(CEREAL_NVP(value));
 
-		if (Archive::is_saving::value || _version >= 2)
+		if (_version >= 2)
 		{
-			archive(CEREAL_NVP(intValue));
-			archive(CEREAL_NVP(boolValue));
+			if (type == ShaderPropertyType::Int)
+				archive(CEREAL_NVP(intValue));
+			else if (type == ShaderPropertyType::Bool)
+				archive(CEREAL_NVP(boolValue));
+		}
+
+		if (_version >= 3 && type == ShaderPropertyType::Texture2D)
+		{
+			archive(CEREAL_NVP(textureValue));
 		}
 	}
 };

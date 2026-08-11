@@ -188,6 +188,10 @@ void Shader::CreateEffect()
 			if (FAILED(effectVariable->AsScalar()->GetBool(&property.defaultBoolValue)))
 				continue;
 		}
+		else if (typeDesc.Class == D3D_SVC_OBJECT && typeDesc.Type == D3D_SVT_TEXTURE2D)
+		{
+			property.type = ShaderPropertyType::Texture2D;
+		}
 		else
 		{
 			continue;
@@ -229,6 +233,14 @@ void Shader::ApplyMaterialProperties(const vector<MaterialPropertyValue>& proper
 			desc.effectVariable->AsScalar()->SetInt(iter->intValue);
 		else if (desc.type == ShaderPropertyType::Bool)
 			desc.effectVariable->AsScalar()->SetBool(iter->boolValue);
+		else if (desc.type == ShaderPropertyType::Texture2D)
+		{
+			Texture* texture = iter->textureValue.Resolve();
+			if (texture == nullptr)
+				texture = RESOURCES->GetDummyTexture().Resolve();
+
+			desc.effectVariable->AsShaderResource()->SetResource(texture ? texture->GetComPtr().Get() : nullptr);
+		}
 	}
 }
 

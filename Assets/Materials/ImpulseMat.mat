@@ -37,7 +37,7 @@
                 "_includeInNavMesh": true,
                 "_shaderProperties": [
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "ShockwaveSpeed",
                         "type": 0,
                         "value": {
@@ -45,12 +45,10 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        },
-                        "intValue": 0,
-                        "boolValue": false
+                        }
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "RingInnerWidth",
                         "type": 0,
                         "value": {
@@ -58,12 +56,10 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        },
-                        "intValue": 0,
-                        "boolValue": false
+                        }
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "RingOuterWidth",
                         "type": 0,
                         "value": {
@@ -71,12 +67,10 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        },
-                        "intValue": 0,
-                        "boolValue": false
+                        }
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "RingCount",
                         "type": 2,
                         "value": {
@@ -85,11 +79,10 @@
                             "value.z": 0.0,
                             "value.w": 0.0
                         },
-                        "intValue": 1,
-                        "boolValue": false
+                        "intValue": 1
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "FresnelStrength",
                         "type": 0,
                         "value": {
@@ -97,12 +90,10 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        },
-                        "intValue": 0,
-                        "boolValue": false
+                        }
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "FresnelPower",
                         "type": 0,
                         "value": {
@@ -110,12 +101,10 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        },
-                        "intValue": 0,
-                        "boolValue": false
+                        }
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "EnableFresnel",
                         "type": 3,
                         "value": {
@@ -124,11 +113,43 @@
                             "value.z": 0.0,
                             "value.w": 0.0
                         },
-                        "intValue": 0,
                         "boolValue": true
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
+                        "name": "NoiseStrength",
+                        "type": 0,
+                        "value": {
+                            "value.x": 0.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 3,
+                        "name": "NoiseTiling",
+                        "type": 0,
+                        "value": {
+                            "value.x": 2.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 3,
+                        "name": "NoiseSpeed",
+                        "type": 0,
+                        "value": {
+                            "value.x": 0.20000000298023225,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 3,
                         "name": "DistortionStrength",
                         "type": 0,
                         "value": {
@@ -136,12 +157,10 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
-                        },
-                        "intValue": 0,
-                        "boolValue": false
+                        }
                     },
                     {
-                        "_version": 2,
+                        "_version": 3,
                         "name": "DistortionOpacity",
                         "type": 0,
                         "value": {
@@ -149,9 +168,24 @@
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 3,
+                        "name": "ShockwaveNoiseMap",
+                        "type": 4,
+                        "value": {
+                            "value.x": 0.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
                         },
-                        "intValue": 0,
-                        "boolValue": false
+                        "textureValue": {
+                            "assetId": {
+                                "leftId": 0,
+                                "rightId": 0
+                            }
+                        }
                     }
                 ],
                 "_shader": {

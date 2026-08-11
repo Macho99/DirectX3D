@@ -144,6 +144,7 @@ bool Material::OnGUI(bool isReadOnly)
 				_shaderProperties[i].value = propertyDescs[i].defaultValue;
 				_shaderProperties[i].intValue = propertyDescs[i].defaultIntValue;
 				_shaderProperties[i].boolValue = propertyDescs[i].defaultBoolValue;
+				_shaderProperties[i].textureValue = ResourceRef<Texture>();
 			}
 			changed = true;
 		}
@@ -164,6 +165,12 @@ bool Material::OnGUI(bool isReadOnly)
 			if (desc.type == ShaderPropertyType::Bool)
 			{
 				changed |= OnGUIUtils::DrawBool(desc.displayName.c_str(), &property.boolValue, isReadOnly);
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Texture2D)
+			{
+				changed |= OnGUIUtils::DrawResourceRef(desc.displayName.c_str(), property.textureValue, isReadOnly);
 				continue;
 			}
 
@@ -285,6 +292,7 @@ void Material::SyncShaderProperties()
 			property.value = iter->value;
 			property.intValue = iter->intValue;
 			property.boolValue = iter->boolValue;
+			property.textureValue = iter->textureValue;
 		}
 		else
 		{

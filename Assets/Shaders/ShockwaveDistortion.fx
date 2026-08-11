@@ -49,6 +49,32 @@ bool EnableFresnel <
     string UIName = "프레넬 사용";
 > = true;
 
+Texture2D ShockwaveNoiseMap <
+    bool MaterialProperty = true;
+    string UIName = "충격파 노이즈 텍스처";
+>;
+
+float NoiseStrength <
+    bool MaterialProperty = true;
+    string UIName = "노이즈 강도";
+    float UIMin = 0.f;
+    float UIMax = 0.2f;
+> = 0.f;
+
+float NoiseTiling <
+    bool MaterialProperty = true;
+    string UIName = "노이즈 타일링";
+    float UIMin = 0.1f;
+    float UIMax = 10.f;
+> = 2.f;
+
+float NoiseSpeed <
+    bool MaterialProperty = true;
+    string UIName = "노이즈 이동 속도";
+    float UIMin = 0.f;
+    float UIMax = 2.f;
+> = 0.2f;
+
 float DistortionStrength <
     bool MaterialProperty = true;
     string UIName = "디스토션 강도";
@@ -73,6 +99,12 @@ float4 PS_ShockwaveDistortion(MeshOutput input) : SV_TARGET
     // 화면 위치와 무관하게 정면은 0, 실루엣은 1에 가까워진다.
     float facing = saturate(dot(viewNormal, viewDirection));
     float radialPosition = sqrt(saturate(1.f - facing * facing));
+
+    // 구형 메시 UV를 따라 움직이는 노이즈로 링의 진행 위치를 흔든다.
+    // NoiseStrength가 0이면 텍스처를 지정하지 않아도 기존 충격파 모양을 유지한다.
+    float2 noiseUv = input.uv * NoiseTiling + float2(Time * NoiseSpeed, 0.f);
+    float noise = ShockwaveNoiseMap.Sample(LinearSampler, noiseUv).r * 2.f - 1.f;
+    radialPosition = saturate(radialPosition + noise * NoiseStrength);
 
     // 시간에 따라 구의 정면에서 실루엣으로 반복해서 확장되는 링을 만든다.
     float wavePosition = frac(Time * ShockwaveSpeed);
