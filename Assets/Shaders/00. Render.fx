@@ -107,12 +107,13 @@ MeshOutput VS_Model(VertexModel input)
 	output.position = mul(output.position, VP);
     output.uv = input.uv;
 	
-    output.normal = mul(input.normal, (float3x3) BoneTransforms[BoneIndex]);
+    matrix worldMat = input.world;
+    output.normal = mul(input.normal, (float3x3) worldMat);
     output.normalV = mul(output.normal, (float3x3) V);
     output.positionV = mul(worldPos, V);
     output.viewZ = output.positionV.z;
     output.ssaoPosH = mul(worldPos, VPT);
-    output.tangent = mul(input.tangent, (float3x3) BoneTransforms[BoneIndex]);
+    output.tangent = mul(input.tangent, (float3x3) worldMat);
 	
 	return output;
 }
