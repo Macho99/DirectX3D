@@ -666,6 +666,9 @@
     <ClInclude Include="ModelSourceMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
+    <ClInclude Include="ModelImportSettings.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
     <ClInclude Include="SubAssetMetaFile.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>

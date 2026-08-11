@@ -25,6 +25,10 @@ void ModelRenderer::SetShader(ResourceRef<Shader> shader)
 void ModelRenderer::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
+	if (_shader.Resolve() == nullptr)
+	{
+		SetShader(RESOURCES->GetDefaultShader());
+	}
 }
 
 void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)

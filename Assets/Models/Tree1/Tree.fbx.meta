@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 14,
+                "_version": 15,
                 "_assetId": {
                     "leftId": 1254435106288870696,
                     "rightId": 13583100206248396908
@@ -68,7 +68,16 @@
                         "fileName": "polySurface1.modelmesh",
                         "resourceType": 8
                     }
-                ]
+                ],
+                "_importSettings": {
+                    "preset": 2,
+                    "scale": 3.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
             }
         }
     }

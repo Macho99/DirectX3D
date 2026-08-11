@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "ContentBrowser.h"
 #include "FileUtils.h"
+#include "OnGUIUtils.h"
 
 ModelSourceMeta::ModelSourceMeta() : Super(ResourceType::Model)
 {
@@ -44,6 +45,51 @@ unique_ptr<ResourceBase> ModelSourceMeta::LoadResource(AssetId assetId) const
     return model;
 }
 
+bool ModelSourceMeta::OnGUI()
+{
+    bool changed = Super::OnGUI();
+    int presetIndex = 0;
+    if (_importSettings.preset == ModelImportPreset::Unreal)
+        presetIndex = 1;
+    else if (_importSettings.preset == ModelImportPreset::Custom)
+        presetIndex = 2;
+
+    const int previousPresetIndex = presetIndex;
+    bool importSettingsChanged = OnGUIUtils::DrawEnumCombo(
+        "Import Preset",
+        presetIndex,
+        ModelImportPresetNames,
+        _countof(ModelImportPresetNames));
+    if (presetIndex != previousPresetIndex)
+    {
+        if (presetIndex == 1)
+            _importSettings.preset = ModelImportPreset::Unreal;
+        else if (presetIndex == 2)
+            _importSettings.preset = ModelImportPreset::Custom;
+        else
+            _importSettings.preset = ModelImportPreset::Default;
+    }
+
+    if (_importSettings.preset == ModelImportPreset::Custom)
+    {
+        importSettingsChanged |= OnGUIUtils::DrawFloat("Import Scale", &_importSettings.scale, 0.01f);
+        importSettingsChanged |= OnGUIUtils::DrawVec3("Import Rotation", &_importSettings.rotation, 1.0f);
+        _importSettings.scale = max(_importSettings.scale, 0.0001f);
+    }
+    else if (_importSettings.preset == ModelImportPreset::Unreal)
+    {
+        ImGui::TextDisabled("Scale 0.01, Rotation X 90 deg");
+    }
+
+    if (ImGui::Button("Reimport"))
+    {
+        ForceReimport();
+        changed = true;
+    }
+
+    return changed;
+}
+
 void ModelSourceMeta::OnMenu()
 {
     Super::OnMenu();
@@ -66,7 +112,7 @@ void ModelSourceMeta::Import()
     wstring artifactFoloder = GetArtifactPath();
     Converter converter;
     wstring absPath = GetAssetPath();
-    converter.ReadAssetFile(absPath);
+    converter.ReadAssetFile(absPath, _importSettings);
 
     fs::create_directories(artifactFoloder);
     vector<SubAssetInfo> exported;
@@ -77,5 +123,5 @@ void ModelSourceMeta::Import()
 
 int ModelSourceMeta::GetVersion() const
 {
-    return 14;
+    return 15;
 }

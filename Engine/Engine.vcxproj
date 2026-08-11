@@ -337,6 +337,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="MetaStore.h" />
     <ClInclude Include="ModelMeshResource.h" />
     <ClInclude Include="ModelMeta.h" />
+    <ClInclude Include="ModelImportSettings.h" />
     <ClInclude Include="ModelSourceMeta.h" />
     <ClInclude Include="NavAgent.h" />
     <ClInclude Include="NavMesh.h" />

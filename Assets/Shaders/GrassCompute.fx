@@ -13,6 +13,8 @@ cbuffer GrassConstant
     float4 worldFrustumPlanes[6];
 };
 
+const float3 GrassScale = float3(8, 3, 8);
+
 Texture2DArray LayerMapArray;
 Texture2D BlendMap;
 
@@ -178,8 +180,7 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     int uvIndex = (SampleRandom(randomKey, seed++).x + 1) * 0.5 * uvCount;
     float4 uvMinMax = uvs[uvIndex];
     float3 scaleBase = float3(uvMinMax.z - uvMinMax.x, uvMinMax.y - uvMinMax.w, 1);
-    scaleBase *= 8.f;
-    scaleBase.y *= 0.7f;
+    scaleBase *= GrassScale;
     if (distSq < 120)
     {
         [unroll]

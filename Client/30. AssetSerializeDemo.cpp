@@ -196,7 +196,7 @@ void AssetSerializeDemo::Init()
             Transform* objTransform = obj->GetTransform();
             objTransform->SetPosition(Vec3{ -4.f, baseHeight, 65.f });
             objTransform->SetRotation(Vec3{ 0.f, 90.f, 0.f });
-            objTransform->SetScale(Vec3(0.02f));
+            objTransform->SetScale(Vec3(0.01f));
             objTransform->SetParent(parentTransformRef);
             obj->AddComponent(make_unique<ModelAnimator>());
             {
@@ -214,12 +214,12 @@ void AssetSerializeDemo::Init()
             Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
             TransformRef followerTransformRef = followerTransform->GetRef();
             camera->GetTransform()->SetParent(followerTransformRef);
-            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -8.f));
+            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
 
             {
                 unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
                 targetFollower->SetTarget(obj->GetTransform());
-                targetFollower->SetPositionOffset(Vec3(0.f, 3.f, 0.f));
+                targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
                 targetFollower->SetFollowPositionX(true);
                 targetFollower->SetFollowPositionY(true);
                 targetFollower->SetFollowPositionZ(true);
@@ -246,7 +246,6 @@ void AssetSerializeDemo::Init()
             auto objRef = CUR_SCENE->Add("Tower" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, baseHeight, rand() % 100));
-            obj->GetTransform()->SetLocalRotation(Vec3(90.f, 0.f, 0.f));
             obj->GetTransform()->SetParent(parentTransformRef);
 
             auto modelRenderer = make_unique<ModelRenderer>();
@@ -272,7 +271,6 @@ void AssetSerializeDemo::Init()
             auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
             obj->GetTransform()->SetPosition(Vec3(rand() % 100, baseHeight - 1, rand() % 100));
-            obj->GetTransform()->SetScale(Vec3(5.f));
             obj->GetTransform()->SetParent(parentTransformRef);
 
             obj->AddComponent(make_unique<ModelRenderer>());
@@ -292,7 +290,7 @@ void AssetSerializeDemo::Init()
         windDir.Normalize();
         FoliageController::S_WindDesc.windDirection = windDir;
         FoliageController::S_WindDesc.waveFrequency = 0.1f;
-        FoliageController::S_WindDesc.windStrength = 2.f;
+        FoliageController::S_WindDesc.windStrength = 1.f;
     }
 
     {

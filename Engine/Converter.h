@@ -2,6 +2,7 @@
 
 #include "AsTypes.h"
 #include "SubAssetMetaFile.h"
+#include "ModelImportSettings.h"
 
 namespace tinyxml2
 {
@@ -16,7 +17,7 @@ public:
 	~Converter();
 
 public:
-	void ReadAssetFile(wstring file);
+	void ReadAssetFile(wstring file, const ModelImportSettings& importSettings = ModelImportSettings());
 	//void ExportMaterialData(wstring savePath);
 	void TryExportAll(wstring assetPath, wstring artifactPath, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported);
 
@@ -50,6 +51,8 @@ private:
 private:
 	int GetBoneIndex(const string& name);
     Matrix ConvertMatrix(const aiMatrix4x4& from);
+    void ResolveImportTransform(const ModelImportSettings& importSettings);
+    void ApplyImportTransform(const string& boneName, asKeyframeData& frameData);
 
 private:
 	shared_ptr<Assimp::Importer> _importer;
@@ -58,6 +61,9 @@ private:
 private:
 	vector<shared_ptr<asBone>> _bones;
 	vector<shared_ptr<asMesh>> _meshes;
-	vector<shared_ptr<asMaterial>> _materials;
+    vector<shared_ptr<asMaterial>> _materials;
+
+    Matrix _importTransform = Matrix::Identity;
+    bool _applyImportTransform = false;
 };
 

@@ -38,8 +38,8 @@ private:
 private:
     TransformRef _target;
 
-    float _moveSpeed = 5.f;
-    float _sprintSpeed = 10.f;
+    float _moveSpeed = 2.5f;
+    float _sprintSpeed = 5.f;
     float _acceleration = 20.f;
     float _deceleration = 25.f;
     float _turnSpeed = 360.f;

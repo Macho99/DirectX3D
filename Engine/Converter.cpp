@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Converter.h"
 #include <filesystem>
 #include "Utils.h"
@@ -19,7 +19,7 @@ Converter::~Converter()
 {
 }
 
-void Converter::ReadAssetFile(wstring file)
+void Converter::ReadAssetFile(wstring file, const ModelImportSettings& importSettings)
 {
     auto p = std::filesystem::path(file);
     assert(std::filesystem::exists(p));
@@ -33,6 +33,7 @@ void Converter::ReadAssetFile(wstring file)
     );
 
     assert(_scene != nullptr);
+    ResolveImportTransform(importSettings);
 }
 
 //void Converter::ExportMaterialData(wstring savePath)
@@ -63,7 +64,8 @@ void Converter::TryExportAll(wstring assetPath, wstring artifactPath, const vect
             {
                 boneNameToIndexMap[_bones[i]->name] = _bones[i]->index;
             }
-            ReadNodeHierarchy(boneNameToIndexMap, _scene->mRootNode, -1, Matrix::Identity);
+            const Matrix hierarchyTransform = _applyImportTransform ? _importTransform : Matrix::Identity;
+            ReadNodeHierarchy(boneNameToIndexMap, _scene->mRootNode, -1, hierarchyTransform);
 
             SubAssetInfo info = SubAssetInfo();
             wstring assetName = Utils::ToWString(_meshes[0]->name) + ModelMeshResource::GetExtension();
@@ -191,7 +193,7 @@ void Converter::ReadVertexBlendData()
         vector<asBoneWeights> tempVertexBoneWeights;
         tempVertexBoneWeights.resize(mesh->vertices.size());
 
-        // BoneÀ» ¼øÈ¸ÇÏ¸é¼­ ¿¬°üµÈ VertexId, Weight¸¦ ±¸ÇØ¼­ ±â·Ï
+        // Boneì„ ìˆœíšŒí•˜ë©´ì„œ ì—°ê´€ëœ VertexId, Weightë¥¼ êµ¬í•´ì„œ ê¸°ë¡
         for (uint32 b = 0; b < srcMesh->mNumBones; b++)
         {
             aiBone* srcMeshBone = srcMesh->mBones[b];
@@ -206,7 +208,7 @@ void Converter::ReadVertexBlendData()
             }
         }
 
-        // ÃÖÁ¾ °á°ú °è»ê
+        // ìµœì¢… ê²°ê³¼ ê³„ì‚°
         for (uint32 v = 0; v < tempVertexBoneWeights.size(); v++)
         {
             tempVertexBoneWeights[v].Normalize();
@@ -221,7 +223,6 @@ void Converter::ReadNodeHierarchy(const unordered_map<string, int32>& boneNameTo
 {
     string nodeName(pNode->mName.data);
     Matrix nodeTransformation(ConvertMatrix(pNode->mTransformation));
-
     const Matrix globalTransformation = nodeTransformation * hierarchyTransform;
 
     auto it = boneNameToIndexMap.find(nodeName);
@@ -286,6 +287,18 @@ void Converter::ReadSingleMesh(uint32 meshIndex, const aiMesh* srcMesh)
         {
             ::memcpy(&vertex.tangent, &srcMesh->mTangents[v], sizeof(Vec3));
             //::memcpy(&vertex.bitangent, &srcMesh->mBitangents[v], sizeof(Vec3));
+        }
+
+        if (_applyImportTransform && srcMesh->HasBones() == false)
+        {
+            vertex.position = Vec3::Transform(vertex.position, _importTransform);
+            vertex.normal = Vec3::TransformNormal(vertex.normal, _importTransform);
+            vertex.normal.Normalize();
+            if (srcMesh->HasTangentsAndBitangents())
+            {
+                vertex.tangent = Vec3::TransformNormal(vertex.tangent, _importTransform);
+                vertex.tangent.Normalize();
+            }
         }
 
         mesh->vertices.push_back(vertex);
@@ -413,7 +426,7 @@ void Converter::ReadMaterialData()
 
 void Converter::WriteMaterialData(const fs::path& assetPath, const fs::path& artifactPath, const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported)
 {
-    // Æú´õ°¡ ¾øÀ¸¸é ¸¸µç´Ù
+    // í´ë”ê°€ ì—†ìœ¼ë©´ ë§Œë“ ë‹¤
     filesystem::create_directory(artifactPath);
 
     for (int i = 0; i < _materials.size(); i++)
@@ -449,7 +462,7 @@ ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetP
         return ResourceRef<Texture>();
     string fileName = filesystem::path(file).filename().string();
     const aiTexture* srcTexture = _scene->GetEmbeddedTexture(fileName.c_str());
-    // fbx ÆÄÀÏ¿¡ ÅØ½ºÃÄ°¡ Æ÷ÇÔµÇ¾î ÀÖÀ» °æ¿ì
+    // fbx íŒŒì¼ì— í…ìŠ¤ì³ê°€ í¬í•¨ë˜ì–´ ìˆì„ ê²½ìš°
     if (srcTexture)
     {
         const fs::path sourceName = fs::path(fileName);
@@ -527,13 +540,13 @@ ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetP
         fs::path parentPath = assetPath.parent_path();
         if (RESOURCES->SearchAssetIdByPath(parentPath, Utils::ToWString(fileName), OUT assetId))
         {
-            // ¿¡¼Â¾ÆÀÌµğ ¹ß°ß
+            // ì—ì…‹ì•„ì´ë”” ë°œê²¬
         }
         else
         {
             assetId = AssetId::CreateAssetId();
             RESOURCES->GetAssetDatabase().ReserveAssetId(parentPath, Utils::ToWString(fileName), assetId);
-            // ¿¡¼Â¾ÆÀÌµğ µî·Ï
+            // ì—ì…‹ì•„ì´ë”” ë“±ë¡
         }
         return ResourceRef<Texture>(assetId);
     }
@@ -643,7 +656,7 @@ shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
     {
         aiNodeAnim* srcNode = srcAnimation->mChannels[i];
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç ³ëµå ÆÄ½Ì
+        // ì• ë‹ˆë©”ì´ì…˜ ë…¸ë“œ íŒŒì‹±
         shared_ptr<asAnimationNode> node = ParseAnimationNode(animation, srcNode);
 
         cacheAnimNodes[srcNode->mNodeName.C_Str()] = node;
@@ -705,7 +718,7 @@ std::shared_ptr<asAnimationNode> Converter::ParseAnimationNode(shared_ptr<asAnim
             node->keyframe.push_back(frameData);
     }
 
-    // Keyframe ´Ã·ÁÁÖ±â
+    // Keyframe ëŠ˜ë ¤ì£¼ê¸°
     if (node->keyframe.size() < animation->frameCount)
     {
         uint32 count = animation->frameCount - node->keyframe.size();
@@ -755,7 +768,7 @@ void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring fi
 {
     auto path = filesystem::path(finalPath);
 
-    // Æú´õ°¡ ¾øÀ¸¸é ¸¸µç´Ù.
+    // í´ë”ê°€ ì—†ìœ¼ë©´ ë§Œë“ ë‹¤.
     filesystem::create_directory(path.parent_path());
 
     shared_ptr<FileUtils> file = make_shared<FileUtils>();
@@ -839,4 +852,29 @@ Matrix Converter::ConvertMatrix(const aiMatrix4x4& from)
     to._31 = from.a3; to._32 = from.b3; to._33 = from.c3; to._34 = from.d3;
     to._41 = from.a4; to._42 = from.b4; to._43 = from.c4; to._44 = from.d4;
     return to;
+}
+
+void Converter::ResolveImportTransform(const ModelImportSettings& importSettings)
+{
+    ModelImportPreset resolvedPreset = importSettings.preset;
+
+    float scale = 1.0f;
+    Vec3 rotation = Vec3::Zero;
+    if (resolvedPreset == ModelImportPreset::Unreal)
+    {
+        scale = 0.01f;
+        rotation.x = 90.0f;
+    }
+    else if (resolvedPreset == ModelImportPreset::Custom)
+    {
+        scale = max(importSettings.scale, 0.0001f);
+        rotation = importSettings.rotation;
+    }
+
+    _applyImportTransform = resolvedPreset == ModelImportPreset::Unreal ||
+        resolvedPreset == ModelImportPreset::Custom;
+    _importTransform = Matrix::CreateScale(scale) *
+        Matrix::CreateRotationX(XMConvertToRadians(rotation.x)) *
+        Matrix::CreateRotationY(XMConvertToRadians(rotation.y)) *
+        Matrix::CreateRotationZ(XMConvertToRadians(rotation.z));
 }
