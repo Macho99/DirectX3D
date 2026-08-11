@@ -29,6 +29,7 @@ public:
     Vec2 GetSize() const { return _size; }
 
     const DirectX::ScratchImage& GetInfo() { return _img; }
+    void ReleaseCpuCopy() { _img.Release(); }
 
 private:
     bool CreateDynamicSRVFromImage();

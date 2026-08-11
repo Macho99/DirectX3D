@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Texture.h"
 
 Texture::Texture() : Super(StaticType)
@@ -13,8 +13,11 @@ Texture::~Texture()
 
 void Texture::Load(const wstring& path)
 {
+    if (_shaderResourveView != nullptr)
+        return;
+
     Super::Load(path);
-	// ÆÄÀÏ È®ÀåÀÚ ¾ò±â
+	// íŒŒì¼ í™•ì¥ì ì–»ê¸°
 	wstring ext = fs::path(path).extension();
 
 	DirectX::TexMetadata md;
@@ -55,6 +58,7 @@ bool Texture::SetDynamic()
     if (_isDynamic)
         return true;
 
+    assert(_img.GetImageCount() != 0 && "Texture editing requires CPU Pixel enabled in TextureMeta");
     if (_img.GetImageCount() == 0)
         return false;
 
@@ -105,6 +109,7 @@ bool Texture::TryGetPixel(uint32 x, uint32 y, Color& outColor) const
 
 bool Texture::TrySetDynamicPixel(uint32 x, uint32 y, const Color& color)
 {
+    assert(_img.GetImageCount() != 0 && "Texture editing requires CPU Pixel enabled in TextureMeta");
     if (_isDynamic == false)
         return false;
 
@@ -181,6 +186,8 @@ void Texture::DiscardDynamic()
     if (_isDynamic == false)
         return;
     _isDynamic = false;
+    _shaderResourveView.Reset();
+    _img.Release();
     Load(_loadedPath);
 }
 

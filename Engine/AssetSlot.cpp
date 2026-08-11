@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "AssetSlot.h"
 #include "MetaFile.h"
 #include "FileUtils.h"
@@ -49,9 +49,9 @@ void AssetSlot::Remove(const AssetId& assetId)
         return;
     Handle h = it->second;
     Slot& slot = _slots[h.index];
-    // ½½·Ô ÃÊ±âÈ­
+    // ìŠ¬ë¡¯ ì´ˆê¸°í™”
     slot.ptr.reset();
-    slot.gen++;  // ¼¼´ë Áõ°¡
+    slot.gen++;  // ì„¸ëŒ€ ì¦ê°€
     _freeIndices.push_back(h.index);
     _assetIdToHandle.erase(it);
 }
