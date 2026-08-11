@@ -7,6 +7,15 @@ public:
     TextureMeta() : MetaFile(ResourceType::Texture) {}
     ~TextureMeta() {}
 
+    static HRESULT SaveArtifacts(
+        const DirectX::ScratchImage& source,
+        const DirectX::TexMetadata& metadata,
+        const fs::path& texturePath,
+        const fs::path& thumbnailPath,
+        bool keepCpuPixels = false,
+        HRESULT* thumbnailResult = nullptr);
+    static fs::path GetThumbnailPathForArtifact(const fs::path& artifactPath);
+
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
     virtual fs::path GetImportedAssetPath(const AssetId& assetId) const override;
     virtual Texture* GetIconTexture() const override;

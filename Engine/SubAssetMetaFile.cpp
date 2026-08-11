@@ -2,6 +2,7 @@
 #include "SubAssetMetaFile.h"
 #include "DndPayload.h"
 #include "EditorManager.h"
+#include "TextureMeta.h"
 
 void SubAssetMetaFile::OnLoad(unordered_map<AssetId,MetaFile*, AssetIdHash>& subAssetContainer)
 {
@@ -95,7 +96,10 @@ void SubAssetMetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thu
 
         bool selected = (selectedSubAssetIndex == i);
 
-        ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, GetSubResourcePath(i))->GetComPtr().Get();
+        fs::path iconPath = GetSubResourcePath(i);
+        if (sub.resourceType == ResourceType::Texture)
+            iconPath = TextureMeta::GetThumbnailPathForArtifact(iconPath);
+        ImTextureID iconTex = (ImTextureID)GetIconTexture(sub.resourceType, sub.assetId, iconPath)->GetComPtr().Get();
         {
             // source
             DndPayload::AssetSource(sub.assetId, [&]

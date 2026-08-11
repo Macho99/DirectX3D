@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 1,
+                "_version": 13,
                 "_assetId": {
                     "leftId": 11577865580974890632,
                     "rightId": 5584369580658414863
@@ -17,7 +17,7 @@
                             "leftId": 4373766438234444659,
                             "rightId": 3923572474355775779
                         },
-                        "fileName": "Kachujin_diffuse.png",
+                        "fileName": "Kachujin_diffuse.dds",
                         "resourceType": 2
                     },
                     {
@@ -25,7 +25,7 @@
                             "leftId": 9844627272875827879,
                             "rightId": 6190690946461379284
                         },
-                        "fileName": "Kachujin_specular.png",
+                        "fileName": "Kachujin_specular.dds",
                         "resourceType": 2
                     },
                     {
@@ -33,7 +33,7 @@
                             "leftId": 6941339066173642285,
                             "rightId": 11494342853494955445
                         },
-                        "fileName": "Kachujin_normal.png",
+                        "fileName": "Kachujin_normal.dds",
                         "resourceType": 2
                     },
                     {

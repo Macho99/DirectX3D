@@ -77,5 +77,5 @@ void ModelSourceMeta::Import()
 
 int ModelSourceMeta::GetVersion() const
 {
-    return 12;
+    return 13;
 }

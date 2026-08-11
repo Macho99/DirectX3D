@@ -8,6 +8,7 @@
 #include "ModelMeshResource.h"
 #include "skinned_mesh.h"
 #include "MathUtils.h"
+#include "TextureMeta.h"
 
 Converter::Converter()
 {
@@ -451,43 +452,73 @@ ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetP
     // fbx 파일에 텍스쳐가 포함되어 있을 경우
     if (srcTexture)
     {
-        string pathStr = (artifactFolder / fileName).string();
+        const fs::path sourceName = fs::path(fileName);
+        const wstring artifactName = sourceName.stem().wstring() + L".dds";
+        const fs::path texturePath = artifactFolder / artifactName;
+        DirectX::TexMetadata metadata = {};
+        DirectX::ScratchImage image;
+        HRESULT hr = E_FAIL;
 
         if (srcTexture->mHeight == 0)
         {
-            shared_ptr<FileUtils> file = make_shared<FileUtils>();
-            file->Open(Utils::ToWString(pathStr), FileMode::Write);
-            file->Write(srcTexture->pcData, srcTexture->mWidth);
+            const wstring ext = sourceName.extension().wstring();
+            if (ext == L".dds" || ext == L".DDS")
+            {
+                hr = DirectX::LoadFromDDSMemory(
+                    srcTexture->pcData, srcTexture->mWidth,
+                    DirectX::DDS_FLAGS_NONE, &metadata, image);
+            }
+            else if (ext == L".tga" || ext == L".TGA")
+            {
+                hr = DirectX::LoadFromTGAMemory(
+                    srcTexture->pcData, srcTexture->mWidth,
+                    &metadata, image);
+            }
+            else
+            {
+                hr = DirectX::LoadFromWICMemory(
+                    srcTexture->pcData, srcTexture->mWidth,
+                    DirectX::WIC_FLAGS_NONE, &metadata, image);
+            }
         }
         else
         {
-            D3D11_TEXTURE2D_DESC desc;
-            ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
-            desc.Width = srcTexture->mWidth;
-            desc.Height = srcTexture->mHeight;
-            desc.MipLevels = 1;
-            desc.ArraySize = 1;
-            desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            desc.SampleDesc.Count = 1;
-            desc.SampleDesc.Quality = 0;
-            desc.Usage = D3D11_USAGE_IMMUTABLE;
-
-            D3D11_SUBRESOURCE_DATA subResource = { 0 };
-            subResource.pSysMem = srcTexture->pcData;
-
-            ComPtr<ID3D11Texture2D> texture;
-            HRESULT hr = DEVICE->CreateTexture2D(&desc, &subResource, texture.GetAddressOf());
-            CHECK(hr);
-
-            DirectX::ScratchImage img;
-            ::CaptureTexture(DEVICE.Get(), DC.Get(), texture.Get(), img);
-
-            // Save To File
-            hr = DirectX::SaveToDDSFile(*img.GetImages(), DirectX::DDS_FLAGS_NONE, Utils::ToWString(fileName).c_str());
-            CHECK(hr);
+            hr = image.Initialize2D(
+                DXGI_FORMAT_B8G8R8A8_UNORM,
+                srcTexture->mWidth, srcTexture->mHeight, 1, 1);
+            if (SUCCEEDED(hr))
+            {
+                const DirectX::Image* destination = image.GetImage(0, 0, 0);
+                const size_t sourceRowPitch = srcTexture->mWidth * sizeof(aiTexel);
+                for (size_t y = 0; y < srcTexture->mHeight; ++y)
+                {
+                    memcpy(
+                        destination->pixels + y * destination->rowPitch,
+                        reinterpret_cast<const uint8_t*>(srcTexture->pcData) + y * sourceRowPitch,
+                        sourceRowPitch);
+                }
+                metadata = image.GetMetadata();
+            }
         }
 
-        AssetId assetId = AddExported(prev, exported, Utils::ToWString(fileName), ResourceType::Texture);
+        if (FAILED(hr))
+        {
+            DBG->LogErrorW(L"[Converter] Failed to load embedded texture: " + Utils::ToWString(fileName));
+            return ResourceRef<Texture>();
+        }
+
+        const fs::path thumbnailPath = TextureMeta::GetThumbnailPathForArtifact(texturePath);
+        HRESULT thumbnailHr = E_FAIL;
+        hr = TextureMeta::SaveArtifacts(image, metadata, texturePath, thumbnailPath, false, &thumbnailHr);
+        if (FAILED(hr))
+        {
+            DBG->LogErrorW(L"[Converter] Failed to build compressed embedded texture: " + texturePath.wstring());
+            return ResourceRef<Texture>();
+        }
+        if (FAILED(thumbnailHr))
+            DBG->LogErrorW(L"[Converter] Failed to build embedded texture thumbnail: " + thumbnailPath.wstring());
+
+        AssetId assetId = AddExported(prev, exported, artifactName, ResourceType::Texture);
         return ResourceRef<Texture>(assetId);
     }
     else
@@ -747,9 +778,19 @@ void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring fi
 
 AssetId Converter::AddExported(const vector<SubAssetInfo>& prev, OUT vector<SubAssetInfo>& exported, wstring fileName, ResourceType resourceType)
 {
+    const auto matches = [&](const SubAssetInfo& info)
+    {
+        if (info.resourceType != resourceType)
+            return false;
+        if (info.fileName == fileName)
+            return true;
+        return resourceType == ResourceType::Texture
+            && fs::path(info.fileName).stem() == fs::path(fileName).stem();
+    };
+
     for (const SubAssetInfo& info : exported)
     {
-        if (info.fileName == fileName && info.resourceType == resourceType)
+        if (matches(info))
         {
             // Skip if already exported
             return info.assetId;
@@ -759,7 +800,7 @@ AssetId Converter::AddExported(const vector<SubAssetInfo>& prev, OUT vector<SubA
     AssetId assetId;
     for (const SubAssetInfo& info : prev)
     {
-        if (info.fileName == fileName && info.resourceType == resourceType)
+        if (matches(info))
         {
             assetId = info.assetId;
             break;

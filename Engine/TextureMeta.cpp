@@ -93,6 +93,11 @@ fs::path TextureMeta::GetThumbnailPath() const
     return fs::path(GetArtifactPath()) / ThumbnailTextureName;
 }
 
+fs::path TextureMeta::GetThumbnailPathForArtifact(const fs::path& artifactPath)
+{
+    return artifactPath.parent_path() / (artifactPath.stem().wstring() + L".thumbnail.dds");
+}
+
 Texture* TextureMeta::GetIconTexture() const
 {
     Texture* thumbnail = Super::GetIconTexture(
@@ -109,27 +114,22 @@ bool TextureMeta::OnGUI()
     return changed;
 }
 
-void TextureMeta::Import()
+HRESULT TextureMeta::SaveArtifacts(
+    const DirectX::ScratchImage& source,
+    const DirectX::TexMetadata& metadata,
+    const fs::path& outputPath,
+    const fs::path& thumbnailPath,
+    bool keepCpuPixels,
+    HRESULT* thumbnailResult)
 {
-    Super::Import();
-
-    DirectX::TexMetadata metadata = {};
-    DirectX::ScratchImage source;
-    HRESULT hr = LoadSourceImage(GetAssetPath(), metadata, source);
-    if (FAILED(hr))
-    {
-        DBG->LogErrorW(L"[TextureMeta] Failed to load source texture: " + GetAssetPath().wstring());
-        return;
-    }
-
-    const fs::path outputPath = GetImportedAssetPath(GetAssetId());
-    const HRESULT thumbnailHr = SaveThumbnail(source, metadata, GetThumbnailPath());
-    if (FAILED(thumbnailHr))
-        DBG->LogErrorW(L"[TextureMeta] Failed to build thumbnail artifact: " + GetThumbnailPath().wstring());
+    const HRESULT thumbnailHr = SaveThumbnail(source, metadata, thumbnailPath);
+    if (thumbnailResult != nullptr)
+        *thumbnailResult = thumbnailHr;
+    HRESULT hr = S_OK;
 
     // Terrain editing reads these pixels on the CPU. Keep them in their authored
     // format; all ordinary render textures are block-compressed below.
-    if (_keepCpuPixels)
+    if (keepCpuPixels)
     {
         const DirectX::Image* topImage = source.GetImage(0, 0, 0);
         if (topImage == nullptr)
@@ -242,6 +242,27 @@ void TextureMeta::Import()
         }
     }
 
+    return hr;
+}
+
+void TextureMeta::Import()
+{
+    Super::Import();
+
+    DirectX::TexMetadata metadata = {};
+    DirectX::ScratchImage source;
+    HRESULT hr = LoadSourceImage(GetAssetPath(), metadata, source);
+    if (FAILED(hr))
+    {
+        DBG->LogErrorW(L"[TextureMeta] Failed to load source texture: " + GetAssetPath().wstring());
+        return;
+    }
+
+    const fs::path outputPath = GetImportedAssetPath(GetAssetId());
+    HRESULT thumbnailHr = E_FAIL;
+    hr = SaveArtifacts(source, metadata, outputPath, GetThumbnailPath(), _keepCpuPixels, &thumbnailHr);
     if (FAILED(hr))
         DBG->LogErrorW(L"[TextureMeta] Failed to build compressed artifact: " + outputPath.wstring());
+    if (FAILED(thumbnailHr))
+        DBG->LogErrorW(L"[TextureMeta] Failed to build thumbnail artifact: " + GetThumbnailPath().wstring());
 }
