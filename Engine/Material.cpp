@@ -141,10 +141,11 @@ bool Material::OnGUI(bool isReadOnly)
 		{
 			for (size_t i = 0; i < propertyDescs.size(); i++)
 			{
-				_shaderProperties[i].value = propertyDescs[i].defaultValue;
+				_shaderProperties[i].float4Value = propertyDescs[i].defaultFloat4Value;
 				_shaderProperties[i].intValue = propertyDescs[i].defaultIntValue;
 				_shaderProperties[i].boolValue = propertyDescs[i].defaultBoolValue;
 				_shaderProperties[i].textureValue = ResourceRef<Texture>();
+				_shaderProperties[i].matrixValue = propertyDescs[i].defaultMatrixValue;
 			}
 			changed = true;
 		}
@@ -158,7 +159,7 @@ bool Material::OnGUI(bool isReadOnly)
 
 			if (desc.type == ShaderPropertyType::Color)
 			{
-				changed |= OnGUIUtils::DrawColor(desc.displayName.c_str(), &property.value, isReadOnly);
+				changed |= OnGUIUtils::DrawColor(desc.displayName.c_str(), &property.float4Value, isReadOnly);
 				continue;
 			}
 
@@ -171,6 +172,65 @@ bool Material::OnGUI(bool isReadOnly)
 			if (desc.type == ShaderPropertyType::Texture2D)
 			{
 				changed |= OnGUIUtils::DrawResourceRef(desc.displayName.c_str(), property.textureValue, isReadOnly);
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Float2)
+			{
+				Vec2 value(property.float4Value.x, property.float4Value.y);
+				if (OnGUIUtils::DrawVec2(desc.displayName.c_str(), &value, 0.1f, isReadOnly))
+				{
+					property.float4Value.x = value.x;
+					property.float4Value.y = value.y;
+					changed = true;
+				}
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Float3)
+			{
+				Vec3 value(property.float4Value.x, property.float4Value.y, property.float4Value.z);
+				if (OnGUIUtils::DrawVec3(desc.displayName.c_str(), &value, 0.1f, isReadOnly))
+				{
+					property.float4Value.x = value.x;
+					property.float4Value.y = value.y;
+					property.float4Value.z = value.z;
+					changed = true;
+				}
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Float4)
+			{
+				ImGui::PushID(desc.name.c_str());
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(desc.displayName.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(200.f);
+				if (isReadOnly)
+					ImGui::BeginDisabled();
+				changed |= ImGui::DragFloat4("##value", &property.float4Value.x, 0.1f);
+				if (isReadOnly)
+					ImGui::EndDisabled();
+				ImGui::PopID();
+				continue;
+			}
+
+			if (desc.type == ShaderPropertyType::Matrix)
+			{
+				ImGui::PushID(desc.name.c_str());
+				if (isReadOnly)
+					ImGui::BeginDisabled();
+				ImGui::TextUnformatted(desc.displayName.c_str());
+				ImGui::Indent();
+				changed |= ImGui::DragFloat4("Row 0", &property.matrixValue._11, 0.1f);
+				changed |= ImGui::DragFloat4("Row 1", &property.matrixValue._21, 0.1f);
+				changed |= ImGui::DragFloat4("Row 2", &property.matrixValue._31, 0.1f);
+				changed |= ImGui::DragFloat4("Row 3", &property.matrixValue._41, 0.1f);
+				ImGui::Unindent();
+				if (isReadOnly)
+					ImGui::EndDisabled();
+				ImGui::PopID();
 				continue;
 			}
 
@@ -198,7 +258,7 @@ bool Material::OnGUI(bool isReadOnly)
 
 			if (desc.hasRange == false)
 			{
-				changed |= OnGUIUtils::DrawFloat(desc.displayName.c_str(), &property.value.x, 0.1f, isReadOnly);
+				changed |= OnGUIUtils::DrawFloat(desc.displayName.c_str(), &property.float4Value.x, 0.1f, isReadOnly);
 				continue;
 			}
 
@@ -209,7 +269,7 @@ bool Material::OnGUI(bool isReadOnly)
 			ImGui::SetCursorPosX(200.f);
 			if (isReadOnly)
 				ImGui::BeginDisabled();
-			changed |= ImGui::SliderFloat("##value", &property.value.x, desc.minValue, desc.maxValue);
+			changed |= ImGui::SliderFloat("##value", &property.float4Value.x, desc.minValue, desc.maxValue);
 			if (isReadOnly)
 				ImGui::EndDisabled();
 			ImGui::PopID();
@@ -289,16 +349,18 @@ void Material::SyncShaderProperties()
 		property.type = desc.type;
 		if (iter != _shaderProperties.end())
 		{
-			property.value = iter->value;
+			property.float4Value = iter->float4Value;
 			property.intValue = iter->intValue;
 			property.boolValue = iter->boolValue;
 			property.textureValue = iter->textureValue;
+			property.matrixValue = iter->matrixValue;
 		}
 		else
 		{
-			property.value = desc.defaultValue;
+			property.float4Value = desc.defaultFloat4Value;
 			property.intValue = desc.defaultIntValue;
 			property.boolValue = desc.defaultBoolValue;
+			property.matrixValue = desc.defaultMatrixValue;
 		}
 		synchronizedProperties.push_back(property);
 	}

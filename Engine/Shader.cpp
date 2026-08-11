@@ -167,14 +167,39 @@ void Shader::CreateEffect()
 		if (typeDesc.Class == D3D_SVC_SCALAR && typeDesc.Type == D3D_SVT_FLOAT)
 		{
 			property.type = ShaderPropertyType::Float;
-			if (FAILED(effectVariable->AsScalar()->GetFloat(&property.defaultValue.x)))
+			if (FAILED(effectVariable->AsScalar()->GetFloat(&property.defaultFloat4Value.x)))
 				continue;
 		}
-		else if (typeDesc.Class == D3D_SVC_VECTOR && typeDesc.Type == D3D_SVT_FLOAT && typeDesc.Columns == 4 && uiType == "Color")
+		else if (typeDesc.Class == D3D_SVC_VECTOR && typeDesc.Type == D3D_SVT_FLOAT)
 		{
-			property.type = ShaderPropertyType::Color;
-			if (FAILED(effectVariable->AsVector()->GetFloatVector(&property.defaultValue.x)))
+			float vectorValue[4] = {};
+			if (FAILED(effectVariable->AsVector()->GetFloatVector(vectorValue)))
 				continue;
+
+			if (typeDesc.Columns == 2)
+			{
+				property.type = ShaderPropertyType::Float2;
+				property.defaultFloat4Value = Vec4(vectorValue[0], vectorValue[1], 0.f, 0.f);
+			}
+			else if (typeDesc.Columns == 3)
+			{
+				property.type = ShaderPropertyType::Float3;
+				property.defaultFloat4Value = Vec4(vectorValue[0], vectorValue[1], vectorValue[2], 0.f);
+			}
+			else if (typeDesc.Columns == 4 && uiType == "Color")
+			{
+				property.type = ShaderPropertyType::Color;
+				property.defaultFloat4Value = Vec4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
+			}
+			else if (typeDesc.Columns == 4)
+			{
+				property.type = ShaderPropertyType::Float4;
+				property.defaultFloat4Value = Vec4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
+			}
+			else
+			{
+				continue;
+			}
 		}
 		else if (typeDesc.Class == D3D_SVC_SCALAR && typeDesc.Type == D3D_SVT_INT)
 		{
@@ -191,6 +216,13 @@ void Shader::CreateEffect()
 		else if (typeDesc.Class == D3D_SVC_OBJECT && typeDesc.Type == D3D_SVT_TEXTURE2D)
 		{
 			property.type = ShaderPropertyType::Texture2D;
+		}
+		else if ((typeDesc.Class == D3D_SVC_MATRIX_ROWS || typeDesc.Class == D3D_SVC_MATRIX_COLUMNS) &&
+			typeDesc.Type == D3D_SVT_FLOAT && typeDesc.Rows == 4 && typeDesc.Columns == 4)
+		{
+			property.type = ShaderPropertyType::Matrix;
+			if (FAILED(effectVariable->AsMatrix()->GetMatrix(&property.defaultMatrixValue._11)))
+				continue;
 		}
 		else
 		{
@@ -226,9 +258,9 @@ void Shader::ApplyMaterialProperties(const vector<MaterialPropertyValue>& proper
 			continue;
 
 		if (desc.type == ShaderPropertyType::Float)
-			desc.effectVariable->AsScalar()->SetFloat(iter->value.x);
+			desc.effectVariable->AsScalar()->SetFloat(iter->float4Value.x);
 		else if (desc.type == ShaderPropertyType::Color)
-			desc.effectVariable->AsVector()->SetFloatVector(&iter->value.x);
+			desc.effectVariable->AsVector()->SetFloatVector(&iter->float4Value.x);
 		else if (desc.type == ShaderPropertyType::Int)
 			desc.effectVariable->AsScalar()->SetInt(iter->intValue);
 		else if (desc.type == ShaderPropertyType::Bool)
@@ -240,6 +272,24 @@ void Shader::ApplyMaterialProperties(const vector<MaterialPropertyValue>& proper
 				texture = RESOURCES->GetDummyTexture().Resolve();
 
 			desc.effectVariable->AsShaderResource()->SetResource(texture ? texture->GetComPtr().Get() : nullptr);
+		}
+		else if (desc.type == ShaderPropertyType::Float2)
+		{
+			const float value[4] = { iter->float4Value.x, iter->float4Value.y, 0.f, 0.f };
+			desc.effectVariable->AsVector()->SetFloatVector(value);
+		}
+		else if (desc.type == ShaderPropertyType::Float3)
+		{
+			const float value[4] = { iter->float4Value.x, iter->float4Value.y, iter->float4Value.z, 0.f };
+			desc.effectVariable->AsVector()->SetFloatVector(value);
+		}
+		else if (desc.type == ShaderPropertyType::Float4)
+		{
+			desc.effectVariable->AsVector()->SetFloatVector(&iter->float4Value.x);
+		}
+		else if (desc.type == ShaderPropertyType::Matrix)
+		{
+			desc.effectVariable->AsMatrix()->SetMatrix(&iter->matrixValue._11);
 		}
 	}
 }

@@ -24,9 +24,10 @@ struct ShaderPropertyDesc
 	string name;
 	string displayName;
 	ShaderPropertyType type = ShaderPropertyType::Float;
-	Color defaultValue = Color(0.f, 0.f, 0.f, 0.f);
+	Vec4 defaultFloat4Value = Vec4(0.f, 0.f, 0.f, 0.f);
 	int32 defaultIntValue = 0;
 	bool defaultBoolValue = false;
+	Matrix defaultMatrixValue = Matrix::Identity;
 	float minValue = 0.f;
 	float maxValue = 1.f;
 	int32 minIntValue = 0;

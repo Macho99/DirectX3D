@@ -37,55 +37,49 @@
                 "_includeInNavMesh": true,
                 "_shaderProperties": [
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "ShockwaveSpeed",
                         "type": 0,
-                        "value": {
-                            "value.x": 0.800000011920929,
+                        "float4Value": {
+                            "value.x": 2.428999900817871,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "RingInnerWidth",
                         "type": 0,
-                        "value": {
-                            "value.x": 0.07999999821186066,
+                        "float4Value": {
+                            "value.x": 0.14300000667572022,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "RingOuterWidth",
                         "type": 0,
-                        "value": {
-                            "value.x": 0.11999999731779099,
+                        "float4Value": {
+                            "value.x": 0.16599999368190766,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "RingCount",
                         "type": 2,
-                        "value": {
-                            "value.x": 0.0,
-                            "value.y": 0.0,
-                            "value.z": 0.0,
-                            "value.w": 0.0
-                        },
-                        "intValue": 1
+                        "intValue": 2
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "FresnelStrength",
                         "type": 0,
-                        "value": {
+                        "float4Value": {
                             "value.x": 0.3499999940395355,
                             "value.y": 0.0,
                             "value.z": 0.0,
@@ -93,10 +87,10 @@
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "FresnelPower",
                         "type": 0,
-                        "value": {
+                        "float4Value": {
                             "value.x": 4.0,
                             "value.y": 0.0,
                             "value.z": 0.0,
@@ -104,33 +98,27 @@
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "EnableFresnel",
                         "type": 3,
-                        "value": {
-                            "value.x": 0.0,
-                            "value.y": 0.0,
-                            "value.z": 0.0,
-                            "value.w": 0.0
-                        },
-                        "boolValue": true
+                        "boolValue": false
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "NoiseStrength",
                         "type": 0,
-                        "value": {
-                            "value.x": 0.0,
+                        "float4Value": {
+                            "value.x": 0.1860000044107437,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "NoiseTiling",
                         "type": 0,
-                        "value": {
+                        "float4Value": {
                             "value.x": 2.0,
                             "value.y": 0.0,
                             "value.z": 0.0,
@@ -138,10 +126,10 @@
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "NoiseSpeed",
                         "type": 0,
-                        "value": {
+                        "float4Value": {
                             "value.x": 0.20000000298023225,
                             "value.y": 0.0,
                             "value.z": 0.0,
@@ -149,41 +137,35 @@
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "DistortionStrength",
                         "type": 0,
-                        "value": {
-                            "value.x": 1.0,
+                        "float4Value": {
+                            "value.x": 0.42399999499320986,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "DistortionOpacity",
                         "type": 0,
-                        "value": {
-                            "value.x": 1.0,
+                        "float4Value": {
+                            "value.x": 0.2930000126361847,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
                         }
                     },
                     {
-                        "_version": 3,
+                        "_version": 5,
                         "name": "ShockwaveNoiseMap",
                         "type": 4,
-                        "value": {
-                            "value.x": 0.0,
-                            "value.y": 0.0,
-                            "value.z": 0.0,
-                            "value.w": 0.0
-                        },
                         "textureValue": {
                             "assetId": {
-                                "leftId": 0,
-                                "rightId": 0
+                                "leftId": 18050822344807135278,
+                                "rightId": 4803438727549509340
                             }
                         }
                     }

@@ -122,20 +122,25 @@ enum class ShaderPropertyType : uint8
 	Int,
 	Bool,
 	Texture2D,
+	Float2,
+	Float3,
+	Float4,
+	Matrix,
 };
 
 // 머티리얼마다 저장되는 셰이더 프로퍼티 값이다.
 struct MaterialPropertyValue
 {
-	static constexpr int CurrentVersion = 3;
+	static constexpr int CurrentVersion = 5;
 
 	int _version = CurrentVersion;
 	string name;
 	ShaderPropertyType type = ShaderPropertyType::Float;
-	Color value = Color(0.f, 0.f, 0.f, 0.f);
+	Vec4 float4Value = Vec4(0.f, 0.f, 0.f, 0.f);
 	int32 intValue = 0;
 	bool boolValue = false;
 	ResourceRef<Texture> textureValue;
+	Matrix matrixValue = Matrix::Identity;
 
 	template<typename Archive>
 	void serialize(Archive& archive)
@@ -146,19 +151,30 @@ struct MaterialPropertyValue
 		archive(CEREAL_NVP(_version));
 		archive(CEREAL_NVP(name));
 		archive(CEREAL_NVP(type));
-		archive(CEREAL_NVP(value));
 
-		if (_version >= 2)
+		if (type == ShaderPropertyType::Float ||
+			type == ShaderPropertyType::Float2 ||
+			type == ShaderPropertyType::Float3 ||
+			type == ShaderPropertyType::Float4 ||
+			type == ShaderPropertyType::Color)
 		{
-			if (type == ShaderPropertyType::Int)
-				archive(CEREAL_NVP(intValue));
-			else if (type == ShaderPropertyType::Bool)
-				archive(CEREAL_NVP(boolValue));
+			archive(CEREAL_NVP(float4Value));
 		}
-
-		if (_version >= 3 && type == ShaderPropertyType::Texture2D)
+		else if (type == ShaderPropertyType::Int)
+		{
+			archive(CEREAL_NVP(intValue));
+		}
+		else if (type == ShaderPropertyType::Bool)
+		{
+			archive(CEREAL_NVP(boolValue));
+		}
+		else if (type == ShaderPropertyType::Texture2D)
 		{
 			archive(CEREAL_NVP(textureValue));
+		}
+		else if (type == ShaderPropertyType::Matrix)
+		{
+			archive(CEREAL_NVP(matrixValue));
 		}
 	}
 };
