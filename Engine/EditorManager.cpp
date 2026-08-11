@@ -251,6 +251,12 @@ void EditorManager::ClickAsset(const AssetRef& assetRef)
     _contentBrowserSubAsset = subAssetIndex;
 }
 
+void EditorManager::UnselectAsset()
+{
+    _contentBrowserAsset = AssetRef();
+    _contentBrowserSubAsset = -1;
+}
+
 void EditorManager::HandleRemove(const AssetRef& assetRef)
 {
     if (_inspectorAsset == assetRef)

@@ -427,7 +427,8 @@ void ContentBrowser::DrawItemsList()
 
         if (ImGui::Selectable(name.c_str(), selected, ImGuiSelectableFlags_SpanAllColumns))
         {
-            _editorManager->ClickAsset(meta->GetAssetId());
+            if (!isFolder)
+                _editorManager->ClickAsset(meta->GetAssetId());
         }
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

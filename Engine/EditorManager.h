@@ -36,7 +36,7 @@ public:
     void GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
     void ClickTransform(const TransformRef& transformRef);
     void ClickAsset(const AssetRef& assetRef);
-    void UnselectAsset() { ClickAsset(AssetRef()); }
+	void UnselectAsset();
 
 	void HandleRemove(const AssetRef& assetRef);
     void HandleRemove(const TransformRef& transformRef);

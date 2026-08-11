@@ -322,7 +322,8 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
         ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
         !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
     {
-        EDITOR->ClickAsset(_assetId);
+        if(isFolder == false)
+            EDITOR->ClickAsset(_assetId);
     }
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
