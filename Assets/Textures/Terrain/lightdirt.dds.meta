@@ -5,13 +5,14 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 9,
+                "_version": 10,
                 "_assetId": {
                     "leftId": 12500149277160273386,
                     "rightId": 4025755375948973737
                 },
                 "_resourceType": 2,
-                "_keepCpuPixels": false
+                "_keepCpuPixels": false,
+                "_compressionFormat": 2
             }
         }
     }

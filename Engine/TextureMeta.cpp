@@ -8,6 +8,12 @@ namespace
     constexpr wchar_t ImportedTextureName[] = L"texture.dds";
     constexpr wchar_t ThumbnailTextureName[] = L"thumbnail.dds";
     constexpr size_t ThumbnailMaxSize = 256;
+    constexpr const char* TextureCompressionFormatNames[] =
+    {
+        "Uncompressed",
+        "BC3",
+        "BC7",
+    };
 
     HRESULT LoadSourceImage(const fs::path& path, DirectX::TexMetadata& metadata, DirectX::ScratchImage& image)
     {
@@ -110,7 +116,16 @@ Texture* TextureMeta::GetIconTexture() const
 bool TextureMeta::OnGUI()
 {
     bool changed = Super::OnGUI();
-    changed |= OnGUIUtils::DrawBool("CPU Pixel", &_keepCpuPixels);
+    bool importSettingsChanged = OnGUIUtils::DrawBool("CPU Pixel", &_keepCpuPixels);
+    importSettingsChanged |= OnGUIUtils::DrawEnumCombo(
+        "Compression", _compressionFormat,
+        TextureCompressionFormatNames, _countof(TextureCompressionFormatNames),
+        _keepCpuPixels);
+
+    if (importSettingsChanged)
+        ForceReimport();
+
+    changed |= importSettingsChanged;
     return changed;
 }
 
@@ -120,12 +135,16 @@ HRESULT TextureMeta::SaveArtifacts(
     const fs::path& outputPath,
     const fs::path& thumbnailPath,
     bool keepCpuPixels,
-    HRESULT* thumbnailResult)
+    HRESULT* thumbnailResult,
+    TextureCompressionFormat compressionFormat)
 {
     const HRESULT thumbnailHr = SaveThumbnail(source, metadata, thumbnailPath);
     if (thumbnailResult != nullptr)
         *thumbnailResult = thumbnailHr;
     HRESULT hr = S_OK;
+
+    if (compressionFormat >= TextureCompressionFormat::Max)
+        compressionFormat = TextureCompressionFormat::BC7;
 
     // Terrain editing reads these pixels on the CPU. Keep them in their authored
     // format; all ordinary render textures are block-compressed below.
@@ -154,17 +173,34 @@ HRESULT TextureMeta::SaveArtifacts(
                 *topImage, DirectX::DDS_FLAGS_NONE, outputPath.c_str());
         }
     }
-    else if (DirectX::IsCompressed(metadata.format)
-        && metadata.width % 4 == 0
-        && metadata.height % 4 == 0)
-    {
-        // Avoid quality loss and preserve cube/array metadata in authored DDS files.
-        hr = DirectX::SaveToDDSFile(
-            source.GetImages(), source.GetImageCount(), metadata,
-            DirectX::DDS_FLAGS_NONE, outputPath.c_str());
-    }
     else
     {
+        DXGI_FORMAT artifactFormat = DXGI_FORMAT_UNKNOWN;
+        if (compressionFormat == TextureCompressionFormat::BC3)
+        {
+            artifactFormat = DirectX::IsSRGB(metadata.format)
+                ? DXGI_FORMAT_BC3_UNORM_SRGB
+                : DXGI_FORMAT_BC3_UNORM;
+        }
+        else if (compressionFormat == TextureCompressionFormat::BC7)
+        {
+            artifactFormat = DirectX::IsSRGB(metadata.format)
+                ? DXGI_FORMAT_BC7_UNORM_SRGB
+                : DXGI_FORMAT_BC7_UNORM;
+        }
+
+        // Preserve an authored DDS only when it already matches the selected
+        // compression format. Changing the setting must produce that exact format.
+        if (artifactFormat != DXGI_FORMAT_UNKNOWN
+            && metadata.format == artifactFormat
+            && metadata.width % 4 == 0
+            && metadata.height % 4 == 0)
+        {
+            return DirectX::SaveToDDSFile(
+                source.GetImages(), source.GetImageCount(), metadata,
+                DirectX::DDS_FLAGS_NONE, outputPath.c_str());
+        }
+
         DirectX::ScratchImage decompressedSource;
         const DirectX::Image* sourceImages = source.GetImages();
         size_t sourceImageCount = source.GetImageCount();
@@ -184,8 +220,13 @@ HRESULT TextureMeta::SaveArtifacts(
         }
 
         DirectX::ScratchImage resized;
-        const size_t alignedWidth = (sourceMetadata.width + 3) & ~size_t(3);
-        const size_t alignedHeight = (sourceMetadata.height + 3) & ~size_t(3);
+        const bool useBlockCompression = compressionFormat != TextureCompressionFormat::Uncompressed;
+        const size_t alignedWidth = useBlockCompression
+            ? (sourceMetadata.width + 3) & ~size_t(3)
+            : sourceMetadata.width;
+        const size_t alignedHeight = useBlockCompression
+            ? (sourceMetadata.height + 3) & ~size_t(3)
+            : sourceMetadata.height;
         if (SUCCEEDED(hr)
             && (alignedWidth != sourceMetadata.width || alignedHeight != sourceMetadata.height))
         {
@@ -218,44 +259,58 @@ HRESULT TextureMeta::SaveArtifacts(
             }
         }
 
-        DirectX::ScratchImage compressed;
-        if (SUCCEEDED(hr))
-        {
-            const DXGI_FORMAT artifactFormat = DirectX::IsSRGB(importMetadata.format)
-                ? DXGI_FORMAT_BC7_UNORM_SRGB
-                : DXGI_FORMAT_BC7_UNORM;
-
-            // Search all BC7 modes, including the expensive three-subset modes.
-            // The GPU path uses DirectCompute on the immediate context.
-            const auto qualityFlags = DirectX::TEX_COMPRESS_BC7_USE_3SUBSETS;
-            ComPtr<ID3D11Device> device = DEVICE;
-            if (device != nullptr)
-            {
-                hr = DirectX::Compress(
-                    device.Get(), importImages, importImageCount, importMetadata,
-                    artifactFormat, qualityFlags, 1.0f, compressed);
-            }
-            else
-            {
-                hr = E_POINTER;
-            }
-
-            if (FAILED(hr))
-            {
-                DBG->LogW(L"[TextureMeta] GPU BC7 compression failed; falling back to CPU: " + outputPath.wstring());
-                const auto cpuFlags = static_cast<DirectX::TEX_COMPRESS_FLAGS>(
-                    DirectX::TEX_COMPRESS_PARALLEL | qualityFlags);
-                hr = DirectX::Compress(
-                    importImages, importImageCount, importMetadata,
-                    artifactFormat, cpuFlags, DirectX::TEX_THRESHOLD_DEFAULT, compressed);
-            }
-        }
-
-        if (SUCCEEDED(hr))
+        if (SUCCEEDED(hr) && compressionFormat == TextureCompressionFormat::Uncompressed)
         {
             hr = DirectX::SaveToDDSFile(
-                compressed.GetImages(), compressed.GetImageCount(), compressed.GetMetadata(),
+                importImages, importImageCount, importMetadata,
                 DirectX::DDS_FLAGS_NONE, outputPath.c_str());
+        }
+        else
+        {
+            DirectX::ScratchImage compressed;
+            if (SUCCEEDED(hr) && compressionFormat == TextureCompressionFormat::BC3)
+            {
+                hr = DirectX::Compress(
+                    importImages, importImageCount, importMetadata,
+                    artifactFormat,
+                    static_cast<DirectX::TEX_COMPRESS_FLAGS>(
+                        DirectX::TEX_COMPRESS_PARALLEL | DirectX::TEX_COMPRESS_DITHER),
+                    DirectX::TEX_THRESHOLD_DEFAULT, compressed);
+            }
+            else if (SUCCEEDED(hr) && compressionFormat == TextureCompressionFormat::BC7)
+            {
+                // Search all BC7 modes, including the expensive three-subset modes.
+                // The GPU path uses DirectCompute on the immediate context.
+                const auto qualityFlags = DirectX::TEX_COMPRESS_BC7_USE_3SUBSETS;
+                ComPtr<ID3D11Device> device = DEVICE;
+                if (device != nullptr)
+                {
+                    hr = DirectX::Compress(
+                        device.Get(), importImages, importImageCount, importMetadata,
+                        artifactFormat, qualityFlags, 1.0f, compressed);
+                }
+                else
+                {
+                    hr = E_POINTER;
+                }
+
+                if (FAILED(hr))
+                {
+                    DBG->LogW(L"[TextureMeta] GPU BC7 compression failed; falling back to CPU: " + outputPath.wstring());
+                    const auto cpuFlags = static_cast<DirectX::TEX_COMPRESS_FLAGS>(
+                        DirectX::TEX_COMPRESS_PARALLEL | qualityFlags);
+                    hr = DirectX::Compress(
+                        importImages, importImageCount, importMetadata,
+                        artifactFormat, cpuFlags, DirectX::TEX_THRESHOLD_DEFAULT, compressed);
+                }
+            }
+
+            if (SUCCEEDED(hr))
+            {
+                hr = DirectX::SaveToDDSFile(
+                    compressed.GetImages(), compressed.GetImageCount(), compressed.GetMetadata(),
+                    DirectX::DDS_FLAGS_NONE, outputPath.c_str());
+            }
         }
     }
 
@@ -277,9 +332,11 @@ void TextureMeta::Import()
 
     const fs::path outputPath = GetImportedAssetPath(GetAssetId());
     HRESULT thumbnailHr = E_FAIL;
-    hr = SaveArtifacts(source, metadata, outputPath, GetThumbnailPath(), _keepCpuPixels, &thumbnailHr);
+    hr = SaveArtifacts(
+        source, metadata, outputPath, GetThumbnailPath(),
+        _keepCpuPixels, &thumbnailHr, _compressionFormat);
     if (FAILED(hr))
-        DBG->LogErrorW(L"[TextureMeta] Failed to build compressed artifact: " + outputPath.wstring());
+        DBG->LogErrorW(L"[TextureMeta] Failed to build texture artifact: " + outputPath.wstring());
     if (FAILED(thumbnailHr))
         DBG->LogErrorW(L"[TextureMeta] Failed to build thumbnail artifact: " + GetThumbnailPath().wstring());
 }

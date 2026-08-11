@@ -100,7 +100,9 @@ struct MeshOutput
 
 SamplerState LinearSampler
 {
-	Filter = MIN_MAG_MIP_LINEAR;
+	Filter = ANISOTROPIC;
+	MaxAnisotropy = 16;
+	MipLODBias = -1.0f;
 	AddressU = Wrap;
 	AddressV = Wrap;
 };

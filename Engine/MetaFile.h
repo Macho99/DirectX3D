@@ -38,13 +38,13 @@ public:
 
 protected:
     virtual void Import();
+    void ForceReimport();
     wstring GetArtifactPath() const;
 
     Texture* GetIconTexture(ResourceType resourceType, const AssetId& assetId, const fs::path& absPath) const;
     unique_ptr<ResourceBase> LoadResource(ResourceType resourceType, const fs::path& filePath) const;
 
 private:
-    void ForceReimport();
     bool ImportIfDirty();
     wstring GetManifestPath() { return GetArtifactPath() + L"\\asset.manifest"; }
     virtual int GetVersion() const { return 1; }

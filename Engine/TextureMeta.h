@@ -1,5 +1,14 @@
 #pragma once
 #include "MetaFile.h"
+
+enum class TextureCompressionFormat : uint8
+{
+    Uncompressed,
+    BC3,
+    BC7,
+    Max,
+};
+
 class TextureMeta : public MetaFile
 {
     using Super = MetaFile;
@@ -13,7 +22,8 @@ public:
         const fs::path& texturePath,
         const fs::path& thumbnailPath,
         bool keepCpuPixels = false,
-        HRESULT* thumbnailResult = nullptr);
+        HRESULT* thumbnailResult = nullptr,
+        TextureCompressionFormat compressionFormat = TextureCompressionFormat::BC7);
     static fs::path GetThumbnailPathForArtifact(const fs::path& artifactPath);
 
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
@@ -27,14 +37,17 @@ public:
         Super::serialize(ar);
         if (_version >= 3)
             ar(CEREAL_NVP(_keepCpuPixels));
+        if (_version >= 10)
+            ar(CEREAL_NVP(_compressionFormat));
     }
 
 protected:
     virtual void Import() override;
-    virtual int GetVersion() const override { return 9; }
+    virtual int GetVersion() const override { return 10; }
 
 private:
     fs::path GetThumbnailPath() const;
     bool _keepCpuPixels = false;
+    TextureCompressionFormat _compressionFormat = TextureCompressionFormat::BC7;
 };
 
