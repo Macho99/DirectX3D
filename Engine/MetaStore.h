@@ -8,9 +8,12 @@ public:
     static fs::path MetaPathForSource(const fs::path& sourceAbs); 
     static fs::path SourcePathForMeta(const fs::path& metaAbs);
 
-    static unique_ptr<MetaFile> TryLoad(const fs::path& metaAbs);
+    static unique_ptr<MetaFile> TryLoad(const fs::path& metaAbs, bool deferImport = false);
     static void Save(const unique_ptr<MetaFile>& meta);
-    static unique_ptr<MetaFile> Create(const fs::path& sourceAbs, bool forceReimport = false);
+    static unique_ptr<MetaFile> Create(
+        const fs::path& sourceAbs,
+        bool forceReimport = false,
+        bool deferImport = false);
     //static unique_ptr<MetaFile> LoadOrCreate(const fs::path& sourceAbs);
     static bool IsMetaFile(const fs::path& path);
 

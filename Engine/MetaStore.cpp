@@ -33,7 +33,7 @@ fs::path MetaStore::SourcePathForMeta(const fs::path& metaAbs)
     return src;
 }
 
-unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
+unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs, bool deferImport)
 {
     unique_ptr<MetaFile> meta;
     const fs::path sourceAbs = SourcePathForMeta(metaAbs);
@@ -46,21 +46,26 @@ unique_ptr<MetaFile> MetaStore::TryLoad(const fs::path& metaAbs)
     catch (const std::exception& e)
     {
         DBG->LogW(L"[MetaStore] TryLoad failed And Recreated: " + metaAbs.wstring() + L", error: " + Utils::ToWString(e.what()));
-        meta = Create(sourceAbs);
+        meta = Create(sourceAbs, false, deferImport);
     }
 
-    if (meta->GetResourceType() == ResourceType::None)
+    if (meta == nullptr)
+    {
+        meta = Create(sourceAbs, false, deferImport);
+    }
+    else if (meta->GetResourceType() == ResourceType::None)
     {
         const auto& creators = InitAndGetCreators();
         if (creators.find(sourceAbs.extension().string()) != creators.end())
         {
             DBG->LogW(L"[MetaStore] TryLoad: ResourceType is None, but extension is supported. Recreate meta. " + metaAbs.wstring());
-            meta = Create(sourceAbs, true);
+            meta = Create(sourceAbs, true, deferImport);
         }
     }
 
     meta->_assetPath = sourceAbs;
-    ImportIfDirty(meta);
+    if (deferImport == false)
+        ImportIfDirty(meta);
 
     return meta;
 }
@@ -72,7 +77,7 @@ void MetaStore::Save(const unique_ptr<MetaFile>& meta)
     archive(meta);
 }
 
-unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs, bool forceReimport)
+unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs, bool forceReimport, bool deferImport)
 {
     string ext = sourceAbs.extension().string();
     const auto& creators = InitAndGetCreators();
@@ -103,10 +108,13 @@ unique_ptr<MetaFile> MetaStore::Create(const fs::path& sourceAbs, bool forceReim
     meta->_assetId = assetId;
     meta->_assetPath = sourceAbs;
 
-    if (forceReimport)
-        ForceReimport(meta);
-    else
-        ImportIfDirty(meta);
+    if (deferImport == false)
+    {
+        if (forceReimport)
+            ForceReimport(meta);
+        else
+            ImportIfDirty(meta);
+    }
     return meta;
 }
 

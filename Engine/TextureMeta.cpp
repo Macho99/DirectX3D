@@ -221,17 +221,34 @@ HRESULT TextureMeta::SaveArtifacts(
         DirectX::ScratchImage compressed;
         if (SUCCEEDED(hr))
         {
-            // BC7's CPU encoder is prohibitively slow in editor Debug builds.
-            // BC3 has the same 8-bits-per-pixel memory footprint and compresses
-            // much faster while retaining an alpha channel.
             const DXGI_FORMAT artifactFormat = DirectX::IsSRGB(importMetadata.format)
-                ? DXGI_FORMAT_BC3_UNORM_SRGB
-                : DXGI_FORMAT_BC3_UNORM;
-            const auto flags = static_cast<DirectX::TEX_COMPRESS_FLAGS>(
-                DirectX::TEX_COMPRESS_PARALLEL | DirectX::TEX_COMPRESS_DITHER);
-            hr = DirectX::Compress(
-                importImages, importImageCount, importMetadata,
-                artifactFormat, flags, DirectX::TEX_THRESHOLD_DEFAULT, compressed);
+                ? DXGI_FORMAT_BC7_UNORM_SRGB
+                : DXGI_FORMAT_BC7_UNORM;
+
+            // Search all BC7 modes, including the expensive three-subset modes.
+            // The GPU path uses DirectCompute on the immediate context.
+            const auto qualityFlags = DirectX::TEX_COMPRESS_BC7_USE_3SUBSETS;
+            ComPtr<ID3D11Device> device = DEVICE;
+            if (device != nullptr)
+            {
+                hr = DirectX::Compress(
+                    device.Get(), importImages, importImageCount, importMetadata,
+                    artifactFormat, qualityFlags, 1.0f, compressed);
+            }
+            else
+            {
+                hr = E_POINTER;
+            }
+
+            if (FAILED(hr))
+            {
+                DBG->LogW(L"[TextureMeta] GPU BC7 compression failed; falling back to CPU: " + outputPath.wstring());
+                const auto cpuFlags = static_cast<DirectX::TEX_COMPRESS_FLAGS>(
+                    DirectX::TEX_COMPRESS_PARALLEL | qualityFlags);
+                hr = DirectX::Compress(
+                    importImages, importImageCount, importMetadata,
+                    artifactFormat, cpuFlags, DirectX::TEX_THRESHOLD_DEFAULT, compressed);
+            }
         }
 
         if (SUCCEEDED(hr))

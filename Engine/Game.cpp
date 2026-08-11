@@ -23,8 +23,8 @@ WPARAM Game::Run(GameDesc& desc)
 		return FALSE;
 		
 	DBG->Init();
-	RESOURCES->Init();
 	GRAPHICS->Init(_desc.hWnd);
+	RESOURCES->Init();
 	RESOURCES->Start();
 	GRAPHICS->Start();
 	TIME->Init();
@@ -184,9 +184,10 @@ void Game::Update()
 
 	ShowFps();
 
+	RESOURCES->Update();
+
 	GRAPHICS->RenderBegin();
 
-	RESOURCES->Update();
 
 	//if(_desc.sceneFocused)
 		SCENE->Update();

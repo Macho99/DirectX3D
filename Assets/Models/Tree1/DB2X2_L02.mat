@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 2,
+                "_version": 4,
                 "_desc": {
                     "ambient": {
                         "value.x": 1.0,
@@ -14,16 +14,16 @@
                         "value.w": 1.0
                     },
                     "diffuse": {
-                        "value.x": 0.800000011920929,
-                        "value.y": 0.800000011920929,
-                        "value.z": 0.800000011920929,
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
                         "value.w": 1.0
                     },
                     "specular": {
-                        "value.x": 0.3050193190574646,
-                        "value.y": 0.3050193190574646,
-                        "value.z": 0.3050193190574646,
-                        "value.w": 7.889999866485596
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
+                        "value.w": 1.0
                     },
                     "emissive": {
                         "value.x": 0.0,
@@ -35,6 +35,7 @@
                 "_renderQueue": 0,
                 "_castShadow": true,
                 "_includeInNavMesh": false,
+                "_shaderProperties": [],
                 "_shader": {
                     "assetId": {
                         "leftId": 16962393113620826574,

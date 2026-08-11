@@ -148,23 +148,48 @@ void AssetDatabase::ReconcileAndBuildFromMeta(const fs::path& rootAbs)
         _subAssetContainer.clear();
     }
 
+    vector<AssetId> importOrder;
+    importOrder.reserve(sources.size());
+
+    // First pass: deserialize/create every meta and register all asset IDs before
+    // any dirty asset is imported. Importers can then resolve dependencies even
+    // when those dependencies occur later in the directory traversal.
     for (auto& src : sources)
     {
         fs::path metaAbs = MetaStore::MetaPathForSource(src);
 
-        unique_ptr<MetaFile> loaded = MetaStore::TryLoad(metaAbs);
+        unique_ptr<MetaFile> loaded = MetaStore::TryLoad(metaAbs, true);
         if (loaded == nullptr || !loaded->GetAssetId().IsValid())
         {
             // 깨진 meta면 재생성
-            loaded = MetaStore::Create(src);
+            loaded = MetaStore::Create(src, false, true);
             DBG->LogW(L"[Meta] Recreated invalid: " + metaAbs.wstring());
         }
+
+        const AssetId assetId = loaded->GetAssetId();
         {
             std::lock_guard lk(_mtx);
-            _pathToAssetId[src.wstring()] = loaded->GetAssetId();
+            _pathToAssetId[src.wstring()] = assetId;
             loaded->OnLoad(_subAssetContainer);
-            _assetIdToMeta[loaded->GetAssetId()] = std::move(loaded);
+            _assetIdToMeta[assetId] = std::move(loaded);
         }
+        importOrder.push_back(assetId);
+    }
+
+    // Second pass: only now evaluate manifests and reimport dirty assets. Existing
+    // sub-assets are temporarily unregistered because an import may replace them.
+    // Reconcile runs on the main thread before watcher events are consumed, so the
+    // maps remain stable while imports call back into dependency lookups.
+    for (const AssetId& assetId : importOrder)
+    {
+        auto it = _assetIdToMeta.find(assetId);
+        if (it == _assetIdToMeta.end())
+            continue;
+
+        unique_ptr<MetaFile>& meta = it->second;
+        meta->OnDestroy(_subAssetContainer);
+        MetaStore::ImportIfDirty(meta);
+        meta->OnLoad(_subAssetContainer);
     }
 
     DBG->LogW(L"[AssetDB] Reconcile+Build done. sources=" + std::to_wstring(sources.size())

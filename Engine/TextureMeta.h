@@ -31,7 +31,7 @@ public:
 
 protected:
     virtual void Import() override;
-    virtual int GetVersion() const override { return 8; }
+    virtual int GetVersion() const override { return 9; }
 
 private:
     fs::path GetThumbnailPath() const;
