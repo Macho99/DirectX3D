@@ -1,0 +1,68 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 17887358745432947488,
+                    "rightId": 2859772968637041428
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 17432276200029098757,
+                            "rightId": 16321375509492877392
+                        },
+                        "fileName": "Wood_Planks_Painted.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 1512730689866157028,
+                            "rightId": 8441533429934368422
+                        },
+                        "fileName": "Wood_Planks_01.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 12092565068377074378,
+                            "rightId": 15289887549412718706
+                        },
+                        "fileName": "Window_Frame.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 4166738669843993600,
+                            "rightId": 13866740926665455043
+                        },
+                        "fileName": "Glass_Window.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 3625367895520134779,
+                            "rightId": 13125295589542443067
+                        },
+                        "fileName": "Wall_Top_Window_4m.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}

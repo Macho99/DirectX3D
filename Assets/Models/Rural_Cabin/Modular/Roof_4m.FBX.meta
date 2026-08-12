@@ -1,0 +1,60 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 17201295369818945219,
+                    "rightId": 16131965654841526321
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 17647291067885498459,
+                            "rightId": 17833283433120301436
+                        },
+                        "fileName": "Wood_Planks_01.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7765059883703840471,
+                            "rightId": 7167429464883416523
+                        },
+                        "fileName": "Metal_Roof_blend.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7993570310342235902,
+                            "rightId": 2064641636329212742
+                        },
+                        "fileName": "Wood_Generic_Painted.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 13510485497537515604,
+                            "rightId": 3124384301850479927
+                        },
+                        "fileName": "Roof_4m.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}

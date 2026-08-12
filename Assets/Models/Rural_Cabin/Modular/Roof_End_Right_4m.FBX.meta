@@ -1,0 +1,60 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 16393013667138246284,
+                    "rightId": 11929276271993732014
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 11606805592246835344,
+                            "rightId": 13910231493239858478
+                        },
+                        "fileName": "Wood_Planks_01.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 8531278348302315946,
+                            "rightId": 3372850430659210323
+                        },
+                        "fileName": "Metal_Roof_blend.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 3978571871860995596,
+                            "rightId": 15622752407899252743
+                        },
+                        "fileName": "Wood_Generic_Painted.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 16420686796961571802,
+                            "rightId": 2657361511229184910
+                        },
+                        "fileName": "Roof_End_Right_4m.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}

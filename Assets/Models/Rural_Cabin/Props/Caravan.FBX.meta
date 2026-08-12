@@ -1,0 +1,68 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 15605647932490901857,
+                    "rightId": 9281878919612893059
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 11126418165224604936,
+                            "rightId": 8467287472338387186
+                        },
+                        "fileName": "Caravan_Addons.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 1720749961894126451,
+                            "rightId": 1316137850039368232
+                        },
+                        "fileName": "Caravan_2.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 12493073293008603558,
+                            "rightId": 14560825735998452543
+                        },
+                        "fileName": "Caravan.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 9358426641887331659,
+                            "rightId": 6398499597355360195
+                        },
+                        "fileName": "Caravan_Windows.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 10752863296082905347,
+                            "rightId": 12496759029895412985
+                        },
+                        "fileName": "Caravan.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,76 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 3020818483646638368,
+                    "rightId": 10356493192914581734
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 16810323767543840400,
+                            "rightId": 5889183968731682461
+                        },
+                        "fileName": "Wood_Planks_Painted.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 3274587934607337052,
+                            "rightId": 4106030350380504074
+                        },
+                        "fileName": "Wood_Planks_01.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 16397887472051594047,
+                            "rightId": 1535253457301981242
+                        },
+                        "fileName": "Window_Frame.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 17533375108821037757,
+                            "rightId": 14955747783248020377
+                        },
+                        "fileName": "Glass_Window.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 1951598948023619129,
+                            "rightId": 15226489369782151679
+                        },
+                        "fileName": "Door_01.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 2376631358696714059,
+                            "rightId": 6825343348802829384
+                        },
+                        "fileName": "Wall_Door_Window_A_4m.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}
