@@ -33,6 +33,7 @@ bool FoliageController::OnGUI()
     changed |= OnGUIUtils::DrawFloat("Stiffness", &_foliageDesc.stiffness, 0.01f, false);
 
     ImGui::Separator();
+    ImGui::Text("Golbal Wind Settings");
     changed |= OnGUIUtils::DrawVec3("Wind Direction", &S_WindDesc.windDirection, 0.01f, false);
     changed |= OnGUIUtils::DrawFloat("Wind Strength", &S_WindDesc.windStrength, 0.01f, false);
     changed |= OnGUIUtils::DrawFloat("Wave Frequency", &S_WindDesc.waveFrequency, 0.01f, false);

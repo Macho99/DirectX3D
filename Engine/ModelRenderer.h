@@ -22,6 +22,7 @@ public:
 	void SetMaterial(ResourceRef<Material> material) override;
 
     virtual bool OnGUI() override;
+    virtual void OnMenu() override;
 	virtual bool TryInitialize() override;
     virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
 

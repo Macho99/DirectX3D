@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "OnGUIUtils.h"
+#include "FoliageController.h"
 
 ModelRenderer::ModelRenderer()
 	: Super(StaticType)
@@ -103,9 +104,32 @@ bool ModelRenderer::OnGUI()
 	bool changed = false;
 	changed |= Super::OnGUI();
 	ImGui::Separator();
-    changed |= OnGUIUtils::DrawResourceRef("Model", _model);
-    changed |= OnGUIUtils::DrawResourceRef("Shader", _shader);
+	if (OnGUIUtils::DrawResourceRef("Model", _model))
+	{
+        SetModel(_model);
+        changed = true;
+	}
+    if (OnGUIUtils::DrawResourceRef("Shader", _shader))
+    {
+        SetShader(_shader);
+        changed = true;
+    }
 	return changed;
+}
+
+void ModelRenderer::OnMenu()
+{
+    if (ImGui::MenuItem("Set Default Shader"))
+    {
+        SetShader(RESOURCES->GetDefaultShader());
+    }
+
+	if (ImGui::MenuItem("Set Foliage Setting"))
+	{
+		_pass = 0;
+        SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
+        GetGameObject()->AddComponent<FoliageController>();
+	}
 }
 
 bool ModelRenderer::TryInitialize()

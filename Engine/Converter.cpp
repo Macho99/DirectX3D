@@ -460,7 +460,7 @@ ResourceRef<Texture> Converter::WriteTexture(string file, const fs::path& assetP
 {
     if (file.empty())
         return ResourceRef<Texture>();
-    string fileName = filesystem::path(file).filename().string();
+    string fileName = filesystem::path(file).stem().string();
     const aiTexture* srcTexture = _scene->GetEmbeddedTexture(fileName.c_str());
     // fbx 파일에 텍스쳐가 포함되어 있을 경우
     if (srcTexture)

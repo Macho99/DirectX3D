@@ -11,6 +11,7 @@
 #include "TessTerrain.h"
 #include "MonoBehaviour.h"
 #include "ModelAnimator.h"
+#include "ModelRenderer.h"
 #include "MeshRenderer.h"
 #include "LineRenderer.h"
 #include "LayoutGroup.h"
@@ -64,6 +65,7 @@ template struct ComponentRef<Light>;
 template struct ComponentRef<TessTerrain>;
 template struct ComponentRef<MonoBehaviour>;
 template struct ComponentRef<ModelAnimator>;
+template struct ComponentRef<ModelRenderer>;
 template struct ComponentRef<MeshRenderer>;
 template struct ComponentRef<LineRenderer>;
 template struct ComponentRef<VerticalLayoutGroup>;

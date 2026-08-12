@@ -301,12 +301,6 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("NavAgent");
-        GameObject* obj = objRef.Resolve();
-        obj->AddComponent(make_unique<NavAgent>());
-    }
-
-    {
         auto objRef = CUR_SCENE->Add("Water");
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<SsrRenderer>());
@@ -319,8 +313,10 @@ void AssetSerializeDemo::Init()
         transform->SetScale(Vec3(200.f, 1.f, 200.f));
     }
 
+    auto uiObjRef = CUR_SCENE->Add("UI", true);
+    Transform* uiTransform = uiObjRef.Resolve()->GetTransform();
     {
-        auto objRef = CUR_SCENE->Add("Text", true);
+        auto objRef = CUR_SCENE->Add("Text", uiTransform);
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<Text>());
         obj->SetLayerIndex(Layer_UI);
@@ -331,7 +327,7 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("ImageTop", true);
+        auto objRef = CUR_SCENE->Add("ImageTop", uiTransform);
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<UIImage>());
         UIImage* uiImage = obj->GetUIImage();
@@ -353,12 +349,20 @@ void AssetSerializeDemo::Init()
     {
         auto objRef = CUR_SCENE->Add("Impulse");
         GameObject* obj = objRef.Resolve();
+        obj->SetActive(false);
         MeshRenderer* meshRenderer = obj->AddComponent<MeshRenderer>().Resolve();
         meshRenderer->SetMesh(RESOURCES->GetSphereMesh());
         meshRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ImpulseMat.mat"));
         Transform* transform = obj->GetTransform();
         transform->SetPosition(Vec3(0.f, baseHeight + 4.f, 67.f));
         transform->SetScale(Vec3(10.f));
+    }
+
+    {
+        auto objRef = CUR_SCENE->Add("SampleModelRenderer");
+        GameObject* obj = objRef.Resolve();
+        obj->GetTransform()->SetPosition(Vec3(0.f, baseHeight, 80.f));
+        obj->AddComponent<ModelRenderer>();
     }
 }
 

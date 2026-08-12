@@ -189,6 +189,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         {
             function<unique_ptr<MetaFile>()> texCreator = []() { return make_unique<TextureMeta>(); };
             _creators[".png"] = texCreator;
+            _creators[".PNG"] = texCreator;
             _creators[".tga"] = texCreator;
             _creators[".jpg"] = texCreator;
             _creators[".jpeg"] = texCreator;

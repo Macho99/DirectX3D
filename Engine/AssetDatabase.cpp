@@ -70,7 +70,7 @@ bool AssetDatabase::SearchAssetIdByPath(const fs::path& searchFolder, const wstr
         if (!entry.is_regular_file())
             continue;
 
-        if (entry.path().filename().wstring() == fileName)
+        if (entry.path().stem().wstring() == fileName)
         {
             return TryGetAssetIdByPath(entry.path(), OUT assetId);
         }
