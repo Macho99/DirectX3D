@@ -26,6 +26,7 @@
 #include "DndPayload.h"
 #include "FileUtils.h"
 #include "Font.h"
+#include "Model.h"
 
 MetaFile::MetaFile()
     :_resourceType(ResourceType::None)
@@ -152,6 +153,10 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
             break;
         case ResourceType::Model:
             key = "ModelIcon";
+            if (absPath.extension().string() == Model::GetExtension())
+            {
+                key = "CustomModelIcon";
+            }
             break;
         case ResourceType::Folder:
             key = "FolderIcon";
