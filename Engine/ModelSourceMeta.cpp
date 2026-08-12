@@ -42,6 +42,7 @@ unique_ptr<ResourceBase> ModelSourceMeta::LoadResource(AssetId assetId) const
         }
     }
     unique_ptr<Model> model = make_unique<Model>(materialRefs, meshRef, animationRefs);
+    model->SetName(GetAssetPath().stem());
     return model;
 }
 
@@ -98,7 +99,7 @@ void ModelSourceMeta::OnMenu()
     {
         unique_ptr<ResourceBase> model = LoadResource(_assetId);
         fs::path newAssetPath;
-        if (ContentBrowser::TryGetNewFilePath(GetAssetPath().parent_path(), "New Model", Model::GetExtension(), OUT newAssetPath))
+        if (ContentBrowser::TryGetNewFilePath(GetAssetPath().parent_path(), Utils::ToString(model->GetName()), Model::GetExtension(), OUT newAssetPath))
         {
             FileUtils::SaveResourceToJson(newAssetPath, model);
         }

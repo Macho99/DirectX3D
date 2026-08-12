@@ -21,11 +21,15 @@ ModelRenderer::~ModelRenderer()
 void ModelRenderer::SetShader(ResourceRef<Shader> shader)
 {
     _shader = shader;
+	_initialized = false;
+	_material = ResourceRef<Material>();
 }
 
 void ModelRenderer::SetModel(ResourceRef<Model> model)
 {
 	_model = model;
+	_initialized = false;
+	_material = ResourceRef<Material>();
 	if (_shader.Resolve() == nullptr)
 	{
 		SetShader(RESOURCES->GetDefaultShader());

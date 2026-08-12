@@ -16,7 +16,7 @@ inline const char* const ModelImportPresetNames[] =
 
 struct ModelImportSettings
 {
-    ModelImportPreset preset = ModelImportPreset::Default;
+    ModelImportPreset preset = ModelImportPreset::Unreal;
     float scale = 1.0f;
     Vec3 rotation = Vec3::Zero;
 

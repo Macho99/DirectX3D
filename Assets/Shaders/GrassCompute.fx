@@ -13,7 +13,7 @@ cbuffer GrassConstant
     float4 worldFrustumPlanes[6];
 };
 
-const float3 GrassScale = float3(8, 3, 8);
+const float3 GrassScale = float3(8, 2.2, 8);
 
 Texture2DArray LayerMapArray;
 Texture2D BlendMap;

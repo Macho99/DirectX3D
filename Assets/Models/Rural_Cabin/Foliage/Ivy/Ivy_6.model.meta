@@ -1,0 +1,17 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 4,
+                "_assetId": {
+                    "leftId": 7572504142372025831,
+                    "rightId": 970346095882903744
+                },
+                "_resourceType": 6
+            }
+        }
+    }
+}
