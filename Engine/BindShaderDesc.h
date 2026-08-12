@@ -305,8 +305,8 @@ struct FoliageDesc
 {
 	float time; // 현재 시간 (애니메이션 구동용)
     WindDesc wind; // 바람 정보
-	float bendFactor = 1.f; // 수풀 하단 고정/상단 흔들림 정도 조절
-	float stiffness = 0.f;
+	float bendFactor = 0.f; // 수풀 하단 고정/상단 흔들림 정도 조절
+	float stiffness = 0.9f;
 };
 
 struct ShadowDesc

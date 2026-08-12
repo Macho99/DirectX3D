@@ -1,0 +1,52 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 6271516776796587260,
+                    "rightId": 14216785096731424278
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 17045951872278563317,
+                            "rightId": 9241725995293983542
+                        },
+                        "fileName": "MI_Pine_Tree_Bark.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7523354682867242106,
+                            "rightId": 7116544536076652439
+                        },
+                        "fileName": "MI_Pine_Tree_Branches.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 10682098136790841016,
+                            "rightId": 2384514237259607133
+                        },
+                        "fileName": "SM_Pine_Tree_02.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}

@@ -32,9 +32,9 @@
                         "value.w": 1.0
                     }
                 },
-                "_renderQueue": 0,
+                "_renderQueue": 1,
                 "_castShadow": true,
-                "_includeInNavMesh": true,
+                "_includeInNavMesh": false,
                 "_shaderProperties": [],
                 "_shader": {
                     "assetId": {
@@ -44,14 +44,14 @@
                 },
                 "_diffuseMap": {
                     "assetId": {
-                        "leftId": 9462032103623503006,
-                        "rightId": 3613223517394622955
+                        "leftId": 11835520052251061756,
+                        "rightId": 16222652863461013933
                     }
                 },
                 "_normalMap": {
                     "assetId": {
-                        "leftId": 1636663222877226975,
-                        "rightId": 8211215814645805599
+                        "leftId": 3158989104893965862,
+                        "rightId": 8813498855573216432
                     }
                 },
                 "_specularMap": {
