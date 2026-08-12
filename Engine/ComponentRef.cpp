@@ -27,6 +27,7 @@
 #include "RectTransform.h"
 #include "UIRenderer.h"
 #include "TrailRenderer.h"
+#include "FoliageController.h"
 
 template<class T>
 ComponentRef<T>::ComponentRef(const T* component)
@@ -80,4 +81,4 @@ template struct ComponentRef<UIImage>;
 template struct ComponentRef<RectTransform>;
 template struct ComponentRef<UIRenderer>;
 template struct ComponentRef<TrailRenderer>;
-
+template struct ComponentRef<FoliageController>;

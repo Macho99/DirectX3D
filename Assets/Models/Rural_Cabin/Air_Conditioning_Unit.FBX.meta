@@ -1,0 +1,44 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 16775682314846273613,
+                    "rightId": 15887589662925887469
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 17393996977875362437,
+                            "rightId": 7037152500020172914
+                        },
+                        "fileName": "Air_Conditioning_Unit.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 7735647652424113048,
+                            "rightId": 9838253612777120426
+                        },
+                        "fileName": "Air_Conditioning_Unit.modelmesh",
+                        "resourceType": 8
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}
