@@ -53,6 +53,7 @@ public:
     ModelRenderer* GetModelRenderer();
     ModelAnimator* GetModelAnimator();
     Renderer* GetRenderer();
+    static bool IsRenderer(ComponentType componentType);
     BaseCollider* GetCollider();
     Terrain* GetTerrain();
     Button* GetButton();
@@ -101,6 +102,7 @@ public:
     }
 
 private:
+    static vector<ComponentType> S_RendererTypes;
     bool _isActive = true;
     bool _localActive = true;
 

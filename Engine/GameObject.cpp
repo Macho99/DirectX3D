@@ -20,6 +20,23 @@
 #include "SlotManager.h"
 #include "OnGUIUtils.h"
 
+vector<ComponentType> GameObject::S_RendererTypes = {
+	ComponentType::Text,
+	ComponentType::UIImage,
+	ComponentType::ScrollView,
+	ComponentType::MeshRenderer,
+	ComponentType::ModelRenderer,
+	ComponentType::ModelAnimator,
+	ComponentType::ParticleSystem,
+	ComponentType::Billboard,
+	ComponentType::SnowBillboard,
+	ComponentType::TessTerrain,
+	ComponentType::GrassRenderer,
+	ComponentType::LineRenderer,
+	ComponentType::TrailRenderer,
+	ComponentType::SsrRenderer
+};
+
 GameObject::GameObject(string name) : _name(name), _components{}
 {
 
@@ -223,35 +240,24 @@ ModelAnimator* GameObject::GetModelAnimator()
 
 Renderer* GameObject::GetRenderer()
 {
-    Component* renderer = GetFixedComponent(ComponentType::Text);
-    if (renderer == nullptr)
-        renderer = GetFixedComponent(ComponentType::UIImage);
-	if (renderer == nullptr)
-        renderer = GetFixedComponent(ComponentType::ScrollView);
-    if (renderer == nullptr)
-	    renderer = GetFixedComponent(ComponentType::MeshRenderer);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::ModelRenderer);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::ModelAnimator);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::ParticleSystem);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::Billboard);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::SnowBillboard);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::TessTerrain);
-    if (renderer == nullptr)
-        renderer = GetFixedComponent(ComponentType::GrassRenderer);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::LineRenderer);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::TrailRenderer);
-	if (renderer == nullptr)
-		renderer = GetFixedComponent(ComponentType::SsrRenderer);
+    for (ComponentType type : S_RendererTypes)
+    {
+        Component* component = GetFixedComponent(type);
+        if (component != nullptr)
+            return static_cast<Renderer*>(component);
+    }
 
-	return static_cast<Renderer*>(renderer);
+	return nullptr;
+}
+
+bool GameObject::IsRenderer(ComponentType componentType)
+{
+    for (ComponentType type : S_RendererTypes)
+    {
+        if (type == componentType)
+            return true;
+    }
+	return false;
 }
 
 BaseCollider* GameObject::GetCollider()
