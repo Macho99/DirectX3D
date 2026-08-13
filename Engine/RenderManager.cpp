@@ -102,8 +102,7 @@ void RenderManager::RenderMeshRenderer(vector<GameObject*>& gameObjects)
 			for (int32 i = 0; i < vec.size(); i++)
 			{
 				GameObject* gameObject = vec[i];
-				InstancingData data;
-				data.world = gameObject->GetTransform()->GetWorldMatrix();
+				InstancingData data = gameObject->GetTransform()->GetWorldMatrix();
 
 				AddData(instanceId, data);
 			}
@@ -116,7 +115,7 @@ void RenderManager::RenderMeshRenderer(vector<GameObject*>& gameObjects)
 
 void RenderManager::RenderModelRenderer(vector<GameObject*>& gameObjects)
 {
-	map<InstanceID, vector<GameObject*>> cache;
+	map<InstanceID, vector<ModelRenderer*>> cache;
 
 	// 분류 단계
 	for (GameObject* gameObject : gameObjects)
@@ -127,12 +126,12 @@ void RenderManager::RenderModelRenderer(vector<GameObject*>& gameObjects)
 			continue;
 
 		const InstanceID instanceId = gameObject->GetModelRenderer()->GetInstanceID();
-		cache[instanceId].push_back(gameObject);
+		cache[instanceId].push_back(gameObject->GetModelRenderer());
 	}
 
 	for (auto& pair : cache)
 	{
-		const vector<GameObject*>& vec = pair.second;
+		const vector<ModelRenderer*>& vec = pair.second;
 
 		/*if (vec.size() == 1)
 		{
@@ -144,15 +143,22 @@ void RenderManager::RenderModelRenderer(vector<GameObject*>& gameObjects)
 
 			for (int32 i = 0; i < vec.size(); i++)
 			{
-				GameObject* gameObject = vec[i];
-				InstancingData data;
-				data.world = gameObject->GetTransform()->GetWorldMatrix();
+				ModelRenderer* modelRenderer = vec[i];
+				if (modelRenderer->HasInstancingData())
+				{
+                    AddDatas(instanceId, modelRenderer->GetInstancingDatas());
+				}
+				else
+				{
+					InstancingData data;
+					data = modelRenderer->GetTransform()->GetWorldMatrix();
 
-				AddData(instanceId, data);
+					AddData(instanceId, data);
+				}
 			}
 
 			shared_ptr<InstancingBuffer>& buffer = _buffers[instanceId];
-			vec[0]->GetModelRenderer()->RenderInstancing(buffer, _renderTech);
+			vec[0]->RenderInstancing(buffer, _renderTech);
 		}
 	}
 }
@@ -191,7 +197,7 @@ void RenderManager::RenderAnimRenderer(vector<GameObject*>& gameObjects)
 			{
 				GameObject* gameObject = vec[i];
 				InstancingData data;
-				data.world = gameObject->GetTransform()->GetWorldMatrix();
+				data = gameObject->GetTransform()->GetWorldMatrix();
 
 				AddData(instanceId, data);
 
@@ -217,4 +223,14 @@ void RenderManager::AddData(InstanceID instanceId, InstancingData& data)
 	}
 
 	_buffers[instanceId]->AddData(data);
+}
+
+void RenderManager::AddDatas(InstanceID instanceId, const vector<InstancingData>& datas)
+{
+    if (_buffers.find(instanceId) == _buffers.end())
+    {
+        _buffers[instanceId] = make_shared<InstancingBuffer>();
+    }
+
+	_buffers[instanceId]->AddData(datas);
 }

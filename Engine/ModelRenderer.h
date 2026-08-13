@@ -21,6 +21,7 @@ public:
 
 	void SetMaterial(ResourceRef<Material> material) override;
 
+    virtual void LateUpdate() override;
     virtual bool OnGUI() override;
     virtual void OnMenu() override;
 	virtual bool TryInitialize() override;
@@ -32,9 +33,14 @@ public:
         Super::serialize(ar);
         ar(
 			CEREAL_NVP(_shader), 
-			CEREAL_NVP(_model)
+			CEREAL_NVP(_model),
+            CEREAL_NVP(_originInstDatas)
 		);
     }
+
+    void AddInstancingData(const Matrix& mat);
+    const vector<InstancingData>& GetInstancingDatas() const { return _instDatas; }
+    bool HasInstancingData() const { return _originInstDatas.size() > 0; }
 
 private:
     void FoliageSetup();
@@ -42,6 +48,10 @@ private:
 private:
 	ResourceRef<Shader>	_shader;
 	ResourceRef<Model>	_model;
+
+    vector<InstancingData> _originInstDatas;
+    vector<InstancingData> _instDatas;
+    Matrix _lastWorldMatrix;
 
     bool _initialized = false;
 };

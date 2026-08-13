@@ -125,6 +125,23 @@ void ModelRenderer::SetMaterial(ResourceRef<Material> material)
 	ASSERT(false, "ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
 }
 
+void ModelRenderer::LateUpdate()
+{
+	if (HasInstancingData())
+	{
+        const Matrix worldMat = GetTransform()->GetWorldMatrix();
+        if (worldMat != _lastWorldMatrix || _instDatas.size() != _originInstDatas.size())
+        {
+            _instDatas.resize(_originInstDatas.size());
+            for (size_t i = 0; i < _originInstDatas.size(); i++)
+            {
+                _instDatas[i] = _originInstDatas[i] * worldMat;
+            }
+        }
+        _lastWorldMatrix = worldMat;
+	}
+}
+
 bool ModelRenderer::OnGUI()
 {
 	bool changed = false;
@@ -229,6 +246,11 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
 				tris.push_back(tri);
         }
     }
+}
+
+void ModelRenderer::AddInstancingData(const Matrix& mat)
+{
+    _originInstDatas.push_back(mat);
 }
 
 void ModelRenderer::FoliageSetup()

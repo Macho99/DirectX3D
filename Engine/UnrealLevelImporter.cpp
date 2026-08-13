@@ -44,6 +44,8 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
     GameObject* rootObj = CUR_SCENE->Add(outLevel.LevelName).Resolve();
     Transform* rootTransform = rootObj->GetTransform();
+    rootTransform->SetLocalPosition(Vec3(-1, 8, 134));
+    rootTransform->SetLocalRotation(Vec3(0, 90, 0));
     unordered_map<string, pair<Transform*, ResourceRef<Model>>> modelCache;
 
     for (int i = 0; i < 10000 && i < outLevel.MeshCount; i++)
@@ -64,6 +66,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
             modelRef = RESOURCES->GetResourceRefByAbsPath<Model>(modelPath);
             meshParent = CUR_SCENE->Add(levelMeshData.MeshName, rootTransform).Resolve()->GetTransform();
+            meshParent->GetGameObject()->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
 
             modelCache[levelMeshData.MeshName] = make_pair(meshParent, modelRef);
         }
@@ -76,8 +79,8 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
             modelRef = it->second.second;
         }
 
-        GameObject* meshObj = CUR_SCENE->Add(levelMeshData.ActorName, meshParent).Resolve();
-        meshObj->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+        //GameObject* meshObj = CUR_SCENE->Add(levelMeshData.ActorName, meshParent).Resolve();
+        //meshObj->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
 
         const TransformData& transformData = levelMeshData.Transform;
 
@@ -112,9 +115,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         Matrix T = Matrix::CreateTranslation(position);
 
         Matrix worldMatrix = S * R * T;
-
-        Transform* meshTransform = meshObj->GetTransform();
-        meshTransform->SetWorldMatrix(worldMatrix);
+        meshParent->GetGameObject()->GetFixedComponent<ModelRenderer>()->AddInstancingData(worldMatrix);
     }
 
     return true;

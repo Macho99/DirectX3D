@@ -21,6 +21,7 @@ private:
 
 private:
 	void AddData(InstanceID instanceId, InstancingData& data);
+    void AddDatas(InstanceID instanceId, const vector<InstancingData>& datas);
 
 private:
 	map<InstanceID, shared_ptr<InstancingBuffer>> _buffers;

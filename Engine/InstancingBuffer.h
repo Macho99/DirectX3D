@@ -1,10 +1,7 @@
 #pragma once
 
 class VertexBuffer;
-struct InstancingData
-{
-	Matrix world;
-};
+using InstancingData = Matrix;
 
 #define MAX_MESH_INSTANCE 500
 
@@ -16,7 +13,8 @@ public:
 
 public:
 	void ClearData();
-	void AddData(InstancingData& data);
+	void AddData(const InstancingData& data);
+    void AddData(const vector<InstancingData>& data);
 	void PushData();
 
 public:

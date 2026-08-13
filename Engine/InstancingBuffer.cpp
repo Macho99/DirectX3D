@@ -10,15 +10,19 @@ InstancingBuffer::~InstancingBuffer()
 {
 }
 
-
 void InstancingBuffer::ClearData()
 {
 	_data.clear();
 }
 
-void InstancingBuffer::AddData(InstancingData& data)
+void InstancingBuffer::AddData(const InstancingData& data)
 {
 	_data.push_back(data);
+}
+
+void InstancingBuffer::AddData(const vector<InstancingData>& data)
+{
+	_data = data;
 }
 
 void InstancingBuffer::PushData()
