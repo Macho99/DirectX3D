@@ -37,6 +37,9 @@ public:
     }
 
 private:
+    void FoliageSetup();
+
+private:
 	ResourceRef<Shader>	_shader;
 	ResourceRef<Model>	_model;
 

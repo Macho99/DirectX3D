@@ -7,6 +7,7 @@
 #include "DebugTexWindow.h"
 #include "ContentBrowser.h"
 #include "FileUtils.h"
+#include "UnrealLevelImporter.h"
 
 EditorManager::EditorManager()
 {
@@ -131,6 +132,28 @@ void EditorManager::Update()
             //    archive(target);
             //    SCENE->ChangeScene(target);
             //}
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Unreal Level Import"))
+        {
+            if (ImGui::MenuItem("Import"))
+            {
+                auto path = FileUtils::OpenFileDialog(
+                    L"Import Unreal Level",
+                    L"JSON Files (*.json)\0*.json\0All Files (*.*)\0*.*\0",
+                    L"json",
+                    L"..\\Assets"
+                );
+                if (!path.empty())
+                {
+                    LevelData levelData;
+                    if (UnrealLevelImporter::LoadLevel(path.string()))
+                    {
+                        int a = 0;
+                    }
+                }
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

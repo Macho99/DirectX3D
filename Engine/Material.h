@@ -35,6 +35,7 @@ public:
 	virtual int GetVersion() const override { return 4; }
 
 	Shader* GetShader() { return _shader.Resolve(); }
+    ResourceRef<Shader> GetShaderRef() { return _shader; }
 
 	MaterialDesc& GetMaterialDesc() { return _desc; }
 	ResourceRef<Texture> GetDiffuseMap() { return _diffuseMap; }

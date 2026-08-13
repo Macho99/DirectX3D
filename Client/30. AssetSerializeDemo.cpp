@@ -60,15 +60,6 @@ void AssetSerializeDemo::Init()
     const float baseHeight = 8.f;
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
-    GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
-    GameObject* camera = cameraRef.Resolve();
-    {
-        //camera->GetTransform()->SetPosition(Vec3{ -4.f, baseHeight + 5, 65.f });
-        //camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
-        camera->AddComponent(make_unique<Camera>());
-        camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
-        camera->GetCamera()->SetFar(500.f);
-    }
 
     {
         // Light
@@ -207,29 +198,47 @@ void AssetSerializeDemo::Init()
         }
         
         {
+            GameObjectRef cameraRef = CUR_SCENE->Add("Camera");
+            GameObject* camera = cameraRef.Resolve();
+            {
+                camera->AddComponent(make_unique<Camera>());
+                camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
+                camera->GetCamera()->SetFar(500.f);
+            }
+
             auto followerObjRef = CUR_SCENE->Add("TargetFollower");
             GameObject* followerObj = followerObjRef.Resolve();
 
-            followerObj->GetTransform()->SetParent(parentTransformRef);
-            Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
-            TransformRef followerTransformRef = followerTransform->GetRef();
-            camera->GetTransform()->SetParent(followerTransformRef);
-            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
-
+            bool editorCamera = true;
+            if (editorCamera)
             {
-                unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
-                targetFollower->SetTarget(obj->GetTransform());
-                targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
-                targetFollower->SetFollowPositionX(true);
-                targetFollower->SetFollowPositionY(true);
-                targetFollower->SetFollowPositionZ(true);
-                followerObj->AddComponent(std::move(targetFollower));
+                camera->GetTransform()->SetPosition(Vec3{ -4.f, baseHeight + 5, 65.f });
+                camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
+                camera->AddComponent(make_unique<CameraMove>());
             }
-            
+            else
             {
-                unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
-                thirdPersonCamMove->SetTarget(obj->GetTransformRef());
-                camera->AddComponent(std::move(thirdPersonCamMove));
+                followerObj->GetTransform()->SetParent(parentTransformRef);
+                Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
+                TransformRef followerTransformRef = followerTransform->GetRef();
+                camera->GetTransform()->SetParent(followerTransformRef);
+                camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
+
+                {
+                    unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
+                    targetFollower->SetTarget(obj->GetTransform());
+                    targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
+                    targetFollower->SetFollowPositionX(true);
+                    targetFollower->SetFollowPositionY(true);
+                    targetFollower->SetFollowPositionZ(true);
+                    followerObj->AddComponent(std::move(targetFollower));
+                }
+
+                {
+                    unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
+                    thirdPersonCamMove->SetTarget(obj->GetTransformRef());
+                    camera->AddComponent(std::move(thirdPersonCamMove));
+                }
             }
         }
     }

@@ -32,8 +32,30 @@ void ModelRenderer::SetModel(ResourceRef<Model> model)
 	_material = ResourceRef<Material>();
 	if (_shader.Resolve() == nullptr)
 	{
-		SetShader(RESOURCES->GetDefaultShader());
+        bool isFoliage = false;
+        Model* modelPtr = _model.Resolve();
+		if (modelPtr != nullptr)
+		{
+			const auto& materials = modelPtr->GetMaterials();
+			if (materials.size() > 0)
+			{
+				ResourceRef<Shader> shaderRef = materials[0].Resolve()->GetShaderRef();
+				ResourceRef<Shader> foliageShaderRef = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx");
+
+				if (shaderRef == foliageShaderRef)
+				{
+					FoliageSetup();
+                    isFoliage = true;
+				}
+			}
+		}
+
+		if (isFoliage == false)
+		{
+			SetShader(RESOURCES->GetDefaultShader());
+		}
 	}
+
 }
 
 void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
@@ -130,9 +152,7 @@ void ModelRenderer::OnMenu()
 
 	if (ImGui::MenuItem("Set Foliage Setting"))
 	{
-		_pass = 0;
-        SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
-        GetGameObject()->AddComponent<FoliageController>();
+        FoliageSetup();
 	}
 }
 
@@ -209,4 +229,13 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
 				tris.push_back(tri);
         }
     }
+}
+
+void ModelRenderer::FoliageSetup()
+{
+	_pass = 0;
+	SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
+
+	if (GetGameObject()->GetFixedComponent<FoliageController>() == nullptr)
+		GetGameObject()->AddComponent<FoliageController>();
 }
