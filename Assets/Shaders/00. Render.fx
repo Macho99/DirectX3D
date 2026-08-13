@@ -98,8 +98,8 @@ MeshOutput VS_Model(VertexModel input)
 {
 	MeshOutput output;
 
-	float4 worldPos = mul(input.position, BoneTransforms[BoneIndex]);
-	worldPos = mul(worldPos, input.world); // W
+	//float4 worldPos = mul(input.position, BoneTransforms[BoneIndex]);
+    float4 worldPos = mul(input.position, input.world); // W
 	//output.position = mul(input.position, BoneTransforms[BoneIndex]); // Model Global
 	//output.position = mul(output.position, input.world); // W
 	output.position = worldPos;

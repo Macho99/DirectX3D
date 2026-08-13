@@ -85,15 +85,15 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 
 	// Bones
-	BoneDesc boneDesc;
-
-	const uint32 boneCount = mesh->GetBoneCount();
-	for (uint32 i = 0; i < boneCount; i++)
-	{
-		shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
-		boneDesc.transforms[i] = bone->globalMatrix;
-	}
-	shader->PushBoneData(boneDesc);
+	//BoneDesc boneDesc;
+	//
+	//const uint32 boneCount = mesh->GetBoneCount();
+	//for (uint32 i = 0; i < boneCount; i++)
+	//{
+	//	shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(i);
+	//	boneDesc.transforms[i] = bone->globalMatrix;
+	//}
+	//shader->PushBoneData(boneDesc);
 
 	const auto& meshes = mesh->GetMeshes();
 	for (auto& mesh : meshes)
@@ -103,7 +103,7 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 			material->Update();
 
 		// BoneIndex
-		shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
+		//shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
 
 		// IA
 		mesh->vertexBuffer->PushData();
