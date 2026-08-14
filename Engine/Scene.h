@@ -8,7 +8,9 @@
 
 class Camera;
 class Transform;
-struct Guid;
+struct Guid;    
+
+using InstancedRendererMap = unordered_map<string/*material Name*/, unordered_map<AssetId, vector<ComponentRef<class InstancingRenderer>>, AssetIdHash>>;
 
 class Scene : public ResourceBase
 {
@@ -77,6 +79,12 @@ public:
 private:
 	GameObjectRef Add(GuidRef guidRef, bool useRectTransform, Transform* parent);
 
+    void OnRendererAdd(Renderer* renderer);
+    void OnRendererRemove(Renderer* renderer);
+
+    void OnInstRendererStateChange(ComponentRef<InstancingRenderer> instRendererRef, const Material* oldMat, const Material* newMat, const AssetId& oldMeshId, const AssetId& newMeshId);
+    void OnRendererMaterialChange(ComponentRef<Renderer> renderer, const Material* oldMat, const Material* newMat);
+
 public:
     template<class Archive>
     void serialize(Archive& ar)
@@ -103,6 +111,10 @@ private:
 
     SlotManager<GameObject> _gameObjectSlotManager;
     SlotManager<Component> _componentSlotManager;
+
+    vector<ComponentRef<Renderer>> _vecForward;
+    vector<ComponentRef<Renderer>> _vecBackward;
+    InstancedRendererMap _instRenderers;
 
 	uint64 _instanceId;
 };

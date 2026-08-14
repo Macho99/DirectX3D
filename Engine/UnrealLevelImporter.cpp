@@ -44,8 +44,6 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
     GameObject* rootObj = CUR_SCENE->Add(outLevel.LevelName).Resolve();
     Transform* rootTransform = rootObj->GetTransform();
-    rootTransform->SetLocalPosition(Vec3(-1, 8, 134));
-    rootTransform->SetLocalRotation(Vec3(0, 90, 0));
     unordered_map<string, pair<Transform*, ResourceRef<Model>>> modelCache;
 
     for (int i = 0; i < 10000 && i < outLevel.MeshCount; i++)
@@ -118,6 +116,8 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         meshParent->GetGameObject()->GetFixedComponent<ModelRenderer>()->AddInstancingData(worldMatrix);
     }
 
+    rootTransform->SetLocalPosition(Vec3(-1, 8, 134));
+    rootTransform->SetLocalRotation(Vec3(0, 90, 0));
     return true;
 }
 

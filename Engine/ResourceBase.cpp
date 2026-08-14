@@ -21,6 +21,11 @@ ResourceBase::~ResourceBase()
 
 }
 
+string ResourceBase::GetStringName() const
+{
+    return Utils::ToString(GetName());
+}
+
 bool ResourceBase::OnGUI(bool isReadOnly)
 {
 	return false;

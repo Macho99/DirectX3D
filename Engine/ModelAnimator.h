@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Renderer.h"
+#include "InstancingRenderer.h"
 //#include "skinned_mesh.h"
 
 class Model;
@@ -31,9 +31,9 @@ struct AnimTransform
     array<Matrix, MAX_MODEL_KEYFRAMES> rootTransforms;
 };
 
-class ModelAnimator : public Renderer
+class ModelAnimator : public InstancingRenderer
 {
-    using Super = Renderer;
+    using Super = InstancingRenderer;
     DECLARE_COMPONENT(ModelAnimator)
 public:
 	ModelAnimator();
@@ -67,6 +67,7 @@ public:
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 	virtual void OnInspectorFocusLost() override;
+    virtual AssetId GetMeshId() const override { return _model.GetAssetId(); }
 
     template<typename Archive>
 	void serialize(Archive& ar)

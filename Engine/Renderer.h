@@ -21,6 +21,7 @@ public:
     virtual bool OnGUI() override;
 	virtual bool TryInitialize() { return true; }
     virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) {}
+    bool IsInstRenderer() const;
 
     template<typename Archive>
     void serialize(Archive& ar)

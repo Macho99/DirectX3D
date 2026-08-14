@@ -49,6 +49,19 @@ bool Renderer::OnGUI()
 	return changed;
 }
 
+bool Renderer::IsInstRenderer() const
+{
+	switch (GetType())
+	{
+    case ComponentType::MeshRenderer:
+    case ComponentType::ModelRenderer:
+    case ComponentType::ModelAnimator:
+		return true;
+	}
+
+	return false;
+}
+
 void Renderer::InnerRender(RenderTech renderTech)
 {
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

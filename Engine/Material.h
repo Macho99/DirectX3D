@@ -53,7 +53,7 @@ public:
     void SetLayerMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerMapArraySRV = srv; }
 	void SetRandomTex(bool useRandomTexture) { _useRandomTexture = useRandomTexture; }
 
-	void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
+	//void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
 	RenderQueue GetRenderQueue() const { return _renderQueue; }
 
 	void SetCastShadow(bool castShadow) { _castShadow = castShadow; }

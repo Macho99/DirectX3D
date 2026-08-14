@@ -19,7 +19,8 @@ public:
     virtual int GetVersion() const { return 0; }
 
 	void SetName(const wstring& name) { _name = name; }
-	const wstring& GetName() { return _name; }
+	const wstring& GetName() const { return _name; }
+	string GetStringName() const;
 	AssetId GetID() { return _assetId; }
 	void SetId(const AssetId& assetId) { _assetId = assetId; }
 	virtual bool OnGUI(bool isReadOnly);

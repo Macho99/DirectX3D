@@ -810,7 +810,12 @@
     <ClInclude Include="AnimationOverrideMeta.h">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClInclude>
-    <ClInclude Include="UnrealLevelImporter.h" />
+    <ClInclude Include="InstancingRenderer.h">
+      <Filter>04. Component\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="UnrealLevelImporter.h">
+      <Filter>98. Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -1257,7 +1262,12 @@
     <ClCompile Include="AnimationOverrideMeta.cpp">
       <Filter>00. Engine\Asset\MetaFile</Filter>
     </ClCompile>
-    <ClCompile Include="UnrealLevelImporter.cpp" />
+    <ClCompile Include="InstancingRenderer.cpp">
+      <Filter>04. Component\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="UnrealLevelImporter.cpp">
+      <Filter>98. Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cereal\external\rapidxml\manual.html">

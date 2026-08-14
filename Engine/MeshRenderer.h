@@ -1,13 +1,13 @@
 #pragma once
-#include "Renderer.h"
+#include "InstancingRenderer.h"
 
 class Mesh;
 class Shader;
 class Material;
 
-class MeshRenderer : public Renderer
+class MeshRenderer : public InstancingRenderer
 {
-	using Super = Renderer;
+	using Super = InstancingRenderer;
     DECLARE_COMPONENT(MeshRenderer)
 public:
 	MeshRenderer();
@@ -20,6 +20,8 @@ public:
     InstanceID GetInstanceID();
     virtual bool OnGUI() override;
     virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
+
+    virtual AssetId GetMeshId() const override { return _mesh.GetAssetId(); }
 
     template<typename Archive>
     void serialize(Archive& ar)

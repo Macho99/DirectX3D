@@ -71,7 +71,7 @@ public:
     virtual int GetVersion() const { return 0; }
 
 public:
-	ComponentType GetType() { return _type; }
+	ComponentType GetType() const { return _type; }
 
 	GameObject* GetGameObject();
     GameObjectRef GetGameObjectRef() const { return _gameObject; }
