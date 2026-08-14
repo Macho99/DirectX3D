@@ -696,6 +696,11 @@ void ModelBatchingTool::OnGUI()
         ExtractModelRenderersFromChildren();
     ImGui::EndDisabled();
     ImGui::SameLine();
+    if (ImGui::Button("Remove All"))
+    {
+        _modelRenderers.clear();
+    }
+    ImGui::SameLine();
     if (ImGui::Button("Sort"))
     {
         std::sort(_modelRenderers.begin(), _modelRenderers.end(),
@@ -715,7 +720,7 @@ void ModelBatchingTool::OnGUI()
         ImGui::SameLine();
         ModelRendererSlot& rendererSlot = _modelRenderers[index];
         const bool rendererChanged =
-            OnGUIUtils::DrawComponentRef("Model Renderer", rendererSlot.rendererRef);
+            OnGUIUtils::DrawComponentRef(to_string(index).c_str(), rendererSlot.rendererRef);
         if (rendererChanged || rendererSlot.estimateInitialized == false)
             RefreshModelRendererSlot(OUT rendererSlot);
 

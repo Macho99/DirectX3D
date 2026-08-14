@@ -85,4 +85,5 @@ crashlytics-build.properties
 /Artifact/*
 /Assets/Models/Zombie/Ch10_nonPBR.fbx
 /Assets/Models/Rural_Cabin/**/*.PNG
+/Assets/Batches/*
 Client/imgui.ini
