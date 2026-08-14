@@ -82,6 +82,7 @@ public:
     ResourceRef<Texture> GetDummyTexture() const { return _dummyTexture; }
     ResourceRef<Material> AllocateUIDefaultMaterial();
     ResourceRef<Shader> GetDefaultShader() const;
+	ResourceRef<Shader> GetFoliageShader() const;
 
 private:
 	static wstring ToStr(FsAction fsAction);

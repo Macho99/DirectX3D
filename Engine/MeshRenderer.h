@@ -16,7 +16,7 @@ public:
 	void SetMesh(ResourceRef<Mesh> mesh);
     ResourceRef<Mesh> GetMesh() { return _mesh; }
 	void InnerRender(RenderTech renderTech) override;
-	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
+    virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
     InstanceID GetInstanceID();
     virtual bool OnGUI() override;
     virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;

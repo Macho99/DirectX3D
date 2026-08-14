@@ -22,7 +22,7 @@ void InstancingBuffer::AddData(const InstancingData& data)
 
 void InstancingBuffer::AddData(const vector<InstancingData>& data)
 {
-	_data = data;
+    _data.insert(_data.end(), data.begin(), data.end());
 }
 
 void InstancingBuffer::PushData()

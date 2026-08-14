@@ -9,6 +9,23 @@ InstancingRenderer::InstancingRenderer(ComponentType componentType)
 {
 }
 
+void InstancingRenderer::LateUpdate()
+{
+    if (HasInstancingData())
+    {
+        const Matrix worldMat = GetTransform()->GetWorldMatrix();
+        if (worldMat != _lastWorldMatrix || _instDatas.size() != _originInstDatas.size())
+        {
+            _instDatas.resize(_originInstDatas.size());
+            for (size_t i = 0; i < _originInstDatas.size(); i++)
+            {
+                _instDatas[i] = _originInstDatas[i] * worldMat;
+            }
+        }
+        _lastWorldMatrix = worldMat;
+    }
+}
+
 void InstancingRenderer::OnMaterialChange(const Material* oldMaterial, const Material* newMaterial)
 {
     shared_ptr<Scene> scene = SCENE->GetCurrentScene();
@@ -34,4 +51,9 @@ void InstancingRenderer::OnMeshChange(const AssetId& oldMeshId, const AssetId& n
     const Material* material = GetMaterial().Resolve();
     scene->OnInstRendererStateChange(ComponentRef<InstancingRenderer>(this),
         material, material, oldMeshId, newMeshId);
+}
+
+void InstancingRenderer::AddInstancingData(const Matrix& mat)
+{
+    _originInstDatas.push_back(mat);
 }

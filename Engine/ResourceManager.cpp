@@ -267,6 +267,11 @@ ResourceRef<Shader> ResourceManager::GetDefaultShader() const
     return GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
 }
 
+ResourceRef<Shader> ResourceManager::GetFoliageShader() const
+{
+	return GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx");
+}
+
 wstring ResourceManager::ToStr(FsAction fsAction)
 {
 	switch (fsAction)

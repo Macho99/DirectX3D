@@ -50,7 +50,7 @@ void MeshRenderer::InnerRender(RenderTech renderTech)
 	material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
 }
 
-void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
+void MeshRenderer::RenderInstancing(InstancingBuffer& buffer, RenderTech renderTech)
 {
 	if (CanRender(renderTech) == false)
 	{
@@ -75,10 +75,10 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 	mesh->GetVertexBuffer()->PushData();
 	mesh->GetIndexBuffer()->PushData();
 
-	buffer->PushData();
+	buffer.PushData();
 
 	material->GetShader()->DrawIndexedInstanced(renderTech, _pass, mesh->GetIndexBuffer()->GetCount(),
-		buffer->GetCount());
+		buffer.GetCount());
 }
 
 InstanceID MeshRenderer::GetInstanceID()

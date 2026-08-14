@@ -81,56 +81,12 @@ bool Camera::OnGUI()
 	return changed;
 }
 
-void Camera::SortGameObject()
-{
-	shared_ptr<Scene> scene = CUR_SCENE;
-	GameObjectRefSet& gameObjects = scene->GetObjects();
-
-	_vecForward.clear();
-	_vecBackward.clear();
-
-	for (auto& gameObjectRef : gameObjects)
-	{
-		GameObject* gameObject = gameObjectRef.Resolve();
-		if (IsCulled(gameObject->GetLayerIndex()))
-			continue;
-
-		Renderer* renderer = gameObject->GetRenderer();
-		if (renderer == nullptr)
-			continue;
-
-		if (renderer->TryInitialize() == false)
-			continue;
-
-		Material* material = renderer->GetMaterial().Resolve();
-        if (material == nullptr)
-            continue;
-
-		RenderQueue renderQueue = material->GetRenderQueue();
-
-		// TODO: 컷아웃용 정렬하기
-		// TODO: 거리에 따라 정렬하기(인스턴싱도 고민)
-
-		switch (renderQueue)
-		{
-		case RenderQueue::Opaque:
-		case RenderQueue::Cutout:
-			_vecForward.push_back(gameObject);
-			break;
-		case RenderQueue::Transparent:
-			_vecBackward.push_back(gameObject);
-			break;
-		}
-	}
-}
-
 void Camera::SortUIGameObject()
 {
 	shared_ptr<Scene> scene = CUR_SCENE;
 	vector<TransformRef>& rootObjects = scene->GetRootObjects();
 
-	_vecForward.clear();
-	_vecBackward.clear();
+    _uiRenderers.clear();
 
 	function<void(Transform*)> dfs = [&](Transform* transform)
 	{
@@ -145,7 +101,7 @@ void Camera::SortUIGameObject()
 			{
 				Material* material = renderer->GetMaterial().Resolve();
 				if (material != nullptr)
-					_vecForward.push_back(gameObject);
+					_uiRenderers.push_back(ComponentRef<Renderer>(renderer));
 			}
 		}
 
@@ -163,28 +119,4 @@ void Camera::SetStaticData()
 	S_MatProjection = _matProjection;
 	S_Pos = GetTransform()->GetPosition();
     S_ProjectionType = _type;
-}
-
-void Camera::Render_Forward(RenderTech renderTech)
-{
-    if (_type == ProjectionType::Orthographic)
-    {
-        for (GameObject* gameObject : _vecForward)
-        {
-            if (gameObject == nullptr || gameObject->IsActiveInHierarchy() == false)
-                continue;
-
-            Renderer* renderer = gameObject->GetRenderer();
-            if (renderer != nullptr)
-                renderer->Render(renderTech);
-        }
-        return;
-    }
-
-	GET_SINGLE(RenderManager)->Render(_vecForward, renderTech);
-}
-
-void Camera::Render_Backward(RenderTech renderTech)
-{
-	GET_SINGLE(RenderManager)->Render(_vecBackward, renderTech);
 }

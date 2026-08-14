@@ -123,7 +123,6 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "InputManager.h"
 #include "TimeManager.h"
 #include "ResourceManager.h"
-#include "RenderManager.h"
 #include "DebugManager.h"
 
 // Engine

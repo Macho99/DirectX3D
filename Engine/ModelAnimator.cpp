@@ -18,7 +18,6 @@ ModelAnimator::ModelAnimator()
 	: Super(StaticType)
 {
     _pass = 2;
-	_shader = RESOURCES->GetDefaultShader();
 }
 
 ModelAnimator::~ModelAnimator()
@@ -97,11 +96,6 @@ void ModelAnimator::Update()
 	}
 }
 
-void ModelAnimator::SetShader(ResourceRef<Shader> shader)
-{
-    _shader = shader;
-}
-
 void ModelAnimator::SetModel(ResourceRef<Model> model)
 {
 	const AssetId oldMeshId = GetMeshId();
@@ -113,6 +107,12 @@ void ModelAnimator::SetModel(ResourceRef<Model> model)
     Model* modelPtr = _model.Resolve();
 	if (modelPtr == nullptr)
 		return;
+
+	if (modelPtr->GetMaterialCount() > 0)
+	{
+        SetMaterial(modelPtr->GetMaterialByIndex(0));
+	}
+
 	int animCount = modelPtr->GetAnimationCount();
 	_tweenDesc.ClearNextAnim();
 }
@@ -154,15 +154,11 @@ void ModelAnimator::ClearBlendSpace()
 	_blendSpaceTriangulationDirty = false;
 }
 
-void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
+void ModelAnimator::RenderInstancing(InstancingBuffer& buffer, RenderTech renderTech)
 {
     Model* model = _model.Resolve();
 	if (model == nullptr)
 		return;
-
-    Shader* shader = _shader.Resolve();
-    if (shader == nullptr)
-        return;
 
     ModelMeshResource* mesh = model->GetMesh();
     if (mesh == nullptr)
@@ -174,6 +170,9 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	if (Super::Render(renderTech) == false)
 		return;
 
+    Material* material = GetMaterial().Resolve();
+	Shader* shader = material->GetShader();
+
 	//// GlobalData
 	//_shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
 	//
@@ -183,7 +182,7 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 
 	// SRV를 통해 정보 전달
-	_shader.Resolve()->GetSRV("TransformMap")->SetResource(_srv.Get());
+	shader->GetSRV("TransformMap")->SetResource(_srv.Get());
 
 	// Bone
 	BoneDesc boneDesc;
@@ -220,14 +219,9 @@ void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 
 		modelMesh->vertexBuffer->PushData();
 		modelMesh->indexBuffer->PushData();
-		buffer->PushData();
-		shader->DrawIndexedInstanced(renderTech, _pass, modelMesh->indexBuffer->GetCount(), buffer->GetCount());
+		buffer.PushData();
+		shader->DrawIndexedInstanced(renderTech, _pass, modelMesh->indexBuffer->GetCount(), buffer.GetCount());
 	}
-}
-
-InstanceID ModelAnimator::GetInstanceID()
-{
-	return make_pair((uint64)_model.GetAssetId().GetLeftId(), (uint64)_shader.GetAssetId().GetLeftId());
 }
 
 void ModelAnimator::PlayAnimation(uint32 animIndex)
@@ -414,17 +408,22 @@ bool ModelAnimator::TryInitialize()
     if (modelPtr == nullptr)
         return false;
 
-    Shader* shaderPtr = _shader.Resolve();
-    if (shaderPtr == nullptr)
-        return false;
-
 	auto& materials = modelPtr->GetMaterials();
-	for (auto& material : materials)
+    bool hasValidMaterial = false;
+	for (auto& materialRef : materials)
 	{
-		material.Resolve()->SetShader(_shader);
-		SetMaterial(material);
-		break;
+        Material* material = materialRef.Resolve();
+        if (material == nullptr)
+            continue;
+
+        if (material->GetShader() == nullptr)
+            continue;
+
+        hasValidMaterial = true;
 	}
+
+    if (hasValidMaterial == false)
+        return false;
 
     _initialized = true;
     return true;

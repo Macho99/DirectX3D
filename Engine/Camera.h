@@ -93,11 +93,8 @@ public:
 	static Vec3 S_Pos;
 
 public:
-	void SortGameObject();
 	void SortUIGameObject();
 	void SetStaticData();
-	void Render_Forward(RenderTech renderTech);
-	void Render_Backward(RenderTech renderTech);
 
 	void SetCullingMaskLayerOnOff(uint8 layer, bool on)
 	{
@@ -111,8 +108,9 @@ public:
 	void SetCullingMask(uint32 mask) { _cullingMask = mask; }
 	bool IsCulled(uint8 layer) { return (_cullingMask & (1 << layer)) != 0; }
 
+    const vector<ComponentRef<Renderer>>& GetUIRenderers() const { return _uiRenderers; }
+
 private:
 	uint32 _cullingMask = 0;
-	vector<GameObject*> _vecForward;
-	vector<GameObject*> _vecBackward;
+    vector<ComponentRef<Renderer>> _uiRenderers;
 };

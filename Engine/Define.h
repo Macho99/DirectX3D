@@ -31,7 +31,6 @@ public:										\
 #define TIME		GET_SINGLE(TimeManager)
 #define DT			TIME->GetDeltaTime()
 #define RESOURCES	GET_SINGLE(ResourceManager)
-#define RENDER		GET_SINGLE(RenderManager)
 #define EDITOR		GET_SINGLE(EditorManager)
 #define SCENE		GET_SINGLE(SceneManager)
 #define CUR_SCENE	SCENE->GetCurrentScene()

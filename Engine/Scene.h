@@ -5,12 +5,13 @@
 #include "cereal/types/unordered_set.hpp"
 #include "Sky.h"
 #include "GameObject.h"
+#include "InstancingBuffer.h"
 
 class Camera;
 class Transform;
 struct Guid;    
 
-using InstancedRendererMap = unordered_map<string/*material Name*/, unordered_map<AssetId, vector<ComponentRef<class InstancingRenderer>>, AssetIdHash>>;
+using InstancedRendererMap = unordered_map<string/*material Name*/, unordered_map<AssetId, pair<InstancingBuffer, vector<ComponentRef<class InstancingRenderer>>>, AssetIdHash>>;
 
 class Scene : public ResourceBase
 {
@@ -86,6 +87,9 @@ private:
 
     void OnInstRendererStateChange(ComponentRef<InstancingRenderer> instRendererRef, const Material* oldMat, const Material* newMat, const AssetId& oldMeshId, const AssetId& newMeshId);
     void OnRendererMaterialChange(ComponentRef<Renderer> renderer, const Material* oldMat, const Material* newMat);
+
+    void Render(const vector<ComponentRef<Renderer>>& renderers, Camera* camera, RenderTech renderTech);
+    void RenderInstancing(Camera* camera, RenderTech renderTech);
 
 public:
     template<class Archive>

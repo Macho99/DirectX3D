@@ -13,15 +13,10 @@ public:
 	ModelRenderer();
 	virtual ~ModelRenderer();
 
-    void SetShader(ResourceRef<Shader> shader);
 	void SetModel(ResourceRef<Model> model);
 
-	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
-	InstanceID GetInstanceID();
+    virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 
-	void SetMaterial(ResourceRef<Material> material) override;
-
-    virtual void LateUpdate() override;
     virtual bool OnGUI() override;
     virtual void OnMenu() override;
 	virtual bool TryInitialize() override;
@@ -33,26 +28,15 @@ public:
     {
         Super::serialize(ar);
         ar(
-			CEREAL_NVP(_shader), 
-			CEREAL_NVP(_model),
-            CEREAL_NVP(_originInstDatas)
+			CEREAL_NVP(_model)
 		);
     }
-
-    void AddInstancingData(const Matrix& mat);
-    const vector<InstancingData>& GetInstancingDatas() const { return _instDatas; }
-    bool HasInstancingData() const { return _originInstDatas.size() > 0; }
 
 private:
     void FoliageSetup();
 
 private:
-	ResourceRef<Shader>	_shader;
 	ResourceRef<Model>	_model;
-
-    vector<InstancingData> _originInstDatas;
-    vector<InstancingData> _instDatas;
-    Matrix _lastWorldMatrix;
 
     bool _initialized = false;
 };

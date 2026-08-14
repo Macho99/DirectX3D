@@ -258,9 +258,7 @@ void AssetSerializeDemo::Init()
             obj->GetTransform()->SetParent(parentTransformRef);
 
             auto modelRenderer = make_unique<ModelRenderer>();
-            modelRenderer->SetShader(renderShader);
             modelRenderer->SetModel(model);
-            modelRenderer->SetPass(1);
             obj->AddComponent(std::move(modelRenderer));
         }
     }
@@ -284,9 +282,7 @@ void AssetSerializeDemo::Init()
 
             obj->AddComponent(make_unique<ModelRenderer>());
             {
-                obj->GetModelRenderer()->SetShader(foliageShader);
                 obj->GetModelRenderer()->SetModel(m2);
-                obj->GetModelRenderer()->SetPass(0);
             }
 
             auto foliageController = make_unique<FoliageController>();

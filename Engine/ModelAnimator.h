@@ -45,11 +45,9 @@ public:
 	void UpdateRootMotion(const TweenDesc prevTweenDesc);
 	void UpdateTweenData();
 
-    void SetShader(ResourceRef<Shader> shader);
 	void SetModel(ResourceRef<Model> model);
 
-	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);
-	InstanceID GetInstanceID();
+	virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 	TweenDesc& GetTweenDesc() { return _tweenDesc; }
 
 	// 외부 게임 로직에서 미리보기 입력 좌표와 샘플 지점을 관리할 때 사용하는 API.
@@ -74,7 +72,6 @@ public:
 	{
 		Super::serialize(ar);
 		ar(
-			CEREAL_NVP(_shader),
 			CEREAL_NVP(_model),
 			// 블렌드 스페이스 편집 결과를 컴포넌트와 함께 저장한다.
             CEREAL_NVP(_blendSpaceMin),
@@ -135,7 +132,6 @@ private:
 	int _blendSpaceCachedAnimationCount = -1;
 
 private:
-	ResourceRef<Shader> _shader;
     ResourceRef<Model> _model;
 
     bool _initialized = false;

@@ -18,58 +18,66 @@ ModelRenderer::~ModelRenderer()
 
 }
 
-void ModelRenderer::SetShader(ResourceRef<Shader> shader)
-{
-    _shader = shader;
-	_initialized = false;
-	Super::SetMaterial(ResourceRef<Material>());
-}
-
 void ModelRenderer::SetModel(ResourceRef<Model> model)
 {
 	const AssetId oldMeshId = GetMeshId();
-	Super::SetMaterial(ResourceRef<Material>());
 	_model = model;
 	OnMeshChange(oldMeshId, GetMeshId());
-	_initialized = false;
-	if (_shader.Resolve() == nullptr)
-	{
-        bool isFoliage = false;
-        Model* modelPtr = _model.Resolve();
-		if (modelPtr != nullptr)
-		{
-			const auto& materials = modelPtr->GetMaterials();
-			if (materials.size() > 0)
-			{
-				ResourceRef<Shader> shaderRef = materials[0].Resolve()->GetShaderRef();
-				ResourceRef<Shader> foliageShaderRef = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx");
 
-				if (shaderRef == foliageShaderRef)
+	_initialized = false;
+	bool isFoliage = false;
+
+	Model* modelPtr = _model.Resolve();
+	if (modelPtr != nullptr)
+	{
+		auto& materials = modelPtr->GetMaterials();
+		for (auto& materialRef : materials)
+		{
+			Material* material = materialRef.Resolve();
+			if (material == nullptr)
+				continue;
+
+			if (material->GetShaderRef() == RESOURCES->GetFoliageShader())
+				isFoliage = true;
+		}
+		for (auto& materialRef : materials)
+		{
+			Material* material = materialRef.Resolve();
+			if (material == nullptr)
+				continue;
+
+			if (material->GetShader() == nullptr)
+			{
+				if (isFoliage)
 				{
-					FoliageSetup();
-                    isFoliage = true;
+                    material->SetShader(RESOURCES->GetFoliageShader());
+                }
+				else
+				{
+					material->SetShader(RESOURCES->GetDefaultShader());
 				}
 			}
 		}
 
-		if (isFoliage == false)
+		if (materials.size() > 0)
 		{
-			SetShader(RESOURCES->GetDefaultShader());
+            SetMaterial(materials[0]);
 		}
-	}
 
+        if (isFoliage)
+        {
+            FoliageSetup();
+        }
+	}
 }
 
-void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech)
+void ModelRenderer::RenderInstancing(InstancingBuffer& buffer, RenderTech renderTech)
 {
     Model* model = _model.Resolve();
 	if (model == nullptr)
 		return;
     ModelMeshResource* mesh = model->GetMesh();
     if (mesh == nullptr)
-        return;
-    Shader* shader = _shader.Resolve();
-    if (shader == nullptr)
         return;
 
     if (!TryInitialize())
@@ -111,36 +119,9 @@ void ModelRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer,
 		mesh->vertexBuffer->PushData();
 		mesh->indexBuffer->PushData();
 
-		buffer->PushData();
+		buffer.PushData();
 
-		shader->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
-	}
-}
-
-InstanceID ModelRenderer::GetInstanceID()
-{
-	return make_pair((uint64)_model.GetAssetId().GetLeftId(), (uint64)_shader.GetAssetId().GetLeftId());
-}
-
-void ModelRenderer::SetMaterial(ResourceRef<Material> material)
-{
-	ASSERT(false, "ModelRenderer::SetMaterial is not supported. Use SetModel instead.");
-}
-
-void ModelRenderer::LateUpdate()
-{
-	if (HasInstancingData())
-	{
-        const Matrix worldMat = GetTransform()->GetWorldMatrix();
-        if (worldMat != _lastWorldMatrix || _instDatas.size() != _originInstDatas.size())
-        {
-            _instDatas.resize(_originInstDatas.size());
-            for (size_t i = 0; i < _originInstDatas.size(); i++)
-            {
-                _instDatas[i] = _originInstDatas[i] * worldMat;
-            }
-        }
-        _lastWorldMatrix = worldMat;
+		material->GetShader()->DrawIndexedInstanced(renderTech, _pass, mesh->indexBuffer->GetCount(), buffer.GetCount());
 	}
 }
 
@@ -154,21 +135,11 @@ bool ModelRenderer::OnGUI()
         SetModel(_model);
         changed = true;
 	}
-    if (OnGUIUtils::DrawResourceRef("Shader", _shader))
-    {
-        SetShader(_shader);
-        changed = true;
-    }
 	return changed;
 }
 
 void ModelRenderer::OnMenu()
 {
-    if (ImGui::MenuItem("Set Default Shader"))
-    {
-        SetShader(RESOURCES->GetDefaultShader());
-    }
-
 	if (ImGui::MenuItem("Set Foliage Setting"))
 	{
         FoliageSetup();
@@ -183,20 +154,7 @@ bool ModelRenderer::TryInitialize()
 	Model* modelPtr = _model.Resolve();
 	if(modelPtr == nullptr)
         return false;
-
-    Shader* shaderPtr = _shader.Resolve();
-    if (shaderPtr == nullptr)
-        return false;
-
-	auto& materials = modelPtr->GetMaterials();
-	for (auto& material : materials)
-	{
-		if (material.Resolve() == nullptr)
-			continue;
-		material.Resolve()->SetShader(_shader);
-		Super::SetMaterial(material);
-    }
-
+		
     _initialized = true;
     return true;
 }
@@ -250,15 +208,9 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
     }
 }
 
-void ModelRenderer::AddInstancingData(const Matrix& mat)
-{
-    _originInstDatas.push_back(mat);
-}
-
 void ModelRenderer::FoliageSetup()
 {
 	_pass = 0;
-	SetShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
 
 	if (GetGameObject()->GetFixedComponent<FoliageController>() == nullptr)
 		GetGameObject()->AddComponent<FoliageController>();
