@@ -18,8 +18,12 @@ ModelRenderer::~ModelRenderer()
 
 }
 
-void ModelRenderer::SetModel(ResourceRef<Model> model)
+bool ModelRenderer::SetModel(ResourceRef<Model> model)
 {
+	Model* modelPtr = model.Resolve();
+	if (modelPtr == nullptr || modelPtr->HasValidRenderResources() == false)
+		return false;
+
 	const AssetId oldMeshId = GetMeshId();
 	_model = model;
 	OnMeshChange(oldMeshId, GetMeshId());
@@ -27,48 +31,43 @@ void ModelRenderer::SetModel(ResourceRef<Model> model)
 	_initialized = false;
 	bool isFoliage = false;
 
-	Model* modelPtr = _model.Resolve();
-	if (modelPtr != nullptr)
+	auto& materials = modelPtr->GetMaterials();
+	for (auto& materialRef : materials)
 	{
-		auto& materials = modelPtr->GetMaterials();
-		for (auto& materialRef : materials)
-		{
-			Material* material = materialRef.Resolve();
-			if (material == nullptr)
-				continue;
+		Material* material = materialRef.Resolve();
+		if (material == nullptr)
+			continue;
 
-			if (material->GetShaderRef() == RESOURCES->GetFoliageShader())
-				isFoliage = true;
-		}
-		for (auto& materialRef : materials)
-		{
-			Material* material = materialRef.Resolve();
-			if (material == nullptr)
-				continue;
+		if (material->GetShaderRef() == RESOURCES->GetFoliageShader())
+			isFoliage = true;
+	}
+	for (auto& materialRef : materials)
+	{
+		Material* material = materialRef.Resolve();
+		if (material == nullptr)
+			continue;
 
-			if (material->GetShader() == nullptr)
+		if (material->GetShader() == nullptr)
+		{
+			if (isFoliage)
 			{
-				if (isFoliage)
-				{
-                    material->SetShader(RESOURCES->GetFoliageShader());
-                }
-				else
-				{
-					material->SetShader(RESOURCES->GetDefaultShader());
-				}
+				material->SetShader(RESOURCES->GetFoliageShader());
+			}
+			else
+			{
+				material->SetShader(RESOURCES->GetDefaultShader());
 			}
 		}
-
-		if (materials.size() > 0)
-		{
-            SetMaterial(materials[0]);
-		}
-
-        if (isFoliage)
-        {
-            FoliageSetup();
-        }
 	}
+
+	SetMaterial(materials[0]);
+
+	if (isFoliage)
+	{
+		FoliageSetup();
+	}
+
+	return true;
 }
 
 void ModelRenderer::RenderInstancing(InstancingBuffer& buffer, RenderTech renderTech)
@@ -130,10 +129,10 @@ bool ModelRenderer::OnGUI()
 	bool changed = false;
 	changed |= Super::OnGUI();
 	ImGui::Separator();
-	if (OnGUIUtils::DrawResourceRef("Model", _model))
+	ResourceRef<Model> model = _model;
+	if (OnGUIUtils::DrawResourceRef("Model", model))
 	{
-        SetModel(_model);
-        changed = true;
+		changed |= SetModel(model);
 	}
 	return changed;
 }

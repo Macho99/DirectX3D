@@ -40,6 +40,27 @@ void Model::BindCache()
     mesh->BindCacheInfo(_materials);
 }
 
+bool Model::HasValidRenderResources() const
+{
+	ModelMeshResource* mesh = _mesh.Resolve();
+	if (mesh == nullptr || mesh->GetMeshes().empty() || _materials.empty())
+		return false;
+
+	for (const ResourceRef<Material>& materialRef : _materials)
+	{
+		if (materialRef.Resolve() == nullptr)
+			return false;
+	}
+
+	for (const shared_ptr<ModelMesh>& modelMesh : mesh->GetMeshes())
+	{
+		if (modelMesh == nullptr || modelMesh->material.Resolve() == nullptr)
+			return false;
+	}
+
+	return true;
+}
+
 ResourceRef<Material> Model::GetMaterialByName(const wstring& name)
 {
 	for (auto& materialRef : _materials)

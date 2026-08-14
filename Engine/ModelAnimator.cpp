@@ -96,25 +96,25 @@ void ModelAnimator::Update()
 	}
 }
 
-void ModelAnimator::SetModel(ResourceRef<Model> model)
+bool ModelAnimator::SetModel(ResourceRef<Model> model)
 {
+	Model* modelPtr = model.Resolve();
+	if (modelPtr == nullptr || modelPtr->HasValidRenderResources() == false)
+		return false;
+
 	const AssetId oldMeshId = GetMeshId();
 	_model = model;
 	OnMeshChange(oldMeshId, GetMeshId());
 	// 모델이 바뀌면 유효한 애니메이션 인덱스 범위도 달라질 수 있다.
 	_blendSpaceTriangulationDirty = true;
 
-    Model* modelPtr = _model.Resolve();
-	if (modelPtr == nullptr)
-		return;
-
 	if (modelPtr->GetMaterialCount() > 0)
 	{
         SetMaterial(modelPtr->GetMaterialByIndex(0));
 	}
 
-	int animCount = modelPtr->GetAnimationCount();
 	_tweenDesc.ClearNextAnim();
+	return true;
 }
 
 // 좌표와 애니메이션을 한 쌍으로 추가한다.
@@ -310,7 +310,9 @@ bool ModelAnimator::OnGUI()
 	bool changed = false;
     changed |= Super::OnGUI();
 	ImGui::Separator();
-    changed |= OnGUIUtils::DrawResourceRef("Model", _model);
+	ResourceRef<Model> modelRef = _model;
+	if (OnGUIUtils::DrawResourceRef("Model", modelRef))
+		changed |= SetModel(modelRef);
     changed |= OnGUIUtils::DrawFloat("Tween Duration", &_tweenDesc.tweenDuration, 0.1f);
     changed |= OnGUIUtils::DrawFloat("Tween Ratio", &_tweenDesc.tweenRatio, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Tween SumTime", &_tweenDesc.tweenSumTime, 0.01f);

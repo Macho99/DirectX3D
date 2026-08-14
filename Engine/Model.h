@@ -32,6 +32,7 @@ public:
 	virtual int GetVersion() const override;
 
 	void BindCache();
+	bool HasValidRenderResources() const;
 
 public:
 	uint32 GetMaterialCount() { return static_cast<uint32>(_materials.size()); }

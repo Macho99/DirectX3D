@@ -45,7 +45,7 @@ public:
 	void UpdateRootMotion(const TweenDesc prevTweenDesc);
 	void UpdateTweenData();
 
-	void SetModel(ResourceRef<Model> model);
+	bool SetModel(ResourceRef<Model> model);
 
 	virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 	TweenDesc& GetTweenDesc() { return _tweenDesc; }
