@@ -45,6 +45,8 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
     GameObject* rootObj = CUR_SCENE->Add(outLevel.LevelName).Resolve();
     Transform* rootTransform = rootObj->GetTransform();
+    const fs::path modelRootPath = "..\\Assets\\Models\\Rural_Cabin";
+    unordered_map<string, Transform*> folderCache;
     unordered_map<string, pair<Transform*, ResourceRef<Model>>> modelCache;
 
     for (int i = 0; i < 10000 && i < outLevel.MeshCount; i++)
@@ -57,14 +59,32 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         if (it == modelCache.end())
         {
             fs::path modelPath;
-            if (TryFindModelPath("..\\Assets\\Models\\Rural_Cabin", levelMeshData.MeshName, modelPath) == false)
+            if (TryFindModelPath(modelRootPath, levelMeshData.MeshName, modelPath) == false)
             {
                 modelCache[levelMeshData.MeshName] = make_pair(nullptr, ResourceRef<Model>());
                 continue;
             }
 
             modelRef = RESOURCES->GetResourceRefByAbsPath<Model>(modelPath);
-            meshParent = CUR_SCENE->Add(levelMeshData.MeshName, rootTransform).Resolve()->GetTransform();
+
+            Transform* folderParent = rootTransform;
+            const fs::path relativeModelPath = modelPath.lexically_relative(modelRootPath);
+            if (!relativeModelPath.empty() && relativeModelPath.has_parent_path())
+            {
+                const string folderName = (*relativeModelPath.begin()).string();
+                auto folderIt = folderCache.find(folderName);
+                if (folderIt == folderCache.end())
+                {
+                    folderParent = CUR_SCENE->Add(folderName, rootTransform).Resolve()->GetTransform();
+                    folderCache.emplace(folderName, folderParent);
+                }
+                else
+                {
+                    folderParent = folderIt->second;
+                }
+            }
+
+            meshParent = CUR_SCENE->Add(levelMeshData.MeshName, folderParent).Resolve()->GetTransform();
             meshParent->GetGameObject()->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
 
             modelCache[levelMeshData.MeshName] = make_pair(meshParent, modelRef);
@@ -121,16 +141,15 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
     rootTransform->SetLocalPosition(Vec3(-1, 8, 134));
     rootTransform->SetLocalRotation(Vec3(0, 90, 0));
 
-    auto& children = rootTransform->GetChildren();
-
-    vector<pair<int, string>> v;
-    for (auto& child : children)
-    {
-        Transform* transform = child.Resolve();
-        ModelRenderer* modelRenderer = transform->GetGameObject()->GetFixedComponent<ModelRenderer>();
-        v.push_back(make_pair(modelRenderer->GetInstancingCount(), transform->GetGameObject()->GetName()));;
-    }
-    std::sort(v.begin(), v.end());
+    //auto& children = rootTransform->GetChildren();
+    //vector<pair<int, string>> v;
+    //for (auto& child : children)
+    //{
+    //    Transform* transform = child.Resolve();
+    //    ModelRenderer* modelRenderer = transform->GetGameObject()->GetFixedComponent<ModelRenderer>();
+    //    v.push_back(make_pair(modelRenderer->GetInstancingCount(), transform->GetGameObject()->GetName()));;
+    //}
+    //std::sort(v.begin(), v.end());
 
     return true;
 }
