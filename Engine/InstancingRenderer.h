@@ -13,6 +13,9 @@ public:
     bool HasInstancingData() const { return _originInstDatas.size() > 0; }
     const vector<InstancingData>& GetInstancingDatas() const { return _instDatas; }
 
+    virtual bool OnGUI() override;
+    virtual void OnInspectorFocusLost() override;
+
     template<typename Archive>
     void serialize(Archive& ar)
     {
@@ -28,5 +31,6 @@ private:
     vector<InstancingData> _originInstDatas;
     vector<InstancingData> _instDatas;
     Matrix _lastWorldMatrix;
+    int _selectedInstDataIndex = -1;
 };
 
