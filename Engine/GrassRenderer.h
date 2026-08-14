@@ -3,7 +3,7 @@
 #include "Event.h"
 
 // --- DX11 리소스 전역 변수 ---
-const UINT MAX_GRASS_COUNT = 2000000;
+const UINT MAX_GRASS_COUNT = 1200000;
 const UINT THREAD_GROUP_SIZE = 256;   // CSMain의 [numthreads(256, 1, 1)]와 일치
 const UINT MAX_UV_COUNT = 30;
 

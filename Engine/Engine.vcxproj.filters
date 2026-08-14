@@ -222,6 +222,9 @@
     <ClInclude Include="ModelAnimation.h">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
+    <ClInclude Include="BatchInfo.h">
+      <Filter>50. Editor\EditorWindow</Filter>
+    </ClInclude>
     <ClInclude Include="ModelBatchingTool.h">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClInclude>

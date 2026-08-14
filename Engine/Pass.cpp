@@ -42,6 +42,7 @@ void Pass::BeginDraw()
 	pass->ComputeStateBlockMask(&stateblockMask);
 
 	DC->IASetInputLayout(inputLayout.Get());
+
 	pass->Apply(0, DC.Get());
 }
 

@@ -352,6 +352,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelAnimation.h" />
+    <ClInclude Include="BatchInfo.h" />
     <ClInclude Include="ModelBatchingTool.h" />
     <ClInclude Include="ModelAnimator.h" />
     <ClInclude Include="ModelMesh.h" />

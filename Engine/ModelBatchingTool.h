@@ -30,6 +30,7 @@ protected:
 
 private:
     size_t ExtractModelRenderersFromChildren();
+    bool ExtractBatchInfo();
     bool Build();
     size_t GetCurrentMaterialCount() const;
     void SetStatus(bool succeeded, const string& message);

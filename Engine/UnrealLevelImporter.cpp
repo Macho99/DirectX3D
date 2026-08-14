@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "UnrealLevelImporter.h"
+#include "BatchInfo.h"
 #include <cctype>
 #include <fstream>
 #include "Model.h"
@@ -17,6 +18,58 @@ namespace
             });
 
         return value;
+    }
+
+    size_t LoadBatchedModelNames(
+        const fs::path& rootPath,
+        OUT unordered_set<string>& batchedModelNames)
+    {
+        batchedModelNames.clear();
+
+        error_code error;
+        if (!fs::is_directory(rootPath, error))
+            return 0;
+
+        size_t loadedFileCount = 0;
+        const fs::directory_options options = fs::directory_options::skip_permission_denied;
+        fs::recursive_directory_iterator iterator(rootPath, options, error);
+        const fs::recursive_directory_iterator end;
+
+        while (!error && iterator != end)
+        {
+            const fs::directory_entry& entry = *iterator;
+            if (entry.is_regular_file(error) && !error
+                && ToLower(entry.path().extension().string()) == ".batchinfo")
+            {
+                try
+                {
+                    std::ifstream file(entry.path());
+                    if (!file.is_open())
+                        throw std::runtime_error("failed to open file");
+
+                    BatchInfo batchInfo;
+                    cereal::JSONInputArchive archive(file);
+                    archive(cereal::make_nvp("BatchInfo", batchInfo));
+                    for (const string& modelName : batchInfo.ModelNames)
+                    {
+                        if (modelName.empty() == false)
+                            batchedModelNames.insert(ToLower(modelName));
+                    }
+                    ++loadedFileCount;
+                }
+                catch (const std::exception& exception)
+                {
+                    DBG->LogWarning(Utils::Format(
+                        "[UnrealLevelImporter] Failed to read Batch Info '%s': %s",
+                        entry.path().string().c_str(), exception.what()));
+                }
+            }
+
+            error.clear();
+            iterator.increment(error);
+        }
+
+        return loadedFileCount;
     }
 }
 
@@ -46,12 +99,30 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
     GameObject* rootObj = CUR_SCENE->Add(outLevel.LevelName).Resolve();
     Transform* rootTransform = rootObj->GetTransform();
     const fs::path modelRootPath = "..\\Assets\\Models\\Rural_Cabin";
+    const fs::path batchInfoRootPath = "..\\Assets\\Batches";
+    unordered_set<string> batchedModelNames;
+    const size_t batchInfoFileCount =
+        LoadBatchedModelNames(batchInfoRootPath, OUT batchedModelNames);
+    if (batchInfoFileCount > 0)
+    {
+        DBG->Log(Utils::Format(
+            "[UnrealLevelImporter] Loaded %zu Batch Info file(s); excluding %zu source model(s).",
+            batchInfoFileCount, batchedModelNames.size()));
+    }
     unordered_map<string, Transform*> folderCache;
     unordered_map<string, pair<Transform*, ResourceRef<Model>>> modelCache;
+    size_t skippedBatchedInstanceCount = 0;
 
     for (int i = 0; i < 10000 && i < outLevel.MeshCount; i++)
     {
         const LevelMeshData& levelMeshData = outLevel.Meshes[i];
+        if (batchedModelNames.find(ToLower(levelMeshData.MeshName))
+            != batchedModelNames.end())
+        {
+            ++skippedBatchedInstanceCount;
+            continue;
+        }
+
         ResourceRef<Model> modelRef;
         Transform* meshParent = nullptr;
 
@@ -136,6 +207,13 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
         Matrix worldMatrix = S * R * T;
         meshParent->GetGameObject()->GetFixedComponent<ModelRenderer>()->AddInstancingData(worldMatrix);
+    }
+
+    if (skippedBatchedInstanceCount > 0)
+    {
+        DBG->Log(Utils::Format(
+            "[UnrealLevelImporter] Skipped %zu instance(s) already covered by Batch Info.",
+            skippedBatchedInstanceCount));
     }
 
     rootTransform->SetLocalPosition(Vec3(-1, 8, 134));

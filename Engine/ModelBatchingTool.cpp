@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ModelBatchingTool.h"
 
+#include "BatchInfo.h"
 #include "FileUtils.h"
 #include "GameObject.h"
 #include "Geometry.h"
@@ -694,6 +695,8 @@ void ModelBatchingTool::OnGUI()
     ImGui::BeginDisabled(canAutoExtract == false);
     if (ImGui::Button("Auto Extract"))
         ExtractModelRenderersFromChildren();
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+        ImGui::SetTooltip("Register Model Renderers found in every descendant of Extract Root.");
     ImGui::EndDisabled();
     ImGui::SameLine();
     if (ImGui::Button("Remove All"))
@@ -709,8 +712,11 @@ void ModelBatchingTool::OnGUI()
                 return a.estimatedOutputBytes > b.estimatedOutputBytes;
             });
     }
-    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-        ImGui::SetTooltip("Register Model Renderers found in every descendant of Extract Root.");
+    ImGui::SameLine();
+    if (ImGui::Button("Extract Info"))
+        ExtractBatchInfo();
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Save the registered model and material names as a .batchInfo file.");
 
     ModelMeshSizeEstimate meshSizeEstimate;
     for (size_t index = 0; index < _modelRenderers.size();)
@@ -883,6 +889,73 @@ size_t ModelBatchingTool::ExtractModelRenderersFromChildren()
         "Auto Extract registered %zu Model Renderer%s.",
         registeredCount, registeredCount == 1 ? "" : "s"));
     return registeredCount;
+}
+
+bool ModelBatchingTool::ExtractBatchInfo()
+{
+    BatchInfo batchInfo;
+    unordered_set<string> registeredModelNames;
+
+    for (const ModelRendererSlot& slot : _modelRenderers)
+    {
+        ModelRenderer* renderer = slot.rendererRef.Resolve();
+        Model* model = renderer != nullptr ? renderer->GetModel().Resolve() : nullptr;
+        if (model == nullptr)
+            continue;
+
+        const string modelName = model->GetStringName();
+        if (modelName.empty() == false && registeredModelNames.insert(modelName).second)
+            batchInfo.ModelNames.push_back(modelName);
+    }
+
+    vector<MaterialSlot> materials;
+    Shader* commonShader = nullptr;
+    string error;
+    CollectMaterials(_modelRenderers, false, OUT materials, OUT commonShader, OUT error);
+    for (const MaterialSlot& material : materials)
+        batchInfo.MaterialNames.push_back(Utils::ToString(material.name));
+
+    if (batchInfo.ModelNames.empty())
+    {
+        SetStatus(false, "No valid models are registered.");
+        return false;
+    }
+
+    std::sort(batchInfo.ModelNames.begin(), batchInfo.ModelNames.end());
+    std::sort(batchInfo.MaterialNames.begin(), batchInfo.MaterialNames.end());
+
+    fs::path outputPath = FileUtils::SaveFileDialog(
+        L"Save Batch Info",
+        L"Batch Info Files (*.batchInfo)\0*.batchInfo\0All Files (*.*)\0*.*\0",
+        L"batchInfo",
+        L"..\\Assets\\Batches");
+    if (outputPath.empty())
+        return false;
+    outputPath.replace_extension(BatchInfo::Extension);
+
+    try
+    {
+        std::ofstream file(outputPath);
+        if (!file.is_open())
+        {
+            SetStatus(false, "Failed to open the Batch Info output file.");
+            return false;
+        }
+
+        cereal::JSONOutputArchive archive(file);
+        archive(cereal::make_nvp("BatchInfo", batchInfo));
+    }
+    catch (const std::exception& exception)
+    {
+        SetStatus(false, "Failed to serialize Batch Info: " + string(exception.what()));
+        return false;
+    }
+
+    SetStatus(true, Utils::Format(
+        "Saved %zu model names and %zu material names to '%s'.",
+        batchInfo.ModelNames.size(), batchInfo.MaterialNames.size(),
+        outputPath.string().c_str()));
+    return true;
 }
 
 bool ModelBatchingTool::Build()
