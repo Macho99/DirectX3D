@@ -284,12 +284,14 @@ void EditorManager::ClickAsset(const AssetRef& assetRef)
 
     _contentBrowserAsset = ownerAssetId;
     _contentBrowserSubAsset = subAssetIndex;
+    ClearContentBrowserFocusMoveAsset();
 }
 
 void EditorManager::UnselectAsset()
 {
     _contentBrowserAsset = AssetRef();
     _contentBrowserSubAsset = -1;
+    ClearContentBrowserFocusMoveAsset();
 }
 
 void EditorManager::HandleRemove(const AssetRef& assetRef)
@@ -307,6 +309,7 @@ void EditorManager::HandleRemove(const AssetRef& assetRef)
     {
         _contentBrowserAsset = AssetRef();
         _contentBrowserSubAsset = -1;
+        ClearContentBrowserFocusMoveAsset();
     }
 }
 
@@ -379,6 +382,27 @@ void EditorManager::FocusContentBrowserAsset(const AssetRef& assetRef)
 
     _contentBrowserAsset = ownerAssetId;
     _contentBrowserSubAsset = subAssetIndex;
+    _contentBrowserFocusMoveAsset = ownerAssetId;
+    _contentBrowserFocusMoveSubAsset = subAssetIndex;
+}
+
+bool EditorManager::TryGetContentBrowserFocusMoveAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const
+{
+    if (_contentBrowserFocusMoveAsset.IsValid())
+    {
+        assetRef = _contentBrowserFocusMoveAsset;
+        subAssetIndex = _contentBrowserFocusMoveSubAsset;
+        return true;
+    }
+    assetRef = AssetRef();
+    subAssetIndex = -1;
+    return false;
+}
+
+void EditorManager::ClearContentBrowserFocusMoveAsset()
+{
+    _contentBrowserFocusMoveAsset = AssetRef();
+    _contentBrowserFocusMoveSubAsset = -1;
 }
 
 Texture* EditorManager::GetEditorIconTexture(EditorIcon icon)

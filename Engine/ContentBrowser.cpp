@@ -82,7 +82,13 @@ void ContentBrowser::OnGUI()
         int curSubAssetIdx;
         EDITOR->TryGetContentBrowserAsset(OUT curAssetRef, OUT curSubAssetIdx);
         AssetId curAssetId = curAssetRef.GetAssetId();
-        if (_selectedId != curAssetId)
+
+        AssetRef focusMoveAssetRef;
+        int focusMoveSubAssetIdx;
+        const bool hasFocusMoveRequest = EDITOR->TryGetContentBrowserFocusMoveAsset(
+            OUT focusMoveAssetRef, OUT focusMoveSubAssetIdx);
+
+        if (_selectedId != curAssetId || hasFocusMoveRequest)
         {
             _selectedId = curAssetId;
             MetaFile* meta = nullptr;
@@ -400,6 +406,29 @@ void ContentBrowser::DrawItemsGrid()
     int columns = (int)(availX / cellSize);
     if (columns < 1) columns = 1;
 
+    AssetRef focusMoveAssetRef;
+    int focusMoveSubAssetIdx;
+    if (_editorManager->TryGetContentBrowserFocusMoveAsset(OUT focusMoveAssetRef, OUT focusMoveSubAssetIdx))
+    {
+        const AssetId focusMoveAssetId = focusMoveAssetRef.GetAssetId();
+        for (int i = 0; i < (int)_curMetaFiles.size(); ++i)
+        {
+            if (_curMetaFiles[i]->GetAssetId() != focusMoveAssetId)
+                continue;
+
+            const int targetItemIndex = i + (focusMoveSubAssetIdx >= 0 ? focusMoveSubAssetIdx + 1 : 0);
+            const int targetRow = targetItemIndex / columns;
+            const float tileHeight = _thumbSize + 4.0f + ImGui::GetTextLineHeight() * 2.0f;
+            const float rowHeight = tileHeight + style.ItemSpacing.y;
+            const float targetCenterY = ImGui::GetCursorScreenPos().y - ImGui::GetWindowPos().y +
+                targetRow * rowHeight + tileHeight * 0.5f;
+
+            ImGui::SetScrollFromPosY(targetCenterY, 0.5f);
+            _editorManager->ClearContentBrowserFocusMoveAsset();
+            break;
+        }
+    }
+
     int col = 0;
     for (const auto meta : _curMetaFiles)
     {
@@ -429,6 +458,15 @@ void ContentBrowser::DrawItemsList()
         {
             if (!isFolder)
                 _editorManager->ClickAsset(meta->GetAssetId());
+        }
+
+        AssetRef focusMoveAssetRef;
+        int focusMoveSubAssetIdx;
+        if (_editorManager->TryGetContentBrowserFocusMoveAsset(OUT focusMoveAssetRef, OUT focusMoveSubAssetIdx) &&
+            focusMoveAssetRef.GetAssetId() == meta->GetAssetId())
+        {
+            ImGui::SetScrollHereY(0.5f);
+            _editorManager->ClearContentBrowserFocusMoveAsset();
         }
 
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

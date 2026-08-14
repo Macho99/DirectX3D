@@ -50,6 +50,8 @@ public:
 
 	bool TryGetContentBrowserAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
 	void FocusContentBrowserAsset(const AssetRef& assetRef);
+    bool TryGetContentBrowserFocusMoveAsset(OUT AssetRef& assetRef, OUT int& subAssetIndex) const;
+    void ClearContentBrowserFocusMoveAsset();
 
     Texture* GetEditorIconTexture(EditorIcon icon);
 
@@ -69,6 +71,8 @@ private:
 
     AssetRef _contentBrowserAsset;
 	int _contentBrowserSubAsset = -1;
+    AssetRef _contentBrowserFocusMoveAsset;
+    int _contentBrowserFocusMoveSubAsset = -1;
 
 	bool _inspectorLock = false;
 
