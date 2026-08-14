@@ -2,6 +2,7 @@
 #include "ModelBatchingTool.h"
 
 #include "FileUtils.h"
+#include "GameObject.h"
 #include "Geometry.h"
 #include "Material.h"
 #include "MetaFile.h"
@@ -687,6 +688,25 @@ ModelBatchingTool::ModelBatchingTool()
 void ModelBatchingTool::OnGUI()
 {
     ImGui::SeparatorText("Input Model Renderers");
+    OnGUIUtils::DrawComponentRef("Extract Root", _autoExtractRoot);
+
+    const bool canAutoExtract = _autoExtractRoot.Resolve() != nullptr;
+    ImGui::BeginDisabled(canAutoExtract == false);
+    if (ImGui::Button("Auto Extract"))
+        ExtractModelRenderersFromChildren();
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (ImGui::Button("Sort"))
+    {
+        std::sort(_modelRenderers.begin(), _modelRenderers.end(),
+            [](const ModelRendererSlot& a, const ModelRendererSlot& b)
+            {
+                return a.estimatedOutputBytes > b.estimatedOutputBytes;
+            });
+    }
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+        ImGui::SetTooltip("Register Model Renderers found in every descendant of Extract Root.");
+
     ModelMeshSizeEstimate meshSizeEstimate;
     for (size_t index = 0; index < _modelRenderers.size();)
     {
@@ -793,6 +813,71 @@ void ModelBatchingTool::OnGUI()
             : ImVec4(1.0f, 0.35f, 0.25f, 1.0f);
         ImGui::TextColored(color, "%s", _status.c_str());
     }
+}
+
+size_t ModelBatchingTool::ExtractModelRenderersFromChildren()
+{
+    Transform* root = _autoExtractRoot.Resolve();
+    if (root == nullptr)
+    {
+        SetStatus(false, "Select a valid Extract Root.");
+        return 0;
+    }
+
+    GuidRefSet registeredRenderers;
+    for (const ModelRendererSlot& slot : _modelRenderers)
+    {
+        if (slot.rendererRef.IsValid())
+            registeredRenderers.insert(slot.rendererRef);
+    }
+
+    size_t registeredCount = 0;
+    function<void(Transform*)> visitDescendants = [&](Transform* transform)
+        {
+            if (transform == nullptr)
+                return;
+
+            GameObject* gameObject = transform->GetGameObject();
+            if (gameObject != nullptr)
+            {
+                ComponentRef<ModelRenderer> rendererRef =
+                    gameObject->GetFixedComponentRef<ModelRenderer>();
+                if (rendererRef.Resolve() != nullptr
+                    && registeredRenderers.insert(rendererRef).second)
+                {
+                    ModelRendererSlot* destination = nullptr;
+                    for (ModelRendererSlot& slot : _modelRenderers)
+                    {
+                        if (slot.rendererRef.IsValid() == false)
+                        {
+                            destination = &slot;
+                            break;
+                        }
+                    }
+
+                    if (destination == nullptr)
+                    {
+                        _modelRenderers.emplace_back();
+                        destination = &_modelRenderers.back();
+                    }
+
+                    destination->rendererRef = rendererRef;
+                    RefreshModelRendererSlot(OUT *destination);
+                    ++registeredCount;
+                }
+            }
+
+            for (TransformRef& childRef : transform->GetChildren())
+                visitDescendants(childRef.Resolve());
+        };
+
+    for (TransformRef& childRef : root->GetChildren())
+        visitDescendants(childRef.Resolve());
+
+    SetStatus(true, Utils::Format(
+        "Auto Extract registered %zu Model Renderer%s.",
+        registeredCount, registeredCount == 1 ? "" : "s"));
+    return registeredCount;
 }
 
 bool ModelBatchingTool::Build()

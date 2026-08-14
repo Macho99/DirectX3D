@@ -29,11 +29,13 @@ protected:
     void OnGUI() override;
 
 private:
+    size_t ExtractModelRenderersFromChildren();
     bool Build();
     size_t GetCurrentMaterialCount() const;
     void SetStatus(bool succeeded, const string& message);
 
 private:
+    TransformRef _autoExtractRoot;
     vector<ModelRendererSlot> _modelRenderers = { ModelRendererSlot() };
     int _maxAtlasSize = 4096;
     int _maxTextureSize = 256;
