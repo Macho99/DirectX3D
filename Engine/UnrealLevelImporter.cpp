@@ -109,7 +109,8 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         );
 
         Matrix S = Matrix::CreateScale(scale);
-        Matrix R = Matrix::CreateFromQuaternion(rotation);
+        Matrix R = Matrix::CreateRotationY(XM_PI) *
+            Matrix::CreateFromQuaternion(rotation);
         Matrix T = Matrix::CreateTranslation(position);
 
         Matrix worldMatrix = S * R * T;
