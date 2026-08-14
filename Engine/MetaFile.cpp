@@ -27,6 +27,7 @@
 #include "FileUtils.h"
 #include "Font.h"
 #include "Model.h"
+#include "shellapi.h"
 
 MetaFile::MetaFile()
     :_resourceType(ResourceType::None)
@@ -290,6 +291,22 @@ void MetaFile::DrawContentBrowserItem(fs::path& currentFolder, float thumbSize, 
         if (ImGui::MenuItem("Delete"))
         {
             fs::remove(assetPath);
+        }
+        if (ImGui::MenuItem("Open In Explorer"))
+        {
+            fs::path assetFolder = GetAssetPath().parent_path();
+            if (fs::exists(assetFolder))
+            {
+                ShellExecuteW(NULL, L"open", assetFolder.wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+            }
+        }
+        if (ImGui::MenuItem("Open Artifact Folder"))
+        {
+            fs::path artifactFolder = GetArtifactPath();
+            if (fs::exists(artifactFolder))
+            {
+                ShellExecuteW(NULL, L"open", artifactFolder.wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+            }
         }
         ImGui::EndPopup();
     }
