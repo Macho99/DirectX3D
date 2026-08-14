@@ -5,6 +5,19 @@
 
 class ModelRenderer;
 
+struct ModelRendererSlot
+{
+    ComponentRef<ModelRenderer> rendererRef;
+    uint64 sourceMeshBytes = 0;
+    uint64 estimatedOutputBytes = 0;
+    size_t instanceCount = 0;
+    size_t materialCount = 0;
+    bool estimateInitialized = false;
+    bool sizeAvailable = false;
+    bool materialCountAvailable = false;
+    bool overflowed = false;
+};
+
 class ModelBatchingTool : public EditorWindow
 {
     using Super = EditorWindow;
@@ -21,7 +34,7 @@ private:
     void SetStatus(bool succeeded, const string& message);
 
 private:
-    vector<ComponentRef<ModelRenderer>> _modelRenderers = { ComponentRef<ModelRenderer>() };
+    vector<ModelRendererSlot> _modelRenderers = { ModelRendererSlot() };
     int _maxAtlasSize = 4096;
     int _maxTextureSize = 256;
     bool _lastBuildSucceeded = false;

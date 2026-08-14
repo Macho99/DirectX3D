@@ -28,7 +28,7 @@ namespace
 
     string FormatFileSize(uint64 bytes)
     {
-        static constexpr const char* Units[] = { "B", "KiB", "MiB", "GiB", "TiB" };
+        static constexpr const char* Units[] = { "byte", "KB", "MB", "GB", "TB" };
         double value = static_cast<double>(bytes);
         size_t unitIndex = 0;
         while (value >= 1024.0 && unitIndex + 1 < _countof(Units))
@@ -42,63 +42,78 @@ namespace
         return Utils::Format("%.2f %s", value, Units[unitIndex]);
     }
 
-    ModelMeshSizeEstimate EstimateOutputModelMeshSize(
-        const vector<ComponentRef<ModelRenderer>>& rendererRefs)
+    void RefreshModelRendererSlot(OUT ModelRendererSlot& slot)
     {
-        ModelMeshSizeEstimate estimate;
-        for (const ComponentRef<ModelRenderer>& rendererRef : rendererRefs)
+        slot.sourceMeshBytes = 0;
+        slot.estimatedOutputBytes = 0;
+        slot.instanceCount = 0;
+        slot.materialCount = 0;
+        slot.estimateInitialized = true;
+        slot.sizeAvailable = false;
+        slot.materialCountAvailable = false;
+        slot.overflowed = false;
+
+        ModelRenderer* renderer = slot.rendererRef.Resolve();
+        Model* model = renderer != nullptr ? renderer->GetModel().Resolve() : nullptr;
+        if (model == nullptr)
+            return;
+
+        slot.materialCount = model->GetMaterialCount();
+        slot.materialCountAvailable = true;
+
+        ModelMeshResource* meshResource = model->GetMesh();
+        if (meshResource == nullptr)
+            return;
+
+        MetaFile* meta = nullptr;
+        if (RESOURCES->TryGetMetaByAssetId(meshResource->GetID(), OUT meta) == false
+            || meta == nullptr)
         {
-            ModelRenderer* renderer = rendererRef.Resolve();
-            Model* model = renderer != nullptr ? renderer->GetModel().Resolve() : nullptr;
-            ModelMeshResource* meshResource = model != nullptr ? model->GetMesh() : nullptr;
-            if (meshResource == nullptr)
-            {
-                if (rendererRef.IsValid())
-                    ++estimate.unavailableRendererCount;
-                continue;
-            }
-
-            MetaFile* meta = nullptr;
-            if (RESOURCES->TryGetMetaByAssetId(meshResource->GetID(), OUT meta) == false
-                || meta == nullptr)
-            {
-                ++estimate.unavailableRendererCount;
-                continue;
-            }
-
-            const fs::path meshPath = meta->GetImportedAssetPath(meshResource->GetID());
-            std::error_code fileError;
-            const uintmax_t fileBytes = fs::file_size(meshPath, fileError);
-            if (fileError || fileBytes > UINT64_MAX)
-            {
-                ++estimate.unavailableRendererCount;
-                continue;
-            }
-
-            const size_t rendererInstanceCount = renderer->HasInstancingData()
-                ? static_cast<size_t>(renderer->GetInstancingCount())
-                : 1;
-            estimate.instanceCount += rendererInstanceCount;
-
-            const uint64 sourceBytes = static_cast<uint64>(fileBytes);
-            if (rendererInstanceCount > 0
-                && sourceBytes > UINT64_MAX / rendererInstanceCount)
-            {
-                estimate.outputBytes = UINT64_MAX;
-                estimate.overflowed = true;
-                continue;
-            }
-
-            const uint64 rendererBytes = sourceBytes * rendererInstanceCount;
-            if (estimate.outputBytes > UINT64_MAX - rendererBytes)
-            {
-                estimate.outputBytes = UINT64_MAX;
-                estimate.overflowed = true;
-                continue;
-            }
-            estimate.outputBytes += rendererBytes;
+            return;
         }
-        return estimate;
+
+        const fs::path meshPath = meta->GetImportedAssetPath(meshResource->GetID());
+        std::error_code fileError;
+        const uintmax_t fileBytes = fs::file_size(meshPath, fileError);
+        if (fileError || fileBytes > UINT64_MAX)
+            return;
+
+        slot.sourceMeshBytes = static_cast<uint64>(fileBytes);
+        slot.instanceCount = renderer->HasInstancingData()
+            ? static_cast<size_t>(renderer->GetInstancingCount())
+            : 1;
+        slot.sizeAvailable = true;
+
+        if (slot.instanceCount > 0
+            && slot.sourceMeshBytes > UINT64_MAX / slot.instanceCount)
+        {
+            slot.estimatedOutputBytes = UINT64_MAX;
+            slot.overflowed = true;
+            return;
+        }
+        slot.estimatedOutputBytes = slot.sourceMeshBytes * slot.instanceCount;
+    }
+
+    void AccumulateModelMeshSizeEstimate(
+        const ModelRendererSlot& slot,
+        OUT ModelMeshSizeEstimate& total)
+    {
+        if (slot.sizeAvailable == false)
+        {
+            if (slot.rendererRef.IsValid())
+                ++total.unavailableRendererCount;
+            return;
+        }
+
+        total.instanceCount += slot.instanceCount;
+        if (slot.overflowed
+            || total.outputBytes > UINT64_MAX - slot.estimatedOutputBytes)
+        {
+            total.outputBytes = UINT64_MAX;
+            total.overflowed = true;
+            return;
+        }
+        total.outputBytes += slot.estimatedOutputBytes;
     }
 
     double ElapsedMilliseconds(const TimingClock::time_point& start)
@@ -157,7 +172,7 @@ namespace
     }
 
     bool CollectMaterials(
-        const vector<ComponentRef<ModelRenderer>>& rendererRefs,
+        const vector<ModelRendererSlot>& rendererSlots,
         bool strict,
         OUT vector<MaterialSlot>& materials,
         OUT Shader*& commonShader,
@@ -170,12 +185,13 @@ namespace
         unordered_map<wstring, size_t> slotsByName;
         size_t validRendererCount = 0;
 
-        for (size_t rendererIndex = 0; rendererIndex < rendererRefs.size(); ++rendererIndex)
+        for (size_t rendererIndex = 0; rendererIndex < rendererSlots.size(); ++rendererIndex)
         {
-            ModelRenderer* renderer = rendererRefs[rendererIndex].Resolve();
+            const ComponentRef<ModelRenderer>& rendererRef = rendererSlots[rendererIndex].rendererRef;
+            ModelRenderer* renderer = rendererRef.Resolve();
             if (renderer == nullptr)
             {
-                if (strict && rendererRefs[rendererIndex].IsValid())
+                if (strict && rendererRef.IsValid())
                 {
                     error = Utils::Format("Model Renderer %zu is missing.", rendererIndex);
                     return false;
@@ -671,24 +687,50 @@ ModelBatchingTool::ModelBatchingTool()
 void ModelBatchingTool::OnGUI()
 {
     ImGui::SeparatorText("Input Model Renderers");
+    ModelMeshSizeEstimate meshSizeEstimate;
     for (size_t index = 0; index < _modelRenderers.size();)
     {
         ImGui::PushID(static_cast<int>(index));
-        OnGUIUtils::DrawComponentRef("Model Renderer", _modelRenderers[index]);
-        ImGui::SameLine();
         const bool remove = ImGui::SmallButton("Remove");
+        ImGui::SameLine();
+        ModelRendererSlot& rendererSlot = _modelRenderers[index];
+        const bool rendererChanged =
+            OnGUIUtils::DrawComponentRef("Model Renderer", rendererSlot.rendererRef);
+        if (rendererChanged || rendererSlot.estimateInitialized == false)
+            RefreshModelRendererSlot(OUT rendererSlot);
+
+        if (rendererSlot.sizeAvailable)
+        {
+            const string formattedSourceSize = FormatFileSize(rendererSlot.sourceMeshBytes);
+            const string formattedSize = FormatFileSize(rendererSlot.estimatedOutputBytes);
+            ImGui::TextDisabled(
+                "~%s x %zu = %s | Materials: %zu",
+                formattedSourceSize.c_str(), rendererSlot.instanceCount, formattedSize.c_str(), rendererSlot.materialCount);
+        }
+        else if (rendererSlot.materialCountAvailable)
+        {
+            ImGui::TextDisabled(
+                "Size unavailable | Materials: %zu",
+                rendererSlot.materialCount);
+        }
+        else
+        {
+            ImGui::TextDisabled("Size: -- | Materials: --");
+        }
         ImGui::PopID();
 
         if (remove)
             _modelRenderers.erase(_modelRenderers.begin() + index);
         else
+        {
+            AccumulateModelMeshSizeEstimate(rendererSlot, OUT meshSizeEstimate);
             ++index;
+        }
     }
 
     if (ImGui::Button("Add Model Renderer"))
         _modelRenderers.emplace_back();
 
-    const ModelMeshSizeEstimate meshSizeEstimate = EstimateOutputModelMeshSize(_modelRenderers);
     if (meshSizeEstimate.instanceCount > 0)
     {
         const string formattedSize = FormatFileSize(meshSizeEstimate.outputBytes);
@@ -843,8 +885,9 @@ bool ModelBatchingTool::Build()
         make_shared<Geometry<ModelVertexType>>();
     const TimingClock::time_point meshBakeStart = TimingClock::now();
     size_t instanceCount = 0;
-    for (const ComponentRef<ModelRenderer>& rendererRef : _modelRenderers)
+    for (const ModelRendererSlot& rendererSlot : _modelRenderers)
     {
+        const ComponentRef<ModelRenderer>& rendererRef = rendererSlot.rendererRef;
         ModelRenderer* renderer = rendererRef.Resolve();
         if (renderer == nullptr)
             continue;
