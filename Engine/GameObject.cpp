@@ -397,6 +397,11 @@ void GameObject::OnGUI()
     }
     ImGui::PopID();
 
+    int childCount = GetTransform()->GetChildCount();
+	if (childCount > 0)
+	{
+        ImGui::Text("Children: %d", childCount);
+	}
     OnGUIUtils::DrawUInt8("Layer", &_layerIndex, 1.f);
 }
 

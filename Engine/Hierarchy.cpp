@@ -193,6 +193,27 @@ void Hierarchy::DrawNode(Transform* node)
             _pendingOps.push_back(make_unique<PendingAdd>(nodeId));
         }
 
+        auto& children = node->GetChildren();
+        if (children.size() > 0 && ImGui::MenuItem("Set Active Children"))
+        {
+            for (auto& child : children)
+            {
+                GameObject* childGO = child.Resolve()->GetGameObject();
+                if (childGO != nullptr)
+                    childGO->SetActive(true);
+            }
+        }
+
+        if (children.size() > 0 && ImGui::MenuItem("Set Inactive Children"))
+        {
+            for (auto& child : children)
+            {
+                GameObject* childGO = child.Resolve()->GetGameObject();
+                if (childGO != nullptr)
+                    childGO->SetActive(false);
+            }
+        }
+
         ImGui::EndPopup();
     }
 

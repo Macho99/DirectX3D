@@ -56,6 +56,7 @@ public:
 	void SetSiblingIndex(int index);
 
 	vector<TransformRef>& GetChildren() { return _children; }
+    int GetChildCount() const { return _children.size(); }
 
 	virtual bool OnGUI() override;
 
