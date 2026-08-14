@@ -4,6 +4,7 @@
 #include "FileUtils.h"
 #include "Geometry.h"
 #include "Material.h"
+#include "MetaFile.h"
 #include "Model.h"
 #include "ModelMesh.h"
 #include "ModelMeshResource.h"
@@ -16,6 +17,89 @@
 namespace
 {
     using TimingClock = chrono::steady_clock;
+
+    struct ModelMeshSizeEstimate
+    {
+        uint64 outputBytes = 0;
+        size_t instanceCount = 0;
+        size_t unavailableRendererCount = 0;
+        bool overflowed = false;
+    };
+
+    string FormatFileSize(uint64 bytes)
+    {
+        static constexpr const char* Units[] = { "B", "KiB", "MiB", "GiB", "TiB" };
+        double value = static_cast<double>(bytes);
+        size_t unitIndex = 0;
+        while (value >= 1024.0 && unitIndex + 1 < _countof(Units))
+        {
+            value /= 1024.0;
+            ++unitIndex;
+        }
+
+        if (unitIndex == 0)
+            return Utils::Format("%llu %s", static_cast<unsigned long long>(bytes), Units[unitIndex]);
+        return Utils::Format("%.2f %s", value, Units[unitIndex]);
+    }
+
+    ModelMeshSizeEstimate EstimateOutputModelMeshSize(
+        const vector<ComponentRef<ModelRenderer>>& rendererRefs)
+    {
+        ModelMeshSizeEstimate estimate;
+        for (const ComponentRef<ModelRenderer>& rendererRef : rendererRefs)
+        {
+            ModelRenderer* renderer = rendererRef.Resolve();
+            Model* model = renderer != nullptr ? renderer->GetModel().Resolve() : nullptr;
+            ModelMeshResource* meshResource = model != nullptr ? model->GetMesh() : nullptr;
+            if (meshResource == nullptr)
+            {
+                if (rendererRef.IsValid())
+                    ++estimate.unavailableRendererCount;
+                continue;
+            }
+
+            MetaFile* meta = nullptr;
+            if (RESOURCES->TryGetMetaByAssetId(meshResource->GetID(), OUT meta) == false
+                || meta == nullptr)
+            {
+                ++estimate.unavailableRendererCount;
+                continue;
+            }
+
+            const fs::path meshPath = meta->GetImportedAssetPath(meshResource->GetID());
+            std::error_code fileError;
+            const uintmax_t fileBytes = fs::file_size(meshPath, fileError);
+            if (fileError || fileBytes > UINT64_MAX)
+            {
+                ++estimate.unavailableRendererCount;
+                continue;
+            }
+
+            const size_t rendererInstanceCount = renderer->HasInstancingData()
+                ? static_cast<size_t>(renderer->GetInstancingCount())
+                : 1;
+            estimate.instanceCount += rendererInstanceCount;
+
+            const uint64 sourceBytes = static_cast<uint64>(fileBytes);
+            if (rendererInstanceCount > 0
+                && sourceBytes > UINT64_MAX / rendererInstanceCount)
+            {
+                estimate.outputBytes = UINT64_MAX;
+                estimate.overflowed = true;
+                continue;
+            }
+
+            const uint64 rendererBytes = sourceBytes * rendererInstanceCount;
+            if (estimate.outputBytes > UINT64_MAX - rendererBytes)
+            {
+                estimate.outputBytes = UINT64_MAX;
+                estimate.overflowed = true;
+                continue;
+            }
+            estimate.outputBytes += rendererBytes;
+        }
+        return estimate;
+    }
 
     double ElapsedMilliseconds(const TimingClock::time_point& start)
     {
@@ -603,6 +687,31 @@ void ModelBatchingTool::OnGUI()
 
     if (ImGui::Button("Add Model Renderer"))
         _modelRenderers.emplace_back();
+
+    const ModelMeshSizeEstimate meshSizeEstimate = EstimateOutputModelMeshSize(_modelRenderers);
+    if (meshSizeEstimate.instanceCount > 0)
+    {
+        const string formattedSize = FormatFileSize(meshSizeEstimate.outputBytes);
+        const char* partialSuffix = meshSizeEstimate.unavailableRendererCount > 0
+            ? " (partial estimate)"
+            : "";
+        ImGui::Text(
+            "Estimated Output ModelMesh: ~%s (%zu instances)%s",
+            formattedSize.c_str(), meshSizeEstimate.instanceCount, partialSuffix);
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip(
+                "Sum of each input .modelmesh file size multiplied by that renderer's instance count.\n"
+                "A renderer without instancing data counts as one instance. Atlas textures are not included.%s",
+                meshSizeEstimate.overflowed
+                    ? "\nThe estimate exceeded the supported display range."
+                    : "");
+        }
+    }
+    else if (meshSizeEstimate.unavailableRendererCount > 0)
+    {
+        ImGui::TextDisabled("Estimated Output ModelMesh: unavailable");
+    }
 
     ImGui::SeparatorText("Atlas Settings");
     if (ImGui::InputInt("Max Atlas Size", &_maxAtlasSize))
