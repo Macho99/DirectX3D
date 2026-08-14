@@ -186,6 +186,9 @@
     <ClInclude Include="ModelMesh.h">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
+    <ClInclude Include="ModelMeshMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClInclude>
@@ -218,6 +221,9 @@
     </ClInclude>
     <ClInclude Include="ModelAnimation.h">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelBatchingTool.h">
+      <Filter>50. Editor\EditorWindow</Filter>
     </ClInclude>
     <ClInclude Include="InstancingBuffer.h">
       <Filter>01. Graphics\Buffer</Filter>
@@ -902,6 +908,9 @@
     <ClCompile Include="ModelMesh.cpp">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
+    <ClCompile Include="ModelMeshMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
@@ -931,6 +940,9 @@
     </ClCompile>
     <ClCompile Include="ModelAnimation.cpp">
       <Filter>00. Engine\Asset\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelBatchingTool.cpp">
+      <Filter>50. Editor\EditorWindow</Filter>
     </ClCompile>
     <ClCompile Include="InstancingBuffer.cpp">
       <Filter>01. Graphics\Buffer</Filter>

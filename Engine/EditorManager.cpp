@@ -8,6 +8,7 @@
 #include "ContentBrowser.h"
 #include "FileUtils.h"
 #include "UnrealLevelImporter.h"
+#include "ModelBatchingTool.h"
 
 EditorManager::EditorManager()
 {
@@ -52,6 +53,9 @@ void EditorManager::Init()
     _editorWindows.push_back(make_unique<Console>());
     _editorWindows.push_back(make_unique<Inspector>());
     _editorWindows.push_back(make_unique<ContentBrowser>());
+    unique_ptr<ModelBatchingTool> modelBatchingTool = make_unique<ModelBatchingTool>();
+    _modelBatchingTool = modelBatchingTool.get();
+    _editorWindows.push_back(move(modelBatchingTool));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).Resolve(); }));
@@ -156,6 +160,13 @@ void EditorManager::Update()
             }
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("Tools"))
+        {
+            if (ImGui::MenuItem("Model Batching Tool"))
+                _modelBatchingTool->IsOpen = true;
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 
@@ -236,6 +247,7 @@ void EditorManager::OnDestroy()
     ImGui::DestroyContext();
 
     _editorWindows.clear();
+    _modelBatchingTool = nullptr;
 }
 
 void EditorManager::GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef& assetRef, OUT int& subAssetIndex) const

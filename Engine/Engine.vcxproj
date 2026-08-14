@@ -352,8 +352,10 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelAnimation.h" />
+    <ClInclude Include="ModelBatchingTool.h" />
     <ClInclude Include="ModelAnimator.h" />
     <ClInclude Include="ModelMesh.h" />
+    <ClInclude Include="ModelMeshMeta.h" />
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="MonoBehaviour.h" />
     <ClInclude Include="OBBBoxCollider.h" />
@@ -568,8 +570,10 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelAnimation.cpp" />
+    <ClCompile Include="ModelBatchingTool.cpp" />
     <ClCompile Include="ModelAnimator.cpp" />
     <ClCompile Include="ModelMesh.cpp" />
+    <ClCompile Include="ModelMeshMeta.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="MonoBehaviour.cpp" />
     <ClCompile Include="OBBBoxCollider.cpp" />

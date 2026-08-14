@@ -2,6 +2,7 @@
 #include "DirectoryWatcherWin.h"
 class EditorWindow;
 class SceneView;
+class ModelBatchingTool;
 
 enum class EditorIcon
 {
@@ -73,5 +74,6 @@ private:
 
 	vector<unique_ptr<EditorWindow>> _editorWindows;
 	SceneView* _sceneView = nullptr;
+	ModelBatchingTool* _modelBatchingTool = nullptr;
 	char _saveSceneName[256] = "NewScene";
 };

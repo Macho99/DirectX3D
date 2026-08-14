@@ -11,6 +11,7 @@ public:
     virtual void LateUpdate() override;
     void AddInstancingData(const Matrix& mat);
     bool HasInstancingData() const { return _originInstDatas.size() > 0; }
+    int GetInstancingCount() const { return _originInstDatas.size(); }
     const vector<InstancingData>& GetInstancingDatas() const { return _instDatas; }
 
     virtual bool OnGUI() override;

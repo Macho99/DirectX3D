@@ -14,6 +14,7 @@ public:
 	virtual ~ModelRenderer();
 
 	bool SetModel(ResourceRef<Model> model);
+	ResourceRef<Model> GetModel() const { return _model; }
 
     virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 

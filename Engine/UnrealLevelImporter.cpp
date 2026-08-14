@@ -4,6 +4,7 @@
 #include <fstream>
 #include "Model.h"
 #include "ModelRenderer.h"
+#include <queue>
 
 namespace
 {
@@ -119,6 +120,18 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
     rootTransform->SetLocalPosition(Vec3(-1, 8, 134));
     rootTransform->SetLocalRotation(Vec3(0, 90, 0));
+
+    auto& children = rootTransform->GetChildren();
+
+    vector<pair<int, string>> v;
+    for (auto& child : children)
+    {
+        Transform* transform = child.Resolve();
+        ModelRenderer* modelRenderer = transform->GetGameObject()->GetFixedComponent<ModelRenderer>();
+        v.push_back(make_pair(modelRenderer->GetInstancingCount(), transform->GetGameObject()->GetName()));;
+    }
+    std::sort(v.begin(), v.end());
+
     return true;
 }
 

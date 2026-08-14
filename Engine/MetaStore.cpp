@@ -15,6 +15,7 @@
 #include "TerrainData.h"
 #include "SceneMeta.h"
 #include "ModelMeta.h"
+#include "ModelMeshMeta.h"
 #include "FontMeta.h"
 #include "AnimationOverrideMeta.h"
 
@@ -182,6 +183,7 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         _creators[".fx"] = []() { return make_unique<ShaderMeta>(); };
         _creators[".scene"] = []() { return make_unique<SceneMeta>(); };
         _creators[".model"] = []() { return make_unique<ModelMeta>(); };
+        _creators[".modelmesh"] = []() { return make_unique<ModelMeshMeta>(); };
         _creators[TerrainData::GetExtension()] = []() { return make_unique<TerrainDataMeta>(); };
         _creators[".fnt"] = []() { return make_unique<FontMeta>(); };
         _creators[AnimationOverrideMeta::GetExtension()] = []() { return make_unique<AnimationOverrideMeta>(); };
