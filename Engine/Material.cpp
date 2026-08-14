@@ -285,6 +285,33 @@ bool Material::OnGUI(bool isReadOnly)
     changed |= OnGUIUtils::DrawBool("CastShadow", &_castShadow, isReadOnly);
     changed |= OnGUIUtils::DrawBool("IncludeInNavMesh", &_includeInNavMesh, isReadOnly);
 
+	if (shader)
+	{
+		static const char* renderTechNames[] =
+		{
+			"Shadow TechNum",
+			"Draw TechNum",
+			"NormalDepth TechNum",
+			"Distortion TechNum",
+		};
+
+		ImGui::Separator();
+		ImGui::TextUnformatted("Shader TechNums");
+
+		const int maxTechNum = static_cast<int>(shader->GetTechniques().size()) - 1;
+		for (int i = 0; i < static_cast<int>(RenderTech::Max); i++)
+		{
+			const RenderTech renderTech = static_cast<RenderTech>(i);
+			int techNum = shader->GetTechNum(renderTech);
+			if (OnGUIUtils::DrawInt32(renderTechNames[i], &techNum, 1.f, isReadOnly))
+			{
+				techNum = std::clamp(techNum, -1, maxTechNum);
+				shader->SetTechNum(renderTech, techNum);
+				changed = true;
+			}
+		}
+	}
+
 	return changed;
 }
 

@@ -110,7 +110,6 @@ public:
     void PushFoliageData(const FoliageDesc& desc);
 
 	vector<Technique>& GetTechniques() { return _techniques; }
-
 	int GetTechNum(RenderTech renderTech);
 
 private:

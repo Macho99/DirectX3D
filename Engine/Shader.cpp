@@ -778,6 +778,5 @@ void Shader::PushFoliageData(const FoliageDesc& desc)
 int Shader::GetTechNum(RenderTech renderTech)
 { 
 	int num = _techNums[static_cast<int>(renderTech)];
-	assert(num != -1);
 	return num;
 }
