@@ -99,7 +99,7 @@ void TrailRenderer::InnerRender(RenderTech renderTech)
 
     Super::InnerRender(renderTech);
 
-    Material* material = _material.Resolve();
+    Material* material = GetMaterial().Resolve();
     if (material == nullptr)
         return;
 

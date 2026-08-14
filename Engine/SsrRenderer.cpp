@@ -17,7 +17,7 @@ void SsrRenderer::InnerRender(RenderTech renderTech)
 	Mesh* mesh = _mesh.Resolve();
 	if (mesh == nullptr)
 		return;
-	Material* material = _material.Resolve();
+	Material* material = GetMaterial().Resolve();
 	if (material == nullptr)
 		return;
 

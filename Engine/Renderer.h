@@ -12,8 +12,8 @@ public:
 	~Renderer();
 
 	void SetPass(uint8 pass) { _pass = pass; }
-	virtual void SetMaterial(ResourceRef<Material> material) { _material = material; }
-	ResourceRef<Material> GetMaterial() { return _material; }
+	virtual void SetMaterial(ResourceRef<Material> material);
+	const ResourceRef<Material>& GetMaterial() const { return _material; }
 
 	bool Render(RenderTech renderTech);
     bool CanRender(RenderTech renderTech);
@@ -32,11 +32,13 @@ public:
 
 protected:
 	virtual void InnerRender(RenderTech renderTech);
+	virtual void OnMaterialChange(const Material* oldMaterial, const Material* newMaterial);
 
 protected:
-	ResourceRef<Material> _material;
-
 	uint8 _pass = 0;
     function<void(Material*)> _beforeRender = nullptr;
+
+private:
+	ResourceRef<Material> _material;
 };
 

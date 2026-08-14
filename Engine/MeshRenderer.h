@@ -13,7 +13,7 @@ public:
 	MeshRenderer();
 	virtual ~MeshRenderer();
 
-	void SetMesh(ResourceRef<Mesh> mesh) { _mesh = mesh; }
+	void SetMesh(ResourceRef<Mesh> mesh);
     ResourceRef<Mesh> GetMesh() { return _mesh; }
 	void InnerRender(RenderTech renderTech) override;
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, RenderTech renderTech);

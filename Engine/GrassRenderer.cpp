@@ -290,7 +290,7 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
         UpdateGrass();
         prevFrameCount = TIME->GetTotalFrameCount();
     }
-    auto shader = _material.Resolve()->GetShader();
+    auto shader = GetMaterial().Resolve()->GetShader();
 
     UINT techNum = shader->GetTechNum(renderTech);
     {

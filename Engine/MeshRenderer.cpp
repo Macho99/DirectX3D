@@ -17,6 +17,16 @@ MeshRenderer::~MeshRenderer()
 
 }
 
+void MeshRenderer::SetMesh(ResourceRef<Mesh> mesh)
+{
+    if (_mesh == mesh)
+        return;
+
+    const AssetId oldMeshId = GetMeshId();
+    _mesh = mesh;
+    OnMeshChange(oldMeshId, GetMeshId());
+}
+
 void MeshRenderer::InnerRender(RenderTech renderTech)
 {
 	Super::InnerRender(renderTech);
@@ -25,7 +35,7 @@ void MeshRenderer::InnerRender(RenderTech renderTech)
 	if (mesh == nullptr)
 		return;
 
-    Material* material = _material.Resolve();
+    Material* material = GetMaterial().Resolve();
     if (material == nullptr)
         return;
 
@@ -52,7 +62,7 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 	if (mesh == nullptr)
 		return;
 
-	Material* material = _material.Resolve();
+	Material* material = GetMaterial().Resolve();
 	if (material == nullptr)
 		return;
 
@@ -73,7 +83,7 @@ void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer, 
 
 InstanceID MeshRenderer::GetInstanceID()
 {
-	return make_pair((uint64)_mesh.GetAssetId().GetLeftId(), (uint64)_material.GetAssetId().GetLeftId());
+	return make_pair((uint64)_mesh.GetAssetId().GetLeftId(), (uint64)GetMaterial().GetAssetId().GetLeftId());
 }
 
 bool MeshRenderer::OnGUI()
@@ -81,7 +91,12 @@ bool MeshRenderer::OnGUI()
     bool changed = false;
     changed |= Super::OnGUI();
 	ImGui::Separator();
-    changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh);
+    ResourceRef<Mesh> mesh = GetMesh();
+    if (OnGUIUtils::DrawResourceRef("Mesh", mesh))
+    {
+        SetMesh(mesh);
+        changed = true;
+    }
     bool debugTriChanged = OnGUIUtils::DrawInt32("Triangle Count", &_debugTriangleCount, 0.25f);
 	if (debugTriChanged)
 	{

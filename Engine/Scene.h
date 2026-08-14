@@ -15,6 +15,8 @@ using InstancedRendererMap = unordered_map<string/*material Name*/, unordered_ma
 class Scene : public ResourceBase
 {
 	using Super = ResourceBase;
+    friend class Renderer;
+    friend class InstancingRenderer;
 public:
 	static constexpr ResourceType StaticType = ResourceType::Scene;
 	Scene();

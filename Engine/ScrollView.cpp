@@ -8,7 +8,7 @@ ScrollView::ScrollView()
 {
     _mesh = RESOURCES->GetQuadMesh();
     _maskMode = UIMaskMode::VisibleMask;
-    _material = RESOURCES->AllocateUIDefaultMaterial();
+    SetMaterial(RESOURCES->AllocateUIDefaultMaterial());
 }
 
 void ScrollView::Awake()
@@ -125,7 +125,7 @@ bool ScrollView::OnGUI()
 void ScrollView::SetBackgroundTexture(ResourceRef<Texture> texture)
 {
     _backgroundTexture = texture;
-    _material.Resolve()->SetDiffuseMap(texture);
+    GetMaterial().Resolve()->SetDiffuseMap(texture);
 }
 
 Vec2 ScrollView::CalculateBoundsCorrection(RectTransform* contentRectTransform) const

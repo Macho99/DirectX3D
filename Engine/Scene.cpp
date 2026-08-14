@@ -77,6 +77,10 @@ void Scene::OnDestroy()
     }
 	_gameObjects.clear();
 	_removeLists.clear();
+
+    _vecForward.clear();
+    _vecBackward.clear();
+    _instRenderers.clear();
 }
 
 void Scene::Update()
@@ -311,6 +315,10 @@ void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 	{
 		_rootObjects.erase(std::remove(_rootObjects.begin(), _rootObjects.end(), transformRef), _rootObjects.end());
 	}
+
+    Renderer* renderer = gameObject->GetRenderer();
+    if (renderer != nullptr)
+		OnRendererRemove(renderer);
 
 	_gameObjects.erase(gameObjectRef);
 	_cameras.erase(gameObjectRef);
@@ -547,22 +555,29 @@ void Scene::OnRendererRemove(Renderer* renderer)
 
 void Scene::OnInstRendererStateChange(ComponentRef<InstancingRenderer> instRendererRef, const Material* oldMat, const Material* newMat, const AssetId& oldMeshId, const AssetId& newMeshId)
 {
-	if (oldMat != nullptr && oldMeshId.IsValid() == false)
+	if (oldMat != nullptr && oldMeshId.IsValid())
 	{
-		vector<ComponentRef<InstancingRenderer>>& targetRenderers = _instRenderers[oldMat->GetStringName()][oldMeshId];
-		auto it = std::find_if(targetRenderers.begin(), targetRenderers.end(),
-			[&instRendererRef](const ComponentRef<InstancingRenderer>& ref) { return ref == instRendererRef; });
-
-		ASSERT(it != targetRenderers.end());
-		targetRenderers.erase(it);
+		auto materialIt = _instRenderers.find(oldMat->GetStringName());
+		if (materialIt != _instRenderers.end())
+		{
+			auto meshIt = materialIt->second.find(oldMeshId);
+			if (meshIt != materialIt->second.end())
+			{
+				auto& targetRenderers = meshIt->second;
+				targetRenderers.erase(std::remove(targetRenderers.begin(), targetRenderers.end(), instRendererRef), targetRenderers.end());
+				if (targetRenderers.empty())
+					materialIt->second.erase(meshIt);
+			}
+			if (materialIt->second.empty())
+				_instRenderers.erase(materialIt);
+		}
 	}
 
-	if (newMat != nullptr && newMeshId.IsValid() == false)
+	if (newMat != nullptr && newMeshId.IsValid())
 	{
 		vector<ComponentRef<InstancingRenderer>>& targetRenderers = _instRenderers[newMat->GetStringName()][newMeshId];
-		ASSERT(std::find_if(targetRenderers.begin(), targetRenderers.end(),
-			[&instRendererRef](const ComponentRef<InstancingRenderer>& ref) { return ref == instRendererRef; }) == targetRenderers.end());
-		targetRenderers.push_back(instRendererRef);
+		if (std::find(targetRenderers.begin(), targetRenderers.end(), instRendererRef) == targetRenderers.end())
+			targetRenderers.push_back(instRendererRef);
 	}
 }
 
@@ -577,11 +592,14 @@ void Scene::OnRendererMaterialChange(ComponentRef<Renderer> renderer, const Mate
 		case RenderQueue::Opaque:
 		case RenderQueue::Cutout:
 			vec = &_vecForward;
+			break;
 		case RenderQueue::Transparent:
 			vec = &_vecBackward;
+			break;
 		}
 
-		vec->erase(std::remove(vec->begin(), vec->end(), renderer), vec->end());
+		if (vec != nullptr)
+			vec->erase(std::remove(vec->begin(), vec->end(), renderer), vec->end());
 	}
 
 	if (newMat != nullptr)
@@ -591,9 +609,13 @@ void Scene::OnRendererMaterialChange(ComponentRef<Renderer> renderer, const Mate
 		{
 		case RenderQueue::Opaque:
 		case RenderQueue::Cutout:
-			_vecForward.push_back(ComponentRef<Renderer>(renderer));
+			if (std::find(_vecForward.begin(), _vecForward.end(), renderer) == _vecForward.end())
+				_vecForward.push_back(renderer);
+			break;
 		case RenderQueue::Transparent:
-			_vecBackward.push_back(ComponentRef<Renderer>(renderer));
+			if (std::find(_vecBackward.begin(), _vecBackward.end(), renderer) == _vecBackward.end())
+				_vecBackward.push_back(renderer);
+			break;
 		}
 	}
 }

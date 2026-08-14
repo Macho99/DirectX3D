@@ -107,7 +107,7 @@ void SnowBillboard::InnerRender(RenderTech renderTech)
 	// GlobalData
 	//shader->PushGlobalData(Camera::S_MatView, Camera::S_MatProjection);
 
-	auto shader = _material.Resolve()->GetShader();
+	auto shader = GetMaterial().Resolve()->GetShader();
 	// SnowData
 	shader->PushSnowData(_desc);
 

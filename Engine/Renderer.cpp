@@ -4,6 +4,8 @@
 #include "Camera.h"
 #include "Light.h"
 #include "OnGUIUtils.h"
+#include "Scene.h"
+#include "SceneManager.h"
 
 Renderer::Renderer(ComponentType componentType) : Super(componentType)
 {
@@ -11,6 +13,16 @@ Renderer::Renderer(ComponentType componentType) : Super(componentType)
 
 Renderer::~Renderer()
 {
+}
+
+void Renderer::SetMaterial(ResourceRef<Material> material)
+{
+    if (_material == material)
+        return;
+
+    const Material* oldMaterial = _material.Resolve();
+    _material = material;
+    OnMaterialChange(oldMaterial, _material.Resolve());
 }
 
 // 여기서 검증하고 InnerRender를 호출
@@ -44,7 +56,12 @@ bool Renderer::OnGUI()
 	changed |= Super::OnGUI();
 
     changed |= OnGUIUtils::DrawUInt8("Pass", & _pass, 1.f);
-    changed |= OnGUIUtils::DrawResourceRef("Material", _material);
+    ResourceRef<Material> material = GetMaterial();
+    if (OnGUIUtils::DrawResourceRef("Material", material))
+    {
+        SetMaterial(material);
+        changed = true;
+    }
 
 	return changed;
 }
@@ -60,6 +77,16 @@ bool Renderer::IsInstRenderer() const
 	}
 
 	return false;
+}
+
+void Renderer::OnMaterialChange(const Material* oldMaterial, const Material* newMaterial)
+{
+    shared_ptr<Scene> scene = SCENE->GetCurrentScene();
+    const GameObjectRef gameObjectRef = GetGameObjectRef();
+    if (scene == nullptr || gameObjectRef.IsValid() == false || scene->IsInScene(gameObjectRef) == false)
+        return;
+
+    scene->OnRendererMaterialChange(ComponentRef<Renderer>(this), oldMaterial, newMaterial);
 }
 
 void Renderer::InnerRender(RenderTech renderTech)

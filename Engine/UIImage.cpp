@@ -144,11 +144,11 @@ void UIImage::RebuildMesh()
 
 void UIImage::ApplyMaterial()
 {
-    Material* material = _material.Resolve();
+    Material* material = GetMaterial().Resolve();
     if (material == nullptr)
     {
-        _material = RESOURCES->AllocateUIDefaultMaterial();
-        material = _material.Resolve();
+        SetMaterial(RESOURCES->AllocateUIDefaultMaterial());
+        material = GetMaterial().Resolve();
     }
 
     material->SetDiffuseMap(_texture);

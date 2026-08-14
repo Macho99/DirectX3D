@@ -22,14 +22,16 @@ void ModelRenderer::SetShader(ResourceRef<Shader> shader)
 {
     _shader = shader;
 	_initialized = false;
-	_material = ResourceRef<Material>();
+	Super::SetMaterial(ResourceRef<Material>());
 }
 
 void ModelRenderer::SetModel(ResourceRef<Model> model)
 {
+	const AssetId oldMeshId = GetMeshId();
+	Super::SetMaterial(ResourceRef<Material>());
 	_model = model;
+	OnMeshChange(oldMeshId, GetMeshId());
 	_initialized = false;
-	_material = ResourceRef<Material>();
 	if (_shader.Resolve() == nullptr)
 	{
         bool isFoliage = false;
@@ -192,7 +194,7 @@ bool ModelRenderer::TryInitialize()
 		if (material.Resolve() == nullptr)
 			continue;
 		material.Resolve()->SetShader(_shader);
-		_material = material;
+		Super::SetMaterial(material);
     }
 
     _initialized = true;

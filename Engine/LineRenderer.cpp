@@ -52,7 +52,7 @@ void LineRenderer::Awake()
 {
     Super::Awake();
 
-    if (_material.IsValid() == false)
+    if (GetMaterial().IsValid() == false)
         SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\LineMat.mat"));
 }
 
@@ -124,7 +124,7 @@ void LineRenderer::InnerRender(RenderTech renderTech)
 
     Super::InnerRender(renderTech);
 
-    Material* material = _material.Resolve();
+    Material* material = GetMaterial().Resolve();
     if (material == nullptr)
         return;
 

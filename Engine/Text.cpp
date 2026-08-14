@@ -46,7 +46,7 @@ void Text::Update()
     {
         RebuildMesh();
 
-        Material* material = _material.Resolve();
+        Material* material = GetMaterial().Resolve();
         if (material != nullptr)
         {
             material->GetMaterialDesc().diffuse = _color;
@@ -138,7 +138,7 @@ void Text::SetFontSize(float fontSize)
 void Text::SetColor(const Color& color)
 {
     _color = color;
-    Material* material = _material.Resolve();
+    Material* material = GetMaterial().Resolve();
     if (material != nullptr)
     {
         material->GetMaterialDesc().diffuse = _color;

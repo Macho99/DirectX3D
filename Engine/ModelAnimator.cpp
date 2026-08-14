@@ -104,7 +104,9 @@ void ModelAnimator::SetShader(ResourceRef<Shader> shader)
 
 void ModelAnimator::SetModel(ResourceRef<Model> model)
 {
+	const AssetId oldMeshId = GetMeshId();
 	_model = model;
+	OnMeshChange(oldMeshId, GetMeshId());
 	// 모델이 바뀌면 유효한 애니메이션 인덱스 범위도 달라질 수 있다.
 	_blendSpaceTriangulationDirty = true;
 
@@ -420,7 +422,7 @@ bool ModelAnimator::TryInitialize()
 	for (auto& material : materials)
 	{
 		material.Resolve()->SetShader(_shader);
-		_material = material;
+		SetMaterial(material);
 		break;
 	}
 

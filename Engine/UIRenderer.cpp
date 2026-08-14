@@ -78,7 +78,7 @@ void UIRenderer::InnerRender(RenderTech renderTech)
         return;
     }
 
-    Material* material = _material.Resolve();
+    Material* material = GetMaterial().Resolve();
     if (material == nullptr)
     {
         return;

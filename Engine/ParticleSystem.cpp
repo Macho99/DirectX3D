@@ -48,7 +48,7 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 
 	Super::InnerRender(renderTech);
 
-	Shader* shader = _material.Resolve()->GetShader();
+	Shader* shader = GetMaterial().Resolve()->GetShader();
 	//
 	// Set constants.
 	//
@@ -132,16 +132,16 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 
 bool ParticleSystem::TryInitialize()
 {
-	if (_cachedMaterial != _material)
+	if (_cachedMaterial != GetMaterial())
 	{
-		Material* materialPtr = _material.Resolve();
+		Material* materialPtr = GetMaterial().Resolve();
         if (materialPtr == nullptr)
         {
             return false;
         }
 
 		materialPtr->GetShader()->SetTechNum(RenderTech::Draw, 1);
-		_cachedMaterial = _material;
+		_cachedMaterial = GetMaterial();
 	}
 	return true;
 }
