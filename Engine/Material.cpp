@@ -101,6 +101,11 @@ void Material::Update()
         _layerNormalMapArrayEffectBuffer->SetResource(_layerNormalMapArraySRV.Get());
     }
 
+    if (_layerHeightMapArraySRV)
+    {
+        _layerHeightMapArrayEffectBuffer->SetResource(_layerHeightMapArraySRV.Get());
+    }
+
 	// TODO: 필요할때만 업데이트하기
 	if(Camera::S_ProjectionType == ProjectionType::Perspective)
 		_ssaoMapEffectBuffer->SetResource(GRAPHICS->GetSsaoMap().Resolve()->GetComPtr().Get());
@@ -336,6 +341,7 @@ void Material::Clone(Material* other)
     _cubeMap = other->_cubeMap;
     _layerMapArraySRV = other->_layerMapArraySRV;
     _layerNormalMapArraySRV = other->_layerNormalMapArraySRV;
+    _layerHeightMapArraySRV = other->_layerHeightMapArraySRV;
     _diffuseEffectBuffer = other->_diffuseEffectBuffer;
     _normalEffectBuffer = other->_normalEffectBuffer;
     _specularEffectBuffer = other->_specularEffectBuffer;
@@ -345,6 +351,7 @@ void Material::Clone(Material* other)
     _ssaoMapEffectBuffer = other->_ssaoMapEffectBuffer;
     _layerMapArrayEffectBuffer = other->_layerMapArrayEffectBuffer;
     _layerNormalMapArrayEffectBuffer = other->_layerNormalMapArrayEffectBuffer;
+    _layerHeightMapArrayEffectBuffer = other->_layerHeightMapArrayEffectBuffer;
 	_initializedEffectBuffers = other->_initializedEffectBuffers;
 }
 
@@ -424,6 +431,7 @@ void Material::InitializeEffectBuffers()
 		_ssaoMapEffectBuffer = nullptr;
 		_layerMapArrayEffectBuffer = nullptr;
 		_layerNormalMapArrayEffectBuffer = nullptr;
+		_layerHeightMapArrayEffectBuffer = nullptr;
 		return;
 	}
 
@@ -436,6 +444,7 @@ void Material::InitializeEffectBuffers()
 	_ssaoMapEffectBuffer = shaderPtr->GetSRV("SsaoMap").Get();
 	_layerMapArrayEffectBuffer = shaderPtr->GetSRV("LayerMapArray").Get();
 	_layerNormalMapArrayEffectBuffer = shaderPtr->GetSRV("LayerNormalMapArray").Get();
+	_layerHeightMapArrayEffectBuffer = shaderPtr->GetSRV("LayerHeightMapArray").Get();
 
     _initializedEffectBuffers = true;
 }

@@ -292,6 +292,8 @@ struct TerrainDesc
 	float gUseLayerNormalMap;
 	Vec3 brushPos;
 	float dummy3;
+	// x: strength, y: full-detail distance, z: fade-out distance, w: enabled
+	Vec4 gLayerHeightParams = Vec4(0.25f, 20.0f, 80.0f, 0.0f);
 };
 
 struct WindDesc

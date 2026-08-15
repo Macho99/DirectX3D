@@ -100,6 +100,7 @@ void AssetSerializeDemo::Init()
     ComponentRef<TessTerrain> tessTerrainRef;
     {
         unique_ptr<TessTerrain> tessTerrain = make_unique<TessTerrain>();
+        tessTerrain->SetPositionOffset(Vec3::Up * 4);
         tessTerrain->SetTerrainData(RESOURCES->GetResourceRefByPath<TerrainData>(L"Textures\\Terrain\\TerrainData.terrain"));
 
         ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\TerrainMat.mat");
@@ -133,8 +134,6 @@ void AssetSerializeDemo::Init()
         obj->AddComponent(std::move(grassRenderer));
     
         auto foliageController = make_unique<FoliageController>();
-        foliageController->SetBendFactor(0.1f);
-        foliageController->SetStiffness(0.65f);
         obj->AddComponent(std::move(foliageController));
     }
 

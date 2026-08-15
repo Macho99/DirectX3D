@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 1,
+                "_version": 2,
                 "heightMap": {
                     "assetId": {
                         "leftId": 1115768239487903243,
@@ -72,6 +72,39 @@
                         "rightId": 273486584801102199
                     }
                 },
+                "Layer0Height": {
+                    "assetId": {
+                        "leftId": 2846752866372217682,
+                        "rightId": 15317223324463544691
+                    }
+                },
+                "Layer1Height": {
+                    "assetId": {
+                        "leftId": 13731276782783089346,
+                        "rightId": 8298829230216293983
+                    }
+                },
+                "Layer2Height": {
+                    "assetId": {
+                        "leftId": 15943041971789163468,
+                        "rightId": 3615160367698214242
+                    }
+                },
+                "Layer3Height": {
+                    "assetId": {
+                        "leftId": 11983388310983174007,
+                        "rightId": 17689246409315677463
+                    }
+                },
+                "Layer4Height": {
+                    "assetId": {
+                        "leftId": 14184313966424642610,
+                        "rightId": 6420220161165919849
+                    }
+                },
+                "layerHeightStrength": 0.25,
+                "layerHeightNearDistance": 20.0,
+                "layerHeightFarDistance": 80.0,
                 "blendMap": {
                     "assetId": {
                         "leftId": 4859083598084269140,

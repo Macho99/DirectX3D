@@ -536,6 +536,7 @@ bool TessTerrain::TryInitialize()
 
 	_layerMapArraySRV = terrainData->GetLayerMapArraySRV();
 	_layerNormalMapArraySRV = terrainData->GetLayerNormalMapArraySRV();
+	_layerHeightMapArraySRV = terrainData->GetLayerHeightMapArraySRV();
 	_blendMapTexture = terrainData->GetBlendMap();
 
 	_initialized = true;
@@ -568,8 +569,12 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 	if (TryInitialize() == false)
 		return;
 
+	_layerMapArraySRV = terrainData->GetLayerMapArraySRV();
+	_layerNormalMapArraySRV = terrainData->GetLayerNormalMapArraySRV();
+	_layerHeightMapArraySRV = terrainData->GetLayerHeightMapArraySRV();
 	material->SetLayerMapArraySRV(_layerMapArraySRV);
 	material->SetLayerNormalMapArraySRV(_layerNormalMapArraySRV);
+	material->SetLayerHeightMapArraySRV(_layerHeightMapArraySRV);
 	material->SetDiffuseMap(_heightMapTexture);
 	material->SetSpecularMap(_blendMapTexture);
 
@@ -602,6 +607,11 @@ void TessTerrain::InnerRender(RenderTech renderTech)
     _terrainDesc.gTexelCellSpaceV = 1.0f / terrainData->GetHeightmapHeight();
     _terrainDesc.gWorldCellSpace = terrainData->GetCellSpacing();
     _terrainDesc.gUseLayerNormalMap = _layerNormalMapArraySRV != nullptr ? 1.0f : 0.0f;
+    _terrainDesc.gLayerHeightParams = Vec4(
+        terrainData->GetLayerHeightStrength(),
+        terrainData->GetLayerHeightNearDistance(),
+        terrainData->GetLayerHeightFarDistance(),
+        _layerHeightMapArraySRV != nullptr ? 1.0f : 0.0f);
 
 	bool useBrush = false;
 	if (_editMode != EditMode::None && renderTech == RenderTech::Draw && INPUT->IsMouseInScene())

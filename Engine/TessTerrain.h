@@ -34,6 +34,7 @@ public:
 	void InnerRender(RenderTech renderTech) override;
     ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
     ID3D11ShaderResourceView* GetLayerNormalMapArraySRV() { return _layerNormalMapArraySRV.Get(); }
+    ID3D11ShaderResourceView* GetLayerHeightMapArraySRV() { return _layerHeightMapArraySRV.Get(); }
     ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
 	void SetTerrainData(const ResourceRef<TerrainData>& terrainData);
 	ResourceRef<TerrainData> GetTerrainData() const { return _terrainData; }
@@ -92,6 +93,7 @@ private:
 
 	ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 	ComPtr<ID3D11ShaderResourceView> _layerNormalMapArraySRV;
+	ComPtr<ID3D11ShaderResourceView> _layerHeightMapArraySRV;
 	ResourceRef<Texture> _blendMapTexture;
     ResourceRef<Texture> _heightMapTexture;
     ComPtr<ID3D11Texture2D> _heightMapTexture2D;

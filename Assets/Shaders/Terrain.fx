@@ -32,11 +32,14 @@ cbuffer TerrainBuffer
     float gUseLayerNormalMap;
     float3 brushPos;
     float dummy3;
+    // x: strength, y: full-detail distance, z: fade-out distance, w: enabled
+    float4 gLayerHeightParams;
 };
 
 // Nonnumeric values cannot be added to a cbuffer.
 Texture2DArray LayerMapArray;
 Texture2DArray LayerNormalMapArray;
+Texture2DArray LayerHeightMapArray;
 #define gLayerMapArray LayerMapArray
 #define gHeightMap DiffuseMap
 #define gBlendMap SpecularMap
@@ -57,6 +60,16 @@ SamplerState samHeightmap
 	AddressU = CLAMP;
 	AddressV = CLAMP;
 };
+
+float SampleLayerHeight(float2 tiledTex, float4 blendWeights)
+{
+	float height = LayerHeightMapArray.SampleLevel(samLinear, float3(tiledTex, 0.0f), 0).r;
+	height = lerp(height, LayerHeightMapArray.SampleLevel(samLinear, float3(tiledTex, 1.0f), 0).r, blendWeights.r);
+	height = lerp(height, LayerHeightMapArray.SampleLevel(samLinear, float3(tiledTex, 2.0f), 0).r, blendWeights.g);
+	height = lerp(height, LayerHeightMapArray.SampleLevel(samLinear, float3(tiledTex, 3.0f), 0).r, blendWeights.b);
+	height = lerp(height, LayerHeightMapArray.SampleLevel(samLinear, float3(tiledTex, 4.0f), 0).r, blendWeights.a);
+	return height - 0.5f;
+}
 
 struct VertexIn
 {
@@ -118,6 +131,9 @@ PatchTess ConstantHS(InputPatch<VertexOut, 4> patch, uint patchID : SV_Primitive
 	// We store the patch BoundsY in the first control point.
 	float minY = patch[0].BoundsY.x;
 	float maxY = patch[0].BoundsY.y;
+	float layerHeightExtent = 0.5f * gLayerHeightParams.x * gLayerHeightParams.w;
+	minY -= layerHeightExtent;
+	maxY += layerHeightExtent;
 
 	// Build axis-aligned bounding box.  patch[2] is lower-left corner
 	// and patch[1] is upper-right corner.
@@ -228,6 +244,17 @@ DomainOut DS(PatchTess patchTess,
 
 	// Displacement mapping
 	dout.PosW.y = gHeightMap.SampleLevel(samHeightmap, dout.Tex, 0).r;
+
+	// Layer detail displacement is only visible near the camera. Centering authored
+	// height around 0.5 prevents the entire terrain from drifting vertically.
+	if (gLayerHeightParams.w > 0.5f && gLayerHeightParams.x > 0.0f)
+	{
+		float distanceToEye = distance(dout.PosW, CamPos);
+		float fadeRange = max(gLayerHeightParams.z - gLayerHeightParams.y, 0.001f);
+		float nearFade = 1.0f - saturate((distanceToEye - gLayerHeightParams.y) / fadeRange);
+		float4 blendWeights = gBlendMap.SampleLevel(samLinear, dout.Tex, 0);
+		dout.PosW.y += SampleLayerHeight(dout.TiledTex, blendWeights) * gLayerHeightParams.x * nearFade;
+	}
 
 	// NOTE: We tried computing the normal in the shader using finite difference, 
 	// but the vertices move continuously with fractional_even which creates

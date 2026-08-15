@@ -15,20 +15,43 @@ TerrainData::~TerrainData()
 bool TerrainData::OnGUI(bool isReadOnly)
 {
     bool changed = false;
+    bool layerMapsChanged = false;
     changed |= Super::OnGUI(isReadOnly);
 
     changed |= OnGUIUtils::DrawAssetRef("Height Map", heightMap, isReadOnly);
-#define X(name, color, num) changed |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
+    ImGui::Separator();
+#define X(name, color, num) layerMapsChanged |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
     BLEND_LAYER_LIST
 #undef X
-#define X(name, num) changed |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
+        ImGui::Separator();
+#define X(name, num) layerMapsChanged |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
     NORMAL_LAYER_LIST
 #undef X
+        ImGui::Separator();
+#define X(name, num) layerMapsChanged |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
+    HEIGHT_LAYER_LIST
+#undef X
+    changed |= layerMapsChanged;
+    ImGui::Separator();
+    changed |= OnGUIUtils::DrawFloat("Layer Height Strength", &layerHeightStrength, 0.01f, isReadOnly);
+    changed |= OnGUIUtils::DrawFloat("Layer Height Near Distance", &layerHeightNearDistance, 1.0f, isReadOnly);
+    changed |= OnGUIUtils::DrawFloat("Layer Height Far Distance", &layerHeightFarDistance, 1.0f, isReadOnly);
     changed |= OnGUIUtils::DrawResourceRef("Blend Map", blendMap, isReadOnly);
     changed |= OnGUIUtils::DrawFloat("Height Scale", &heightScale, 0.1f, isReadOnly);
     changed |= OnGUIUtils::DrawUInt32("Heightmap Width", &heightmapWidth, 1.f, isReadOnly);
     changed |= OnGUIUtils::DrawUInt32("Heightmap Height", &heightmapHeight, 1.f, isReadOnly);
     changed |= OnGUIUtils::DrawFloat("Cell Spacing", &cellSpacing, 0.1f, isReadOnly);
+
+    layerHeightStrength = max(0.0f, layerHeightStrength);
+    layerHeightNearDistance = max(0.0f, layerHeightNearDistance);
+    layerHeightFarDistance = max(layerHeightNearDistance + 0.01f, layerHeightFarDistance);
+
+    if (layerMapsChanged)
+    {
+        _layerMapArraySRV.Reset();
+        _layerNormalMapArraySRV.Reset();
+        _layerHeightMapArraySRV.Reset();
+    }
 
     return changed;
 }
@@ -66,6 +89,27 @@ ID3D11ShaderResourceView* TerrainData::GetLayerNormalMapArraySRV()
             _layerNormalMapArraySRV = Utils::CreateTexture2DArraySRV(filePaths);
     }
     return _layerNormalMapArraySRV.Get();
+}
+
+ID3D11ShaderResourceView* TerrainData::GetLayerHeightMapArraySRV()
+{
+    if (_layerHeightMapArraySRV == nullptr)
+    {
+        vector<fs::path> filePaths;
+        bool hasAllHeightMaps = true;
+
+#define X(name, num) \
+        if (name.GetAssetId().IsValid()) \
+            hasAllHeightMaps &= AddPath(name.GetAssetId(), filePaths); \
+        else \
+            hasAllHeightMaps = false;
+        HEIGHT_LAYER_LIST
+#undef X
+
+        if (hasAllHeightMaps)
+            _layerHeightMapArraySRV = Utils::CreateTexture2DArraySRV(filePaths);
+    }
+    return _layerHeightMapArraySRV.Get();
 }
 
 fs::path TerrainData::GetHeightMapPath() const
