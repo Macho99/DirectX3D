@@ -9,6 +9,7 @@
 #include "FileUtils.h"
 #include "UnrealLevelImporter.h"
 #include "ModelBatchingTool.h"
+#include "CubemapBuilderTool.h"
 
 EditorManager::EditorManager()
 {
@@ -56,6 +57,9 @@ void EditorManager::Init()
     unique_ptr<ModelBatchingTool> modelBatchingTool = make_unique<ModelBatchingTool>();
     _modelBatchingTool = modelBatchingTool.get();
     _editorWindows.push_back(move(modelBatchingTool));
+    unique_ptr<CubemapBuilderTool> cubemapBuilderTool = make_unique<CubemapBuilderTool>();
+    _cubemapBuilderTool = cubemapBuilderTool.get();
+    _editorWindows.push_back(move(cubemapBuilderTool));
     for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
     {
         string windowName = "ShadowMap" + to_string(i);
@@ -167,6 +171,8 @@ void EditorManager::Update()
         {
             if (ImGui::MenuItem("Model Batching Tool"))
                 _modelBatchingTool->IsOpen = true;
+            if (ImGui::MenuItem("Cubemap Builder"))
+                _cubemapBuilderTool->IsOpen = true;
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -250,6 +256,7 @@ void EditorManager::OnDestroy()
 
     _editorWindows.clear();
     _modelBatchingTool = nullptr;
+    _cubemapBuilderTool = nullptr;
 }
 
 void EditorManager::GetInspectorRef(OUT TransformRef& transformRef, OUT AssetRef& assetRef, OUT int& subAssetIndex) const

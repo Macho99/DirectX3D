@@ -54,7 +54,7 @@
 void AssetSerializeDemo::Init()
 {
     auto sky = make_shared<Sky>();
-    sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SnowSkyMat.mat"));
+    sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SkyMat.mat"));
     CUR_SCENE->SetSky(sky);
 
     const float baseHeight = 8.f;

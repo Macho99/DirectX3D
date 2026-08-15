@@ -3,6 +3,7 @@
 class EditorWindow;
 class SceneView;
 class ModelBatchingTool;
+class CubemapBuilderTool;
 
 enum class EditorIcon
 {
@@ -79,5 +80,6 @@ private:
 	vector<unique_ptr<EditorWindow>> _editorWindows;
 	SceneView* _sceneView = nullptr;
 	ModelBatchingTool* _modelBatchingTool = nullptr;
+	CubemapBuilderTool* _cubemapBuilderTool = nullptr;
 	char _saveSceneName[256] = "NewScene";
 };

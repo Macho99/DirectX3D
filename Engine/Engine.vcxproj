@@ -354,6 +354,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClInclude Include="ModelAnimation.h" />
     <ClInclude Include="BatchInfo.h" />
     <ClInclude Include="ModelBatchingTool.h" />
+    <ClInclude Include="CubemapBuilderTool.h" />
     <ClInclude Include="ModelAnimator.h" />
     <ClInclude Include="ModelMesh.h" />
     <ClInclude Include="ModelMeshMeta.h" />
@@ -572,6 +573,7 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelAnimation.cpp" />
     <ClCompile Include="ModelBatchingTool.cpp" />
+    <ClCompile Include="CubemapBuilderTool.cpp" />
     <ClCompile Include="ModelAnimator.cpp" />
     <ClCompile Include="ModelMesh.cpp" />
     <ClCompile Include="ModelMeshMeta.cpp" />

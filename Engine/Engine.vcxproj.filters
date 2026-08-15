@@ -228,6 +228,9 @@
     <ClInclude Include="ModelBatchingTool.h">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClInclude>
+    <ClInclude Include="CubemapBuilderTool.h">
+      <Filter>50. Editor\EditorWindow</Filter>
+    </ClInclude>
     <ClInclude Include="InstancingBuffer.h">
       <Filter>01. Graphics\Buffer</Filter>
     </ClInclude>
@@ -945,6 +948,9 @@
       <Filter>00. Engine\Asset\Resource\Model</Filter>
     </ClCompile>
     <ClCompile Include="ModelBatchingTool.cpp">
+      <Filter>50. Editor\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="CubemapBuilderTool.cpp">
       <Filter>50. Editor\EditorWindow</Filter>
     </ClCompile>
     <ClCompile Include="InstancingBuffer.cpp">
