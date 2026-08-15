@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 1,
+                "_version": 5,
                 "_desc": {
                     "ambient": {
                         "value.x": 1.0,
@@ -34,6 +34,9 @@
                 },
                 "_renderQueue": 0,
                 "_castShadow": true,
+                "_drawNormalDepth": true,
+                "_includeInNavMesh": true,
+                "_shaderProperties": [],
                 "_shader": {
                     "assetId": {
                         "leftId": 9955640114251332105,
@@ -42,8 +45,8 @@
                 },
                 "_diffuseMap": {
                     "assetId": {
-                        "leftId": 0,
-                        "rightId": 0
+                        "leftId": 17621897627579923395,
+                        "rightId": 8031120205088930269
                     }
                 },
                 "_normalMap": {
@@ -64,7 +67,7 @@
                         "rightId": 0
                     }
                 },
-                "_useRandomTexture": false
+                "_useRandomTexture": true
             }
         }
     }

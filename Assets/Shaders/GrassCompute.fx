@@ -172,6 +172,12 @@ void CS(uint3 DTid : SV_DispatchThreadID)
     float randomKey = position.x + position.y + position.z;
     int seed = 0;
     
+    if (length(t.gba) > length(SampleRandom(randomKey, seed)))
+    {
+        return;
+    }
+    seed = 1;
+    
     //if (GreenSimilarity(texColor.rgb) < SampleRandom(randomKey, seed++).x)
     //{
     //    texColor = float4(1, 0, 0, 1);
