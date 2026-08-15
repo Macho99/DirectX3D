@@ -29,13 +29,14 @@ cbuffer TerrainBuffer
     float4 gWorldFrustumPlanes[6];
     float2 gTexScale = 50.0f;
     float brushRadius;
-    float dummy2;
+    float gUseLayerNormalMap;
     float3 brushPos;
     float dummy3;
 };
 
 // Nonnumeric values cannot be added to a cbuffer.
 Texture2DArray LayerMapArray;
+Texture2DArray LayerNormalMapArray;
 #define gLayerMapArray LayerMapArray
 #define gHeightMap DiffuseMap
 #define gBlendMap SpecularMap
@@ -74,9 +75,8 @@ struct VertexOut
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
-
-	// Terrain specified directly in world space.
-	vout.PosW = vin.PosL;
+	
+    vout.PosW = mul(vin.PosL, (float3x3) W);
 
 	// Displace the patch corners to world space.  This is to make 
 	// the eye to patch distance calculation more accurate.
@@ -244,15 +244,12 @@ DomainOut DS(PatchTess patchTess,
 	return dout;
 }
 
-float4 PS(DomainOut pin) : SV_Target
+float3 ComputeTerrainNormal(float2 tex, float2 tiledTex, float4 blendWeights)
 {
-	//
-	// Estimate normal and tangent using central differences.
-	//
-	float2 leftTex = pin.Tex + float2(-gTexelCellSpaceU, 0.0f);
-	float2 rightTex = pin.Tex + float2(gTexelCellSpaceU, 0.0f);
-	float2 bottomTex = pin.Tex + float2(0.0f, gTexelCellSpaceV);
-	float2 topTex = pin.Tex + float2(0.0f, -gTexelCellSpaceV);
+	float2 leftTex = tex + float2(-gTexelCellSpaceU, 0.0f);
+	float2 rightTex = tex + float2(gTexelCellSpaceU, 0.0f);
+	float2 bottomTex = tex + float2(0.0f, gTexelCellSpaceV);
+	float2 topTex = tex + float2(0.0f, -gTexelCellSpaceV);
 
 	float leftY = gHeightMap.SampleLevel(samHeightmap, leftTex, 0).r;
 	float rightY = gHeightMap.SampleLevel(samHeightmap, rightTex, 0).r;
@@ -260,10 +257,32 @@ float4 PS(DomainOut pin) : SV_Target
 	float topY = gHeightMap.SampleLevel(samHeightmap, topTex, 0).r;
 
 	float3 tangent = normalize(float3(2.0f * gWorldCellSpace, rightY - leftY, 0.0f));
-	float3 bitan = normalize(float3(0.0f, bottomY - topY, -2.0f * gWorldCellSpace));
-	float3 normalW = cross(tangent, bitan);
+	float3 bitangent = normalize(float3(0.0f, bottomY - topY, -2.0f * gWorldCellSpace));
+	float3 normalW = normalize(cross(tangent, bitangent));
 
+	if (gUseLayerNormalMap > 0.5f)
+	{
+		float3 n0 = LayerNormalMapArray.Sample(samLinear, float3(tiledTex, 0.0f)).xyz * 2.0f - 1.0f;
+		float3 n1 = LayerNormalMapArray.Sample(samLinear, float3(tiledTex, 1.0f)).xyz * 2.0f - 1.0f;
+		float3 n2 = LayerNormalMapArray.Sample(samLinear, float3(tiledTex, 2.0f)).xyz * 2.0f - 1.0f;
+		float3 n3 = LayerNormalMapArray.Sample(samLinear, float3(tiledTex, 3.0f)).xyz * 2.0f - 1.0f;
+		float3 n4 = LayerNormalMapArray.Sample(samLinear, float3(tiledTex, 4.0f)).xyz * 2.0f - 1.0f;
 
+		float3 tangentNormal = n0;
+		tangentNormal = lerp(tangentNormal, n1, blendWeights.r);
+		tangentNormal = lerp(tangentNormal, n2, blendWeights.g);
+		tangentNormal = lerp(tangentNormal, n3, blendWeights.b);
+		tangentNormal = normalize(lerp(tangentNormal, n4, blendWeights.a));
+
+		float3x3 tangentToWorld = float3x3(tangent, bitangent, normalW);
+		normalW = normalize(mul(tangentNormal, tangentToWorld));
+	}
+
+	return normalW;
+}
+
+float4 PS(DomainOut pin) : SV_Target
+{
 	// The toEye vector is used in lighting.
 	float3 toEye = CamPos - pin.PosW;
 	
@@ -286,6 +305,7 @@ float4 PS(DomainOut pin) : SV_Target
 
 	// Sample the blend map.
 	float4 t = gBlendMap.Sample(samLinear, pin.Tex);
+	float3 normalW = ComputeTerrainNormal(pin.Tex, pin.TiledTex, t);
 
 	// Blend the layers on top of each other.
 	float4 texColor = c0;
@@ -327,22 +347,8 @@ float4 PS(DomainOut pin) : SV_Target
 
 float4 NormalDepthPS(DomainOut pin) : SV_TARGET
 {
-	//
-	// Estimate normal and tangent using central differences.
-	//
-    float2 leftTex = pin.Tex + float2(-gTexelCellSpaceU, 0.0f);
-    float2 rightTex = pin.Tex + float2(gTexelCellSpaceU, 0.0f);
-    float2 bottomTex = pin.Tex + float2(0.0f, gTexelCellSpaceV);
-    float2 topTex = pin.Tex + float2(0.0f, -gTexelCellSpaceV);
-
-    float leftY = gHeightMap.SampleLevel(samHeightmap, leftTex, 0).r;
-    float rightY = gHeightMap.SampleLevel(samHeightmap, rightTex, 0).r;
-    float bottomY = gHeightMap.SampleLevel(samHeightmap, bottomTex, 0).r;
-    float topY = gHeightMap.SampleLevel(samHeightmap, topTex, 0).r;
-
-    float3 tangent = normalize(float3(2.0f * gWorldCellSpace, rightY - leftY, 0.0f));
-    float3 bitan = normalize(float3(0.0f, bottomY - topY, -2.0f * gWorldCellSpace));
-    float3 normalW = cross(tangent, bitan);
+	float4 blendWeights = gBlendMap.Sample(samLinear, pin.Tex);
+	float3 normalW = ComputeTerrainNormal(pin.Tex, pin.TiledTex, blendWeights);
     float3 normalV = normalize(mul(normalW, (float3x3) V));
 	
     return float4(normalV, pin.positionV.z);

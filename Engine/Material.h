@@ -51,6 +51,7 @@ public:
 	//void SetRandomTex(ResourceRef<Texture> randomTex);
 	void SetCubeMap(ResourceRef<Texture> cubeMap);
     void SetLayerMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerMapArraySRV = srv; }
+    void SetLayerNormalMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerNormalMapArraySRV = srv; }
 	void SetRandomTex(bool useRandomTexture) { _useRandomTexture = useRandomTexture; }
 
 	//void SetRenderQueue(RenderQueue renderQueue) { _renderQueue = renderQueue; }
@@ -117,6 +118,7 @@ private:
 	ResourceRef<Texture> _specularMap;
 	ResourceRef<Texture> _cubeMap;
     ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
+    ComPtr<ID3D11ShaderResourceView> _layerNormalMapArraySRV;
 
 	bool _useRandomTexture = false;
 	vector<MaterialPropertyValue> _shaderProperties;
@@ -131,6 +133,7 @@ private:
 	ID3DX11EffectShaderResourceVariable* _shadowMapEffectBuffer = nullptr;
 	ID3DX11EffectShaderResourceVariable* _ssaoMapEffectBuffer = nullptr;
     ID3DX11EffectShaderResourceVariable* _layerMapArrayEffectBuffer = nullptr;
+    ID3DX11EffectShaderResourceVariable* _layerNormalMapArrayEffectBuffer = nullptr;
 };
 
 using MaterialRef = ResourceRef<Material>;

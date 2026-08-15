@@ -21,6 +21,9 @@ bool TerrainData::OnGUI(bool isReadOnly)
 #define X(name, color, num) changed |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
     BLEND_LAYER_LIST
 #undef X
+#define X(name, num) changed |= OnGUIUtils::DrawResourceRef(#name, name, isReadOnly);
+    NORMAL_LAYER_LIST
+#undef X
     changed |= OnGUIUtils::DrawResourceRef("Blend Map", blendMap, isReadOnly);
     changed |= OnGUIUtils::DrawFloat("Height Scale", &heightScale, 0.1f, isReadOnly);
     changed |= OnGUIUtils::DrawUInt32("Heightmap Width", &heightmapWidth, 1.f, isReadOnly);
@@ -44,6 +47,27 @@ ID3D11ShaderResourceView* TerrainData::GetLayerMapArraySRV()
     return _layerMapArraySRV.Get();
 }
 
+ID3D11ShaderResourceView* TerrainData::GetLayerNormalMapArraySRV()
+{
+    if (_layerNormalMapArraySRV == nullptr)
+    {
+        vector<fs::path> filePaths;
+        bool hasAllNormalMaps = true;
+
+#define X(name, num) \
+        if (name.GetAssetId().IsValid()) \
+            hasAllNormalMaps &= AddPath(name.GetAssetId(), filePaths); \
+        else \
+            hasAllNormalMaps = false;
+        NORMAL_LAYER_LIST
+#undef X
+
+        if (hasAllNormalMaps)
+            _layerNormalMapArraySRV = Utils::CreateTexture2DArraySRV(filePaths);
+    }
+    return _layerNormalMapArraySRV.Get();
+}
+
 fs::path TerrainData::GetHeightMapPath() const
 {
     MetaFile* meta = nullptr;
@@ -55,13 +79,14 @@ fs::path TerrainData::GetHeightMapPath() const
     return meta->GetImportedAssetPath();
 }
 
-void TerrainData::AddPath(AssetId assetId, vector<fs::path>& paths)
+bool TerrainData::AddPath(AssetId assetId, vector<fs::path>& paths)
 {
     MetaFile* meta = nullptr;
     if (RESOURCES->TryGetMetaByAssetId(assetId, OUT meta) == false)
     {
         DBG->LogErrorW(L"TerrainData::AddPath: Failed to find meta for assetId: " + assetId.ToWString());
-        return;
+        return false;
     }
     paths.push_back(meta->GetImportedAssetPath());
+    return true;
 }

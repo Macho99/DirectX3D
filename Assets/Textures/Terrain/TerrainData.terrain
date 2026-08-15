@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 0,
+                "_version": 1,
                 "heightMap": {
                     "assetId": {
                         "leftId": 1115768239487903243,
@@ -38,8 +38,38 @@
                 },
                 "Layer4": {
                     "assetId": {
-                        "leftId": 12026109996838842969,
-                        "rightId": 8232279186114058937
+                        "leftId": 8918180482357771928,
+                        "rightId": 14819403391154132797
+                    }
+                },
+                "Layer0Normal": {
+                    "assetId": {
+                        "leftId": 17427658487821929161,
+                        "rightId": 13474329564170544044
+                    }
+                },
+                "Layer1Normal": {
+                    "assetId": {
+                        "leftId": 10219262073983352957,
+                        "rightId": 12013644203018118548
+                    }
+                },
+                "Layer2Normal": {
+                    "assetId": {
+                        "leftId": 16341485767792914701,
+                        "rightId": 18443600544768700922
+                    }
+                },
+                "Layer3Normal": {
+                    "assetId": {
+                        "leftId": 17219105208519100484,
+                        "rightId": 273486584801102199
+                    }
+                },
+                "Layer4Normal": {
+                    "assetId": {
+                        "leftId": 2026727524676333139,
+                        "rightId": 3145281684975317038
                     }
                 },
                 "blendMap": {
@@ -48,7 +78,7 @@
                         "rightId": 14424253898625829487
                     }
                 },
-                "heightScale": 60.0,
+                "heightScale": 30.0,
                 "heightmapWidth": 2049,
                 "heightmapHeight": 2049,
                 "cellSpacing": 0.5

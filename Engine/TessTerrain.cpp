@@ -531,6 +531,7 @@ bool TessTerrain::TryInitialize()
 	BuildHeightmapSRV();
 
 	_layerMapArraySRV = terrainData->GetLayerMapArraySRV();
+	_layerNormalMapArraySRV = terrainData->GetLayerNormalMapArraySRV();
 	_blendMapTexture = terrainData->GetBlendMap();
 
 	_initialized = true;
@@ -563,7 +564,12 @@ void TessTerrain::InnerRender(RenderTech renderTech)
 	if (TryInitialize() == false)
 		return;
 
-    Super::InnerRender(renderTech);
+	material->SetLayerMapArraySRV(_layerMapArraySRV);
+	material->SetLayerNormalMapArraySRV(_layerNormalMapArraySRV);
+	material->SetDiffuseMap(_heightMapTexture);
+	material->SetSpecularMap(_blendMapTexture);
+
+	Super::InnerRender(renderTech);
 
 	DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	//DC->IASetInputLayout(InputLayouts::Terrain.Get());
@@ -591,6 +597,7 @@ void TessTerrain::InnerRender(RenderTech renderTech)
     _terrainDesc.gTexelCellSpaceU = 1.0f / terrainData->GetHeightmapWidth();
     _terrainDesc.gTexelCellSpaceV = 1.0f / terrainData->GetHeightmapHeight();
     _terrainDesc.gWorldCellSpace = terrainData->GetCellSpacing();
+    _terrainDesc.gUseLayerNormalMap = _layerNormalMapArraySRV != nullptr ? 1.0f : 0.0f;
 
 	bool useBrush = false;
 	if (_editMode != EditMode::None && renderTech == RenderTech::Draw && INPUT->IsMouseInScene())
@@ -619,10 +626,6 @@ void TessTerrain::InnerRender(RenderTech renderTech)
     }
 
 	shader->PushTerrainData(_terrainDesc);
-
-    material->SetLayerMapArraySRV(_layerMapArraySRV);
-    material->SetDiffuseMap(_heightMapTexture);
-    material->SetSpecularMap(_blendMapTexture);
 
     shader->DrawIndexed(renderTech, 0, _numPatchQuadFaces * 4);
 
