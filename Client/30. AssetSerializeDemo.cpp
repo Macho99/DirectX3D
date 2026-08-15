@@ -364,10 +364,16 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("SampleModelRenderer");
+        auto objRef = CUR_SCENE->Add("ProbsBatcing");
         GameObject* obj = objRef.Resolve();
-        obj->GetTransform()->SetPosition(Vec3(0.f, baseHeight, 80.f));
         obj->AddComponent<ModelRenderer>();
+        obj->GetFixedComponent<ModelRenderer>()->SetModel(RESOURCES->GetResourceRefByPath<Model>(L"Batches\\Rural_Cabin\\Probs.model"));
+    }
+    {
+        auto objRef = CUR_SCENE->Add("ModularBatcing");
+        GameObject* obj = objRef.Resolve();
+        obj->AddComponent<ModelRenderer>();
+        obj->GetFixedComponent<ModelRenderer>()->SetModel(RESOURCES->GetResourceRefByPath<Model>(L"Batches\\Rural_Cabin\\Modular.model"));
     }
 }
 
