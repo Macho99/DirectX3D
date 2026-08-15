@@ -20,10 +20,13 @@ class TessTerrain : public Renderer
 public:
 	TessTerrain();
 	~TessTerrain();
+	virtual int GetVersion() const override { return 1; }
 
 	float GetWidth() const;
 	float GetDepth() const;
 	float GetHeight(float x, float z) const;
+	void SetPositionOffset(const Vec3& positionOffset) { _positionOffset = positionOffset; }
+	const Vec3& GetPositionOffset() const { return _positionOffset; }
 	bool Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& distance);
     bool UpdateQuadPatchVB();
     bool UpdateHeightmapTexture();
@@ -51,6 +54,8 @@ public:
         ar(CEREAL_NVP(_brushTexture));
         ar(CEREAL_NVP(_brushRadius));
         ar(CEREAL_NVP(_brushStrength));
+        if (Archive::is_saving::value || _version >= 1)
+            ar(CEREAL_NVP(_positionOffset));
     }
 
 private:
@@ -96,6 +101,7 @@ private:
 	EditMode _editMode = EditMode::None;
 	float _brushRadius = 20.f;
     float _brushStrength = 5.f;
+    Vec3 _positionOffset = Vec3::Zero;
     BlendLayer _selectedBlendLayer = BlendLayer::Layer0;
 
     TerrainDesc _terrainDesc;

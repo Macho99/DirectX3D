@@ -53,8 +53,8 @@ float TessTerrain::GetHeight(float x, float z) const
     float heightmapHeight = terrainData->GetHeightmapHeight();
 
 	// Transform from terrain local space to "cell" space.
-	float c = (x + 0.5f * GetWidth()) / cellSpacing;
-	float d = (z - 0.5f * GetDepth()) / -cellSpacing;
+	float c = (x - _positionOffset.x + 0.5f * GetWidth()) / cellSpacing;
+	float d = (z - _positionOffset.z - 0.5f * GetDepth()) / -cellSpacing;
 
 	// Get the row and column we are in.
 	int row = (int)floorf(d);
@@ -116,7 +116,7 @@ bool TessTerrain::Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& dista
     const float depth = GetDepth();
 
 	BoundingBox localBounds(
-		Vec3(0.0f, (minHeight + maxHeight) * 0.5f, 0.0f),
+		Vec3(_positionOffset.x, (minHeight + maxHeight) * 0.5f, _positionOffset.z),
 		Vec3(width * 0.5f, (maxHeight - minHeight) * 0.5f, depth * 0.5f));
 
 	float entryDistance = 0.0f;
@@ -133,7 +133,8 @@ bool TessTerrain::Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& dista
 			const float halfWidth = width * 0.5f;
 			const float halfDepth = depth * 0.5f;
 			const float epsilon = 0.001f;
-			if (samplePos.x < -halfWidth || samplePos.x >= halfWidth - epsilon || samplePos.z <= -halfDepth + epsilon || samplePos.z > halfDepth)
+			if (samplePos.x < _positionOffset.x - halfWidth || samplePos.x >= _positionOffset.x + halfWidth - epsilon ||
+				samplePos.z <= _positionOffset.z - halfDepth + epsilon || samplePos.z > _positionOffset.z + halfDepth)
 				return FLT_MAX;
 
 			return samplePos.y - GetHeight(samplePos.x, samplePos.z);
@@ -193,6 +194,7 @@ bool TessTerrain::OnGUI()
     changed |= Super::OnGUI();
 	ImGui::Separator();
     changed |= OnGUIUtils::DrawResourceRef("Terrain Data", _terrainData, false);
+    changed |= OnGUIUtils::DrawVec3("Position Offset", &_positionOffset);
 
     OnGUIUtils::DrawEnableButton("Raise/Lower", _editMode, EditMode::RaiseLower, EditMode::None);
     ImGui::SameLine();
@@ -286,8 +288,8 @@ bool TessTerrain::OnGUI()
 				const float terrainWidth = GetWidth();
 				const float terrainDepth = GetDepth();
 
-				const float centerU = (terrainWidth * 0.5f + pickPos.x) / terrainWidth;
-				const float centerV = (terrainDepth * 0.5f - pickPos.z) / terrainDepth;
+				const float centerU = (terrainWidth * 0.5f + pickPos.x - _positionOffset.x) / terrainWidth;
+				const float centerV = (terrainDepth * 0.5f - pickPos.z + _positionOffset.z) / terrainDepth;
 				const int32 centerX = static_cast<int32>(centerU * (heightmapWidth - 1));
 				const int32 centerY = static_cast<int32>(centerV * (heightmapHeight - 1));
 				const int32 radiusCells = static_cast<int32>(ceilf(_brushRadius / max(cellSpacing, 0.001f)));
@@ -310,11 +312,11 @@ bool TessTerrain::OnGUI()
 					for (int32 y = startPixelY; y <= endPixelY; ++y)
 					{
                         const int32 curY = (float)y / blendMapSize.y * heightmapHeight;
-                        const float vertexZ = terrainDepth * 0.5f - curY * cellSpacing;
+						const float vertexZ = _positionOffset.z + terrainDepth * 0.5f - curY * cellSpacing;
                         for (int32 x = startPixelX; x <= endPixelX; ++x)
                         {
                             const int32 curX = (float)x / blendMapSize.x * heightmapWidth;
-                            const float vertexX = -terrainWidth * 0.5f + curX * cellSpacing;
+							const float vertexX = _positionOffset.x - terrainWidth * 0.5f + curX * cellSpacing;
                             const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
                             const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
                             const float brushWeight = SampleBrush(brushImage, brushU, brushV);
@@ -342,13 +344,14 @@ bool TessTerrain::OnGUI()
                 }
 				else
 				{
-                    const float heightScale = terrainData->GetHeightScale();
+					const float minHeight = _positionOffset.y;
+					const float maxHeight = _positionOffset.y + terrainData->GetHeightScale();
 					for (int32 y = startY; y <= endY; ++y)
 					{
-						const float vertexZ = terrainDepth * 0.5f - y * cellSpacing;
+						const float vertexZ = _positionOffset.z + terrainDepth * 0.5f - y * cellSpacing;
 						for (int32 x = startX; x <= endX; ++x)
 						{
-							const float vertexX = -terrainWidth * 0.5f + x * cellSpacing;
+							const float vertexX = _positionOffset.x - terrainWidth * 0.5f + x * cellSpacing;
 							const float brushU = (vertexX - pickPos.x) / _brushRadius + 0.5f;
 							const float brushV = (vertexZ - pickPos.z) / _brushRadius + 0.5f;
 							const float brushWeight = SampleBrush(brushImage, brushU, brushV);
@@ -365,7 +368,7 @@ bool TessTerrain::OnGUI()
 							{
 								_heightmap[index] = MathUtils::Lerp(_heightmap[index], Average(y, x), power);
 							}
-                            _heightmap[index] = std::clamp(_heightmap[index], 0.0f, heightScale);
+							_heightmap[index] = std::clamp(_heightmap[index], minHeight, maxHeight);
 							float height = _heightmap[index];
 							_halfHeightmap[index] = MathUtils::ConvertFloatToHalf(height);
 						}
@@ -432,7 +435,8 @@ bool TessTerrain::OnGUI()
 			blendMap->DiscardDynamic();
 		}
 		_initialized = false;
-		TryInitialize();
+		if (TryInitialize())
+			OnHeightmapChanged.Invoke();
 		_isHeightmapDirty = false;
         _isBlendmapDirty = false;
 	}
@@ -461,11 +465,11 @@ void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>
     const float terrainDepth = GetDepth();
 
 	// Transform from terrain local space to "cell" space.
-	const int mincX = std::ceil((minX + 0.5f * terrainWidth) / cellSpacing);
-	const int maxcX = std::floor((maxX + 0.5f * terrainWidth) / cellSpacing);
+	const int mincX = std::ceil((minX - _positionOffset.x + 0.5f * terrainWidth) / cellSpacing);
+	const int maxcX = std::floor((maxX - _positionOffset.x + 0.5f * terrainWidth) / cellSpacing);
 
-	const int mincZ = std::ceil((maxZ - 0.5f * terrainDepth) / -cellSpacing);
-	const int maxcZ = std::floor((minZ - 0.5f * terrainDepth) / -cellSpacing);
+	const int mincZ = std::ceil((maxZ - _positionOffset.z - 0.5f * terrainDepth) / -cellSpacing);
+	const int maxcZ = std::floor((minZ - _positionOffset.z - 0.5f * terrainDepth) / -cellSpacing);
 
 	const int cellSize = _triCellSize;
 
@@ -485,8 +489,8 @@ void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>
 			const float x0z1 = _heightmap[(cz + cellSize) * heightmapWidth + cx];
 			const float x1z1 = _heightmap[(cz + cellSize) * heightmapWidth + cx + cellSize];
 
-            const float wx = -terrainWidth * 0.5f + cx * cellSpacing;
-            const float wz = terrainDepth * 0.5f - cz * cellSpacing;
+			const float wx = _positionOffset.x - terrainWidth * 0.5f + cx * cellSpacing;
+			const float wz = _positionOffset.z + terrainDepth * 0.5f - cz * cellSpacing;
             const float worldCellSpacing = cellSpacing * cellSize;
 
 			{
@@ -681,7 +685,7 @@ void TessTerrain::LoadHeightmap()
 
 	for (uint32 i = 0; i < heightmapHeight * heightmapWidth; ++i)
 	{
-		_heightmap[i] = (in[i] / 255.0f) * heightScale;
+		_heightmap[i] = _positionOffset.y + (in[i] / 255.0f) * heightScale;
 	}
 }
 
@@ -816,7 +820,8 @@ void TessTerrain::BuildQuadPatchVB()
 		{
 			float x = -halfWidth + j * patchWidth;
 
-			_patchVertices[i * _numPatchVertCols + j].Pos = XMFLOAT3(x, 0.0f, z);
+			_patchVertices[i * _numPatchVertCols + j].Pos = XMFLOAT3(
+				x + _positionOffset.x, _positionOffset.y, z + _positionOffset.z);
 
 			// Stretch texture over grid.
 			_patchVertices[i * _numPatchVertCols + j].Tex.x = j * du;
@@ -965,7 +970,7 @@ bool TessTerrain::SaveHeightmap()
 	const float heightScale = max(terrainData->GetHeightScale(), 0.0001f);
 	for (size_t i = 0; i < _heightmap.size(); ++i)
 	{
-		float normalized = std::clamp(_heightmap[i] / heightScale, 0.0f, 1.0f);
+		float normalized = std::clamp((_heightmap[i] - _positionOffset.y) / heightScale, 0.0f, 1.0f);
 		out[i] = static_cast<unsigned char>(normalized * 255.0f);
 	}
 
