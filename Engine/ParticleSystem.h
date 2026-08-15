@@ -25,8 +25,8 @@ public:
 	void Update() override;
 	void InnerRender(RenderTech renderTech) override;
 
-	void SetEmitPosW(Vec3 emitPosW) { _emitPosW = emitPosW; }
-	void SetEmitDirW(Vec3 emitDirW) { _emitDirW = emitDirW; }
+	void SetEmitPosW(Vec3 emitPosW) { _desc.emitPosW = emitPosW; }
+	void SetEmitDirW(Vec3 emitDirW) { _desc.emitDirW = emitDirW; }
 
     virtual bool TryInitialize() override;
     virtual bool OnGUI() override;
@@ -34,7 +34,7 @@ public:
     void serialize(Archive& ar)
     {
         Super::serialize(ar);
-        ar(CEREAL_NVP(_emitDirW));
+        ar(cereal::make_nvp("_emitDirW", _desc.emitDirW));
     }
 
 private:
@@ -44,10 +44,6 @@ private:
 	ParticleDesc _desc;
 	bool _firstRun;
 	float _age;
-	float _timeStep;
-	float _gameTime;
-	Vec3 _emitPosW;
-	Vec3 _emitDirW;
 
 	//ComPtr<ID3D11Buffer> _initVB;
 	//ComPtr<ID3D11Buffer> _drawVB;

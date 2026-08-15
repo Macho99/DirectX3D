@@ -237,6 +237,13 @@ struct ParticleDesc
 	float timeStep = 0.f;
 	Vec3 emitDirW = Vec3(0, 0, 0);
 	float gameTime = 0.f;
+	Vec2 emitSize = Vec2(1, 1);
+	float lifeTime = 1.f;
+	float emitInterval = 0.005f;
+    Vec3 emitDirRandomness = Vec3(0, 0, 0);
+	int32 emitCount = 1;
+	Vec3 gAccelW = Vec3(0.f, 7.8f, 0.f);
+	float particlePadding = 0.f;
 };
 
 struct SsaoDesc

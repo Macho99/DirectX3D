@@ -8,6 +8,13 @@ cbuffer ParticleBuffer
 	float timeStep;
 	float3 emitDirW;
 	float gameTime;
+    float2 emitSize;
+	float lifeTime;
+	float emitInterval;
+    float3 emitDirRandom;
+	int emitCount;
+	float3 gAccelW;
+	float particlePadding;
 };
 
 struct VertexInput
@@ -21,8 +28,6 @@ struct VertexInput
 
 cbuffer cbFixed
 {
-	float3 gAccelW = { 0.0f, 7.8f, 0.0f };
-	
 	float2 gQuadTexC[4] =
 	{
 		float2(0.0f, 1.0f),
@@ -38,6 +43,7 @@ cbuffer cbFixed
 
 #define PT_EMITTER 0
 #define PT_FLARE 1
+#define MAX_EMIT_PER_FRAME 100
 
 VertexInput StreamOutVS(VertexInput vin)
 {
@@ -49,7 +55,7 @@ VertexInput StreamOutVS(VertexInput vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be 
 // different.
-[maxvertexcount(2)]
+[maxvertexcount(101)]
 void StreamOutGS(point VertexInput gin[1],
 	inout PointStream<VertexInput> ptStream)
 {
@@ -57,24 +63,34 @@ void StreamOutGS(point VertexInput gin[1],
 
 	if (gin[0].Type == PT_EMITTER)
 	{
-		// time to emit a new particle?
-		if (gin[0].Age > 0.005f)
+		float interval = max(emitInterval, 0.001f);
+		uint particlesPerEmission = (uint)clamp(emitCount, 1, MAX_EMIT_PER_FRAME);
+		uint emittedCount = 0;
+
+		// Preserve unprocessed Age as backlog when the geometry shader output limit is reached.
+		while (gin[0].Age >= interval &&
+			emittedCount + particlesPerEmission <= MAX_EMIT_PER_FRAME)
 		{
-			float3 vRandom = RandUnitVec3(gameTime, 0.0f);
-			//vRandom.x *= 0.5f;
-			//vRandom.z *= 0.5f;
+			gin[0].Age -= interval;
 
-			VertexInput p;
-			p.InitialPos = emitPosW.xyz;
-			p.InitialVel = emitDirW + vRandom;
-			p.Size = float2(3.0f, 3.0f);
-			p.Age = 0.0f;
-			p.Type = PT_FLARE;
-			
-			ptStream.Append(p);
+			for (uint i = 0; i < particlesPerEmission; ++i)
+			{
+				float seed = gameTime + (float)(emittedCount + i) * 0.61803398875f;
+				float3 vRandom = RandUnitVec3(seed, 0.0f) * emitDirRandom;
+				float3 vRandom2 = RandUnitVec3(seed, 1.0f);
 
-			// reset the time to emit
-			gin[0].Age = 0.0f;
+				VertexInput p;
+				p.InitialPos = emitPosW.xyz;
+				p.InitialVel = emitDirW + vRandom;
+				p.Size = emitSize + vRandom2.xy;
+				p.Age = gin[0].Age;
+				p.Type = PT_FLARE;
+
+				if (p.Age <= lifeTime)
+					ptStream.Append(p);
+			}
+
+			emittedCount += particlesPerEmission;
 		}
 
 		// always keep emitters
@@ -83,7 +99,7 @@ void StreamOutGS(point VertexInput gin[1],
 	else
 	{
 		// Specify conditions to keep particle; this may vary from system to system.
-		if (gin[0].Age <= 1.0f)
+		if (gin[0].Age <= lifeTime)
 			ptStream.Append(gin[0]);
 	}
 }
@@ -129,7 +145,7 @@ VertexOut DrawVS(VertexInput vin)
 	vout.PosW = float4(0.5f * t * t * gAccelW + t * vin.InitialVel + vin.InitialPos, 1.0f);
 
 	// fade color with time
-	float opacity = 1.0f - smoothstep(0.0f, 1.0f, t / 1.0f);
+	float opacity = 1.0f - smoothstep(0.0f, 1.0f, t / max(lifeTime, 0.0001f));
 	vout.Color = float4(1.0f, 1.0f, 1.0f, opacity);
 
 	vout.SizeW = vin.Size;

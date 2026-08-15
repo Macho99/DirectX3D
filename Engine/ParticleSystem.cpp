@@ -9,11 +9,8 @@ ParticleSystem::ParticleSystem()
 	: Super(StaticType)
 	, _firstRun(true)
 	, _age(0.0f)
-	, _timeStep(0.0f)
-	, _gameTime(0.0f)
-	, _emitPosW(Vec3(0.f, 0.f, 0.f))
-	, _emitDirW(Vec3(0.f, 1.f, 0.f))
 {
+	_desc.emitDirW = Vec3(0.f, 1.f, 0.f);
 	BuildVB();
 
 	//D3DX11_PASS_DESC passDesc;
@@ -34,11 +31,14 @@ void ParticleSystem::Reset()
 
 void ParticleSystem::Update()
 {
-	_emitPosW = GetTransform()->GetPosition();
-	_timeStep = TIME->GetDeltaTime();
-	_gameTime = TIME->GetGameTime();
+	_desc.emitPosW = GetTransform()->GetPosition();
+    const Vec3 scale = GetTransform()->GetScale();
+	_desc.emitSize.x = scale.x;
+	_desc.emitSize.y = scale.z;
+	_desc.timeStep = TIME->GetDeltaTime();
+	_desc.gameTime = TIME->GetGameTime();
 
-	_age += _timeStep;
+	_age += _desc.timeStep;
 }
 
 void ParticleSystem::InnerRender(RenderTech renderTech)
@@ -53,18 +53,14 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	// Set constants.
 	//
 	//_fx->SetViewProj(VP);
-	//_fx->SetGameTime(_gameTime);
-	//_fx->SetTimeStep(_timeStep);
+	//_fx->SetGameTime(_desc.gameTime);
+	//_fx->SetTimeStep(_desc.timeStep);
 	//_fx->SetEyePosW(_eyePosW);
-	//_fx->SetEmitPosW(_emitPosW);
-	//_fx->SetEmitDirW(_emitDirW);
+	//_fx->SetEmitPosW(_desc.emitPosW);
+	//_fx->SetEmitDirW(_desc.emitDirW);
 	//_fx->SetTexArray(_texArraySRV.Get());
 	//_fx->SetRandomTex(_randomTexSRV.Get());
 
-	_desc.timeStep = _timeStep;
-	_desc.gameTime = _gameTime;
-	_desc.emitDirW = _emitDirW;
-	_desc.emitPosW = _emitPosW;
 	shader->PushParticleData(_desc);
 
 	//
@@ -151,7 +147,15 @@ bool ParticleSystem::OnGUI()
     bool changed = false;
     changed |= Super::OnGUI();
 	ImGui::Separator();
-    changed |= OnGUIUtils::DrawVec3("EmitPosW", &_emitPosW);
+	changed |= OnGUIUtils::DrawVec3("EmitDir", &_desc.emitDirW);
+    changed |= OnGUIUtils::DrawVec3("EmitDirRandomness", &_desc.emitDirRandomness);
+	changed |= OnGUIUtils::DrawFloat("LifeTime", &_desc.lifeTime, 0.01f);
+	changed |= OnGUIUtils::DrawFloat("EmitInterval", &_desc.emitInterval, 0.001f);
+	changed |= OnGUIUtils::DrawInt32("EmitCount", &_desc.emitCount, 1.f);
+	changed |= OnGUIUtils::DrawVec3("Acceleration", &_desc.gAccelW);
+	_desc.lifeTime = max(_desc.lifeTime, 0.001f);
+	_desc.emitInterval = max(_desc.emitInterval, 0.0001f);
+	_desc.emitCount = max(1, min(_desc.emitCount, 100));
 
     return changed;
 }

@@ -286,8 +286,7 @@ void AssetSerializeDemo::Init()
             }
 
             auto foliageController = make_unique<FoliageController>();
-            foliageController->SetBendFactor(1.f);
-            foliageController->SetStiffness(0.8f);
+            foliageController->SetBendFactor(5.f);
             obj->AddComponent(std::move(foliageController));
         }
 
