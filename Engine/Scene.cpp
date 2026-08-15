@@ -14,6 +14,7 @@
 #include "InstancingRenderer.h"
 #include "InstancingBuffer.h"
 #include "ModelRenderer.h"
+#include "MathUtils.h"
 
 Scene::Scene()
 {
@@ -652,6 +653,12 @@ void Scene::Render(const vector<ComponentRef<Renderer>>& renderers, Camera* came
 
 void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
 {
+    const Matrix cullingViewProjection = renderTech == RenderTech::Shadow
+        ? Light::S_MatView * Light::S_MatProjection
+        : camera->GetViewMatrix() * camera->GetProjectionMatrix();
+    Vec4 frustumPlanes[6];
+    MathUtils::ExtractFrustumPlanes(frustumPlanes, cullingViewProjection);
+
     for (auto& materialPair : _instRenderers)
     {
         const string& materialName = materialPair.first;
@@ -675,6 +682,15 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
                     continue;
                 if (instRenderer->TryInitialize() == false)
                     continue;
+				if (instRenderer->CanRender(renderTech) == false)
+					continue;
+
+                if (instRenderer->HasInstancingData() == false
+                    && instRenderer->GetType() == ComponentType::ModelRenderer
+                    && static_cast<ModelRenderer*>(instRenderer)->IsInFrustum(frustumPlanes) == false)
+                {
+                    continue;
+                }
 
                 if (instRenderer->HasInstancingData())
                 {
@@ -689,7 +705,7 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
                 lastInstRenderer = instRenderer;
             }
 
-            if (lastInstRenderer != nullptr)
+            if (lastInstRenderer != nullptr && instBuffer.GetCount() > 0)
             {
                 lastInstRenderer->RenderInstancing(instBuffer, renderTech);
             }

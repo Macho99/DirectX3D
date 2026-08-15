@@ -40,10 +40,17 @@ bool Renderer::CanRender(RenderTech renderTech)
 	if (_material.IsValid() == false)
 		return false;
 
-	if (_material.Resolve()->GetCastShadow() == false && renderTech == RenderTech::Shadow)
+	Material* material = _material.Resolve();
+	if (material == nullptr)
 		return false;
 
-	if (_material.Resolve()->GetShader()->CanDraw(renderTech) == false)
+	if (material->GetCastShadow() == false && renderTech == RenderTech::Shadow)
+		return false;
+
+	if (material->GetDrawNormalDepth() == false && renderTech == RenderTech::NormalDepth)
+		return false;
+
+	if (material->GetShader()->CanDraw(renderTech) == false)
 		return false;
 
 	return true;

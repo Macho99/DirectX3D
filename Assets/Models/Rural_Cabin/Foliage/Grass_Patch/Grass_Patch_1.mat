@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 4,
+                "_version": 5,
                 "_desc": {
                     "ambient": {
                         "value.x": 1.0,
@@ -33,7 +33,8 @@
                     }
                 },
                 "_renderQueue": 0,
-                "_castShadow": true,
+                "_castShadow": false,
+                "_drawNormalDepth": false,
                 "_includeInNavMesh": true,
                 "_shaderProperties": [],
                 "_shader": {

@@ -32,7 +32,7 @@ public:
 	Material();
 	~Material();
 
-	virtual int GetVersion() const override { return 4; }
+	virtual int GetVersion() const override { return 5; }
 
 	Shader* GetShader() { return _shader.Resolve(); }
     ResourceRef<Shader> GetShaderRef() { return _shader; }
@@ -58,6 +58,8 @@ public:
 
 	void SetCastShadow(bool castShadow) { _castShadow = castShadow; }
 	bool GetCastShadow() const { return _castShadow; }
+	void SetDrawNormalDepth(bool drawNormalDepth) { _drawNormalDepth = drawNormalDepth; }
+	bool GetDrawNormalDepth() const { return _drawNormalDepth; }
 
     bool IsIncludeInNavMesh() const { return _includeInNavMesh; }
 
@@ -73,6 +75,11 @@ public:
 		ar(CEREAL_NVP(_desc));
         ar(CEREAL_NVP(_renderQueue));
         ar(CEREAL_NVP(_castShadow));
+
+		if (Archive::is_saving::value || _version >= 5)
+		{
+			ar(CEREAL_NVP(_drawNormalDepth));
+		}
 
 		if (Archive::is_saving::value || _version >= 2)
 		{
@@ -101,6 +108,7 @@ private:
 	MaterialDesc _desc;
 	RenderQueue _renderQueue = RenderQueue::Opaque;
 	bool _castShadow = true;
+	bool _drawNormalDepth = true;
 	bool _includeInNavMesh = true;
 
 	ResourceRef<Shader> _shader;

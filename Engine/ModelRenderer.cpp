@@ -26,6 +26,7 @@ bool ModelRenderer::SetModel(ResourceRef<Model> model)
 
 	const AssetId oldMeshId = GetMeshId();
 	_model = model;
+	UpdateLocalBounds();
 	OnMeshChange(oldMeshId, GetMeshId());
 
 	_initialized = false;
@@ -65,6 +66,34 @@ bool ModelRenderer::SetModel(ResourceRef<Model> model)
 	if (isFoliage)
 	{
 		FoliageSetup();
+	}
+
+	return true;
+}
+
+bool ModelRenderer::IsInFrustum(const Vec4 frustumPlanes[6])
+{
+	if (_hasLocalBounds == false || HasInstancingData())
+		return true;
+
+	BoundingBox worldBounds;
+	_localBounds.Transform(worldBounds, GetTransform()->GetWorldMatrix());
+
+	for (uint32 i = 0; i < 6; ++i)
+	{
+		const Vec4& plane = frustumPlanes[i];
+		const float centerDistance =
+			plane.x * worldBounds.Center.x
+			+ plane.y * worldBounds.Center.y
+			+ plane.z * worldBounds.Center.z
+			+ plane.w;
+		const float projectedRadius =
+			fabsf(plane.x) * worldBounds.Extents.x
+			+ fabsf(plane.y) * worldBounds.Extents.y
+			+ fabsf(plane.z) * worldBounds.Extents.z;
+
+		if (centerDistance + projectedRadius < 0.0f)
+			return false;
 	}
 
 	return true;
@@ -153,6 +182,8 @@ bool ModelRenderer::TryInitialize()
 	Model* modelPtr = _model.Resolve();
 	if(modelPtr == nullptr)
         return false;
+	if (_boundsInitialized == false)
+		UpdateLocalBounds();
 		
     _initialized = true;
     return true;
@@ -213,4 +244,36 @@ void ModelRenderer::FoliageSetup()
 
 	if (GetGameObject()->GetFixedComponent<FoliageController>() == nullptr)
 		GetGameObject()->AddComponent<FoliageController>();
+}
+
+void ModelRenderer::UpdateLocalBounds()
+{
+	_boundsInitialized = true;
+	_hasLocalBounds = false;
+
+	Model* model = _model.Resolve();
+	ModelMeshResource* meshResource = model != nullptr ? model->GetMesh() : nullptr;
+	if (meshResource == nullptr)
+		return;
+
+	Vec3 minPosition(FLT_MAX, FLT_MAX, FLT_MAX);
+	Vec3 maxPosition(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	for (const shared_ptr<ModelMesh>& mesh : meshResource->GetMeshes())
+	{
+		if (mesh == nullptr || mesh->geometry == nullptr)
+			continue;
+
+		for (const ModelVertexType& vertex : mesh->geometry->GetVertices())
+		{
+			minPosition = Vec3::Min(minPosition, vertex.position);
+			maxPosition = Vec3::Max(maxPosition, vertex.position);
+			_hasLocalBounds = true;
+		}
+	}
+
+	if (_hasLocalBounds)
+	{
+		_localBounds.Center = (minPosition + maxPosition) * 0.5f;
+		_localBounds.Extents = (maxPosition - minPosition) * 0.5f;
+	}
 }

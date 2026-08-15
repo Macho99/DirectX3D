@@ -56,9 +56,11 @@ void EditorManager::Init()
     unique_ptr<ModelBatchingTool> modelBatchingTool = make_unique<ModelBatchingTool>();
     _modelBatchingTool = modelBatchingTool.get();
     _editorWindows.push_back(move(modelBatchingTool));
-    _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap0", []() { return GRAPHICS->GetShadowMap(0).Resolve(); }));
-    _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap1", []() { return GRAPHICS->GetShadowMap(1).Resolve(); }));
-    _editorWindows.push_back(make_unique<DebugTexWindow>("ShadowMap2", []() { return GRAPHICS->GetShadowMap(2).Resolve(); }));
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+    {
+        string windowName = "ShadowMap" + to_string(i);
+        _editorWindows.push_back(make_unique<DebugTexWindow>(windowName, [i]() { return GRAPHICS->GetShadowMap(i).Resolve(); }));
+    }
     _editorWindows.push_back(make_unique<DebugTexWindow>("NormalDepthMap", []() { return GRAPHICS->GetNormalDepthMap().Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("SsaoMap", []() { return GRAPHICS->GetSsaoMap().Resolve(); }));
     _editorWindows.push_back(make_unique<DebugTexWindow>("Bloom", []() { return GRAPHICS->GetPostProcessDebugTexture(GRAPHICS->GetBloomIdx()).Resolve(); }));

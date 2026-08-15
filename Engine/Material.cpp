@@ -281,8 +281,9 @@ bool Material::OnGUI(bool isReadOnly)
 	changed |= OnGUIUtils::DrawResourceRef("NormalMap", _normalMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("SpecularMap", _specularMap, isReadOnly);
 	changed |= OnGUIUtils::DrawResourceRef("CubeMap", _cubeMap, isReadOnly);
-	changed |= OnGUIUtils::DrawBool("UseRandomTexture", &_useRandomTexture, isReadOnly);
+    changed |= OnGUIUtils::DrawBool("UseRandomTexture", &_useRandomTexture, isReadOnly);
     changed |= OnGUIUtils::DrawBool("CastShadow", &_castShadow, isReadOnly);
+    changed |= OnGUIUtils::DrawBool("DrawNormalDepth", &_drawNormalDepth, isReadOnly);
     changed |= OnGUIUtils::DrawBool("IncludeInNavMesh", &_includeInNavMesh, isReadOnly);
 
 	if (shader)
@@ -320,6 +321,7 @@ void Material::Clone(Material* other)
     _desc = other->_desc;
     _renderQueue = other->_renderQueue;
     _castShadow = other->_castShadow;
+    _drawNormalDepth = other->_drawNormalDepth;
     _includeInNavMesh = other->_includeInNavMesh;
 	_shader = other->_shader;
 	_shaderProperties = other->_shaderProperties;

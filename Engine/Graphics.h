@@ -4,7 +4,7 @@
 class Ssao;
 class PostProcess;
 
-#define NUM_SHADOW_CASCADES 3
+#define NUM_SHADOW_CASCADES 2
 #define FRUSTUM_CORNERS 8
 
 class Graphics

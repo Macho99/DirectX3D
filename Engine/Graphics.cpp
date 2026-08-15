@@ -12,10 +12,11 @@
 
 void Graphics::Init(HWND hwnd)
 {
-	_cascadeEnds[0] = 0.0f;
-	_cascadeEnds[1] = 0.05f;
-	_cascadeEnds[2] = 0.2f;
-	_cascadeEnds[3] = 1.0f;
+	int shadowIdx = 0;
+	_cascadeEnds[shadowIdx++] = 0.0f;
+	//_cascadeEnds[shadowIdx++] = 0.05f;
+	_cascadeEnds[shadowIdx++] = 0.1f;
+	_cascadeEnds[shadowIdx++] = 1.0f;
 
 	_hwnd = hwnd;
 

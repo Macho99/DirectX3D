@@ -20,6 +20,12 @@ namespace
         return value;
     }
 
+    bool IsTreeMesh(const LevelMeshData& meshData)
+    {
+        return ToLower(meshData.MeshName).find("tree") != string::npos
+            || ToLower(meshData.MeshPath).find("tree") != string::npos;
+    }
+
     size_t LoadBatchedModelNames(
         const fs::path& rootPath,
         OUT unordered_set<string>& batchedModelNames)
@@ -112,10 +118,12 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
     unordered_map<string, Transform*> folderCache;
     unordered_map<string, pair<Transform*, ResourceRef<Model>>> modelCache;
     size_t skippedBatchedInstanceCount = 0;
+    size_t individualTreeRendererCount = 0;
 
     for (int i = 0; i < 10000 && i < outLevel.MeshCount; i++)
     {
         const LevelMeshData& levelMeshData = outLevel.Meshes[i];
+        const bool useIndividualTreeRenderer = IsTreeMesh(levelMeshData);
         if (batchedModelNames.find(ToLower(levelMeshData.MeshName))
             != batchedModelNames.end())
         {
@@ -156,7 +164,10 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
             }
 
             meshParent = CUR_SCENE->Add(levelMeshData.MeshName, folderParent).Resolve()->GetTransform();
-            meshParent->GetGameObject()->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+            if (useIndividualTreeRenderer == false)
+            {
+                meshParent->GetGameObject()->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+            }
 
             modelCache[levelMeshData.MeshName] = make_pair(meshParent, modelRef);
         }
@@ -206,7 +217,20 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         Matrix T = Matrix::CreateTranslation(position);
 
         Matrix worldMatrix = S * R * T;
-        meshParent->GetGameObject()->GetFixedComponent<ModelRenderer>()->AddInstancingData(worldMatrix);
+        if (useIndividualTreeRenderer)
+        {
+            const string objectName = levelMeshData.ActorName.empty()
+                ? levelMeshData.MeshName + "_" + std::to_string(i)
+                : levelMeshData.ActorName;
+            GameObject* treeObject = CUR_SCENE->Add(objectName, meshParent).Resolve();
+            treeObject->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+            treeObject->GetTransform()->SetWorldMatrix(worldMatrix);
+            ++individualTreeRendererCount;
+        }
+        else
+        {
+            meshParent->GetGameObject()->GetFixedComponent<ModelRenderer>()->AddInstancingData(worldMatrix);
+        }
     }
 
     if (skippedBatchedInstanceCount > 0)
@@ -214,6 +238,13 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         DBG->Log(Utils::Format(
             "[UnrealLevelImporter] Skipped %zu instance(s) already covered by Batch Info.",
             skippedBatchedInstanceCount));
+    }
+
+    if (individualTreeRendererCount > 0)
+    {
+        DBG->Log(Utils::Format(
+            "[UnrealLevelImporter] Created %zu individual tree Model Renderer(s) for frustum culling.",
+            individualTreeRendererCount));
     }
 
     rootTransform->SetLocalPosition(Vec3(-1, 8, 134));

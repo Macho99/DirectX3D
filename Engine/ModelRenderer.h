@@ -15,6 +15,8 @@ public:
 
 	bool SetModel(ResourceRef<Model> model);
 	ResourceRef<Model> GetModel() const { return _model; }
+	const BoundingBox& GetLocalBounds() const { return _localBounds; }
+	bool IsInFrustum(const Vec4 frustumPlanes[6]);
 
     virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 
@@ -35,9 +37,13 @@ public:
 
 private:
     void FoliageSetup();
+	void UpdateLocalBounds();
 
 private:
 	ResourceRef<Model>	_model;
+	BoundingBox _localBounds;
+	bool _hasLocalBounds = false;
+	bool _boundsInitialized = false;
 
     bool _initialized = false;
 };
