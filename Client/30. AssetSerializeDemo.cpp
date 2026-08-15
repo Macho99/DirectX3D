@@ -156,7 +156,7 @@ void AssetSerializeDemo::Init()
     {	// Billboard
         {
             //auto snowShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\24. SnowDemo.fx");
-            auto objRef = CUR_SCENE->Add("Snow");
+            auto objRef = CUR_SCENE->Add("Rain");
             GameObject* obj = objRef.Resolve();
             obj->SetActive(false);
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
@@ -168,7 +168,8 @@ void AssetSerializeDemo::Init()
                     obj->GetSnowBillboard()->SetMaterial(materialRef);
                 }
                 obj->GetSnowBillboard()->SetExtent(Vec3(100, 100, 100));
-                obj->GetSnowBillboard()->SetDrawCount(10000);
+                obj->GetSnowBillboard()->SetVelocity(Vec3(0, -30, 0));
+                obj->GetSnowBillboard()->SetDrawCount(2000);
             }
         }
     }

@@ -33,6 +33,7 @@ bool SnowBillboard::TryInitialize()
 	for (int32 i = 0; i < _drawCount * 4; i += 4)
 	{
 		Vec2 scale = MathUtils::RandomVec2(0.1f, 0.5f);
+		scale.x *= 0.2f;
 
 		Vec3 position;
 		position.x = MathUtils::Random(-_desc.extent.x, _desc.extent.x);

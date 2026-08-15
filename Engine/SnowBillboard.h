@@ -20,6 +20,7 @@ public:
 	SnowBillboard();
 	~SnowBillboard();
 
+    void SetVelocity(Vec3 velocity) { _desc.velocity = velocity; }
     void SetDrawCount(int32 count) { _drawCount = count; }
     void SetExtent(Vec3 extent) { _desc.extent = extent; }
 

@@ -210,7 +210,7 @@ struct SnowBillboardDesc
 {
 	Color color = Color(1, 1, 1, 1);
 
-	Vec3 velocity = Vec3(0, -5, 0);
+	Vec3 velocity = Vec3(0, -20, 0);
 	float drawDistance = 0;
 
 	Vec3 origin = Vec3(0, 0, 0);
