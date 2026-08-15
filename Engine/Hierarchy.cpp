@@ -73,7 +73,11 @@ void Hierarchy::ShowHierarchy()
         ImGui::EndPopup();
     }
 
-    ImGui::TextDisabled("Tip: Drag & drop. Top=before, Middle=child, Bottom=after. Drop on empty area => root.");
+    for (int renderTech = (int)RenderTech::Shadow; renderTech < (int)RenderTech::Max; renderTech++)
+    {
+        auto& cullingStats = CUR_SCENE->GetRenderCullingStats((RenderTech)renderTech);
+        ImGui::TextDisabled("RenderTech=%d, total=%d, culled=%d", renderTech, cullingStats.totalCount, cullingStats.culledCount);
+    }
 
     Transform* selectedTransform = _selectedId.Resolve();
     if (selectedTransform != nullptr)

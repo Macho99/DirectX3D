@@ -112,6 +112,8 @@ void Scene::LateUpdate()
 
 void Scene::Render()
 {
+	_renderCullingStats.fill(RenderCullingStats{});
+
     for (auto& camera : _cameras)
     {
         Camera* cam = camera.Resolve()->GetCamera();
@@ -653,6 +655,8 @@ void Scene::Render(const vector<ComponentRef<Renderer>>& renderers, Camera* came
 
 void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
 {
+	RenderCullingStats& cullingStats =
+		_renderCullingStats[static_cast<size_t>(renderTech)];
     const Matrix cullingViewProjection = renderTech == RenderTech::Shadow
         ? Light::S_MatView * Light::S_MatProjection
         : camera->GetViewMatrix() * camera->GetProjectionMatrix();
@@ -685,11 +689,15 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
 				if (instRenderer->CanRender(renderTech) == false)
 					continue;
 
-                if (instRenderer->HasInstancingData() == false
-                    && instRenderer->GetType() == ComponentType::ModelRenderer
-                    && static_cast<ModelRenderer*>(instRenderer)->IsInFrustum(frustumPlanes) == false)
+				if (instRenderer->HasInstancingData() == false
+					&& instRenderer->GetType() == ComponentType::ModelRenderer)
                 {
-                    continue;
+					++cullingStats.totalCount;
+					if (static_cast<ModelRenderer*>(instRenderer)->IsInFrustum(frustumPlanes) == false)
+					{
+						++cullingStats.culledCount;
+						continue;
+					}
                 }
 
                 if (instRenderer->HasInstancingData())

@@ -6,12 +6,19 @@
 #include "Sky.h"
 #include "GameObject.h"
 #include "InstancingBuffer.h"
+#include "Shader.h"
 
 class Camera;
 class Transform;
 struct Guid;    
 
 using InstancedRendererMap = unordered_map<string/*material Name*/, unordered_map<AssetId, pair<InstancingBuffer, vector<ComponentRef<class InstancingRenderer>>>, AssetIdHash>>;
+
+struct RenderCullingStats
+{
+    uint32 totalCount = 0;
+    uint32 culledCount = 0;
+};
 
 class Scene : public ResourceBase
 {
@@ -55,6 +62,14 @@ public:
 	void CheckCollision();
 	bool IsInScene(const GameObjectRef& ref) { return _gameObjects.find(ref) != _gameObjects.end(); }
 	vector<TransformRef>& GetRootObjects() { return _rootObjects; }
+	const RenderCullingStats& GetRenderCullingStats(RenderTech renderTech) const
+	{
+		return _renderCullingStats[static_cast<size_t>(renderTech)];
+	}
+	const array<RenderCullingStats, static_cast<size_t>(RenderTech::Max)>& GetRenderCullingStats() const
+	{
+		return _renderCullingStats;
+	}
 
     SlotManager<GameObject>* GetGameObjectSlotManager() { return &_gameObjectSlotManager; }
     SlotManager<Component>* GetComponentSlotManager() { return &_componentSlotManager; }
@@ -121,6 +136,7 @@ private:
     vector<ComponentRef<Renderer>> _vecForward;
     vector<ComponentRef<Renderer>> _vecBackward;
     InstancedRendererMap _instRenderers;
+	array<RenderCullingStats, static_cast<size_t>(RenderTech::Max)> _renderCullingStats{};
 
 	uint64 _instanceId;
 };
