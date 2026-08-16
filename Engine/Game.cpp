@@ -147,6 +147,9 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 
 	switch (message)
 	{
+	case WM_CHAR:
+		INPUT->AddTextInputCharacter(static_cast<wchar_t>(wParam));
+		break;
 	case WM_SIZE:
 		if (wParam != SIZE_MINIMIZED)
 		{

@@ -37,6 +37,7 @@ enum class ComponentType : uint8
     ScrollView,
 	TargetFollower,
 	TrailRenderer,
+	InputText,
 	// ...
 	Script,
 

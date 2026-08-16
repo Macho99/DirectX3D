@@ -12,6 +12,8 @@ void InputManager::Init(HWND hwnd)
 
 void InputManager::Update()
 {
+    _textInput.swap(_pendingTextInput);
+    _pendingTextInput.clear();
     _mouseInScene = false;
     _prevMouseWheelDelta = _curMouseWheelDelta;
     _curMouseWheelDelta = 0;

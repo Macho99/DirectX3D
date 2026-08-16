@@ -786,6 +786,9 @@
     <ClInclude Include="Text.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
+    <ClInclude Include="InputText.h">
+      <Filter>04. Component\UI</Filter>
+    </ClInclude>
     <ClInclude Include="UIImage.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
@@ -1242,6 +1245,9 @@
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Text.cpp">
+      <Filter>04. Component\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="InputText.cpp">
       <Filter>04. Component\UI</Filter>
     </ClCompile>
     <ClCompile Include="UIImage.cpp">

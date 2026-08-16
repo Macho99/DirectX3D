@@ -21,6 +21,7 @@
 #include "OnGUIUtils.h"
 
 vector<ComponentType> GameObject::S_RendererTypes = {
+	ComponentType::InputText,
 	ComponentType::Text,
 	ComponentType::UIImage,
 	ComponentType::ScrollView,

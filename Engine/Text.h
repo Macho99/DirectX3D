@@ -73,6 +73,7 @@ public:
     TextHorizontalStart GetHorizontalStart() const { return _horizontalStart; }
     void SetVerticalStart(TextVerticalStart verticalStart);
     TextVerticalStart GetVerticalStart() const { return _verticalStart; }
+    void DefaultFontSetting();
 
     template<typename Archive>
     void serialize(Archive& ar)
@@ -92,6 +93,9 @@ public:
         if (Archive::is_loading::value)
             _isDirty = true;
     }
+
+protected:
+    explicit Text(ComponentType componentType);
 
 private:
     void RebuildMesh();

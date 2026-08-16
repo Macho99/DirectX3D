@@ -7,6 +7,12 @@
 
 void ServerConnect::Awake()
 {
+	ASSERT(_instance == nullptr || _instance == this, "ServerConnect already exists");
+	if (_instance != nullptr && _instance != this)
+		return;
+
+	_instance = this;
+
 	ServerPacketHandler::Init();
 	this_thread::sleep_for(1s);
 
@@ -35,8 +41,13 @@ void ServerConnect::Awake()
 
 void ServerConnect::OnDestroy()
 {
+	if (_instance != this)
+		return;
+
 	isRunning.store(false);
 	GThreadManager->Join();
+	service = nullptr;
+	_instance = nullptr;
 }
 
 bool ServerConnect::OnGUI()

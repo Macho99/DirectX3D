@@ -32,15 +32,16 @@ public:
     }
 
 public:
-    virtual void OnMouseEnter() { }
+    virtual void OnMouseEnter() { _containsMouseSelf = true; }
 
     virtual void OnMouseStay() { }
     virtual void OnMouseDown() { }
     virtual void OnMouseUp() { }
 
-    virtual void OnMouseExit() { }
+    virtual void OnMouseExit() { _containsMouseSelf = false; }
 
 protected:
     ResourceRef<Mesh> _mesh;
     UIMaskMode _maskMode = UIMaskMode::None;
+    bool _containsMouseSelf = false;
 };

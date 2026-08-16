@@ -12,7 +12,11 @@
 #include "VertexData.h"
 #include "RectTransform.h"
 
-Text::Text() : Super(StaticType)
+Text::Text() : Text(StaticType)
+{
+}
+
+Text::Text(ComponentType componentType) : Super(componentType)
 {
 }
 
@@ -25,6 +29,9 @@ void Text::Awake()
     Super::Awake();
     _isDirty = true;
     _mesh = RESOURCES->AllocateTempResource<Mesh>();
+
+    if (_font.Resolve() == nullptr)
+        DefaultFontSetting();
 }
 
 void Text::Start()
@@ -161,6 +168,12 @@ void Text::SetVerticalStart(TextVerticalStart verticalStart)
         _verticalStart = verticalStart;
         _isDirty = true;
     }
+}
+
+void Text::DefaultFontSetting()
+{
+    _font = RESOURCES->GetResourceRefByPath<Font>(L"Fonts\\arial.fnt");
+    SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ArialFontMat.mat"));
 }
 
 void Text::RebuildMesh()

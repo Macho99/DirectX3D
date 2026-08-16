@@ -28,6 +28,7 @@
 #include "SsrRenderer.h"
 #include "ScrollView.h"
 #include "Text.h"
+#include "InputText.h"
 #include "UIImage.h"
 #include "RectTransform.h"
 #include "TargetFollower.h"
@@ -62,6 +63,7 @@ static void ForceRegisterEngineComponents()
     SsrRenderer::EnsureAutoRegister();
     ScrollView::EnsureAutoRegister();
     Text::EnsureAutoRegister();
+    InputText::EnsureAutoRegister();
     UIImage::EnsureAutoRegister();
     TargetFollower::EnsureAutoRegister();
     TrailRenderer::EnsureAutoRegister();
@@ -149,6 +151,10 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, SsrRenderer);
 
 CEREAL_REGISTER_TYPE(Text);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Text);
+
+CEREAL_REGISTER_TYPE(InputText);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, InputText);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Text, InputText);
 
 CEREAL_REGISTER_TYPE(UIImage);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, UIImage);
