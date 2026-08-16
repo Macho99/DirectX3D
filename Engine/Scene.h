@@ -133,6 +133,7 @@ private:
     SlotManager<GameObject> _gameObjectSlotManager;
     SlotManager<Component> _componentSlotManager;
 
+    InstancedTweenDesc _instancedTweenDesc;
     vector<ComponentRef<Renderer>> _vecForward;
     vector<ComponentRef<Renderer>> _vecBackward;
     InstancedRendererMap _instRenderers;
