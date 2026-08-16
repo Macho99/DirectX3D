@@ -132,9 +132,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\Lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)Engine\*.h" "$(SolutionDir)Libraries\Include\Engine"
-xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\Engine\cereal\" 
-</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,9 +160,8 @@ xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\Lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)Engine\*.h" "$(SolutionDir)Libraries\Include\Engine"
-xcopy /E /I /Y "$(SolutionDir)Engine\cereal\*" "$(SolutionDir)Libraries\Include\Engine\cereal\" 
-</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

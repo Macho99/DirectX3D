@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma comment(lib, "Engine/Engine.lib")
-#include "Engine/EnginePch.h"
+#include "EnginePch.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "ServerCore\\Debug\\ServerCore.lib")
