@@ -209,7 +209,7 @@ void AssetSerializeDemo::Init()
             auto followerObjRef = CUR_SCENE->Add("TargetFollower");
             GameObject* followerObj = followerObjRef.Resolve();
 
-            bool editorCamera = true;
+            bool editorCamera = false;
             if (editorCamera)
             {
                 camera->GetTransform()->SetPosition(Vec3{ -4.f, baseHeight + 5, 65.f });

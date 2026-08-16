@@ -104,7 +104,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
 
     GameObject* rootObj = CUR_SCENE->Add(outLevel.LevelName).Resolve();
     Transform* rootTransform = rootObj->GetTransform();
-    const fs::path modelRootPath = "..\\Assets\\Models\\Rural_Cabin";
+    const fs::path modelRootPath = "..\\Assets\\Imports\\Rural_Cabin";
     const fs::path batchInfoRootPath = "..\\Assets\\Batches";
     unordered_set<string> batchedModelNames;
     const size_t batchInfoFileCount =

@@ -14,6 +14,9 @@
 #include "InstancingRenderer.h"
 #include "InstancingBuffer.h"
 #include "ModelRenderer.h"
+#include "ModelAnimator.h"
+#include "Material.h"
+#include "Shader.h"
 #include "MathUtils.h"
 
 Scene::Scene()
@@ -673,6 +676,9 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
             InstancingBuffer& instBuffer = meshPair.second.first;
 
             instBuffer.ClearData();
+			InstancedTweenDesc tweenDesc;
+			uint32 tweenInstanceIndex = 0;
+			bool hasTweenData = false;
 
             const vector<ComponentRef<InstancingRenderer>>& instRendererRefs = meshPair.second.second;
             InstancingRenderer* lastInstRenderer = nullptr;
@@ -700,7 +706,24 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
 					}
                 }
 
-                if (instRenderer->HasInstancingData())
+				const uint32 instanceCount = instRenderer->HasInstancingData()
+					? static_cast<uint32>(instRenderer->GetInstancingDatas().size())
+					: 1;
+
+				if (instRenderer->GetType() == ComponentType::ModelAnimator)
+				{
+					const TweenDesc& animatorTween =
+						static_cast<ModelAnimator*>(instRenderer)->GetTweenDesc();
+					for (uint32 i = 0;
+						i < instanceCount && tweenInstanceIndex + i < MAX_MODEL_INSTANCE;
+						++i)
+					{
+						tweenDesc.tweens[tweenInstanceIndex + i] = animatorTween;
+					}
+					hasTweenData = true;
+				}
+
+				if (instRenderer->HasInstancingData())
                 {
                     instBuffer.AddData(instRenderer->GetInstancingDatas());
                 }
@@ -709,12 +732,20 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
                     Transform* transform = instRenderer->GetGameObject()->GetTransform();
                     instBuffer.AddData(transform->GetWorldMatrix());
                 }
+				tweenInstanceIndex += instanceCount;
 
                 lastInstRenderer = instRenderer;
             }
 
             if (lastInstRenderer != nullptr && instBuffer.GetCount() > 0)
             {
+				if (hasTweenData && lastInstRenderer->GetType() == ComponentType::ModelAnimator)
+				{
+					Material* material = lastInstRenderer->GetMaterial().Resolve();
+					Shader* shader = material != nullptr ? material->GetShader() : nullptr;
+					if (shader != nullptr)
+						shader->PushTweenData(tweenDesc);
+				}
                 lastInstRenderer->RenderInstancing(instBuffer, renderTech);
             }
         }
