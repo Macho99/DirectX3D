@@ -7,17 +7,17 @@ class Texture;
 
 class TessTerrain : public Renderer
 {
+	using Super = Renderer;
+	DECLARE_COMPONENT(TessTerrain)
+public:
 	enum class EditMode
 	{
-        None,
-        RaiseLower,
-        Smooth,
+		None,
+		RaiseLower,
+		Smooth,
 		Texture,
 	};
 
-    using Super = Renderer;
-    DECLARE_COMPONENT(TessTerrain)
-public:
 	TessTerrain();
 	~TessTerrain();
 	virtual int GetVersion() const override { return 1; }
@@ -28,36 +28,37 @@ public:
 	void SetPositionOffset(const Vec3& positionOffset) { _positionOffset = positionOffset; }
 	const Vec3& GetPositionOffset() const { return _positionOffset; }
 	bool Pick(int32 screenX, int32 screenY, Vec3& pickPos, float& distance);
-    bool UpdateQuadPatchVB();
-    bool UpdateHeightmapTexture();
+	bool UpdateQuadPatchVB();
+	bool UpdateHeightmapTexture();
+	EditMode GetEditMode() const { return _editMode; }
 
 	void InnerRender(RenderTech renderTech) override;
-    ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
-    ID3D11ShaderResourceView* GetLayerNormalMapArraySRV() { return _layerNormalMapArraySRV.Get(); }
-    ID3D11ShaderResourceView* GetLayerHeightMapArraySRV() { return _layerHeightMapArraySRV.Get(); }
-    ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
+	ID3D11ShaderResourceView* GetLayerMapArraySRV() { return _layerMapArraySRV.Get(); }
+	ID3D11ShaderResourceView* GetLayerNormalMapArraySRV() { return _layerNormalMapArraySRV.Get(); }
+	ID3D11ShaderResourceView* GetLayerHeightMapArraySRV() { return _layerHeightMapArraySRV.Get(); }
+	ID3D11ShaderResourceView* GetBlendMapSRV() { return _blendMapTexture.Resolve()->GetComPtr().Get(); }
 	void SetTerrainData(const ResourceRef<TerrainData>& terrainData);
 	ResourceRef<TerrainData> GetTerrainData() const { return _terrainData; }
-    void SetBrushTexture(const ResourceRef<Texture>& brushTexture) { _brushTexture = brushTexture; }
+	void SetBrushTexture(const ResourceRef<Texture>& brushTexture) { _brushTexture = brushTexture; }
 
 	virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris);
 	virtual bool TryInitialize() override;
 
-    virtual void OnInspectorFocus() override;
-    virtual void OnInspectorFocusLost() override;
+	virtual void OnInspectorFocus() override;
+	virtual void OnInspectorFocusLost() override;
 
-    virtual bool OnGUI() override;
-    template<typename Archive>
-    void serialize(Archive& ar)
-    {
-        Super::serialize(ar);
-        ar(CEREAL_NVP(_terrainData));
-        ar(CEREAL_NVP(_brushTexture));
-        ar(CEREAL_NVP(_brushRadius));
-        ar(CEREAL_NVP(_brushStrength));
-        if (Archive::is_saving::value || _version >= 1)
-            ar(CEREAL_NVP(_positionOffset));
-    }
+	virtual bool OnGUI() override;
+	template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		Super::serialize(ar);
+		ar(CEREAL_NVP(_terrainData));
+		ar(CEREAL_NVP(_brushTexture));
+		ar(CEREAL_NVP(_brushRadius));
+		ar(CEREAL_NVP(_brushStrength));
+		if (Archive::is_saving::value || _version >= 1)
+			ar(CEREAL_NVP(_positionOffset));
+	}
 
 private:
 	void LoadHeightmap();
@@ -71,16 +72,16 @@ private:
 	void BuildHeightmapSRV();
 
 	bool SaveHeightmap();
-    bool SaveBlendmap();
+	bool SaveBlendmap();
 
-    float SampleBrush(const DirectX::Image* brushImage, float u, float v);
+	float SampleBrush(const DirectX::Image* brushImage, float u, float v);
 
 public:
 	Event<> OnHeightmapChanged;
 
 private:
 	mutable ResourceRef<TerrainData> _terrainData;
-    bool _initialized = false;
+	bool _initialized = false;
 
 	// Divide heightmap into patches such that each patch has CellsPerPatch cells
 	// and CellsPerPatch+1 vertices.  Use 64 so that if we tessellate all the way
@@ -89,24 +90,24 @@ private:
 
 	ComPtr<ID3D11Buffer> _quadPatchVB;
 	ComPtr<ID3D11Buffer> _quadPatchIB;
-    vector<VertexTerrain> _patchVertices;
+	vector<VertexTerrain> _patchVertices;
 
 	ComPtr<ID3D11ShaderResourceView> _layerMapArraySRV;
 	ComPtr<ID3D11ShaderResourceView> _layerNormalMapArraySRV;
 	ComPtr<ID3D11ShaderResourceView> _layerHeightMapArraySRV;
 	ResourceRef<Texture> _blendMapTexture;
-    ResourceRef<Texture> _heightMapTexture;
-    ComPtr<ID3D11Texture2D> _heightMapTexture2D;
+	ResourceRef<Texture> _heightMapTexture;
+	ComPtr<ID3D11Texture2D> _heightMapTexture2D;
 	ComPtr<ID3D11ShaderResourceView> _heightMapSRV;
 
-    ResourceRef<Texture> _brushTexture;
+	ResourceRef<Texture> _brushTexture;
 	EditMode _editMode = EditMode::None;
 	float _brushRadius = 20.f;
-    float _brushStrength = 5.f;
-    Vec3 _positionOffset = Vec3::Zero;
-    BlendLayer _selectedBlendLayer = BlendLayer::Layer0;
+	float _brushStrength = 5.f;
+	Vec3 _positionOffset = Vec3::Zero;
+	BlendLayer _selectedBlendLayer = BlendLayer::Layer0;
 
-    TerrainDesc _terrainDesc;
+	TerrainDesc _terrainDesc;
 
 	uint32 _numPatchVertices = 0;
 	uint32 _numPatchQuadFaces = 0;
@@ -115,14 +116,14 @@ private:
 
 	vector<XMFLOAT2> _patchBoundsY;
 	vector<float> _heightmap;
-    vector<uint16> _halfHeightmap; // 16-bit heightmap for GPU
-    bool _prevHeightmapEditing = false;
+	vector<uint16> _halfHeightmap; // 16-bit heightmap for GPU
+	bool _prevHeightmapEditing = false;
 
-    bool _isBlendmapDirty = false;
+	bool _isBlendmapDirty = false;
 	bool _isHeightmapDirty = false;
-    float _minHeight = FLT_MAX;
-    float _maxHeight = -FLT_MAX;
+	float _minHeight = FLT_MAX;
+	float _maxHeight = -FLT_MAX;
 	uint32 _triCellSize = 3;
 
-    bool _submitTrianglesAlways = true;
+	bool _submitTrianglesAlways = true;
 };

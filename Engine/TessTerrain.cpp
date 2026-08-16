@@ -207,13 +207,17 @@ bool TessTerrain::OnGUI()
 	if (_editMode == EditMode::Texture && terrainData != nullptr)
 	{
 		ImGui::Text("Selected Blend Layer:");
-		auto DrawLayerButton = [this](const char* label, ResourceRef<Texture> textureRef, int num)
+		string selectedTextureName = "None";
+		auto DrawLayerButton = [this, &selectedTextureName](const char* label, ResourceRef<Texture> textureRef, int num)
 			{
 				Texture* texture = textureRef.Resolve();
                 if (texture == nullptr)
                     return;
 				
                 bool isSelected = (_selectedBlendLayer == (BlendLayer)num);
+				if (isSelected)
+					selectedTextureName = texture->GetStringName();
+
 				if (isSelected)
 				{
 					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.6f, 1.0f, 1.0f));
@@ -235,6 +239,7 @@ bool TessTerrain::OnGUI()
 		BLEND_LAYER_LIST
 #undef X
 		ImGui::NewLine();
+		ImGui::Text("Selected Texture: %s", selectedTextureName.c_str());
 	}
 
 	changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
