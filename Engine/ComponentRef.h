@@ -3,8 +3,6 @@
 
 class Component;
 
-// Keep type-independent slot lookup out of ComponentRef<T> so client-side
-// component types do not require explicit template instantiation.
 struct ComponentRefResolver : public GuidRef
 {
 public:
