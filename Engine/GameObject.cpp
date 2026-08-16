@@ -80,13 +80,14 @@ void GameObject::Update()
 {
 	for (ComponentRefBase& component : _components)
 	{
-		if (component.IsValid())
+		if (component.IsValid() && component.Resolve()->IsEnabled())
 			component.Resolve()->Update();
 	}
 
 	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script.Resolve()->Update();
+		if (script.Resolve()->IsEnabled())
+			script.Resolve()->Update();
 	}
 }
 
@@ -94,13 +95,14 @@ void GameObject::LateUpdate()
 {
 	for (ComponentRefBase& component : _components)
 	{
-		if (component.IsValid())
+		if (component.IsValid() && component.Resolve()->IsEnabled())
 			component.Resolve()->LateUpdate();
 	}
 
 	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script.Resolve()->LateUpdate();
+		if (script.Resolve()->IsEnabled())
+			script.Resolve()->LateUpdate();
 	}
 }
 
@@ -108,13 +110,14 @@ void GameObject::FixedUpdate()
 {
 	for (ComponentRefBase& component : _components)
 	{
-		if (component.IsValid())
+		if (component.IsValid() && component.Resolve()->IsEnabled())
 			component.Resolve()->FixedUpdate();
 	}
 
 	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		script.Resolve()->FixedUpdate();
+		if (script.Resolve()->IsEnabled())
+			script.Resolve()->FixedUpdate();
 	}
 }
 
@@ -136,12 +139,13 @@ void GameObject::OnEnable()
 {
     for (ComponentRefBase& component : _components)
     {
-        if (component.IsValid())
+        if (component.IsValid() && component.Resolve()->IsEnabled())
             component.Resolve()->OnEnable();
     }
     for (ComponentRef<MonoBehaviour>& script : _scripts)
     {
-        script.Resolve()->OnEnable();
+        if (script.Resolve()->IsEnabled())
+            script.Resolve()->OnEnable();
     }
 }
 
@@ -149,12 +153,13 @@ void GameObject::OnDisable()
 {
     for (ComponentRefBase& component : _components)
     {
-        if (component.IsValid())
+        if (component.IsValid() && component.Resolve()->IsEnabled())
             component.Resolve()->OnDisable();
     }
     for (ComponentRef<MonoBehaviour>& script : _scripts)
     {
-        script.Resolve()->OnDisable();
+        if (script.Resolve()->IsEnabled())
+            script.Resolve()->OnDisable();
     }
 }
 
@@ -326,7 +331,8 @@ void GameObject::AddComponent(unique_ptr<Component> component)
 
 	componentPtr->Awake();
 	componentPtr->Start();
-	componentPtr->OnEnable();
+	if (_isActive && componentPtr->IsEnabled())
+		componentPtr->OnEnable();
 }
 
 void GameObject::SetActive(bool active)
@@ -350,15 +356,16 @@ void GameObject::UpdateActiveInHierarchy(bool parentActive, bool forceUpdate)
     if (forceUpdate == false && _isActive == newActive)
         return;
 
-	if (forceUpdate == false && _isActive != newActive)
+	bool activeChanged = _isActive != newActive;
+    _isActive = newActive;
+
+	if (forceUpdate == false && activeChanged)
 	{
         if (newActive)
             OnEnable();
         else
             OnDisable();
 	}
-
-    _isActive = newActive;
     //for (ComponentRefBase& component : _components)
     //{
     //    if (component.IsValid())

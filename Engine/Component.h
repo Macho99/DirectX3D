@@ -78,8 +78,11 @@ public:
     GameObjectRef GetGameObjectRef() const { return _gameObject; }
 	Transform* GetTransform();
     TransformRef GetTransformRef();
-    Guid GetGuid() const { return _guid; }
+	Guid GetGuid() const { return _guid; }
 	void SetGuid(const Guid& guid) { _guid = guid; }
+	bool IsEnabled() const { return _enabled; }
+	bool IsActiveAndEnabled() const;
+	void SetEnabled(bool enabled);
 
 	virtual bool OnGUI();
     virtual void OnMenu();
@@ -98,6 +101,23 @@ public:
 		ar(CEREAL_NVP(_version));
         ar(cereal::make_nvp("GameObject", _gameObject));
         ar(cereal::make_nvp("Guid", _guid));
+
+		if (Archive::is_saving::value)
+		{
+			ar(cereal::make_nvp("Enabled", _enabled));
+		}
+		else
+		{
+			// Scenes saved before component toggles existed have no Enabled field.
+			try
+			{
+				ar(cereal::make_nvp("Enabled", _enabled));
+			}
+			catch (const cereal::Exception&)
+			{
+				_enabled = true;
+			}
+		}
     }
 
 protected:
@@ -105,5 +125,6 @@ protected:
 	ComponentType _type;
 	GameObjectRef _gameObject;
     Guid _guid;
+	bool _enabled = true;
 };
 

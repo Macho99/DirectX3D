@@ -24,6 +24,7 @@
     <ClInclude Include="30. AssetSerializeDemo.h" />
     <ClInclude Include="31. SceneDemo.h" />
     <ClInclude Include="CerealRegister.h" />
+    <ClInclude Include="EditorCamController.h" />
     <ClInclude Include="Enum.pb.h" />
     <ClInclude Include="MyBillboard.h" />
     <ClInclude Include="CameraMove.h" />
@@ -43,6 +44,7 @@
     <ClCompile Include="30. AssetSerializeDemo.cpp" />
     <ClCompile Include="31. SceneDemo.cpp" />
     <ClCompile Include="CerealRegister.cpp" />
+    <ClCompile Include="EditorCamController.cpp" />
     <ClCompile Include="Enum.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

@@ -138,7 +138,7 @@ void Inspector::DrawAsset(AssetRef& assetRef, int subAssetIdx)
     }
 }
 
-bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()> onGui, function<void()> onMenu)
+bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()> onGui, function<void()> onMenu, Component* component)
 {
     ImGui::PushID(idPtr);
     ImGui::Spacing();
@@ -155,12 +155,21 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
         ImGuiTreeNodeFlags_AllowOverlap |
         ImGuiTreeNodeFlags_OpenOnArrow; // 화살표 클릭으로 열기(유니티 느낌)
 
-    bool open = ImGui::TreeNodeEx("##Header", flags, "%s", title.c_str());
+    string headerTitle = component != nullptr ? "     " + title : title;
+    bool open = ImGui::TreeNodeEx("##Header", flags, "%s", headerTitle.c_str());
 
     // 헤더 오른쪽에 버튼 배치
     // TreeNodeEx가 그린 "헤더 영역"의 오른쪽 끝 좌표를 이용합니다.
     ImVec2 rmin = ImGui::GetItemRectMin();
     ImVec2 rmax = ImGui::GetItemRectMax();
+
+    if (component != nullptr)
+    {
+        bool enabled = component->IsEnabled();
+        ImGui::SetCursorScreenPos(ImVec2(rmin.x + 24.0f, rmin.y + (rmax.y - rmin.y - ImGui::GetFrameHeight()) * 0.5f));
+        if (ImGui::Checkbox("##Enabled", &enabled))
+            component->SetEnabled(enabled);
+    }
 
     float btnW = 22.0f;
     float padR = 6.0f;
@@ -214,6 +223,6 @@ void Inspector::DrawComponentCard(Component& component)
     DrawCard(typeid(component).name(), &component, [&]
         {
             return component.OnGUI();
-        }, 
-        [&]() { component.OnMenu(); });
+        },
+        [&]() { component.OnMenu(); }, &component);
 }

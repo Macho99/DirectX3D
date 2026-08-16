@@ -50,6 +50,7 @@
 #include "ThirdPersonCamMove.h"
 #include "TargetFollower.h"
 #include "PlayerAnimEventHandler.h"
+#include "EditorCamController.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -209,37 +210,30 @@ void AssetSerializeDemo::Init()
             auto followerObjRef = CUR_SCENE->Add("TargetFollower");
             GameObject* followerObj = followerObjRef.Resolve();
 
-            bool editorCamera = false;
-            if (editorCamera)
-            {
-                camera->GetTransform()->SetPosition(Vec3{ -4.f, baseHeight + 5, 65.f });
-                camera->GetTransform()->SetRotation(Vec3{ 0.f, 90.f, 0.f });
-                camera->AddComponent(make_unique<CameraMove>());
-            }
-            else
-            {
-                followerObj->GetTransform()->SetParent(parentTransformRef);
-                Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
-                TransformRef followerTransformRef = followerTransform->GetRef();
-                camera->GetTransform()->SetParent(followerTransformRef);
-                camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
+            followerObj->GetTransform()->SetParent(parentTransformRef);
+            Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
+            TransformRef followerTransformRef = followerTransform->GetRef();
+            camera->GetTransform()->SetParent(followerTransformRef);
+            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -4.f));
 
-                {
-                    unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
-                    targetFollower->SetTarget(obj->GetTransform());
-                    targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
-                    targetFollower->SetFollowPositionX(true);
-                    targetFollower->SetFollowPositionY(true);
-                    targetFollower->SetFollowPositionZ(true);
-                    followerObj->AddComponent(std::move(targetFollower));
-                }
-
-                {
-                    unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
-                    thirdPersonCamMove->SetTarget(obj->GetTransformRef());
-                    camera->AddComponent(std::move(thirdPersonCamMove));
-                }
+            {
+                unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
+                targetFollower->SetTarget(obj->GetTransform());
+                targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
+                targetFollower->SetFollowPositionX(true);
+                targetFollower->SetFollowPositionY(true);
+                targetFollower->SetFollowPositionZ(true);
+                targetFollower->SetPositionFollowMode(TargetPositionFollowMode::Interpolated);
+                followerObj->AddComponent(std::move(targetFollower));
             }
+
+            {
+                unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
+                thirdPersonCamMove->SetTarget(obj->GetTransformRef());
+                camera->AddComponent(std::move(thirdPersonCamMove));
+            }
+            camera->AddComponent(make_unique<CameraMove>());
+            camera->AddComponent(make_unique<EditorCamController>());
         }
     }
 

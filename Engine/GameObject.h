@@ -76,6 +76,9 @@ public:
         return static_cast<T*>(GetFixedComponent(type));
     }
 
+    template<typename T>
+    T* GetScriptComponent();
+
     string GetName() const { return _name; }
     void SetName(string name) { _name = name; }
     bool IsActiveInHierarchy() const { return _isActive; }
@@ -151,4 +154,16 @@ inline ComponentRef<T> GameObject::AddComponent()
     T* componentPtr = component.get();
     AddComponent(std::move(component));
     return ComponentRef<T>(componentPtr);
+}
+
+template<class T>
+inline T* GameObject::GetScriptComponent()
+{
+    for (const auto& scriptRef : _scripts)
+    {
+        T* script = dynamic_cast<T*>(scriptRef.Resolve());
+        if (script != nullptr)
+            return script;
+    }
+    return nullptr;
 }

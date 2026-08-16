@@ -15,7 +15,7 @@ Button::~Button()
 
 bool Button::Picked(POINT screenPos)
 {
-	return ::PtInRect(&_rect, screenPos);
+	return IsActiveAndEnabled() && ::PtInRect(&_rect, screenPos);
 }
 
 void Button::Create(Vec2 screenPos, Vec2 size, ResourceRef<Material> material)

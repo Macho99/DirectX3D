@@ -357,6 +357,8 @@ UIRenderer* InputManager::PickUIFromTransform(Transform* transform, UIRenderer* 
 
     Renderer* renderer = gameObject->GetRenderer();
     UIRenderer* uiRenderer = dynamic_cast<UIRenderer*>(renderer);
+    if (uiRenderer != nullptr && uiRenderer->IsEnabled() == false)
+        uiRenderer = nullptr;
     UIMaskMode maskMode = UIMaskMode::None;
     if (uiRenderer != nullptr)
     {
@@ -423,7 +425,7 @@ UIRenderer* InputManager::FindDragHandler(UIRenderer* uiRenderer)
         {
             Renderer* renderer = gameObject->GetRenderer();
             UIRenderer* candidate = dynamic_cast<UIRenderer*>(renderer);
-            if (candidate != nullptr && dynamic_cast<IDragHandler*>(candidate) != nullptr)
+            if (candidate != nullptr && candidate->IsEnabled() && dynamic_cast<IDragHandler*>(candidate) != nullptr)
                 return candidate;
         }
 

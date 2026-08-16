@@ -37,6 +37,9 @@ bool Renderer::Render(RenderTech renderTech)
 
 bool Renderer::CanRender(RenderTech renderTech)
 {
+	if (IsActiveAndEnabled() == false)
+		return false;
+
 	if (_material.IsValid() == false)
 		return false;
 

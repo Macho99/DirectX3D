@@ -42,11 +42,6 @@ void ThirdPersonCamMove::Update()
 {
     RotateAroundParent();
     MoveTarget(TIME->GetDeltaTime());
-
-    if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) && INPUT->IsMouseOnUI() == false)
-    {
-        INPUT->CaptureMouseCursor();
-    }
 }
 
 bool ThirdPersonCamMove::OnGUI()
