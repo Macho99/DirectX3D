@@ -24,11 +24,17 @@
     <ClInclude Include="30. AssetSerializeDemo.h" />
     <ClInclude Include="31. SceneDemo.h" />
     <ClInclude Include="CerealRegister.h" />
+    <ClInclude Include="Enum.pb.h" />
     <ClInclude Include="MyBillboard.h" />
     <ClInclude Include="CameraMove.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlayerAnimEventHandler.h" />
+    <ClInclude Include="Protocol.pb.h" />
+    <ClInclude Include="ServerConnect.h" />
+    <ClInclude Include="ServerPacketHandler.h" />
+    <ClInclude Include="ServerSession.h" />
+    <ClInclude Include="Struct.pb.h" />
     <ClInclude Include="ThirdPersonCamMove.h" />
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +43,10 @@
     <ClCompile Include="30. AssetSerializeDemo.cpp" />
     <ClCompile Include="31. SceneDemo.cpp" />
     <ClCompile Include="CerealRegister.cpp" />
+    <ClCompile Include="Enum.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="MyBillboard.cpp" />
     <ClCompile Include="CameraMove.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -45,6 +55,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PlayerAnimEventHandler.cpp" />
+    <ClCompile Include="Protocol.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ServerConnect.cpp" />
+    <ClCompile Include="ServerPacketHandler.cpp" />
+    <ClCompile Include="ServerSession.cpp" />
+    <ClCompile Include="Struct.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ThirdPersonCamMove.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -133,10 +154,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Binaries\Client\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\Client\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\Server\ServerCore;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Binaries\Client\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\Client\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)..\Server\ServerCore;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
