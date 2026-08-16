@@ -59,11 +59,11 @@ VertexInput StreamOutVS(VertexInput vin)
 void StreamOutGS(point VertexInput gin[1],
 	inout PointStream<VertexInput> ptStream)
 {
-	gin[0].Age += timeStep;
-
 	if (gin[0].Type == PT_EMITTER)
 	{
 		float interval = max(emitInterval, 0.001f);
+		gin[0].Age = gin[0].Age < 0.0f ? interval : gin[0].Age + timeStep;
+
 		uint particlesPerEmission = (uint)clamp(emitCount, 1, MAX_EMIT_PER_FRAME);
 		uint emittedCount = 0;
 
@@ -98,6 +98,8 @@ void StreamOutGS(point VertexInput gin[1],
 	}
 	else
 	{
+		gin[0].Age += timeStep;
+
 		// Specify conditions to keep particle; this may vary from system to system.
 		if (gin[0].Age <= lifeTime)
 			ptStream.Append(gin[0]);

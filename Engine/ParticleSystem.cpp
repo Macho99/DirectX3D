@@ -8,7 +8,6 @@
 ParticleSystem::ParticleSystem()
 	: Super(StaticType)
 	, _firstRun(true)
-	, _age(0.0f)
 {
 	_desc.emitDirW = Vec3(0.f, 1.f, 0.f);
 	BuildVB();
@@ -26,7 +25,7 @@ ParticleSystem::~ParticleSystem()
 void ParticleSystem::Reset()
 {
 	_firstRun = true;
-	_age = 0.0f;
+	_debugAge = 0.f;
 }
 
 void ParticleSystem::Update()
@@ -38,7 +37,7 @@ void ParticleSystem::Update()
 	_desc.timeStep = TIME->GetDeltaTime();
 	_desc.gameTime = TIME->GetGameTime();
 
-	_age += _desc.timeStep;
+	_debugAge += _desc.timeStep;
 }
 
 void ParticleSystem::InnerRender(RenderTech renderTech)
@@ -126,6 +125,11 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	shader->EndDraw(1, 0);
 }
 
+void ParticleSystem::OnDisable()
+{
+    Reset();
+}
+
 bool ParticleSystem::TryInitialize()
 {
 	if (_cachedMaterial != GetMaterial())
@@ -175,11 +179,11 @@ void ParticleSystem::BuildVB()
 	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
 
-	// The initial particle emitter has type 0 and age 0.  The rest
+	// A negative age marks the emitter's first update.  The rest
 	// of the particle attributes do not apply to an emitter.
 	ParticleVertex p;
 	ZeroMemory(&p, sizeof(ParticleVertex));
-	p.Age = 0.0f;
+	p.Age = -1.0f;
 	p.Type = 0;
 
 	D3D11_SUBRESOURCE_DATA vinitData;
@@ -199,7 +203,7 @@ void ParticleSystem::BuildVB()
 
 	ParticleVertex p;
 	ZeroMemory(&p, sizeof(ParticleVertex));
-	p.Age = 0.0f;
+	p.Age = -1.0f;
 	p.Type = 0;
 
 	vector<ParticleVertex> vertices;

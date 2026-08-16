@@ -28,6 +28,7 @@ public:
 	void SetEmitPosW(Vec3 emitPosW) { _desc.emitPosW = emitPosW; }
 	void SetEmitDirW(Vec3 emitDirW) { _desc.emitDirW = emitDirW; }
 
+	virtual void OnDisable() override;
     virtual bool TryInitialize() override;
     virtual bool OnGUI() override;
     template<typename Archive>
@@ -43,7 +44,7 @@ private:
 private:
 	ParticleDesc _desc;
 	bool _firstRun;
-	float _age;
+	float _debugAge;
 
 	//ComPtr<ID3D11Buffer> _initVB;
 	//ComPtr<ID3D11Buffer> _drawVB;
