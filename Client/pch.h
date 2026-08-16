@@ -12,3 +12,5 @@
 #endif
 
 #include "CorePch.h"
+#include "Protocol.pb.h"
+#include "GameManager.h"

@@ -31,9 +31,6 @@
     <Filter Include="Protocol">
       <UniqueIdentifier>{230f8a73-dfee-4180-a117-7f225467750c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ServerPacketHandler">
-      <UniqueIdentifier>{2c939cce-c1c2-48ef-b889-18dbda20b642}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Main\Server">
       <UniqueIdentifier>{7959a395-ed0a-4faf-9668-18abaaced941}</UniqueIdentifier>
     </Filter>
@@ -81,9 +78,6 @@
     <ClCompile Include="Enum.pb.cc">
       <Filter>Protocol</Filter>
     </ClCompile>
-    <ClCompile Include="ServerPacketHandler.cpp">
-      <Filter>ServerPacketHandler</Filter>
-    </ClCompile>
     <ClCompile Include="ServerConnect.cpp">
       <Filter>Main\Server</Filter>
     </ClCompile>
@@ -93,6 +87,13 @@
     <ClCompile Include="EditorCamController.cpp">
       <Filter>Main\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="ServerPacketHandler.cpp">
+      <Filter>Main\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -137,9 +138,6 @@
     <ClInclude Include="Struct.pb.h">
       <Filter>Protocol</Filter>
     </ClInclude>
-    <ClInclude Include="ServerPacketHandler.h">
-      <Filter>ServerPacketHandler</Filter>
-    </ClInclude>
     <ClInclude Include="ServerConnect.h">
       <Filter>Main\Server</Filter>
     </ClInclude>
@@ -149,6 +147,13 @@
     <ClInclude Include="EditorCamController.h">
       <Filter>Main\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="ServerPacketHandler.h">
+      <Filter>Main\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Assets\Shaders\00. Render.fx">

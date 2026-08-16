@@ -105,5 +105,4 @@ void ServerConnect::Disconnect()
 	_isRunning.store(false);
 	GThreadManager->Join();
 	_service = nullptr;
-	_instance = nullptr;
 }

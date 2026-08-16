@@ -6,6 +6,7 @@
 
 #include "Service.h"
 #include "Session.h"
+#include "ServerConnect.h"
 
 class ServerSession : public PacketSession
 {
@@ -25,7 +26,6 @@ public:
 
 	virtual void OnDisconnected() override
 	{
-		//cout << "Disconnected" << endl;
 	}
 
 	virtual void OnRecvPacket(BYTE* buffer, int32 len) override

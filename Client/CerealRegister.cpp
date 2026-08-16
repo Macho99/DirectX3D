@@ -6,6 +6,8 @@
 #include "PlayerAnimEventHandler.h"
 #include "ServerConnect.h"
 #include "EditorCamController.h"
+#include "GameManager.h"
+#include "Player.h"
 
 CEREAL_REGISTER_TYPE(CameraMove);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, CameraMove);
@@ -22,6 +24,12 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, ServerConnect);
 CEREAL_REGISTER_TYPE(EditorCamController);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, EditorCamController);
 
+CEREAL_REGISTER_TYPE(GameManager);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, GameManager);
+
+CEREAL_REGISTER_TYPE(Player);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, Player);
+
 void RegisterClientComponents()
 {
     CameraMove::EnsureAutoRegister();
@@ -29,4 +37,6 @@ void RegisterClientComponents()
     PlayerAnimEventHandler::EnsureAutoRegister();
     ServerConnect::EnsureAutoRegister();
     EditorCamController::EnsureAutoRegister();
+    GameManager::EnsureAutoRegister();
+    Player::EnsureAutoRegister();
 }
