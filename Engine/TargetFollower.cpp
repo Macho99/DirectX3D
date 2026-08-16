@@ -2,6 +2,15 @@
 #include "TargetFollower.h"
 #include "OnGUIUtils.h"
 
+namespace
+{
+    const char* const PositionFollowModeNames[] =
+    {
+        "Immediate",
+        "Interpolated"
+    };
+}
+
 TargetFollower::TargetFollower() : Super(StaticType)
 {
 }
@@ -22,9 +31,13 @@ void TargetFollower::Update()
         const Vec3 targetPosition = target->GetPosition() + _positionOffset;
         Vec3 position = follower->GetPosition();
 
-        if (_followPositionX) position.x = targetPosition.x;
-        if (_followPositionY) position.y = targetPosition.y;
-        if (_followPositionZ) position.z = targetPosition.z;
+        float followRatio = 1.f;
+        if (_positionFollowMode == TargetPositionFollowMode::Interpolated)
+            followRatio = 1.f - std::exp(-_positionInterpolationSpeed * DT);
+
+        if (_followPositionX) position.x += (targetPosition.x - position.x) * followRatio;
+        if (_followPositionY) position.y += (targetPosition.y - position.y) * followRatio;
+        if (_followPositionZ) position.z += (targetPosition.z - position.z) * followRatio;
 
         follower->SetPosition(position);
     }
@@ -50,6 +63,13 @@ bool TargetFollower::OnGUI()
     changed |= OnGUIUtils::DrawBool("Follow Position Y", &_followPositionY);
     changed |= OnGUIUtils::DrawBool("Follow Position Z", &_followPositionZ);
     changed |= OnGUIUtils::DrawVec3("Position Offset", &_positionOffset);
+    changed |= OnGUIUtils::DrawEnumCombo("Position Follow Mode", _positionFollowMode,
+        PositionFollowModeNames, (int)TargetPositionFollowMode::Max);
+    if (_positionFollowMode == TargetPositionFollowMode::Interpolated)
+    {
+        changed |= OnGUIUtils::DrawFloat("Position Interpolation Speed", &_positionInterpolationSpeed);
+        _positionInterpolationSpeed = std::max(0.f, _positionInterpolationSpeed);
+    }
     changed |= OnGUIUtils::DrawBool("Follow Rotation X", &_followRotationX);
     changed |= OnGUIUtils::DrawBool("Follow Rotation Y", &_followRotationY);
     changed |= OnGUIUtils::DrawBool("Follow Rotation Z", &_followRotationZ);
