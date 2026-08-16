@@ -1,43 +1,11 @@
 #include "pch.h"
 #include "ComponentRef.h"
 
-#include "Scene.h"         // GetComponentSlotManager, Scene 정의
+#include "Scene.h"
 #include "SlotManager.h"   // SlotManager<T>
 #include "Component.h"     // Component
 
-#include "Transform.h"
-#include "Camera.h"
-#include "Light.h"
-#include "TessTerrain.h"
-#include "MonoBehaviour.h"
-#include "ModelAnimator.h"
-#include "ModelRenderer.h"
-#include "MeshRenderer.h"
-#include "LineRenderer.h"
-#include "LayoutGroup.h"
-#include "VerticalLayoutGroup.h"
-#include "HorizontalLayoutGroup.h"
-#include "GridLayoutGroup.h"
-#include "NavMesh.h"
-#include "NavAgent.h"
-#include "SsrRenderer.h"
-#include "ScrollView.h"
-#include "Text.h"
-#include "UIImage.h"
-#include "RectTransform.h"
-#include "UIRenderer.h"
-#include "TrailRenderer.h"
-#include "FoliageController.h"
-#include "InstancingRenderer.h"
-#include "Renderer.h"
-
-template<class T>
-ComponentRef<T>::ComponentRef(const T* component)
-    : GuidRef(component != nullptr ? component->GetGuid() : Guid())
-{
-}
-template<class T>
-T* ComponentRef<T>::Resolve() const
+Component* ComponentRefResolver::ResolveComponent() const
 {
     if (!IsValid())
         return nullptr;
@@ -51,38 +19,5 @@ T* ComponentRef<T>::Resolve() const
         cachedSceneInstanceId = sceneInstanceId;
     }
 
-    Component* p = manager->Resolve(cached);
-
-#ifdef _DEBUG
-    return dynamic_cast<T*>(p);
-#else
-    return static_cast<T*>(p);
-#endif
+    return manager->Resolve(cached);
 }
-
-// 명시적 인스턴스화
-template struct ComponentRef<Component>;
-template struct ComponentRef<Transform>;
-template struct ComponentRef<Camera>;
-template struct ComponentRef<Light>;
-template struct ComponentRef<TessTerrain>;
-template struct ComponentRef<MonoBehaviour>;
-template struct ComponentRef<ModelAnimator>;
-template struct ComponentRef<ModelRenderer>;
-template struct ComponentRef<MeshRenderer>;
-template struct ComponentRef<LineRenderer>;
-template struct ComponentRef<VerticalLayoutGroup>;
-template struct ComponentRef<HorizontalLayoutGroup>;
-template struct ComponentRef<GridLayoutGroup>;
-template struct ComponentRef<NavMesh>;
-template struct ComponentRef<NavAgent>;
-template struct ComponentRef<SsrRenderer>;
-template struct ComponentRef<ScrollView>;
-template struct ComponentRef<Text>;
-template struct ComponentRef<UIImage>;
-template struct ComponentRef<RectTransform>;
-template struct ComponentRef<UIRenderer>;
-template struct ComponentRef<TrailRenderer>;
-template struct ComponentRef<FoliageController>;
-template struct ComponentRef<InstancingRenderer>;
-template struct ComponentRef<Renderer>;

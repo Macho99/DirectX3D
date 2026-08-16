@@ -30,6 +30,3 @@ void RegisterClientComponents()
     ServerConnect::EnsureAutoRegister();
     EditorCamController::EnsureAutoRegister();
 }
-
-template struct ComponentRef<CameraMove>;
-template struct ComponentRef<ThirdPersonCamMove>;

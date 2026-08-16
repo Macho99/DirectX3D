@@ -1,22 +1,51 @@
 #pragma once
 #include "GuidRef.h"
 
-template<class T>
-struct ComponentRef : public GuidRef
+class Component;
+
+// Keep type-independent slot lookup out of ComponentRef<T> so client-side
+// component types do not require explicit template instantiation.
+struct ComponentRefResolver : public GuidRef
 {
 public:
-    ComponentRef() : GuidRef() {}
-    ComponentRef(const T* component);
+    ComponentRefResolver() : GuidRef() {}
+
+protected:
+    ComponentRefResolver(const Guid& guid) : GuidRef(guid) {}
+    ComponentRefResolver(const GuidRef& guidRef) : GuidRef(guidRef) {}
+
+    Component* ResolveComponent() const;
+};
+
+template<class T>
+struct ComponentRef : public ComponentRefResolver
+{
+public:
+    ComponentRef() : ComponentRefResolver() {}
+    ComponentRef(decltype(nullptr)) : ComponentRefResolver() {}
+    ComponentRef(const T* component)
+        : ComponentRefResolver(component != nullptr ? component->GetGuid() : Guid())
+    {
+    }
 
 private:
-    ComponentRef(const Guid& guid) : GuidRef(guid) {}
-    ComponentRef(const GuidRef& guidRef) : GuidRef(guidRef) {}
+    ComponentRef(const Guid& guid) : ComponentRefResolver(guid) {}
+    ComponentRef(const GuidRef& guidRef) : ComponentRefResolver(guidRef) {}
 
 public:
-    using GuidRef::operator==;
+    using ComponentRefResolver::operator==;
     ~ComponentRef() {}
 
-    T* Resolve() const;
+    T* Resolve() const
+    {
+        Component* component = ResolveComponent();
+
+#ifdef _DEBUG
+        return dynamic_cast<T*>(component);
+#else
+        return static_cast<T*>(component);
+#endif
+    }
 
     friend class GameObject;
 };
