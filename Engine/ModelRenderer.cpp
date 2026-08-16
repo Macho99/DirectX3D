@@ -25,8 +25,8 @@ bool ModelRenderer::SetModel(ResourceRef<Model> model)
 		return false;
 
 	const AssetId oldMeshId = GetMeshId();
-	_model = model;
-	UpdateLocalBounds();
+	_model = model; 
+	_boundsInitialized = false;
 	OnMeshChange(oldMeshId, GetMeshId());
 
 	_initialized = false;
@@ -76,8 +76,7 @@ bool ModelRenderer::IsInFrustum(const Vec4 frustumPlanes[6])
 	if (_hasLocalBounds == false || HasInstancingData())
 		return true;
 
-	BoundingBox worldBounds;
-	_localBounds.Transform(worldBounds, GetTransform()->GetWorldMatrix());
+	const BoundingBox& worldBounds = _worldBounds;
 
 	for (uint32 i = 0; i < 6; ++i)
 	{
@@ -248,7 +247,6 @@ void ModelRenderer::FoliageSetup()
 
 void ModelRenderer::UpdateLocalBounds()
 {
-	_boundsInitialized = true;
 	_hasLocalBounds = false;
 
 	Model* model = _model.Resolve();
@@ -276,4 +274,8 @@ void ModelRenderer::UpdateLocalBounds()
 		_localBounds.Center = (minPosition + maxPosition) * 0.5f;
 		_localBounds.Extents = (maxPosition - minPosition) * 0.5f;
 	}
+
+
+	_localBounds.Transform(_worldBounds, GetTransform()->GetWorldMatrix());
+	_boundsInitialized = true;
 }

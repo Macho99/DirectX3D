@@ -15,7 +15,6 @@ public:
 
 	bool SetModel(ResourceRef<Model> model);
 	ResourceRef<Model> GetModel() const { return _model; }
-	const BoundingBox& GetLocalBounds() const { return _localBounds; }
 	bool IsInFrustum(const Vec4 frustumPlanes[6]);
 
     virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
@@ -42,6 +41,7 @@ private:
 private:
 	ResourceRef<Model>	_model;
 	BoundingBox _localBounds;
+	BoundingBox _worldBounds;
 	bool _hasLocalBounds = false;
 	bool _boundsInitialized = false;
 

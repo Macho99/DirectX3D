@@ -106,6 +106,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
     Transform* rootTransform = rootObj->GetTransform();
     const fs::path modelRootPath = "..\\Assets\\Imports\\Rural_Cabin";
     const fs::path batchInfoRootPath = "..\\Assets\\Batches";
+    const string excludeModel = "River_Stone_Set_1";
     unordered_set<string> batchedModelNames;
     const size_t batchInfoFileCount =
         LoadBatchedModelNames(batchInfoRootPath, OUT batchedModelNames);
@@ -130,6 +131,9 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
             ++skippedBatchedInstanceCount;
             continue;
         }
+
+        if (levelMeshData.MeshName == excludeModel)
+            continue;
 
         ResourceRef<Model> modelRef;
         Transform* meshParent = nullptr;
