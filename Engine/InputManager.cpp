@@ -8,6 +8,12 @@ void InputManager::Init(HWND hwnd)
 {
     _hwnd = hwnd;
     _states.resize(KEY_TYPE_COUNT, KEY_STATE::NONE);
+
+    RAWINPUTDEVICE mouseDevice = {};
+    mouseDevice.usUsagePage = 0x01;
+    mouseDevice.usUsage = 0x02;
+    mouseDevice.hwndTarget = hwnd;
+    ::RegisterRawInputDevices(&mouseDevice, 1, sizeof(mouseDevice));
 }
 
 void InputManager::AddTextInputCharacter(wchar_t character)
@@ -41,10 +47,13 @@ void InputManager::Update()
     _mouseInScene = false;
     _prevMouseWheelDelta = _curMouseWheelDelta;
     _curMouseWheelDelta = 0;
+    _mouseDelta = _isMouseCaptured ? _pendingMouseDelta : POINT();
+    _pendingMouseDelta = POINT();
 
     HWND hwnd = ::GetActiveWindow();
     if (_hwnd != hwnd)
     {
+        ShowMouseCursor();
         for (uint32 key = 0; key < KEY_TYPE_COUNT; key++)
             _states[key] = KEY_STATE::NONE;
 
@@ -55,6 +64,7 @@ void InputManager::Update()
     GameDesc& gameDesc = GAME->GetGameDesc();
     if (gameDesc.isEditor && gameDesc.sceneFocused == false)
     {
+        ShowMouseCursor();
         for (uint32 key = 0; key < KEY_TYPE_COUNT; key++)
         {
             if (_states[key] == KEY_STATE::PRESS || _states[key] == KEY_STATE::DOWN)
@@ -103,6 +113,21 @@ void InputManager::Update()
         _mousePos.y -= static_cast<LONG>(scenePos.y);
     }
 
+    if (_isMouseCaptured)
+    {
+        if (GetButtonDown(KEY_TYPE::ESC))
+            ShowMouseCursor();
+
+        const LONG centerX = static_cast<LONG>(gameDesc.sceneWidth * 0.5f);
+        const LONG centerY = static_cast<LONG>(gameDesc.sceneHeight * 0.5f);
+
+        _mousePos.x = centerX;
+        _mousePos.y = centerY;
+        _mouseInScene = true;
+        CenterMouseCursor();
+        return;
+    }
+
     float width = gameDesc.sceneWidth;
     float height = gameDesc.sceneHeight;
 
@@ -146,6 +171,7 @@ void InputManager::UpdateUIInput()
     POINT prevMousePressedPos = _mousePressedPos;
     POINT curMousePressedPos = curMousePressed ? _mousePos : POINT();
     _mousePressedPos = curMousePressedPos;
+    _isMouseOnUI = (curPicked != nullptr);
 
     if (curPicked == prevPicked)
     {
@@ -221,6 +247,60 @@ void InputManager::UpdateUIInput()
                 curPicked->OnMouseDown();
         }
     }
+}
+
+void InputManager::CaptureMouseCursor()
+{
+    if (_isMouseCaptured)
+        return;
+
+    _isMouseCaptured = true;
+    _mouseDelta = POINT();
+    _pendingMouseDelta = POINT();
+    while (::ShowCursor(FALSE) >= 0)
+    {
+    }
+    CenterMouseCursor();
+}
+
+void InputManager::ShowMouseCursor()
+{
+    if (!_isMouseCaptured)
+        return;
+
+    _isMouseCaptured = false;
+    _mouseDelta = POINT();
+    _pendingMouseDelta = POINT();
+    while (::ShowCursor(TRUE) < 0)
+    {
+    }
+}
+
+void InputManager::AddRawMouseDelta(LONG x, LONG y)
+{
+    if (!_isMouseCaptured)
+        return;
+
+    _pendingMouseDelta.x += x;
+    _pendingMouseDelta.y += y;
+}
+
+void InputManager::CenterMouseCursor()
+{
+    const GameDesc& gameDesc = GAME->GetGameDesc();
+    POINT center = {
+        static_cast<LONG>(gameDesc.sceneWidth * 0.5f),
+        static_cast<LONG>(gameDesc.sceneHeight * 0.5f)
+    };
+
+    if (gameDesc.isEditor)
+    {
+        center.x += static_cast<LONG>(gameDesc.scenePos.x);
+        center.y += static_cast<LONG>(gameDesc.scenePos.y);
+    }
+
+    ::ClientToScreen(_hwnd, &center);
+    ::SetCursorPos(center.x, center.y);
 }
 
 void InputManager::ClearUIInput()

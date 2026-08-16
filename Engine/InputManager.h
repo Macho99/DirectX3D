@@ -38,6 +38,7 @@ enum class KEY_TYPE
 	LSHIFT = VK_LSHIFT,
 	LCTRL = VK_LCONTROL,
 	SPACE = VK_SPACE,
+    ESC = VK_ESCAPE,
 };
 
 enum class KEY_STATE
@@ -71,7 +72,13 @@ public:
 	bool GetButtonUp(KEY_TYPE key) { return GetState(key) == KEY_STATE::UP; }
 	
 	const POINT& GetMousePos() { return _mousePos; }
+	const POINT& GetMouseDelta() const { return _mouseDelta; }
 	bool IsMouseInScene() const { return _mouseInScene; }
+    bool IsMouseCaptured() const { return _isMouseCaptured; }
+    bool IsMouseOnUI() const { return _isMouseOnUI; }
+    void CaptureMouseCursor();
+    void ShowMouseCursor();
+    void AddRawMouseDelta(LONG x, LONG y);
     void AddMouseWheelDelta(short delta) { _curMouseWheelDelta += delta; }
 	short GetMouseWheelDelta() const { return _prevMouseWheelDelta; }
     void AddTextInputCharacter(wchar_t character);
@@ -82,6 +89,7 @@ private:
 	inline void SetState(KEY_TYPE key, KEY_STATE state) { _states[static_cast<uint8>(key)] = state; }
     void UpdateUIInput();
     void ClearUIInput();
+    void CenterMouseCursor();
     UIRenderer* PickUI();
     UIRenderer * PickUIFromTransform(class Transform* transform, UIRenderer* maskRenderer);
     UIRenderer* FindDragHandler(UIRenderer* uiRenderer);
@@ -92,7 +100,11 @@ private:
     short _prevMouseWheelDelta = 0;
     short _curMouseWheelDelta = 0;
 	POINT _mousePos = {};
+    POINT _mouseDelta = {};
+    POINT _pendingMouseDelta = {};
     bool _mouseInScene = false;
+    bool _isMouseCaptured = false;
+    bool _isMouseOnUI = false;
 
     UIRendererRef _pickedUIRef;
     UIRendererRef _dragHandlerRef;

@@ -147,6 +147,18 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 
 	switch (message)
 	{
+	case WM_INPUT:
+	{
+		RAWINPUT rawInput = {};
+		UINT size = sizeof(rawInput);
+		if (::GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, &rawInput, &size, sizeof(RAWINPUTHEADER)) != static_cast<UINT>(-1)
+			&& rawInput.header.dwType == RIM_TYPEMOUSE
+			&& (rawInput.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
+		{
+			INPUT->AddRawMouseDelta(rawInput.data.mouse.lLastX, rawInput.data.mouse.lLastY);
+		}
+		break;
+	}
 	case WM_CHAR:
 		INPUT->AddTextInputCharacter(static_cast<wchar_t>(wParam));
 		break;

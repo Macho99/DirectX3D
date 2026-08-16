@@ -49,7 +49,6 @@ private:
     float _maxPitch = 75.f;
 
     Vec3 _velocity = Vec3::Zero;
-    POINT _prevMousePos = {};
     float _pitch = 0.f;
     float _yaw = 0.f;
     bool _rotationInitialized = false;

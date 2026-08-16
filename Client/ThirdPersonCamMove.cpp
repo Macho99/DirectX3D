@@ -42,6 +42,11 @@ void ThirdPersonCamMove::Update()
 {
     RotateAroundParent();
     MoveTarget(TIME->GetDeltaTime());
+
+    if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) && INPUT->IsMouseOnUI() == false)
+    {
+        INPUT->CaptureMouseCursor();
+    }
 }
 
 bool ThirdPersonCamMove::OnGUI()
@@ -85,22 +90,13 @@ void ThirdPersonCamMove::RotateAroundParent()
         _rotationInitialized = true;
     }
 
-    if (INPUT->GetButtonDown(KEY_TYPE::RBUTTON))
-    {
-        _prevMousePos = INPUT->GetMousePos();
-        return;
-    }
-
-    if (!INPUT->GetButton(KEY_TYPE::RBUTTON))
+    if (INPUT->IsMouseCaptured() == false)
         return;
 
-    POINT mousePos = INPUT->GetMousePos();
-    float deltaX = static_cast<float>(mousePos.x - _prevMousePos.x);
-    float deltaY = static_cast<float>(mousePos.y - _prevMousePos.y);
-    _prevMousePos = mousePos;
+    POINT mouseDelta = INPUT->GetMouseDelta();
 
-    _pitch = std::clamp(_pitch + deltaY * _mouseSpeed, _minPitch, _maxPitch);
-    _yaw = fmodf(_yaw + deltaX * _mouseSpeed, 360.f);
+    _pitch = std::clamp(_pitch + mouseDelta.y * _mouseSpeed, _minPitch, _maxPitch);
+    _yaw = fmodf(_yaw + mouseDelta.x * _mouseSpeed, 360.f);
 
     Vec3 rotation = pivot->GetLocalRotation();
     rotation.x = _pitch;
@@ -129,10 +125,14 @@ void ThirdPersonCamMove::MoveTarget(float dt)
         right.Normalize();
 
     Vec3 moveDirection = Vec3::Zero;
-    if (INPUT->GetButton(KEY_TYPE::W)) moveDirection += forward;
-    if (INPUT->GetButton(KEY_TYPE::S)) moveDirection -= forward;
-    if (INPUT->GetButton(KEY_TYPE::D)) moveDirection += right;
-    if (INPUT->GetButton(KEY_TYPE::A)) moveDirection -= right;
+    const bool isMouseCaptured = INPUT->IsMouseCaptured();
+    if (isMouseCaptured)
+    {
+        if (INPUT->GetButton(KEY_TYPE::W)) moveDirection += forward;
+        if (INPUT->GetButton(KEY_TYPE::S)) moveDirection -= forward;
+        if (INPUT->GetButton(KEY_TYPE::D)) moveDirection += right;
+        if (INPUT->GetButton(KEY_TYPE::A)) moveDirection -= right;
+    }
 
     if (moveDirection.LengthSquared() > 1.f)
         moveDirection.Normalize();
@@ -161,13 +161,16 @@ void ThirdPersonCamMove::MoveTarget(float dt)
         blendInput = -blendInput; // Invert Y for forward/backward
         animator->SetBlendSpaceInput(blendInput);
 
-        if (INPUT->GetButtonDown(KEY_TYPE::SPACE))
+        if (isMouseCaptured)
         {
-            animator->PlayAnimation("sword and shield jump");
-        }
-        if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
-        {
-            animator->PlayAnimation("sword and shield slash (2)");
+            if (INPUT->GetButtonDown(KEY_TYPE::SPACE))
+            {
+                animator->PlayAnimation("sword and shield jump");
+            }
+            if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
+            {
+                animator->PlayAnimation("sword and shield slash (2)");
+            }
         }
     }
 
