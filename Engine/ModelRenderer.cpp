@@ -73,6 +73,9 @@ bool ModelRenderer::SetModel(ResourceRef<Model> model)
 
 bool ModelRenderer::IsInFrustum(const Vec4 frustumPlanes[6])
 {
+	if (_boundsInitialized == false)
+		UpdateLocalBounds();
+
 	if (_hasLocalBounds == false || HasInstancingData())
 		return true;
 
@@ -173,6 +176,11 @@ void ModelRenderer::OnMenu()
 	}
 }
 
+void ModelRenderer::OnEnable()
+{
+	_boundsInitialized = false;
+}
+
 bool ModelRenderer::TryInitialize()
 {
     if (_initialized)
@@ -181,8 +189,6 @@ bool ModelRenderer::TryInitialize()
 	Model* modelPtr = _model.Resolve();
 	if(modelPtr == nullptr)
         return false;
-	if (_boundsInitialized == false)
-		UpdateLocalBounds();
 		
     _initialized = true;
     return true;

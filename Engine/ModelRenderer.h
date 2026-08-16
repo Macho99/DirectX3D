@@ -21,6 +21,7 @@ public:
 
     virtual bool OnGUI() override;
     virtual void OnMenu() override;
+	virtual void OnEnable() override;
 	virtual bool TryInitialize() override;
     virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
     virtual AssetId GetMeshId() const override { return _model.GetAssetId(); }

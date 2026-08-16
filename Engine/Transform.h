@@ -39,7 +39,7 @@ public:
 	Vec3 GetLook() { return _matWorld.Backward(); }
 
 	void SetWorldMatrix(Matrix& newWorld);
-	Matrix GetWorldMatrix() { return _matWorld; }
+	Matrix GetWorldMatrix() const { return _matWorld; }
 
 	// °èÃþ °ü°è
 	bool HasParent() { return _parent.Resolve() != nullptr; }

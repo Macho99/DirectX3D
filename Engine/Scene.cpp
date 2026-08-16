@@ -493,6 +493,8 @@ GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform, Transform* pare
     {
         TransformRef parentRef = parent->GetRef();
         transform->SetParent(parentRef);
+        Matrix parentMat = parent->GetWorldMatrix();
+        transform->SetWorldMatrix(parentMat);
     }
     _gameObjects.insert(gameObjectRef);
 
