@@ -30,7 +30,9 @@ private:                                                             \
             ComponentRegistry::Get().Register(                      \
                 ComponentType::Script,                              \
                 StaticName(),                                       \
-                &TYPE::CreateInstance);                             \
+                &TYPE::CreateInstance,                              \
+                &MatchComponentType<TYPE>,                          \
+                &CopyComponentBySerialization<TYPE>);               \
         }                                                           \
     };                                                              \
     inline static AutoRegister _autoRegister;

@@ -3,6 +3,8 @@ class GameObject;
 class Transform;
 #include "GameObjectRef.h"
 #include "ComponentRegistry.h"
+#include "cereal/archives/json.hpp"
+#include <sstream>
 #include <wrl/client.h>
 
 enum class ComponentType : uint8
@@ -51,6 +53,7 @@ enum
 
 class Component
 {
+    friend class Scene;
 public:
 	Component();
 	Component(ComponentType type);
@@ -127,4 +130,25 @@ protected:
     Guid _guid;
 	bool _enabled = true;
 };
+
+template<class T>
+bool MatchComponentType(Component* component)
+{
+    return dynamic_cast<T*>(component) != nullptr;
+}
+
+template<class T>
+void CopyComponentBySerialization(Component* source, Component* target)
+{
+    std::stringstream buffer;
+    {
+        cereal::JSONOutputArchive archive(buffer);
+        archive(cereal::make_nvp("Component", *static_cast<T*>(source)));
+    }
+    buffer.seekg(0);
+    {
+        cereal::JSONInputArchive archive(buffer);
+        archive(cereal::make_nvp("Component", *static_cast<T*>(target)));
+    }
+}
 

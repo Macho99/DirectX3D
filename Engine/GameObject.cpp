@@ -418,3 +418,8 @@ GameObjectRef GameObject::GetGameObjectRefByGuid(const Guid& guid)
 {
     return GameObjectRef(guid);
 }
+
+GameObjectRef GameObject::Instantiate(const GameObjectRef& original, Transform* parent)
+{
+    return CUR_SCENE->Instantiate(original, parent);
+}

@@ -24,8 +24,15 @@ struct PendingOperation
 struct PendingAdd : PendingOperation
 {
     PendingAdd(TransformRef parentId);
-    TransformRef parentId;
     void Do() override;
+    TransformRef parentId;
+};
+
+struct PendingInstanciate : PendingOperation
+{
+    PendingInstanciate(TransformRef targetRef);
+    void Do() override;
+    TransformRef targetRef;
 };
 
 struct PendingReparent : PendingOperation

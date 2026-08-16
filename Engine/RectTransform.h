@@ -30,7 +30,9 @@ private:
             ComponentRegistry::Get().Register(
                 StaticType,
                 StaticName(),
-                &RectTransform::CreateInstance);
+                &RectTransform::CreateInstance,
+                &MatchComponentType<RectTransform>,
+                &CopyComponentBySerialization<RectTransform>);
         }
     };
     inline static AutoRegister _autoRegister;

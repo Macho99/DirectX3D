@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Scene.h"
 #include "GameObject.h"
+#include "MonoBehaviour.h"
 #include "BaseCollider.h"
 #include "Camera.h"
 #include "Terrain.h"
@@ -155,7 +156,7 @@ void Scene::RenderGameCamera(Camera* cam)
             for (uint32 i = 0; i < 8; ++i)
                 frustumCornersWS[i] = Vec3::Transform(frustumCornersWS[i], VPinv);
 
-            // Unit Cube¿« ∞¢ ƒ⁄≥  ¿ßƒ°∏¶ Sliceø° ∏¬∞‘ º≥¡§
+            // Unit CubeÏùò Í∞Å ÏΩîÎÑà ÏúÑÏπòÎ•º SliceÏóê ÎßûÍ≤å ÏÑ§Ï†ï
             for (uint32 i = 0; i < 4; ++i)
             {
                 Vec3 cornerRay = frustumCornersWS[i + 4] - frustumCornersWS[i];
@@ -165,13 +166,13 @@ void Scene::RenderGameCamera(Camera* cam)
                 frustumCornersWS[i] = frustumCornersWS[i] + nearCornerRay;
             }
 
-            // ∫‰ «¡∑ØΩ∫≈“¿« ¡ﬂΩ…¿ª ±∏«‘
+            // Î∑∞ ÌîÑÎü¨Ïä§ÌÖÄÏùò Ï§ëÏã¨ÏùÑ Íµ¨Ìï®
             Vec3 frustumCenter(0.0f);
             for (uint32 i = 0; i < 8; ++i)
                 frustumCenter += frustumCornersWS[i];
             frustumCenter *= (1.0f / 8.0f);
 
-            // ∫‰«¡∑ØΩ∫≈“¿« πŸøÓµÂΩ∫««æÓ¿« π›¡ˆ∏ß¿ª ±∏«‘
+            // Î∑∞ÌîÑÎü¨Ïä§ÌÖÄÏùò Î∞îÏö¥ÎìúÏä§ÌîºÏñ¥Ïùò Î∞òÏßÄÎ¶ÑÏùÑ Íµ¨Ìï®
             float sphereRadius = 0.0f;
             for (uint32 i = 0; i < 8; ++i)
             {
@@ -179,7 +180,7 @@ void Scene::RenderGameCamera(Camera* cam)
                 sphereRadius = max(sphereRadius, dist);
             }
 
-            // πŸøÓµÂ Ω∫««æÓ¿« π›¡ˆ∏ß¿∏∑Œ AABB ¡§∫∏ ±∏º∫
+            // Î∞îÏö¥Îìú Ïä§ÌîºÏñ¥Ïùò Î∞òÏßÄÎ¶ÑÏúºÎ°ú AABB Ï†ïÎ≥¥ Íµ¨ÏÑ±
             Vec3 mins(FLT_MAX);
             Vec3 maxes(-FLT_MAX);
 
@@ -187,7 +188,7 @@ void Scene::RenderGameCamera(Camera* cam)
             maxes = Vec3(sphereRadius, sphereRadius, sphereRadius);
             mins = -maxes;
 
-            // AABB¿« ≈©±‚∏¶ ±∏«‘
+            // AABBÏùò ÌÅ¨Í∏∞Î•º Íµ¨Ìï®
             Vec3 cascadeExtents = maxes - mins;
 
             Vec3 lightLook = light->GetTransform()->GetLook();
@@ -265,6 +266,87 @@ GameObjectRef Scene::Add(string name, Transform* parent)
     GuidRef guidRef = _gameObjectSlotManager.CreateAndRegister<GameObject>(_instanceId, name);
     RectTransform* rectParent = dynamic_cast<RectTransform*>(parent);
     return Add(guidRef, rectParent != nullptr, parent);
+}
+
+GameObjectRef Scene::Instantiate(const GameObjectRef& original, Transform* parent)
+{
+    GameObject* source = original.Resolve();
+    if (source == nullptr || IsInScene(original) == false)
+        return GameObjectRef();
+
+    Transform* sourceTransform = source->GetTransform();
+    const vector<TransformRef> sourceChildren = sourceTransform->GetChildren();
+    const bool useRectTransform = dynamic_cast<RectTransform*>(sourceTransform) != nullptr;
+    GameObjectRef targetRef = Add(source->GetName() + " (Clone)", useRectTransform);
+    GameObject* target = targetRef.Resolve();
+    ASSERT(target != nullptr);
+
+    Transform* targetTransform = target->GetTransform();
+    if (parent != nullptr)
+        targetTransform->SetParent(parent);
+    targetTransform->SetLocalScale(sourceTransform->GetLocalScale());
+    targetTransform->SetLocalRotation(sourceTransform->GetLocalRotation());
+    targetTransform->SetLocalPosition(sourceTransform->GetLocalPosition());
+
+    const vector<ComponentDesc>& componentDescs = ComponentRegistry::Get().GetDescs();
+    auto copyComponent = [&](Component* sourceComponent)
+    {
+        auto descIt = std::find_if(componentDescs.begin(), componentDescs.end(),
+            [sourceComponent](const ComponentDesc& desc)
+            {
+                return desc.type == sourceComponent->GetType() && desc.matcher(sourceComponent);
+            });
+        if (descIt == componentDescs.end())
+        {
+            ASSERT(false);
+            return;
+        }
+
+        unique_ptr<Component> targetComponentOwner = descIt->factory();
+        Component* targetComponent = targetComponentOwner.get();
+        target->AddComponent(std::move(targetComponentOwner));
+
+        const Guid targetGuid = targetComponent->GetGuid();
+        descIt->serializedCopier(sourceComponent, targetComponent);
+
+        // Component::serialize also contains identity fields. The clone must retain
+        // the identity allocated by AddComponent and only copy serialized state.
+        targetComponent->SetGuid(targetGuid);
+        targetComponent->SetGameObject(targetRef);
+
+        if (target->IsActiveInHierarchy() && targetComponent->IsEnabled() == false)
+            targetComponent->OnDisable();
+
+        Renderer* targetRenderer = dynamic_cast<Renderer*>(targetComponent);
+        if (targetRenderer != nullptr)
+            OnRendererAdd(targetRenderer);
+    };
+
+    for (const ComponentRefBase& sourceComponentRef : source->GetAllFixedComponents())
+    {
+        Component* sourceComponent = sourceComponentRef.Resolve();
+        if (sourceComponent == nullptr || sourceComponent->GetType() == ComponentType::Transform)
+            continue;
+        copyComponent(sourceComponent);
+    }
+    for (const ComponentRef<MonoBehaviour>& sourceScriptRef : source->GetScripts())
+    {
+        Component* sourceScript = sourceScriptRef.Resolve();
+        if (sourceScript != nullptr)
+            copyComponent(sourceScript);
+    }
+
+    target->SetLayerIndex(source->GetLayerIndex());
+    target->SetActive(source->IsActiveInLocal());
+
+    for (const TransformRef& sourceChildRef : sourceChildren)
+    {
+        Transform* sourceChild = sourceChildRef.Resolve();
+        if (sourceChild != nullptr)
+            Instantiate(sourceChild->GetGameObjectRef(), targetTransform);
+    }
+
+    return targetRef;
 }
 
 GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
@@ -387,7 +469,7 @@ GameObject* Scene::Pick(int32 screenX, int32 screenY)
     float minDistance = FLT_MAX;
     GameObject* picked = nullptr;
 
-    // ViewSpaceø°º≠ Ray ¡§¿«
+    // ViewSpaceÏóêÏÑú Ray Ï†ïÏùò
     Vec4 rayOrigin = Vec4(0.f, 0.f, 0.f, 1.f);
     Vec4 rayDir = Vec4(viewX, viewY, 1.f, 0.f);
 
@@ -395,7 +477,7 @@ GameObject* Scene::Pick(int32 screenX, int32 screenY)
     Vec3 worldRayDir = XMVector3TransformNormal(rayDir, viewMatrixInv);
     worldRayDir.Normalize();
 
-    // WorldSpaceø°º≠ ø¨ªÍ
+    // WorldSpaceÏóêÏÑú Ïó∞ÏÇ∞
     Ray ray = Ray(worldRayOrigin, worldRayDir);
 
     for (auto& gameObjectRef : _gameObjects)

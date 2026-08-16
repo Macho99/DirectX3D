@@ -1,12 +1,22 @@
 #pragma once
 using ComponentFactory = function<unique_ptr<class Component>()>;
+using ComponentMatcher = function<bool(class Component*)>;
+using ComponentSerializedCopier = function<void(class Component*, class Component*)>;
 enum class ComponentType : uint8;
+
+template<class T>
+bool MatchComponentType(Component* component);
+
+template<class T>
+void CopyComponentBySerialization(Component* source, Component* target);
 
 struct ComponentDesc
 {
     ComponentType type;
     const char* name;
     ComponentFactory factory;
+    ComponentMatcher matcher;
+    ComponentSerializedCopier serializedCopier;
 };
 
 class ComponentRegistry
@@ -18,9 +28,10 @@ public:
         return instance;
     }
 
-    void Register(ComponentType type, const char* name, ComponentFactory factory)
+    void Register(ComponentType type, const char* name, ComponentFactory factory,
+        ComponentMatcher matcher, ComponentSerializedCopier serializedCopier)
     {
-        _descs.push_back({ type, name, factory });
+        _descs.push_back({ type, name, factory, matcher, serializedCopier });
     }
 
     void Init();
@@ -45,7 +56,9 @@ private:                                                             \
             ComponentRegistry::Get().Register(                      \
                 StaticType,                                         \
                 StaticName(),                                       \
-                &TYPE::CreateInstance);                             \
+                &TYPE::CreateInstance,                              \
+                &MatchComponentType<TYPE>,                          \
+                &CopyComponentBySerialization<TYPE>);               \
         }                                                           \
     };                                                              \
     inline static AutoRegister _autoRegister;

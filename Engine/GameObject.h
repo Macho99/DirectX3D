@@ -92,6 +92,7 @@ public:
     void SetGuid(const Guid& guid) { _guid = guid; }
 
     static GameObjectRef GetGameObjectRefByGuid(const Guid& guid);
+    static GameObjectRef Instantiate(const GameObjectRef& original, Transform* parent = nullptr);
 
     template<class Archive>
     void serialize(Archive& ar)

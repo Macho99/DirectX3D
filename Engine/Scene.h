@@ -42,6 +42,7 @@ public:
 
 	GameObjectRef Add(string name, bool useRectTransform = false);
     GameObjectRef Add(string name, Transform* parent);
+	GameObjectRef Instantiate(const GameObjectRef& original, Transform* parent = nullptr);
 	GuidRef AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
 	virtual void Remove(GameObjectRef gameObjectRef);
 	void CleanUpRemoveLists();

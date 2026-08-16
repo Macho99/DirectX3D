@@ -184,17 +184,19 @@ void Hierarchy::DrawNode(Transform* node)
     // Context menu on node
     if (ImGui::BeginPopupContextItem("NodeContext"))
     {
-        if (ImGui::MenuItem("Toggle Active"))
-            gameObject->SetActive(!gameObject->IsActiveInHierarchy());
+        if (ImGui::MenuItem("Create Empty Child"))
+        {
+            _pendingOps.push_back(make_unique<PendingAdd>(nodeId));
+        }
+
+        if (ImGui::MenuItem("Instanciate"))
+        {
+            _pendingOps.push_back(make_unique<PendingInstanciate>(nodeId));
+        }
 
         if (ImGui::MenuItem("Delete"))
         {
             _pendingOps.push_back(make_unique<PendingDelete>(nodeId));
-        }
-
-        if (ImGui::MenuItem("Create Empty Child"))
-        {
-            _pendingOps.push_back(make_unique<PendingAdd>(nodeId));
         }
 
         auto& children = node->GetChildren();
@@ -341,4 +343,18 @@ void PendingAdd::Do()
 
     GameObjectRef objRef = CUR_SCENE->Add("New Object", rectParent != nullptr);
     objRef.Resolve()->GetTransform()->SetParent(parentId);
+}
+
+PendingInstanciate::PendingInstanciate(TransformRef targetRef)
+    :targetRef(targetRef)
+{
+}
+
+void PendingInstanciate::Do()
+{
+    Transform* targetTransform = targetRef.Resolve();
+    if (targetTransform == nullptr)
+        return;
+
+    GameObject::Instantiate(targetTransform->GetGameObjectRef(), targetTransform->GetParent());
 }
