@@ -36,8 +36,11 @@ public:
     }
 
 private:
-    void ProcessInput(const wstring& input);
-    static string Utf16ToUtf8(const wstring& text);
+    void ProcessInput(const vector<uint32>& input);
+    void UpdateCaret();
+    void RestartCaretBlink();
+    virtual bool ShouldRenderCaret() const override { return _isCaretVisible; }
+    static void AppendUtf8(string& text, uint32 codepoint);
     static size_t GetUtf8Length(const string& text);
     static void PopUtf8Character(string& text);
     static void TruncateUtf8(string& text, size_t maxLength);
@@ -46,6 +49,9 @@ private:
     bool _isFocused = false;
     bool _interactable = true;
     uint32 _maxLength = 256;
+    float _caretBlinkTimer = 0.0f;
+    float _caretBlinkInterval = 0.5f;
+    bool _isCaretVisible = false;
     function<void(const string&)> _onValueChanged;
     function<void(const string&)> _onSubmit;
 };

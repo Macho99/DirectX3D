@@ -10,6 +10,30 @@ void InputManager::Init(HWND hwnd)
     _states.resize(KEY_TYPE_COUNT, KEY_STATE::NONE);
 }
 
+void InputManager::AddTextInputCharacter(wchar_t character)
+{
+    if (0xD800 <= character && character <= 0xDBFF)
+    {
+        _pendingHighSurrogate = character;
+        return;
+    }
+
+    if (0xDC00 <= character && character <= 0xDFFF && _pendingHighSurrogate != 0)
+    {
+        const uint32 high = static_cast<uint32>(_pendingHighSurrogate - 0xD800);
+        const uint32 low = static_cast<uint32>(character - 0xDC00);
+        _pendingTextInput.push_back(0x10000 + (high << 10) + low);
+        _pendingHighSurrogate = 0;
+        return;
+    }
+
+    if (0xDC00 <= character && character <= 0xDFFF)
+        return;
+
+    _pendingHighSurrogate = 0;
+    _pendingTextInput.push_back(static_cast<uint32>(character));
+}
+
 void InputManager::Update()
 {
     _textInput.swap(_pendingTextInput);

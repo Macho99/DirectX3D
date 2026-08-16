@@ -96,6 +96,8 @@ public:
 
 protected:
     explicit Text(ComponentType componentType);
+    virtual bool ShouldRenderCaret() const { return false; }
+    void MarkTextDirty() { _isDirty = true; }
 
 private:
     void RebuildMesh();

@@ -74,8 +74,8 @@ public:
 	bool IsMouseInScene() const { return _mouseInScene; }
     void AddMouseWheelDelta(short delta) { _curMouseWheelDelta += delta; }
 	short GetMouseWheelDelta() const { return _prevMouseWheelDelta; }
-    void AddTextInputCharacter(wchar_t character) { _pendingTextInput.push_back(character); }
-    const wstring& GetTextInputCharacters() const { return _textInput; }
+    void AddTextInputCharacter(wchar_t character);
+    const vector<uint32>& GetTextInputCharacters() const { return _textInput; }
 
 private:
 	inline KEY_STATE GetState(KEY_TYPE key) { return _states[static_cast<uint8>(key)]; }
@@ -99,7 +99,8 @@ private:
     bool _isDragging = false;
     bool _mousePressed = false;
 	POINT _mousePressedPos = {};
-    wstring _textInput;
-    wstring _pendingTextInput;
+    vector<uint32> _textInput;
+    vector<uint32> _pendingTextInput;
+    wchar_t _pendingHighSurrogate = 0;
 };
 

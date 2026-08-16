@@ -327,6 +327,29 @@ void Text::RebuildMesh()
         previousCodepoint = codepoint;
     }
 
+    if (ShouldRenderCaret())
+    {
+        const BMFontGlyph* caretGlyph = font->GetGlyph('|');
+        if (caretGlyph != nullptr)
+        {
+            const float left = cursorX + static_cast<float>(caretGlyph->xOffset) * metricScale.x;
+            const float top = cursorY - static_cast<float>(caretGlyph->yOffset) * metricScale.y;
+            const float right = left + static_cast<float>(caretGlyph->width) * metricScale.x;
+            const float bottom = top - static_cast<float>(caretGlyph->height) * metricScale.y;
+
+            const uint32 baseIndex = geometry->GetVertexCount();
+            const Vec3 normal = Vec3(0.0f, 0.0f, -1.0f);
+            const Vec3 tangent = Vec3(1.0f, 0.0f, 0.0f);
+
+            geometry->AddVertex(VertexTextureNormalTangentData{ Vec3(left, bottom, 0.0f), Vec2(caretGlyph->u0, caretGlyph->v1), normal, tangent });
+            geometry->AddVertex(VertexTextureNormalTangentData{ Vec3(left, top, 0.0f), Vec2(caretGlyph->u0, caretGlyph->v0), normal, tangent });
+            geometry->AddVertex(VertexTextureNormalTangentData{ Vec3(right, bottom, 0.0f), Vec2(caretGlyph->u1, caretGlyph->v1), normal, tangent });
+            geometry->AddVertex(VertexTextureNormalTangentData{ Vec3(right, top, 0.0f), Vec2(caretGlyph->u1, caretGlyph->v0), normal, tangent });
+
+            geometry->AddIndices({ baseIndex + 0, baseIndex + 1, baseIndex + 2, baseIndex + 2, baseIndex + 1, baseIndex + 3 });
+        }
+    }
+
     mesh->CreateFromGeometry(geometry);
 }
 
