@@ -53,6 +53,9 @@ private:
     void ApplyMaterial();
     Vec2 GetCurrentSize() const;
 
+protected:
+    explicit UIImage(ComponentType componentType);
+
 private:
     ResourceRef<Texture> _texture;
     Color _color = Colors::White;

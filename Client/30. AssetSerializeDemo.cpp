@@ -204,7 +204,7 @@ void AssetSerializeDemo::Init()
             {
                 camera->AddComponent(make_unique<Camera>());
                 camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
-                camera->GetCamera()->SetFar(500.f);
+                camera->GetCamera()->SetFar(400.f);
             }
 
             auto followerObjRef = CUR_SCENE->Add("TargetFollower");
@@ -241,7 +241,10 @@ void AssetSerializeDemo::Init()
     {
         auto parentObjRef = CUR_SCENE->Add("Towers");
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
-        //parentTransformRef.Resolve()->SetScale(Vec3(3.f, 1.f, 3.f));
+        Transform* parentTransform = parentTransformRef.Resolve();
+        parentTransform->SetScale(Vec3(2.f, 1.f, 2.f));
+        parentTransform->SetLocalPosition(Vec3(0, baseHeight, 0));
+
 
         // Model
         ResourceRef<Model> model = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tower\\Tower.fbx");
@@ -249,8 +252,8 @@ void AssetSerializeDemo::Init()
         {
             auto objRef = CUR_SCENE->Add("Tower" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, baseHeight, rand() % 100));
             obj->GetTransform()->SetParent(parentTransformRef);
+            obj->GetTransform()->SetLocalPosition(Vec3(rand() % 100, 0, rand() % 100));
 
             auto modelRenderer = make_unique<ModelRenderer>();
             modelRenderer->SetModel(model);
@@ -267,12 +270,12 @@ void AssetSerializeDemo::Init()
         //shared_ptr<Model> m2 = make_shared<Model>();
         //m2->ReadModel(L"Tree1/Tree");
         //m2->ReadMaterial(L"Tree1/Tree");
-        ResourceRef<Model> m2(RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tree1\\TreeModel.model"));
-        for (int32 i = 0; i < 10; i++)
+        ResourceRef<Model> m2(RESOURCES->GetResourceRefByPath<Model>(L"Models\\Tree1\\Tree.model"));
+        for (int32 i = 0; i < 200; i++)
         {
             auto objRef = CUR_SCENE->Add("Tree" + std::to_string(i));
             GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetPosition(Vec3(rand() % 100, baseHeight - 1, rand() % 100));
+            obj->GetTransform()->SetPosition(Vec3(rand() % 600 - 300, baseHeight - 1, rand() % 600 - 300));
             obj->GetTransform()->SetParent(parentTransformRef);
 
             obj->AddComponent(make_unique<ModelRenderer>());

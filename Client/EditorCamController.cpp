@@ -3,6 +3,7 @@
 #include "ThirdPersonCamMove.h"
 #include "CameraMove.h"
 #include "TessTerrain.h"
+#include "ImGuizmo.h"
 
 void EditorCamController::Awake()
 {
@@ -19,7 +20,9 @@ void EditorCamController::Update()
         return;
     }
 
-    if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) && INPUT->IsMouseOnUI() == false)
+    const bool isMouseOverGizmo = GAME->GetGameDesc().isEditor && ImGuizmo::IsOver();
+    if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) &&
+        INPUT->IsMouseOnUI() == false && isMouseOverGizmo == false)
     {
         _charCamMove.Resolve()->SetEnabled(true);
         _editorCamMove.Resolve()->SetEnabled(false);

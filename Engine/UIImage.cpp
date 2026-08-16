@@ -11,7 +11,12 @@
 #include "VertexData.h"
 
 UIImage::UIImage()
-    : Super(StaticType)
+    : UIImage(StaticType)
+{
+}
+
+UIImage::UIImage(ComponentType componentType)
+    : Super(componentType)
 {
 }
 

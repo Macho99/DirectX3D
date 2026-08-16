@@ -4,6 +4,7 @@
 #include "ServerSession.h"
 #include "Service.h"
 #include "ThreadManager.h"
+#include "OnGUIUtils.h"
 
 void ServerConnect::Awake()
 {
@@ -12,64 +13,97 @@ void ServerConnect::Awake()
 		return;
 
 	_instance = this;
-
-	ServerPacketHandler::Init();
-	this_thread::sleep_for(1s);
-
-	service = MakeShared<ClientService>(
-		NetAddress(L"127.0.0.1", 7777),
-		MakeShared<IocpCore>(),
-		MakeShared<ServerSession>,
-		1
-	);
-
-    bool connected = service->Start();
-    ASSERT_CRASH(connected, "Failed to connect to server");
-
-    isRunning = true;
-	for (int32 i = 0; i < 1; i++)
-	{
-		GThreadManager->Launch([=]()
-			{
-				while (isRunning.load())
-				{
-					service->GetIocpCore()->Dispatch(100);
-				}
-			});
-	}
 }
 
 void ServerConnect::OnDestroy()
 {
 	if (_instance != this)
 		return;
-
-	isRunning.store(false);
-	GThreadManager->Join();
-	service = nullptr;
-	_instance = nullptr;
 }
 
 bool ServerConnect::OnGUI()
 {
 	bool changed = false;
 
-    const bool enterPressed = ImGui::InputText(
-        "Chat", chatStr, IM_ARRAYSIZE(chatStr), ImGuiInputTextFlags_EnterReturnsTrue);
-    changed |= enterPressed;
-
+	changed = OnGUIUtils::DrawString("DebugChat", &_debugChat);
     ImGui::SameLine();
-    const bool buttonPressed = ImGui::Button("Send Chat");
-
-    if ((enterPressed || buttonPressed) && chatStr[0] != '\0')
+    if (ImGui::Button("Send Chat") && _debugChat.empty() == false)
     {
 		Protocol::C_CHAT chatPkt;
-		chatPkt.set_msg(chatStr);
+		chatPkt.set_msg(_debugChat.c_str());
 		auto sendBuffer = ServerPacketHandler::MakeSendBuffer(chatPkt);
 
-		service->Broadcast(sendBuffer);
-		chatStr[0] = '\0';
+		_service->Broadcast(sendBuffer);
+		_debugChat = "";
     }
 
+	if (_isRunning)
+	{
+		if (ImGui::Button("Disconnect"))
+		{
+			Disconnect();
+		}
+	}
+	else
+	{
+		if (ImGui::Button("Connect"))
+		{
+			TryConnect();
+		}
+	}
+
 	return changed;
+}
+
+bool ServerConnect::TryConnect()
+{
+	if (_isRunning)
+		return true;
+
+	ServerPacketHandler::Init();
+	this_thread::sleep_for(1s);
+
+	_service = MakeShared<ClientService>(
+		NetAddress(L"127.0.0.1", 7777),
+		MakeShared<IocpCore>(),
+		MakeShared<ServerSession>,
+		1
+	);
+
+	bool connected = _service->Start();
+	if (connected == false)
+	{
+		return connected;
+	}
+
+	_isRunning = true;
+	for (int32 i = 0; i < 1; i++)
+	{
+		GThreadManager->Launch([=]()
+			{
+				while (_isRunning.load())
+				{
+					_service->GetIocpCore()->Dispatch(100);
+				}
+			});
+	}
+
+	return connected;
+}
+
+void ServerConnect::Disconnect()
+{
+	if (_isRunning == false)
+		return;
+
+	auto& sessions = _service->GetSessions();
+	for (auto session : sessions)
+	{
+		session->Disconnect(L"LogOut");
+	}
+
+	_isRunning.store(false);
+	GThreadManager->Join();
+	_service = nullptr;
+	_instance = nullptr;
 }

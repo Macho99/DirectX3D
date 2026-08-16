@@ -10,15 +10,17 @@ public:
 
     virtual void Awake() override;
     virtual void OnDestroy() override;
-
     virtual bool OnGUI() override;
+
+    bool TryConnect();
+    void Disconnect();
 
 private:
     inline static ServerConnect* _instance = nullptr;
 
-    char chatStr[256] = {};
-    ClientServiceRef service;
-    Atomic<bool> isRunning = false;
+    string _debugChat;
+    ClientServiceRef _service;
+    Atomic<bool> _isRunning = false;
 };
 
 #define SERVER_CONNECT ServerConnect::GetInstance()

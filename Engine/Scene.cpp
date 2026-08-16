@@ -95,8 +95,6 @@ void Scene::Update()
         if (obj->IsActiveInHierarchy())
             obj->Update();
     }
-
-    PickUI();
 }
 
 void Scene::LateUpdate()
@@ -364,29 +362,6 @@ GameObject* Scene::GetUICamera()
             return camera;
     }
     return nullptr;
-}
-
-void Scene::PickUI()
-{
-    if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON) == false)
-        return;
-
-    if (GetUICamera() == nullptr)
-        return;
-
-    POINT screenPt = INPUT->GetMousePos();
-
-    Camera* camera = GetUICamera()->GetCamera();
-
-    for (auto& gameObjectRef : _gameObjects)
-    {
-        GameObject* gameObject = gameObjectRef.Resolve();
-        if (gameObject->GetButton() == nullptr)
-            continue;
-
-        if (gameObject->GetButton()->Picked(screenPt))
-            gameObject->GetButton()->InvokeOnClicked();
-    }
 }
 
 GameObject* Scene::Pick(int32 screenX, int32 screenY)

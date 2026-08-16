@@ -53,7 +53,6 @@ public:
 	GameObject* GetUICamera();
 	GameObject* GetLight() { return _lights.empty() ? nullptr : _lights.begin()->Resolve(); }
 
-	void PickUI();
 	GameObject* Pick(int32 screenX, int32 screenY);
 
 	void SetSky(shared_ptr<Sky> sky) { _sky = sky; }

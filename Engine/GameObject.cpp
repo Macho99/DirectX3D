@@ -23,6 +23,7 @@
 vector<ComponentType> GameObject::S_RendererTypes = {
 	ComponentType::InputText,
 	ComponentType::Text,
+	ComponentType::Button,
 	ComponentType::UIImage,
 	ComponentType::ScrollView,
 	ComponentType::MeshRenderer,
