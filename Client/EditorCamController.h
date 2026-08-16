@@ -11,5 +11,6 @@ public:
 
 private:
     Vec3 _initLocalPos = Vec3::Zero;
+    ComponentRef<class TessTerrain> _terrain = nullptr;
 };
 

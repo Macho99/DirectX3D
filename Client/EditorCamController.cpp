@@ -2,15 +2,21 @@
 #include "EditorCamController.h"
 #include "ThirdPersonCamMove.h"
 #include "CameraMove.h"
-
+#include "TessTerrain.h"
 
 void EditorCamController::Awake()
 {
     _initLocalPos = GetGameObject()->GetTransform()->GetLocalPosition();
+    _terrain = CUR_SCENE->FindComponentRef<TessTerrain>();
 }
 
 void EditorCamController::Update()
 {
+    if (_terrain.Resolve()->GetEditMode() != TessTerrain::EditMode::None)
+    {
+        return;
+    }
+
     if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) && INPUT->IsMouseOnUI() == false)
     {
         GetGameObject()->GetScriptComponent<ThirdPersonCamMove>()->SetEnabled(true);

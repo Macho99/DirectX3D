@@ -224,6 +224,7 @@ void AssetSerializeDemo::Init()
                 targetFollower->SetFollowPositionY(true);
                 targetFollower->SetFollowPositionZ(true);
                 targetFollower->SetPositionFollowMode(TargetPositionFollowMode::Interpolated);
+                targetFollower->SetPositionInterpolationSpeed(20);
                 followerObj->AddComponent(std::move(targetFollower));
             }
 
