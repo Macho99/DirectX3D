@@ -68,6 +68,16 @@ void Scene::Start()
     }
 }
 
+void Scene::OnSize()
+{
+    for (const TransformRef& transformRef : _rootObjects)
+    {
+        Transform* transform = transformRef.Resolve();
+        if (dynamic_cast<RectTransform*>(transform) != nullptr)
+            transform->UpdateTransform();
+    }
+}
+
 void Scene::OnDestroy()
 {
     _cameras.clear();

@@ -42,6 +42,7 @@ public:
     virtual ~RectTransform();
 
     virtual void Awake() override;
+    virtual void UpdateTransform() override;
     virtual bool OnGUI() override;
 
     const Vec2& GetAnchorMin() const { return _anchorMin; }
@@ -64,8 +65,6 @@ public:
     Vec2 GetAnchoredPosition() const;
     void SetAnchoredPosition(const Vec2& anchoredPosition);
     void SetSize(const Vec2& size);
-
-    void ApplyToTransform();
 
     template<typename Archive>
     void serialize(Archive& ar)

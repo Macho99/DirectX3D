@@ -33,6 +33,7 @@ public:
 
 public:
 	virtual void Start();
+	virtual void OnSize();
     virtual void OnDestroy();
 	virtual void Update();
 	virtual void LateUpdate();

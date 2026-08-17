@@ -20,7 +20,7 @@ void EditorCamController::Update()
     }
 
     const bool isMouseOverGizmo = GAME->GetGameDesc().isEditor && ImGuizmo::IsOver();
-    if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) &&
+    if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonUp(KEY_TYPE::LBUTTON) &&
         INPUT->IsMouseOnUI() == false && isMouseOverGizmo == false)
     {
         ThirdPersonCamMove* charCamMove = _charCamMove.Resolve();

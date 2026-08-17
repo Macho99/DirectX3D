@@ -195,6 +195,8 @@ void Graphics::OnSize(bool isFirst)
     {
         postProcess->OnSize(sceneWidth, sceneHeight);
     }
+
+    CUR_SCENE->OnSize();
 }
 
 void Graphics::RenderBegin()

@@ -15,7 +15,7 @@ public:
 	virtual void Awake() override;
 	virtual void Update() override;
 
-	void UpdateTransform();
+	virtual void UpdateTransform();
 
 	TransformRef GetRef();
 	// Local
@@ -75,6 +75,8 @@ public:
 
 protected:
 	Transform(ComponentType type);
+	void SetLocalScaleWithoutUpdate(const Vec3& localScale) { _localScale = localScale; }
+	void SetLocalPositionWithoutUpdate(const Vec3& localPosition) { _localPosition = localPosition; }
 
 private:
 	bool IsAncestorOf(TransformRef& target);

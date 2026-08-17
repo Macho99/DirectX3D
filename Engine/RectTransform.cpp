@@ -14,7 +14,23 @@ RectTransform::~RectTransform()
 void RectTransform::Awake()
 {
     Super::Awake();
-    ApplyToTransform();
+    UpdateTransform();
+}
+
+void RectTransform::UpdateTransform()
+{
+    RectTransformRect rect = GetRect();
+    Vec2 size = rect.GetSize();
+    Vec2 pivotPosition = rect.min + size * _pivot;
+    Vec3 parentScale = GetParent() != nullptr ? GetParent()->GetScale() : Vec3(1.f, 1.f, 1.f);
+
+    Vec3 localPos = Vec3(pivotPosition.x / parentScale.x, pivotPosition.y / parentScale.y, GetLocalPosition().z);
+    SetLocalPositionWithoutUpdate(localPos);
+
+    Vec3 scaledSize = Vec3(size.x / parentScale.x, size.y / parentScale.y, GetLocalScale().z);
+    SetLocalScaleWithoutUpdate(scaledSize);
+
+    Super::UpdateTransform();
 }
 
 bool RectTransform::OnGUI()
@@ -57,46 +73,46 @@ bool RectTransform::OnGUI()
 void RectTransform::SetAnchorMin(const Vec2& anchorMin)
 {
     _anchorMin = anchorMin;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::SetAnchorMax(const Vec2& anchorMax)
 {
     _anchorMax = anchorMax;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::SetAnchors(const Vec2& anchorMin, const Vec2& anchorMax)
 {
     _anchorMin = anchorMin;
     _anchorMax = anchorMax;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::SetOffsetMin(const Vec2& offsetMin)
 {
     _offsetMin = offsetMin;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::SetOffsetMax(const Vec2& offsetMax)
 {
     _offsetMax = offsetMax;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::SetOffsets(const Vec2& offsetMin, const Vec2& offsetMax)
 {
     _offsetMin = offsetMin;
     _offsetMax = offsetMax;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::MoveOffsets(const Vec2& delta)
 {
     _offsetMin += delta;
     _offsetMax += delta;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 RectTransformRect RectTransform::GetRect() const
@@ -128,7 +144,7 @@ void RectTransform::SetAnchoredPosition(const Vec2& anchoredPosition)
     Vec2 delta = anchoredPosition - GetAnchoredPosition();
     _offsetMin += delta;
     _offsetMax += delta;
-    ApplyToTransform();
+    UpdateTransform();
 }
 
 void RectTransform::SetSize(const Vec2& size)
@@ -139,21 +155,7 @@ void RectTransform::SetSize(const Vec2& size)
 
     _offsetMin -= delta * _pivot;
     _offsetMax += delta * (Vec2(1.f, 1.f) - _pivot);
-    ApplyToTransform();
-}
-
-void RectTransform::ApplyToTransform()
-{
-    RectTransformRect rect = GetRect();
-    Vec2 size = rect.GetSize();
-    Vec2 pivotPosition = rect.min + size * _pivot;
-    Vec3 parentScale = GetParent() != nullptr ? GetParent()->GetScale() : Vec3(1.f, 1.f, 1.f);
-
-    Vec3 localPos = Vec3(pivotPosition.x / parentScale.x, pivotPosition.y / parentScale.y, GetLocalPosition().z);
-    SetLocalPosition(localPos);
-
-    Vec3 scaledSize = Vec3(size.x / parentScale.x, size.y / parentScale.y, GetLocalScale().z);
-    SetLocalScale(scaledSize);
+    UpdateTransform();
 }
 
 RectTransformRect RectTransform::GetParentRect() const
