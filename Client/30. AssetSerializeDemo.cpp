@@ -191,6 +191,7 @@ void AssetSerializeDemo::Init()
 
         auto objRef = CUR_SCENE->Add("PlayerPrefab");
         GameObject* obj = objRef.Resolve();
+        obj->SetActive(false);
         {
             obj->AddComponent<Player>();
             Transform* objTransform = obj->GetTransform();

@@ -4,10 +4,11 @@
 #include "CameraMove.h"
 #include "TessTerrain.h"
 #include "ImGuizmo.h"
+#include "TargetFollower.h"
 
 void EditorCamController::Awake()
 {
-    _initLocalPos = GetGameObject()->GetTransform()->GetLocalPosition();
+    _initLocalPos = Vec3(0, 0, -4);
     _terrain = CUR_SCENE->FindComponent<TessTerrain>();
     FindCamMove();
 }
@@ -27,6 +28,8 @@ void EditorCamController::Update()
         if (charCamMove != nullptr)
             charCamMove->SetEnabled(true);
 
+        GetTransform()->GetParent()->GetGameObject()->GetComponent<TargetFollower>()->SetEnabled(true);
+
         _editorCamMove.Resolve()->SetEnabled(false);
         GetGameObject()->GetTransform()->SetLocalRotation(Vec3::Zero);
         GetGameObject()->GetTransform()->SetLocalPosition(_initLocalPos);
@@ -39,6 +42,11 @@ void EditorCamController::Update()
         ThirdPersonCamMove* charCamMove = _charCamMove.Resolve();
         if(charCamMove != nullptr)
             charCamMove->SetEnabled(false);
+
+        Transform* parent = GetTransform()->GetParent();
+        _parentMat = parent->GetWorldMatrix();
+        parent->GetGameObject()->GetComponent<TargetFollower>()->SetEnabled(false);
+        parent->SetWorldMatrix(Matrix::Identity);
 
         _editorCamMove.Resolve()->SetEnabled(true);
         GetTransform()->GetParent()->SetLocalRotation(Vec3::Zero);

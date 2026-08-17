@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GameManager.h"
+#include "OnGUIUtils.h"
 #include "Player.h"
 #include "Zombie.h"
 #include "TargetFollower.h"
@@ -19,7 +20,6 @@ void GameManager::Awake()
     if (_playerSpawnPoint.Resolve() == nullptr)
         _playerSpawnPoint = CUR_SCENE->Add("PlayerSpawnPoint", GetTransform()).Resolve()->GetTransform();
    
-
     if (_titlePoint.Resolve() == nullptr)
         _titlePoint = CUR_SCENE->Add("TitlePoint", GetTransform()).Resolve()->GetTransform();
 
@@ -53,6 +53,18 @@ void GameManager::OnDestroy()
     if (_instance != this)
         return;
     _instance = nullptr;
+}
+
+bool GameManager::OnGUI()
+{
+    bool changed = false;
+
+    changed |= OnGUIUtils::DrawComponentRef("PlayerPrefab", _playerPrefab);
+    changed |= OnGUIUtils::DrawComponentRef("ZombiePrefab", _zombiePrefab);
+    changed |= OnGUIUtils::DrawComponentRef("TitlePoint", _titlePoint);
+    changed |= OnGUIUtils::DrawComponentRef("PlayerSpawnPoint", _playerSpawnPoint);
+
+    return changed;
 }
 
 void GameManager::OnCreateMyPlayer(Protocol::Player myPlayer)

@@ -1004,7 +1004,7 @@ void ModelAnimator::UpdateRootMotion(const TweenDesc prevTweenDesc)
 
             Matrix gameObjectMatrix = GetTransform()->GetWorldMatrix();
             rootMotionDelta = rootMotionDelta * gameObjectMatrix;
-            GetTransform()->SetWorldMatrix(rootMotionDelta);
+			GetTransform()->SetWorldMatrix(rootMotionDelta);
         };
 
 	Model* model = _model.Resolve();

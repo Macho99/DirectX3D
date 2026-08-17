@@ -211,7 +211,7 @@ inline bool OnGUIUtils::DrawComponentRef(const char* label, ComponentRef<T>& com
                  GameObject* pastedGameObject = GameObject::GetGameObjectRefByGuid(pastedId).Resolve();
                  if (pastedGameObject != nullptr)
                  {
-                     pastedRef = pastedGameObject->GetFixedComponentRef<T>();
+                     pastedRef = ComponentRef<T>(pastedGameObject->GetComponent<T>());
                      if (pastedRef.IsValid())
                      {
                          canPaste = true;

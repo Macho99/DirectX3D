@@ -15,12 +15,14 @@ public:
     virtual void Awake();
     virtual void Update();
     virtual void OnDestroy();
+    virtual bool OnGUI() override;
 
     void OnCreateMyPlayer(Protocol::Player myPlayer);
     void OnOtherPlayerEnter(Protocol::Player otherPlayer);
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
+    virtual int GetVersion() const override { return 1; }
 
     void PushJob(function<void(void)> func);
 
@@ -30,6 +32,12 @@ public:
         Super::serialize(ar);
         ar(CEREAL_NVP(_playerPrefab));
         ar(CEREAL_NVP(_zombiePrefab));
+
+        if (_version >= 1)
+        {
+            ar(CEREAL_NVP(_titlePoint));
+            ar(CEREAL_NVP(_playerSpawnPoint));
+        }
     }
 
 private:

@@ -44,7 +44,7 @@
 void SceneDemo::Init()
 {
     auto sky = make_shared<Sky>();
-    sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SnowSkyMat.mat"));
+    sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SkyMat.mat"));
     CUR_SCENE->SetSky(sky);
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");

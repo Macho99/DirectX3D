@@ -38,7 +38,7 @@ public:
 	Vec3 GetUp() { return _matWorld.Up(); }
 	Vec3 GetLook() { return _matWorld.Backward(); }
 
-	void SetWorldMatrix(Matrix& newWorld);
+	void SetWorldMatrix(const Matrix & newWorld);
 	Matrix GetWorldMatrix() const { return _matWorld; }
 
 	// °èÃþ °ü°è

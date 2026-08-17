@@ -163,7 +163,7 @@ void Transform::SetPosition(const Vec3& worldPosition)
 	}
 }
 
-void Transform::SetWorldMatrix(Matrix& newWorld)
+void Transform::SetWorldMatrix(const Matrix& newWorld)
 {
 	Matrix parentWorld = Matrix::Identity;
 	if (HasParent())

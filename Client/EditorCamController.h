@@ -15,5 +15,6 @@ private:
     ComponentRef<class TessTerrain> _terrain = nullptr;
     ComponentRef<class ThirdPersonCamMove> _charCamMove;
     ComponentRef<class CameraMove> _editorCamMove;
+    Matrix _parentMat = Matrix::Identity;
 };
 

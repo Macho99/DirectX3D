@@ -88,7 +88,7 @@ namespace DndPayload
                 GameObject* droppedObj = droppedObjRef.Resolve();
                 if (droppedObj != nullptr)
                 {
-                    ComponentRef<T> droppedCompRef = droppedObj->GetFixedComponentRef<T>();
+                    ComponentRef<T> droppedCompRef(droppedObj->GetComponent<T>());
                     if (droppedCompRef.Resolve() != nullptr)
                     {
                         if (onDrag)
