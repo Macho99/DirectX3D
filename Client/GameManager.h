@@ -3,6 +3,7 @@
 
 class Player;
 class Zombie;
+class TargetFollower;
 
 class GameManager : public MonoBehaviour
 {
@@ -19,8 +20,17 @@ public:
     void OnOtherPlayerEnter(Protocol::Player otherPlayer);
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
+    void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower) { _cameraFollower = cameraFollower; }
 
     void PushJob(function<void(void)> func);
+
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_playerPrefab));
+        ar(CEREAL_NVP(_zombiePrefab));
+    }
 
 private:
     inline static GameManager* _instance = nullptr;
@@ -33,6 +43,10 @@ private:
     ComponentRef<Player> _myPlayer;
 
     ComponentRef<Zombie> _zombiePrefab;
+    ComponentRef<TargetFollower> _cameraFollower;
+
+    ComponentRef<Transform> _titlePoint;
+    ComponentRef<Transform> _playerSpawnPoint;
 };
 
 #define GM GameManager::GetInstance()

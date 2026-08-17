@@ -75,3 +75,11 @@ bool TargetFollower::OnGUI()
     changed |= OnGUIUtils::DrawBool("Follow Rotation Z", &_followRotationZ);
     return changed;
 }
+
+void TargetFollower::UpdateImmediateFollow()
+{
+    TargetPositionFollowMode _prevMode = _positionFollowMode;
+    _positionFollowMode = TargetPositionFollowMode::Immediate;
+    Update();
+    _positionFollowMode = _prevMode;
+}

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "GameManager.h"
 #include "Player.h"
+#include "Zombie.h"
+#include "TargetFollower.h"
 
 void GameManager::Awake()
 {
@@ -9,7 +11,18 @@ void GameManager::Awake()
         return;
     _instance = this;
 
-    _playerPrefab = CUR_SCENE->FindComponent<Player>();
+    if (_playerPrefab.Resolve() == nullptr)
+        _playerPrefab = CUR_SCENE->FindComponent<Player>();
+    if (_zombiePrefab.Resolve() == nullptr)
+        _zombiePrefab = CUR_SCENE->FindComponent<Zombie>();
+
+    if (_playerSpawnPoint.Resolve() == nullptr)
+        _playerSpawnPoint = CUR_SCENE->Add("PlayerSpawnPoint", GetTransform()).Resolve()->GetTransform();
+    if (_titlePoint.Resolve() == nullptr)
+        _titlePoint = CUR_SCENE->Add("TitlePoint", GetTransform()).Resolve()->GetTransform();
+
+    _cameraFollower.Resolve()->SetTarget(_titlePoint.Resolve());
+    _cameraFollower.Resolve()->SetPositionFollowMode(TargetPositionFollowMode::Interpolated);
 }
 
 void GameManager::Update()

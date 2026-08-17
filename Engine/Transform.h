@@ -90,9 +90,9 @@ private:
 	Matrix _matLocal = Matrix::Identity;
 	Matrix _matWorld = Matrix::Identity;
 
-	Vec3 _scale;
-	Vec3 _rotation;
-	Vec3 _position;
+	Vec3 _scale = Vec3::One;
+	Vec3 _rotation = Vec3::Zero;
+	Vec3 _position = Vec3::Zero;
 
 private:
 	TransformRef _parent;

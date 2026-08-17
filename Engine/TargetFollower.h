@@ -49,6 +49,8 @@ public:
     bool IsFollowRotationY() const { return _followRotationY; }
     bool IsFollowRotationZ() const { return _followRotationZ; }
 
+    void UpdateImmediateFollow();
+
     template<class Archive>
     void serialize(Archive& ar)
     {

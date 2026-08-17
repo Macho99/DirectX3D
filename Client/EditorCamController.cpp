@@ -8,9 +8,8 @@
 void EditorCamController::Awake()
 {
     _initLocalPos = GetGameObject()->GetTransform()->GetLocalPosition();
-    _editorCamMove = GetGameObject()->GetScriptComponent<CameraMove>();
-    _charCamMove = GetGameObject()->GetScriptComponent<ThirdPersonCamMove>();
     _terrain = CUR_SCENE->FindComponent<TessTerrain>();
+    FindCamMove();
 }
 
 void EditorCamController::Update()
@@ -24,7 +23,10 @@ void EditorCamController::Update()
     if (INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::LBUTTON) &&
         INPUT->IsMouseOnUI() == false && isMouseOverGizmo == false)
     {
-        _charCamMove.Resolve()->SetEnabled(true);
+        ThirdPersonCamMove* charCamMove = _charCamMove.Resolve();
+        if (charCamMove != nullptr)
+            charCamMove->SetEnabled(true);
+
         _editorCamMove.Resolve()->SetEnabled(false);
         GetGameObject()->GetTransform()->SetLocalRotation(Vec3::Zero);
         GetGameObject()->GetTransform()->SetLocalPosition(_initLocalPos);
@@ -34,9 +36,18 @@ void EditorCamController::Update()
 
     if (GAME->GetGameDesc().isEditor && INPUT->IsMouseCaptured() == false && INPUT->GetButtonDown(KEY_TYPE::ESC))
     {
-        _charCamMove.Resolve()->SetEnabled(false);
+        ThirdPersonCamMove* charCamMove = _charCamMove.Resolve();
+        if(charCamMove != nullptr)
+            charCamMove->SetEnabled(false);
+
         _editorCamMove.Resolve()->SetEnabled(true);
         GetTransform()->GetParent()->SetLocalRotation(Vec3::Zero);
         return;
     }
+}
+
+void EditorCamController::FindCamMove()
+{
+    _editorCamMove = GetGameObject()->GetScriptComponent<CameraMove>();
+    _charCamMove = GetGameObject()->GetScriptComponent<ThirdPersonCamMove>();
 }

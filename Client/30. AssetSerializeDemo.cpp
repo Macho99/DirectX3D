@@ -65,9 +65,9 @@ void AssetSerializeDemo::Init()
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
 
     GameObjectRef gmRef = CUR_SCENE->Add("GameManager");
-    GameObject* gm = gmRef.Resolve();
-    gm->AddComponent(make_unique<GameManager>());
-    gm->AddComponent(make_unique<ServerConnect>());
+    GameObject* gmObj = gmRef.Resolve();
+    GameManager* gm = gmObj->AddComponent<GameManager>().Resolve();
+    gmObj->AddComponent(make_unique<ServerConnect>());
 
     Transform* envTransform = CUR_SCENE->Add("Environment").Resolve()->GetTransform();
 
@@ -197,7 +197,7 @@ void AssetSerializeDemo::Init()
             objTransform->SetPosition(Vec3{ -4.f, baseHeight, 65.f });
             objTransform->SetRotation(Vec3{ 0.f, 90.f, 0.f });
             objTransform->SetScale(Vec3(0.01f));
-            objTransform->SetParent(gm->GetTransform());
+            objTransform->SetParent(gmObj->GetTransform());
             obj->AddComponent(make_unique<ModelAnimator>());
             {
                 obj->GetModelAnimator()->SetModel(modelRef);
@@ -233,13 +233,14 @@ void AssetSerializeDemo::Init()
                 targetFollower->SetPositionFollowMode(TargetPositionFollowMode::Interpolated);
                 targetFollower->SetPositionInterpolationSpeed(20);
                 followerObj->AddComponent(std::move(targetFollower));
+                gm->SetCameraFollower(followerObj->GetComponent<TargetFollower>());
             }
 
-            {
-                unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
-                thirdPersonCamMove->SetTarget(obj->GetTransformRef());
-                camera->AddComponent(std::move(thirdPersonCamMove));
-            }
+            //{
+            //    unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
+            //    thirdPersonCamMove->SetTarget(obj->GetTransformRef());
+            //    camera->AddComponent(std::move(thirdPersonCamMove));
+            //}
             camera->AddComponent(make_unique<CameraMove>());
             camera->AddComponent(make_unique<EditorCamController>());
         }
