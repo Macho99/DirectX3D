@@ -6,4 +6,6 @@ void Player::Init(uint64 playerId, string name, bool isMyPlayer)
     _playerId = playerId;
     _name = name;
     _isMyPlayer = isMyPlayer;
+
+    GetGameObject()->SetName(name);
 }

@@ -160,12 +160,18 @@ inline T* GameObject::GetComponent()
 template<class T>
 inline ComponentRef<T> GameObject::AddComponent()
 {
-    ComponentType type = T::StaticType;
-    if (type >= ComponentType::End)
+    static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+
+    if constexpr (!std::is_base_of_v<MonoBehaviour, T>)
     {
-        ASSERT(false, "type out of range");
-        return ComponentRef<T>();
+        ComponentType type = T::StaticType;
+        if (type >= ComponentType::Script)
+        {
+            ASSERT(false, "type out of range");
+            return ComponentRef<T>();
+        }
     }
+
     unique_ptr<T> component = make_unique<T>();
     T* componentPtr = component.get();
     AddComponent(std::move(component));

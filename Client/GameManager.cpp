@@ -35,22 +35,32 @@ void GameManager::OnDestroy()
 
 void GameManager::OnCreateMyPlayer(Protocol::Player myPlayer)
 {
-    GameObject* playerObj = CUR_SCENE->Add(myPlayer.name()).Resolve();
-    playerObj->AddComponent(make_unique<Player>());
-    ComponentRef<Player> playerRef = playerObj->GetScriptComponent<Player>();
-    playerRef.Resolve()->Init(myPlayer.id(), myPlayer.name(), true);
+    if (_myPlayer.Resolve() != nullptr)
+    {
+        DBG->LogError("My player already exists.");
+        return;
+    }
 
-    _players[myPlayer.id()] = playerRef;
+    GameObject* playerObj = GameObject::Instantiate(_playerPrefab.Resolve()->GetGameObjectRef(), nullptr).Resolve();
+    Player* player = playerObj->GetComponent<Player>();
+    player->Init(myPlayer.id(), myPlayer.name(), true);
+
+    _myPlayer = player;
 }
 
 void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
 {
-    GameObject* playerObj = CUR_SCENE->Add(otherPlayer.name()).Resolve();
-    playerObj->AddComponent(make_unique<Player>());
-    ComponentRef<Player> playerRef = playerObj->GetScriptComponent<Player>();
-    playerRef.Resolve()->Init(otherPlayer.id(), otherPlayer.name(), false);
+    if (_players.find(otherPlayer.id()) != _players.end())
+    {
+        DBG->LogError("Player ID %llu already exists in _players map.", otherPlayer.id());
+        return;
+    }
 
-    _players[otherPlayer.id()] = playerRef;
+    GameObject* playerObj = GameObject::Instantiate(_playerPrefab.Resolve()->GetGameObjectRef(), nullptr).Resolve();
+    Player* player = playerObj->GetComponent<Player>();
+    player->Init(otherPlayer.id(), otherPlayer.name(), false);
+
+    _players[otherPlayer.id()] = player;
 }
 
 void GameManager::OnOtherPlayerExit(uint64 otherPlayerId)
@@ -74,6 +84,9 @@ void GameManager::OnDisconnect()
         CUR_SCENE->Remove(pair.second.Resolve()->GetGameObjectRef());
     }
     _players.clear();
+    
+    CUR_SCENE->Remove(_myPlayer.Resolve()->GetGameObjectRef());
+    _myPlayer = ComponentRef<Player>();
 }
 
 void GameManager::PushJob(function<void(void)> func)

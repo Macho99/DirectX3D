@@ -52,6 +52,7 @@
 #include "PlayerAnimEventHandler.h"
 #include "EditorCamController.h"
 #include "ServerConnect.h"
+#include "Player.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -63,16 +64,16 @@ void AssetSerializeDemo::Init()
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
 
-    {
-        GameObjectRef gmRef = CUR_SCENE->Add("GameManager");
-        GameObject* gm = gmRef.Resolve();
-        gm->AddComponent(make_unique<GameManager>());
-        gm->AddComponent(make_unique<ServerConnect>());
-    }
+    GameObjectRef gmRef = CUR_SCENE->Add("GameManager");
+    GameObject* gm = gmRef.Resolve();
+    gm->AddComponent(make_unique<GameManager>());
+    gm->AddComponent(make_unique<ServerConnect>());
+
+    Transform* envTransform = CUR_SCENE->Add("Environment").Resolve()->GetTransform();
 
     {
         // Light
-        GameObjectRef light = CUR_SCENE->Add("Light");
+        GameObjectRef light = CUR_SCENE->Add("Light", envTransform);
         light.Resolve()->AddComponent(make_unique<Light>());
 
         LightDesc lightDesc;
@@ -83,28 +84,28 @@ void AssetSerializeDemo::Init()
         static_cast<Light*>(light.Resolve()->GetFixedComponent(ComponentType::Light))->SetLightDesc(lightDesc);
     }
 
-    {
-        ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
-        for (int32 i = 0; i < 1; i++)
-        {
-            auto objRef = CUR_SCENE->Add("Veigar");
-            GameObject* obj = objRef.Resolve();
-            obj->GetTransform()->SetLocalPosition(Vec3(0, baseHeight + 2, 0));
-            obj->GetTransform()->SetLocalScale(Vec3(1.f));
-            obj->AddComponent(make_unique<MeshRenderer>());
-            {
-                obj->GetMeshRenderer()->SetMaterial(materialRef);
-            }
-            {
-                auto mesh = RESOURCES->GetCubeMesh();
-                obj->GetMeshRenderer()->SetMesh(mesh);
-                obj->GetMeshRenderer()->SetPass(0);
-            }
-            {
-                obj->AddComponent(make_unique<OBBBoxCollider>());
-            }
-        }
-    }
+    //{
+    //    ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\VeigarMaterial.mat");
+    //    for (int32 i = 0; i < 1; i++)
+    //    {
+    //        auto objRef = CUR_SCENE->Add("Veigar");
+    //        GameObject* obj = objRef.Resolve();
+    //        obj->GetTransform()->SetLocalPosition(Vec3(0, baseHeight + 2, 0));
+    //        obj->GetTransform()->SetLocalScale(Vec3(1.f));
+    //        obj->AddComponent(make_unique<MeshRenderer>());
+    //        {
+    //            obj->GetMeshRenderer()->SetMaterial(materialRef);
+    //        }
+    //        {
+    //            auto mesh = RESOURCES->GetCubeMesh();
+    //            obj->GetMeshRenderer()->SetMesh(mesh);
+    //            obj->GetMeshRenderer()->SetPass(0);
+    //        }
+    //        {
+    //            obj->AddComponent(make_unique<OBBBoxCollider>());
+    //        }
+    //    }
+    //}
 
     ComponentRef<TessTerrain> tessTerrainRef;
     {
@@ -116,7 +117,7 @@ void AssetSerializeDemo::Init()
         tessTerrain->SetMaterial(materialRef);
         tessTerrain->SetBrushTexture(RESOURCES->GetResourceRefByPath<Texture>(L"Textures\\Terrain\\Brush\\circleBrush.png"));
 
-        auto objRef = CUR_SCENE->Add("Terrain");
+        auto objRef = CUR_SCENE->Add("Terrain", envTransform);
         objRef.Resolve()->GetTransform()->SetPosition(Vec3(0, 0, 0));
         objRef.Resolve()->AddComponent(std::move(tessTerrain));
         tessTerrainRef = objRef.Resolve()->GetFixedComponentRef<TessTerrain>();
@@ -125,9 +126,9 @@ void AssetSerializeDemo::Init()
     {
         //ResourceRef<Shader> grassRenderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\GrassRender.fx");
         ResourceRef<Shader> grassComputeShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\GrassCompute.fx");
-        auto objRef = CUR_SCENE->Add("GrassRenderer");
+        auto objRef = CUR_SCENE->Add("GrassRenderer", envTransform);
         GameObject* obj = objRef.Resolve();
-        obj->SetActive(false);
+        //obj->SetActive(false);
         obj->GetTransform()->SetLocalPosition(Vec3(0.f));
         AssetId uvAssetId;
         RESOURCES->TryGetAssetIdByPath(L"Textures\\Grass\\Grass_A_BaseColor_Split.txt", OUT uvAssetId);
@@ -165,9 +166,9 @@ void AssetSerializeDemo::Init()
     {	// Billboard
         {
             //auto snowShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\24. SnowDemo.fx");
-            auto objRef = CUR_SCENE->Add("Rain");
+            auto objRef = CUR_SCENE->Add("Rain", envTransform);
             GameObject* obj = objRef.Resolve();
-            obj->SetActive(false);
+            //obj->SetActive(false);
             obj->GetTransform()->SetLocalPosition(Vec3(0.f));
             obj->AddComponent(make_unique<SnowBillboard>());
             {
@@ -187,17 +188,16 @@ void AssetSerializeDemo::Init()
         //animShader->SetTechNum(RenderTech::NormalDepth, -1);
         // Animation
         ResourceRef<Model> modelRef = RESOURCES->GetResourceRefByPath<Model>(L"Models\\Paladin\\Paladin.model");
-        auto parentObjRef = CUR_SCENE->Add("Paladins");
-        auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
 
-        auto objRef = CUR_SCENE->Add("Paladin");
+        auto objRef = CUR_SCENE->Add("PlayerPrefab");
         GameObject* obj = objRef.Resolve();
         {
+            obj->AddComponent<Player>();
             Transform* objTransform = obj->GetTransform();
             objTransform->SetPosition(Vec3{ -4.f, baseHeight, 65.f });
             objTransform->SetRotation(Vec3{ 0.f, 90.f, 0.f });
             objTransform->SetScale(Vec3(0.01f));
-            objTransform->SetParent(parentTransformRef);
+            objTransform->SetParent(gm->GetTransform());
             obj->AddComponent(make_unique<ModelAnimator>());
             {
                 obj->GetModelAnimator()->SetModel(modelRef);
@@ -215,10 +215,9 @@ void AssetSerializeDemo::Init()
                 camera->GetCamera()->SetFar(400.f);
             }
 
-            auto followerObjRef = CUR_SCENE->Add("TargetFollower");
+            auto followerObjRef = CUR_SCENE->Add("CameraTargetFollower");
             GameObject* followerObj = followerObjRef.Resolve();
 
-            followerObj->GetTransform()->SetParent(parentTransformRef);
             Transform* followerTransform = followerObjRef.Resolve()->GetTransform();
             TransformRef followerTransformRef = followerTransform->GetRef();
             camera->GetTransform()->SetParent(followerTransformRef);
@@ -247,7 +246,7 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto parentObjRef = CUR_SCENE->Add("Towers");
+        auto parentObjRef = CUR_SCENE->Add("Towers", envTransform);
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
         Transform* parentTransform = parentTransformRef.Resolve();
         parentTransform->SetScale(Vec3(2.5f, 1.5f, 2.5f));
@@ -271,7 +270,7 @@ void AssetSerializeDemo::Init()
 
     ResourceRef<Shader> foliageShader(RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\Foliage.fx"));
     {
-        auto parentObjRef = CUR_SCENE->Add("Trees");
+        auto parentObjRef = CUR_SCENE->Add("Trees", envTransform);
         auto parentTransformRef = parentObjRef.Resolve()->GetFixedComponentRef<Transform>();
 
         // Model
@@ -311,7 +310,7 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("Water");
+        auto objRef = CUR_SCENE->Add("Water", envTransform);
         GameObject* obj = objRef.Resolve();
         obj->AddComponent(make_unique<SsrRenderer>());
         SsrRenderer* ssrRenderer = obj->GetFixedComponentRef<SsrRenderer>().Resolve();
@@ -369,13 +368,13 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("ProbsBatcing");
+        auto objRef = CUR_SCENE->Add("ProbsBatcing", envTransform);
         GameObject* obj = objRef.Resolve();
         obj->AddComponent<ModelRenderer>();
         obj->GetFixedComponent<ModelRenderer>()->SetModel(RESOURCES->GetResourceRefByPath<Model>(L"Batches\\Rural_Cabin\\Probs.model"));
     }
     {
-        auto objRef = CUR_SCENE->Add("ModularBatcing");
+        auto objRef = CUR_SCENE->Add("ModularBatcing", envTransform);
         GameObject* obj = objRef.Resolve();
         obj->AddComponent<ModelRenderer>();
         obj->GetFixedComponent<ModelRenderer>()->SetModel(RESOURCES->GetResourceRefByPath<Model>(L"Batches\\Rural_Cabin\\Modular.model"));
