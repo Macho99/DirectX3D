@@ -25,12 +25,15 @@ public:
     void Init();
     void OnDestroy();
 
+    void Log(const char* format, ...);
     void Log(const string& message);
     void LogW(const wstring& message);
 
+    void LogWarning(const char* format, ...);
     void LogWarning(const string& message);
     void LogWarningW(const wstring& message);
 
+    void LogError(const char* format, ...);
     void LogError(const string& message);
     void LogErrorW(const wstring& message);
 

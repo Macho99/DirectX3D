@@ -1,6 +1,7 @@
 #pragma once
-#include <MonoBehaviour.h>
-class Player : public MonoBehaviour
+#include "Character.h"
+
+class Player : public Character
 {
     using Super = MonoBehaviour;
     DECLARE_MONO_BEHAVIOUR(Player);

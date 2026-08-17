@@ -19,6 +19,10 @@ void ServerConnect::OnDestroy()
 {
 	if (_instance != this)
 		return;
+
+	_isRunning.store(false);
+	GThreadManager->Join();
+	_service = nullptr;
 }
 
 bool ServerConnect::OnGUI()
@@ -42,6 +46,14 @@ bool ServerConnect::OnGUI()
 		if (ImGui::Button("Disconnect"))
 		{
 			Disconnect();
+		}
+
+		if (ImGui::Button("LogIn"))
+		{
+			Protocol::C_LOGIN pkt;
+			pkt.set_name(_debugChat);
+			auto sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+			_service->Broadcast(sendBuffer);
 		}
 	}
 	else

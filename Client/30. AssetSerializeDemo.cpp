@@ -51,6 +51,7 @@
 #include "TargetFollower.h"
 #include "PlayerAnimEventHandler.h"
 #include "EditorCamController.h"
+#include "ServerConnect.h"
 
 void AssetSerializeDemo::Init()
 {
@@ -61,6 +62,13 @@ void AssetSerializeDemo::Init()
     const float baseHeight = 8.f;
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
+
+    {
+        GameObjectRef gmRef = CUR_SCENE->Add("GameManager");
+        GameObject* gm = gmRef.Resolve();
+        gm->AddComponent(make_unique<GameManager>());
+        gm->AddComponent(make_unique<ServerConnect>());
+    }
 
     {
         // Light

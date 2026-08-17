@@ -19,13 +19,13 @@ public:
 public:
 	virtual void OnConnected() override
 	{
-		Protocol::C_LOGIN pkt;
-		auto sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-		Send(sendBuffer);
+        DBG->Log("ServerSession::OnConnected");
 	}
 
 	virtual void OnDisconnected() override
 	{
+        DBG->Log("ServerSession::OnDisconnected");
+		GM->OnDisconnect();
 	}
 
 	virtual void OnRecvPacket(BYTE* buffer, int32 len) override

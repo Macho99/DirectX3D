@@ -25,6 +25,7 @@ class Scene : public ResourceBase
 	using Super = ResourceBase;
     friend class Renderer;
     friend class InstancingRenderer;
+    friend class SceneManager;
 public:
 	static constexpr ResourceType StaticType = ResourceType::Scene;
 	Scene();
@@ -45,8 +46,6 @@ public:
 	GameObjectRef Instantiate(const GameObjectRef& original, Transform* parent = nullptr);
 	GuidRef AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
 	virtual void Remove(GameObjectRef gameObjectRef);
-	void CleanUpRemoveLists();
-	void RemoveGameObjectRecur(const GameObjectRef& gameObjectRef);
 
 	GameObjectRefSet& GetObjects() { return _gameObjects; }
 	GameObjectRefSet& GetCameras() { return _cameras; }
@@ -89,12 +88,17 @@ public:
                 {
                     return componentRef;
                 }
+
+                componentRef = gameObject->GetScriptComponent<T>();
             }
         }
         return ComponentRef<T>();
     }
 
 private:
+    void CleanUpRemoveLists();
+    void RemoveGameObjectRecur(const GameObjectRef& gameObjectRef);
+
 	GameObjectRef Add(GuidRef guidRef, bool useRectTransform, Transform* parent);
 
     void OnRendererAdd(Renderer* renderer);

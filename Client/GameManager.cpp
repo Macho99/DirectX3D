@@ -4,6 +4,12 @@
 
 void GameManager::Awake()
 {
+    ASSERT(_instance == nullptr || _instance == this, "GameManager already exists");
+    if (_instance != nullptr && _instance != this)
+        return;
+    _instance = this;
+
+    _playerPrefab = CUR_SCENE->FindComponentRef<Player>();
 }
 
 void GameManager::Update()
@@ -18,6 +24,13 @@ void GameManager::Update()
     {
         tempQueue[i]();
     }
+}
+
+void GameManager::OnDestroy()
+{
+    if (_instance != this)
+        return;
+    _instance = nullptr;
 }
 
 void GameManager::OnCreateMyPlayer(Protocol::Player myPlayer)
@@ -42,7 +55,25 @@ void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
 
 void GameManager::OnOtherPlayerExit(uint64 otherPlayerId)
 {
-    _players.erase(otherPlayerId);
+    auto it = _players.find(otherPlayerId);
+    if (it == _players.end())
+    {
+        DBG->LogError("Player ID %llu not found in _players map.", otherPlayerId);
+        return;
+    }
+
+    CUR_SCENE->Remove(it->second.Resolve()->GetGameObjectRef());
+
+    _players.erase(it);
+}
+
+void GameManager::OnDisconnect()
+{
+    for (auto& pair : _players)
+    {
+        CUR_SCENE->Remove(pair.second.Resolve()->GetGameObjectRef());
+    }
+    _players.clear();
 }
 
 void GameManager::PushJob(function<void(void)> func)

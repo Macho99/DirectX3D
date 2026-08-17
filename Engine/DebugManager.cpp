@@ -108,6 +108,15 @@ vector<string> DebugManager::CaptureStackTrace(int skipFrames, int maxFrames)
     return out;
 }
 
+void DebugManager::Log(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    string message = Utils::Format(format, args);
+    va_end(args);
+    AddLog(LogLevel::Info, message);
+}
+
 void DebugManager::Log(const string& message)
 {
     AddLog(LogLevel::Info, message);
@@ -118,6 +127,15 @@ void DebugManager::LogW(const wstring& message)
     AddLog(LogLevel::Info, Utils::ToString(message));
 }
 
+void DebugManager::LogWarning(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    string message = Utils::Format(format, args);
+    va_end(args);
+    AddLog(LogLevel::Warning, message);
+}
+
 void DebugManager::LogWarning(const string& message)
 {
     AddLog(LogLevel::Warning, message);
@@ -126,6 +144,15 @@ void DebugManager::LogWarning(const string& message)
 void DebugManager::LogWarningW(const wstring& message)
 {
     AddLog(LogLevel::Warning, Utils::ToString(message));
+}
+
+void DebugManager::LogError(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    string message = Utils::Format(format, args);
+    va_end(args);
+    AddLog(LogLevel::Error, message);
 }
 
 void DebugManager::LogError(const string& message)

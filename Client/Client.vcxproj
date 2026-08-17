@@ -24,6 +24,7 @@
     <ClInclude Include="30. AssetSerializeDemo.h" />
     <ClInclude Include="31. SceneDemo.h" />
     <ClInclude Include="CerealRegister.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="EditorCamController.h" />
     <ClInclude Include="Enum.pb.h" />
     <ClInclude Include="GameManager.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="ServerSession.h" />
     <ClInclude Include="Struct.pb.h" />
     <ClInclude Include="ThirdPersonCamMove.h" />
+    <ClInclude Include="Zombie.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="27. BillboardDemo.cpp" />
@@ -46,6 +48,7 @@
     <ClCompile Include="30. AssetSerializeDemo.cpp" />
     <ClCompile Include="31. SceneDemo.cpp" />
     <ClCompile Include="CerealRegister.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="EditorCamController.cpp" />
     <ClCompile Include="Enum.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -73,6 +76,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ThirdPersonCamMove.cpp" />
+    <ClCompile Include="Zombie.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Assets\Shaders\00. Global.fx" />

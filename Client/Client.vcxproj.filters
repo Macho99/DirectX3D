@@ -25,14 +25,20 @@
     <Filter Include="Shaders\MyShader">
       <UniqueIdentifier>{61098872-9bbc-4651-90fe-522bacaa1001}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Main\Player">
-      <UniqueIdentifier>{627e0810-c9bc-4813-bb6d-9b929ecae9e6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Protocol">
       <UniqueIdentifier>{230f8a73-dfee-4180-a117-7f225467750c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Main\Server">
       <UniqueIdentifier>{7959a395-ed0a-4faf-9668-18abaaced941}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\Character">
+      <UniqueIdentifier>{47f72b97-ea4b-473d-aa3a-e0124153e978}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\Character\Player">
+      <UniqueIdentifier>{627e0810-c9bc-4813-bb6d-9b929ecae9e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main\Character\Monster">
+      <UniqueIdentifier>{7b8fead5-a141-4a6d-8d0f-a5c9cf6173f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -67,7 +73,7 @@
       <Filter>Main\Camera</Filter>
     </ClCompile>
     <ClCompile Include="PlayerAnimEventHandler.cpp">
-      <Filter>Main\Player</Filter>
+      <Filter>Main\Character\Player</Filter>
     </ClCompile>
     <ClCompile Include="Protocol.pb.cc">
       <Filter>Protocol</Filter>
@@ -93,7 +99,15 @@
     <ClCompile Include="GameManager.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Zombie.cpp">
+      <Filter>Main\Character\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Main\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Main\Character</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -127,7 +141,7 @@
       <Filter>Main\Camera</Filter>
     </ClInclude>
     <ClInclude Include="PlayerAnimEventHandler.h">
-      <Filter>Main\Player</Filter>
+      <Filter>Main\Character\Player</Filter>
     </ClInclude>
     <ClInclude Include="Enum.pb.h">
       <Filter>Protocol</Filter>
@@ -153,7 +167,15 @@
     <ClInclude Include="GameManager.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="Zombie.h">
+      <Filter>Main\Character\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Main\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>Main\Character</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Assets\Shaders\00. Render.fx">
