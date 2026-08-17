@@ -4,11 +4,16 @@
 
 namespace
 {
-    const char* const PositionFollowModeNames[] =
+    const char* const FollowModeNames[] =
     {
         "Immediate",
         "Interpolated"
     };
+
+    float InterpolateAngle(float current, float target, float ratio)
+    {
+        return current + std::remainder(target - current, 360.f) * ratio;
+    }
 }
 
 TargetFollower::TargetFollower() : Super(StaticType)
@@ -32,7 +37,7 @@ void TargetFollower::Update()
         Vec3 position = follower->GetPosition();
 
         float followRatio = 1.f;
-        if (_positionFollowMode == TargetPositionFollowMode::Interpolated)
+        if (_positionFollowMode == TargetFollowMode::Interpolated)
             followRatio = 1.f - std::exp(-_positionInterpolationSpeed * DT);
 
         if (_followPositionX) position.x += (targetPosition.x - position.x) * followRatio;
@@ -47,9 +52,13 @@ void TargetFollower::Update()
         const Vec3 targetRotation = target->GetRotation();
         Vec3 rotation = follower->GetRotation();
 
-        if (_followRotationX) rotation.x = targetRotation.x;
-        if (_followRotationY) rotation.y = targetRotation.y;
-        if (_followRotationZ) rotation.z = targetRotation.z;
+        float followRatio = 1.f;
+        if (_rotationFollowMode == TargetFollowMode::Interpolated)
+            followRatio = 1.f - std::exp(-_rotationInterpolationSpeed * DT);
+
+        if (_followRotationX) rotation.x = InterpolateAngle(rotation.x, targetRotation.x, followRatio);
+        if (_followRotationY) rotation.y = InterpolateAngle(rotation.y, targetRotation.y, followRatio);
+        if (_followRotationZ) rotation.z = InterpolateAngle(rotation.z, targetRotation.z, followRatio);
 
         follower->SetRotation(rotation);
     }
@@ -64,8 +73,8 @@ bool TargetFollower::OnGUI()
     changed |= OnGUIUtils::DrawBool("Follow Position Z", &_followPositionZ);
     changed |= OnGUIUtils::DrawVec3("Position Offset", &_positionOffset);
     changed |= OnGUIUtils::DrawEnumCombo("Position Follow Mode", _positionFollowMode,
-        PositionFollowModeNames, (int)TargetPositionFollowMode::Max);
-    if (_positionFollowMode == TargetPositionFollowMode::Interpolated)
+        FollowModeNames, (int)TargetFollowMode::Max);
+    if (_positionFollowMode == TargetFollowMode::Interpolated)
     {
         changed |= OnGUIUtils::DrawFloat("Position Interpolation Speed", &_positionInterpolationSpeed);
         _positionInterpolationSpeed = std::max(0.f, _positionInterpolationSpeed);
@@ -73,13 +82,23 @@ bool TargetFollower::OnGUI()
     changed |= OnGUIUtils::DrawBool("Follow Rotation X", &_followRotationX);
     changed |= OnGUIUtils::DrawBool("Follow Rotation Y", &_followRotationY);
     changed |= OnGUIUtils::DrawBool("Follow Rotation Z", &_followRotationZ);
+    changed |= OnGUIUtils::DrawEnumCombo("Rotation Follow Mode", _rotationFollowMode,
+        FollowModeNames, (int)TargetFollowMode::Max);
+    if (_rotationFollowMode == TargetFollowMode::Interpolated)
+    {
+        changed |= OnGUIUtils::DrawFloat("Rotation Interpolation Speed", &_rotationInterpolationSpeed);
+        _rotationInterpolationSpeed = std::max(0.f, _rotationInterpolationSpeed);
+    }
     return changed;
 }
 
 void TargetFollower::UpdateImmediateFollow()
 {
-    TargetPositionFollowMode _prevMode = _positionFollowMode;
-    _positionFollowMode = TargetPositionFollowMode::Immediate;
+    TargetFollowMode prevPositionMode = _positionFollowMode;
+    TargetFollowMode prevRotationMode = _rotationFollowMode;
+    _positionFollowMode = TargetFollowMode::Immediate;
+    _rotationFollowMode = TargetFollowMode::Immediate;
     Update();
-    _positionFollowMode = _prevMode;
+    _positionFollowMode = prevPositionMode;
+    _rotationFollowMode = prevRotationMode;
 }

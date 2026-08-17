@@ -23,6 +23,7 @@ void ServerConnect::OnDestroy()
 	_isRunning.store(false);
 	GThreadManager->Join();
 	_service = nullptr;
+	_instance = nullptr;
 }
 
 bool ServerConnect::OnGUI()

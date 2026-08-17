@@ -18,11 +18,20 @@ void GameManager::Awake()
 
     if (_playerSpawnPoint.Resolve() == nullptr)
         _playerSpawnPoint = CUR_SCENE->Add("PlayerSpawnPoint", GetTransform()).Resolve()->GetTransform();
+   
+
     if (_titlePoint.Resolve() == nullptr)
         _titlePoint = CUR_SCENE->Add("TitlePoint", GetTransform()).Resolve()->GetTransform();
 
-    _cameraFollower.Resolve()->SetTarget(_titlePoint.Resolve());
-    _cameraFollower.Resolve()->SetPositionFollowMode(TargetPositionFollowMode::Interpolated);
+    _titlePoint.Resolve()->SetPosition(Vec3(- 5.9, 9.3, 85.4));
+    _titlePoint.Resolve()->SetRotation(Vec3(-14.7, 9.5, 0));
+
+    TargetFollower* cameraFollower = _cameraFollower.Resolve();
+    if (_cameraFollower.Resolve() != nullptr)
+    {
+        cameraFollower->SetTarget(_titlePoint.Resolve());
+        cameraFollower->UpdateImmediateFollow();
+    }
 }
 
 void GameManager::Update()
@@ -100,6 +109,14 @@ void GameManager::OnDisconnect()
     
     CUR_SCENE->Remove(_myPlayer.Resolve()->GetGameObjectRef());
     _myPlayer = ComponentRef<Player>();
+}
+
+void GameManager::SetCameraFollower(ComponentRef<TargetFollower> cameraFollower)
+{
+    _cameraFollower = cameraFollower;
+    TargetFollower* cameraFollowerPtr = _cameraFollower.Resolve();
+    cameraFollowerPtr->SetTarget(_titlePoint.Resolve());
+    cameraFollowerPtr->UpdateImmediateFollow();
 }
 
 void GameManager::PushJob(function<void(void)> func)

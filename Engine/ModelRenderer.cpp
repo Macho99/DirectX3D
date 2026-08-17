@@ -30,43 +30,9 @@ bool ModelRenderer::SetModel(ResourceRef<Model> model)
 	OnMeshChange(oldMeshId, GetMeshId());
 
 	_initialized = false;
-	bool isFoliage = false;
 
 	auto& materials = modelPtr->GetMaterials();
-	for (auto& materialRef : materials)
-	{
-		Material* material = materialRef.Resolve();
-		if (material == nullptr)
-			continue;
-
-		if (material->GetShaderRef() == RESOURCES->GetFoliageShader())
-			isFoliage = true;
-	}
-	for (auto& materialRef : materials)
-	{
-		Material* material = materialRef.Resolve();
-		if (material == nullptr)
-			continue;
-
-		if (material->GetShader() == nullptr)
-		{
-			if (isFoliage)
-			{
-				material->SetShader(RESOURCES->GetFoliageShader());
-			}
-			else
-			{
-				material->SetShader(RESOURCES->GetDefaultShader());
-			}
-		}
-	}
-
 	SetMaterial(materials[0]);
-
-	if (isFoliage)
-	{
-		FoliageSetup();
-	}
 
 	return true;
 }
@@ -189,6 +155,43 @@ bool ModelRenderer::TryInitialize()
 	Model* modelPtr = _model.Resolve();
 	if(modelPtr == nullptr)
         return false;
+
+	auto& materials = modelPtr->GetMaterials();
+    bool isFoliage = false;
+
+	for (auto& materialRef : materials)
+	{
+		Material* material = materialRef.Resolve();
+		if (material == nullptr)
+			continue;
+
+		if (material->GetShaderRef() == RESOURCES->GetFoliageShader())
+			isFoliage = true;
+	}
+	for (auto& materialRef : materials)
+	{
+		Material* material = materialRef.Resolve();
+		if (material == nullptr)
+			continue;
+
+		if (material->GetShader() == nullptr)
+		{
+			if (isFoliage)
+			{
+				material->SetShader(RESOURCES->GetFoliageShader());
+			}
+			else
+			{
+				material->SetShader(RESOURCES->GetDefaultShader());
+			}
+		}
+	}
+
+
+	if (isFoliage)
+	{
+		FoliageSetup();
+	}
 		
     _initialized = true;
     return true;

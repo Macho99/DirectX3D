@@ -227,10 +227,9 @@ void AssetSerializeDemo::Init()
                 unique_ptr<TargetFollower> targetFollower = make_unique<TargetFollower>();
                 targetFollower->SetTarget(obj->GetTransform());
                 targetFollower->SetPositionOffset(Vec3(0.f, 1.5f, 0.f));
-                targetFollower->SetFollowPositionX(true);
-                targetFollower->SetFollowPositionY(true);
-                targetFollower->SetFollowPositionZ(true);
-                targetFollower->SetPositionFollowMode(TargetPositionFollowMode::Interpolated);
+                targetFollower->SetFollowPosition(true, true, true);
+                targetFollower->SetFollowRotation(true, true, true);
+                targetFollower->SetPositionFollowMode(TargetFollowMode::Interpolated);
                 targetFollower->SetPositionInterpolationSpeed(20);
                 followerObj->AddComponent(std::move(targetFollower));
                 gm->SetCameraFollower(followerObj->GetComponent<TargetFollower>());
@@ -325,6 +324,10 @@ void AssetSerializeDemo::Init()
 
     auto uiObjRef = CUR_SCENE->Add("UI", true);
     Transform* uiTransform = uiObjRef.Resolve()->GetTransform();
+    RectTransform* uiRect = static_cast<RectTransform*>(uiTransform);
+    uiRect->SetOffsets(Vec2::Zero, Vec2::Zero);
+    uiRect->SetAnchorMin(Vec2::Zero);
+    uiRect->SetAnchorMax(Vec2::One);
     {
         auto objRef = CUR_SCENE->Add("Text", uiTransform);
         GameObject* obj = objRef.Resolve();
@@ -337,10 +340,16 @@ void AssetSerializeDemo::Init()
     }
 
     {
-        auto objRef = CUR_SCENE->Add("ImageTop", uiTransform);
+        auto objRef = CUR_SCENE->Add("TitleImage", uiTransform);
         GameObject* obj = objRef.Resolve();
+        RectTransform* titleRect = static_cast<RectTransform*>(obj->GetTransform());
+        titleRect->SetOffsets(Vec2::Zero, Vec2::Zero);
+        titleRect->SetAnchorMin(Vec2(0.25, 0.5));
+        titleRect->SetAnchorMax(Vec2(0.75, 0.9));
         obj->AddComponent(make_unique<UIImage>());
         UIImage* uiImage = obj->GetUIImage();
+        uiImage->SetTexture(RESOURCES->GetResourceRefByPath<Texture>("Textures\\LastHuntTitle.png"));
+
         obj->SetLayerIndex(Layer_UI);
     }
 

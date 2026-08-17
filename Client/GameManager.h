@@ -20,7 +20,7 @@ public:
     void OnOtherPlayerEnter(Protocol::Player otherPlayer);
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
-    void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower) { _cameraFollower = cameraFollower; }
+    void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
 
     void PushJob(function<void(void)> func);
 

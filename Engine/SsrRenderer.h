@@ -15,6 +15,13 @@ public:
     void SetMesh(ResourceRef<Mesh> mesh) { _mesh = mesh; }
     ResourceRef<Mesh> GetMesh() { return _mesh; }
 
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        Super::serialize(ar);
+        ar(CEREAL_NVP(_mesh));
+    }
+
 private:
     ResourceRef<Mesh> _mesh;
 };

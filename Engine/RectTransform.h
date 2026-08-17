@@ -75,9 +75,6 @@ public:
         ar(CEREAL_NVP(_anchorMax));
         ar(CEREAL_NVP(_offsetMin));
         ar(CEREAL_NVP(_offsetMax));
-
-        if (Archive::is_loading::value)
-            ApplyToTransform();
     }
 
 private:
