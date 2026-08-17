@@ -7,6 +7,15 @@ class TargetFollower;
 
 class GameManager : public MonoBehaviour
 {
+    enum class GameState
+    {
+        Title,
+        Login,
+        World,
+
+        End,
+    };
+
     using Super = MonoBehaviour;
     DECLARE_MONO_BEHAVIOUR(GameManager)
 public:
@@ -22,7 +31,7 @@ public:
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 1; }
+    virtual int GetVersion() const override { return 2; }
 
     void PushJob(function<void(void)> func);
 
@@ -37,6 +46,11 @@ public:
         {
             ar(CEREAL_NVP(_titlePoint));
             ar(CEREAL_NVP(_playerSpawnPoint));
+        }
+
+        if (_version >= 2)
+        {
+            ar(CEREAL_NVP(_titleImage));
         }
     }
 
@@ -55,6 +69,8 @@ private:
 
     ComponentRef<Transform> _titlePoint;
     ComponentRef<Transform> _playerSpawnPoint;
+
+    ComponentRef<UIImage> _titleImage;
 };
 
 #define GM GameManager::GetInstance()

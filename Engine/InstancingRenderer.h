@@ -13,6 +13,7 @@ public:
     bool HasInstancingData() const { return _originInstDatas.size() > 0; }
     int GetInstancingCount() const { return _originInstDatas.size(); }
     const vector<InstancingData>& GetInstancingDatas() const { return _instDatas; }
+    virtual int GetVersion() { return Super::GetVersion() + 1; }
 
     virtual bool OnGUI() override;
     virtual void OnInspectorFocusLost() override;
@@ -21,7 +22,9 @@ public:
     void serialize(Archive& ar)
     {
         Super::serialize(ar);
-        CEREAL_NVP(_originInstDatas);
+
+        if(_version >= 1)
+            ar(CEREAL_NVP(_originInstDatas));
     }
 
 protected:

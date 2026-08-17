@@ -348,6 +348,41 @@ bool Transform::OnGUI()
     return changed;
 }
 
+void Transform::OnMenu()
+{
+	Super::OnMenu();
+
+	if (ImGui::MenuItem("Copy Transform"))
+	{
+        ImGui::SetClipboardText(GetGameObject()->GetGuid().ToString().c_str());
+	}
+
+	const char* clipboadText = ImGui::GetClipboardText();
+	Guid pastedId;
+	if (clipboadText != nullptr) // 유효한 AssetId 길이
+	{
+		if (Guid::TryParse(clipboadText, OUT pastedId))
+		{
+			GameObject* pastedGameObject = GameObject::GetGameObjectRefByGuid(pastedId).Resolve();
+			if (pastedGameObject != nullptr)
+			{
+				if (ImGui::MenuItem("Paste World Transform"))
+				{
+					Transform* pastedTransform = pastedGameObject->GetTransform();
+					SetWorldMatrix(pastedTransform->GetWorldMatrix());
+				}
+                if (ImGui::MenuItem("Paste Local Transform"))
+                {
+                    Transform* pastedTransform = pastedGameObject->GetTransform();
+                    SetLocalPosition(pastedTransform->GetLocalPosition());
+                    SetLocalRotation(pastedTransform->GetLocalRotation());
+                    SetLocalScale(pastedTransform->GetLocalScale());
+                }
+			}
+		}
+	}
+}
+
 bool Transform::IsAncestorOf(TransformRef& targetRef)
 {
     Transform* target = targetRef.Resolve();

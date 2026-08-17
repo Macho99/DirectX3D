@@ -379,31 +379,42 @@ void Scene::Remove(GameObjectRef gameObjectRef)
     GameObject* gameObject = gameObjectRef.Resolve();
     ASSERT(gameObject != nullptr);
 
-    if (gameObject->IsActiveInHierarchy())
-        gameObject->OnDisable();
-
-    gameObject->OnDestroy();
-
-    _removeLists.push_back(gameObjectRef);
+    if (std::find(_removeLists.begin(), _removeLists.end(), gameObjectRef) == _removeLists.end())
+        _removeLists.push_back(gameObjectRef);
 }
 
 void Scene::CleanUpRemoveLists()
 {
-    for (const GameObjectRef& gameObject : _removeLists)
+    while (!_removeLists.empty())
     {
-        RemoveGameObjectRecur(gameObject);
+        vector<GameObjectRef> removeLists;
+        removeLists.swap(_removeLists);
+
+        for (const GameObjectRef& gameObject : removeLists)
+            RemoveGameObjectRecur(gameObject);
     }
-    _removeLists.clear();
 }
 
 void Scene::RemoveGameObjectRecur(const GameObjectRef& gameObjectRef)
 {
     GameObject* gameObject = gameObjectRef.Resolve();
+    if (gameObject == nullptr)
+        return;
+
     Transform* transform = gameObject->GetTransform();
     TransformRef transformRef = transform->GetRef();
 
-    for (auto& child : transform->GetChildren())
-        RemoveGameObjectRecur(child.Resolve()->GetGameObjectRef());
+    if (gameObject->IsActiveInHierarchy())
+        gameObject->OnDisable();
+    gameObject->OnDestroy();
+
+    const vector<TransformRef> children = transform->GetChildren();
+    for (const TransformRef& childRef : children)
+    {
+        Transform* child = childRef.Resolve();
+        if (child != nullptr)
+            RemoveGameObjectRecur(child->GetGameObjectRef());
+    }
 
     if (transform->HasParent())
     {

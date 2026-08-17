@@ -70,6 +70,20 @@ bool RectTransform::OnGUI()
     return changed;
 }
 
+void RectTransform::OnMenu()
+{
+    Super::OnMenu();
+
+    if (ImGui::MenuItem("Expand Max"))
+    {
+        _offsetMin = Vec2::Zero;
+        _offsetMax = Vec2::Zero;
+        _anchorMin = Vec2::Zero;
+        _anchorMax = Vec2::One;
+        UpdateTransform();
+    }
+}
+
 void RectTransform::SetAnchorMin(const Vec2& anchorMin)
 {
     _anchorMin = anchorMin;

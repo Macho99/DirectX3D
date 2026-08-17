@@ -59,6 +59,7 @@ public:
     int GetChildCount() const { return _children.size(); }
 
 	virtual bool OnGUI() override;
+	virtual void OnMenu() override;
 
 	template<class Archive>
 	void serialize(Archive& ar)

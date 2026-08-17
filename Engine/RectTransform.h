@@ -44,6 +44,7 @@ public:
     virtual void Awake() override;
     virtual void UpdateTransform() override;
     virtual bool OnGUI() override;
+    virtual void OnMenu() override;
 
     const Vec2& GetAnchorMin() const { return _anchorMin; }
     const Vec2& GetAnchorMax() const { return _anchorMax; }
