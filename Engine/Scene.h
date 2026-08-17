@@ -76,23 +76,19 @@ public:
     uint64 GetInstanceId() const { return _instanceId; }
 
     template<class T>
-    ComponentRef<T> FindComponentRef() const
+    T* FindComponent() const
     {
         for (const auto& gameObjectRef : _gameObjects)
         {
             GameObject* gameObject = gameObjectRef.Resolve();
             if (gameObject)
             {
-                ComponentRef<T> componentRef = gameObject->GetFixedComponentRef<T>();
-                if (componentRef.IsValid())
-                {
-                    return componentRef;
-                }
-
-                componentRef = gameObject->GetScriptComponent<T>();
+                T* component = gameObject->GetComponent<T>();
+                if (component != nullptr)
+                    return component;
             }
         }
-        return ComponentRef<T>();
+        return nullptr;
     }
 
 private:

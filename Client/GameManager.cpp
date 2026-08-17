@@ -9,7 +9,7 @@ void GameManager::Awake()
         return;
     _instance = this;
 
-    _playerPrefab = CUR_SCENE->FindComponentRef<Player>();
+    _playerPrefab = CUR_SCENE->FindComponent<Player>();
 }
 
 void GameManager::Update()

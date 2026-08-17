@@ -10,7 +10,7 @@ void EditorCamController::Awake()
     _initLocalPos = GetGameObject()->GetTransform()->GetLocalPosition();
     _editorCamMove = GetGameObject()->GetScriptComponent<CameraMove>();
     _charCamMove = GetGameObject()->GetScriptComponent<ThirdPersonCamMove>();
-    _terrain = CUR_SCENE->FindComponentRef<TessTerrain>();
+    _terrain = CUR_SCENE->FindComponent<TessTerrain>();
 }
 
 void EditorCamController::Update()

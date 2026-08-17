@@ -19,7 +19,7 @@ NavAgent::~NavAgent()
 
 void NavAgent::Start()
 {
-    _navMesh = CUR_SCENE->FindComponentRef<NavMesh>();
+    _navMesh = CUR_SCENE->FindComponent<NavMesh>();
 }
 
 void NavAgent::Update()
@@ -80,7 +80,7 @@ bool NavAgent::OnGUI()
         if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
         {
             POINT mousePos = INPUT->GetMousePos();
-            TessTerrain* terrain = CUR_SCENE->FindComponentRef<TessTerrain>().Resolve();
+            TessTerrain* terrain = CUR_SCENE->FindComponent<TessTerrain>();
             Vec3 worldPos;
             float distance;
             if (TryMakeDebugRenderer() && terrain != nullptr && terrain->Pick(mousePos.x, mousePos.y, worldPos, distance))
@@ -128,7 +128,7 @@ void NavAgent::FindPath()
 bool NavAgent::TryMakeDebugRenderer()
 {
     if (_navMesh.Resolve() == nullptr)
-        _navMesh = CUR_SCENE->FindComponentRef<NavMesh>();
+        _navMesh = CUR_SCENE->FindComponent<NavMesh>();
 
     if (_navMesh.Resolve() == nullptr)
         return false;

@@ -20,7 +20,7 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
 
     SsrRenderer* ssrRenderer = _ssrRenderer.Resolve();
     if(ssrRenderer == nullptr)
-        _ssrRenderer = CUR_SCENE->FindComponentRef<SsrRenderer>();
+        _ssrRenderer = CUR_SCENE->FindComponent<SsrRenderer>();
     ssrRenderer = _ssrRenderer.Resolve();
     if (ssrRenderer == nullptr)
         return;

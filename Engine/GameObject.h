@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "Light.h"
 #include <wrl/client.h>
+#include <type_traits>
 #include "cereal/types/array.hpp"
 class MonoBehaviour;
 class Transform;
@@ -44,6 +45,9 @@ public:
 
     template<class T>
     T* GetFixedComponent();
+
+    template<class T>
+    T* GetComponent();
 
     Transform* GetTransform();
     TransformRef GetTransformRef();
@@ -140,6 +144,17 @@ inline T* GameObject::GetFixedComponent()
         return nullptr;
     }
     return static_cast<T*>(_components[static_cast<uint8>(type)].Resolve());
+}
+
+template<class T>
+inline T* GameObject::GetComponent()
+{
+    static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+
+    if constexpr (std::is_base_of_v<MonoBehaviour, T>)
+        return GetScriptComponent<T>();
+    else
+        return GetFixedComponent<T>();
 }
 
 template<class T>
