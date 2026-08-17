@@ -5,17 +5,18 @@ class Player;
 class Zombie;
 class TargetFollower;
 
+enum class GameState
+{
+    Title,
+    TitleToLogin,
+    Login,
+    World,
+
+    End,
+};
+
 class GameManager : public MonoBehaviour
 {
-    enum class GameState
-    {
-        Title,
-        Login,
-        World,
-
-        End,
-    };
-
     using Super = MonoBehaviour;
     DECLARE_MONO_BEHAVIOUR(GameManager)
 public:
@@ -35,6 +36,8 @@ public:
 
     void PushJob(function<void(void)> func);
     void UpdateGameState();
+    GameState GetGameState() const { return _gameState; }
+    void SetGameState(GameState gameState);
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -52,6 +55,12 @@ public:
         if (_version >= 2)
         {
             ar(CEREAL_NVP(_titleImage));
+            ar(CEREAL_NVP(_loginButton));
+        }
+
+        if (_version >= 3)
+        {
+            ar(CEREAL_NVP(_cameraFollower));
         }
     }
 
@@ -72,6 +81,7 @@ private:
     ComponentRef<Transform> _playerSpawnPoint;
 
     ComponentRef<UIImage> _titleImage;
+    ComponentRef<Button> _loginButton;
     GameState _gameState;
 };
 

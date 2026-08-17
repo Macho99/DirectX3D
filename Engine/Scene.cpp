@@ -92,6 +92,7 @@ void Scene::OnDestroy()
     }
     _gameObjects.clear();
     _removeLists.clear();
+    _removeComponentLists.clear();
 
     _vecForward.clear();
     _vecBackward.clear();
@@ -366,10 +367,14 @@ GameObject* Scene::Instantiate(GameObject* original, Transform* parent)
     return target;
 }
 
-GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
+Component* Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
 {
+    if (component == nullptr)
+        return nullptr;
+
     ComponentType type = component->GetType();
-    GuidRef guidRef = GetComponentSlotManager()->RegisterExisting(std::move(component), _instanceId);
+    Component* componentPtr = component.get();
+    GetComponentSlotManager()->RegisterExisting(std::move(component), _instanceId);
     if (type == ComponentType::Camera)
     {
         _cameras.insert(gameObjectRef);
@@ -378,7 +383,83 @@ GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> c
     {
         _lights.insert(gameObjectRef);
     }
-    return guidRef;
+
+    Renderer* renderer = dynamic_cast<Renderer*>(componentPtr);
+    if (renderer != nullptr)
+        OnRendererAdd(renderer);
+
+    return componentPtr;
+}
+
+bool Scene::RemoveComponent(Component* component)
+{
+    if (component == nullptr || component->GetType() == ComponentType::Transform)
+        return false;
+
+    if (component->GetGameObject() == nullptr)
+        return false;
+
+    ComponentRefBase componentRef(component);
+    if (std::find(_removeComponentLists.begin(), _removeComponentLists.end(), componentRef) == _removeComponentLists.end())
+        _removeComponentLists.push_back(componentRef);
+    return true;
+}
+
+bool Scene::RemoveComponentImmediate(const ComponentRefBase& componentRef)
+{
+    Component* component = componentRef.Resolve();
+    if (component == nullptr || component->GetType() == ComponentType::Transform)
+        return false;
+
+    GameObject* gameObject = component->GetGameObject();
+    if (gameObject == nullptr)
+        return false;
+
+    const GameObjectRef gameObjectRef = component->GetGameObjectRef();
+    const Guid componentGuid = component->GetGuid();
+    const uint8 componentIndex = static_cast<uint8>(component->GetType());
+    bool componentFound = false;
+
+    if (componentIndex < FIXED_COMPONENT_COUNT)
+    {
+        ComponentRefBase& fixedComponentRef = gameObject->GetAllFixedComponents()[componentIndex];
+        if (fixedComponentRef.Resolve() == component)
+        {
+            fixedComponentRef = ComponentRefBase();
+            componentFound = true;
+        }
+    }
+    else
+    {
+        vector<ComponentRef<MonoBehaviour>>& scripts = gameObject->GetScripts();
+        const auto oldEnd = scripts.end();
+        const auto newEnd = std::remove_if(scripts.begin(), oldEnd,
+            [component](const ComponentRef<MonoBehaviour>& scriptRef)
+            {
+                return scriptRef.Resolve() == component;
+            });
+        componentFound = newEnd != oldEnd;
+        scripts.erase(newEnd, oldEnd);
+    }
+
+    if (!componentFound)
+        return false;
+
+    Renderer* renderer = dynamic_cast<Renderer*>(component);
+    if (renderer != nullptr)
+        OnRendererRemove(renderer);
+
+    if (component->GetType() == ComponentType::Camera)
+        _cameras.erase(gameObjectRef);
+    else if (component->GetType() == ComponentType::Light)
+        _lights.erase(gameObjectRef);
+
+    if (gameObject->IsActiveInHierarchy() && component->IsEnabled())
+        component->OnDisable();
+    component->OnDestroy();
+
+    _componentSlotManager.Remove(componentGuid);
+    return true;
 }
 
 void Scene::Remove(GameObjectRef gameObjectRef)
@@ -392,13 +473,25 @@ void Scene::Remove(GameObjectRef gameObjectRef)
 
 void Scene::CleanUpRemoveLists()
 {
-    while (!_removeLists.empty())
+    while (!_removeLists.empty() || !_removeComponentLists.empty())
     {
-        vector<GameObjectRef> removeLists;
-        removeLists.swap(_removeLists);
+        if (!_removeLists.empty())
+        {
+            vector<GameObjectRef> removeLists;
+            removeLists.swap(_removeLists);
 
-        for (const GameObjectRef& gameObject : removeLists)
-            RemoveGameObjectRecur(gameObject);
+            for (const GameObjectRef& gameObject : removeLists)
+                RemoveGameObjectRecur(gameObject);
+        }
+
+        if (!_removeComponentLists.empty())
+        {
+            vector<ComponentRefBase> removeComponentLists;
+            removeComponentLists.swap(_removeComponentLists);
+
+            for (const ComponentRefBase& componentRef : removeComponentLists)
+                RemoveComponentImmediate(componentRef);
+        }
     }
 }
 

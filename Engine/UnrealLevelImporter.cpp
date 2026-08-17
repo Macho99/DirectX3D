@@ -170,7 +170,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
             meshParent = CUR_SCENE->Add(levelMeshData.MeshName, folderParent).Resolve()->GetTransform();
             if (useIndividualTreeRenderer == false)
             {
-                meshParent->GetGameObject()->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+                meshParent->GetGameObject()->AddComponent<ModelRenderer>()->SetModel(modelRef);
             }
 
             modelCache[levelMeshData.MeshName] = make_pair(meshParent, modelRef);
@@ -185,7 +185,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
         }
 
         //GameObject* meshObj = CUR_SCENE->Add(levelMeshData.ActorName, meshParent).Resolve();
-        //meshObj->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+        //meshObj->AddComponent<ModelRenderer>()->SetModel(modelRef);
 
         const TransformData& transformData = levelMeshData.Transform;
 
@@ -227,7 +227,7 @@ bool UnrealLevelImporter::LoadLevel(const string & path)
                 ? levelMeshData.MeshName + "_" + std::to_string(i)
                 : levelMeshData.ActorName;
             GameObject* treeObject = CUR_SCENE->Add(objectName, meshParent).Resolve();
-            treeObject->AddComponent<ModelRenderer>().Resolve()->SetModel(modelRef);
+            treeObject->AddComponent<ModelRenderer>()->SetModel(modelRef);
             treeObject->GetTransform()->SetWorldMatrix(worldMatrix);
             ++individualTreeRendererCount;
         }

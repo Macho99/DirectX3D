@@ -20,7 +20,7 @@ protected:
     bool DrawCard(string title, const void* const idPtr, function<bool()> onGui, function<void()> onMenu, Component* component = nullptr);
 
 private:
-    void DrawComponentCard(Component& component);
+    bool DrawComponentCard(Component& component);
 
 private:
     //Vec2 _testValue = Vec2(0.f);

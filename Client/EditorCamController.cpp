@@ -46,7 +46,7 @@ void EditorCamController::Update()
         Transform* parent = GetTransform()->GetParent();
         _parentMat = parent->GetWorldMatrix();
         parent->GetGameObject()->GetComponent<TargetFollower>()->SetEnabled(false);
-        parent->SetWorldMatrix(Matrix::Identity);
+        parent->SetRotation(Vec3::Zero);
 
         _editorCamMove.Resolve()->SetEnabled(true);
         GetTransform()->GetParent()->SetLocalRotation(Vec3::Zero);

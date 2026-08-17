@@ -70,8 +70,13 @@ public:
     SnowBillboard* GetSnowBillboard();
 
     template<class T>
-    ComponentRef<T> AddComponent();
-    void AddComponent(unique_ptr<Component> component);
+    T* AddComponent();
+
+    template<class T>
+    T* AddComponent(unique_ptr<T> component);
+
+    Component* AddComponent(unique_ptr<Component> component);
+    bool RemoveComponent(Component* component);
     array<ComponentRefBase, FIXED_COMPONENT_COUNT>& GetAllFixedComponents() { return _components; }
     vector<ComponentRef<MonoBehaviour>>& GetScripts() { return _scripts; }
 
@@ -203,7 +208,7 @@ inline T* GameObject::GetComponentInChildren()
 }
 
 template<class T>
-inline ComponentRef<T> GameObject::AddComponent()
+inline T* GameObject::AddComponent()
 {
     static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
@@ -213,14 +218,21 @@ inline ComponentRef<T> GameObject::AddComponent()
         if (type >= ComponentType::Script)
         {
             ASSERT(false, "type out of range");
-            return ComponentRef<T>();
+            return nullptr;
         }
     }
 
     unique_ptr<T> component = make_unique<T>();
-    T* componentPtr = component.get();
-    AddComponent(std::move(component));
-    return ComponentRef<T>(componentPtr);
+    return static_cast<T*>(AddComponent(std::move(component)));
+}
+
+template<class T>
+inline T* GameObject::AddComponent(unique_ptr<T> component)
+{
+    static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+
+    unique_ptr<Component> baseComponent = std::move(component);
+    return static_cast<T*>(AddComponent(std::move(baseComponent)));
 }
 
 template<class T>

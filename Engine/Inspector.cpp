@@ -58,6 +58,7 @@ void Inspector::DrawGameObject(TransformRef& transformRef)
     GameObject* gameObject = transform->GetGameObject();
     gameObject->OnGUI();
     ImGui::Separator();
+    Component* componentToRemove = nullptr;
     auto& components = gameObject->GetAllFixedComponents();
     for (auto& compRef : components)
     {
@@ -65,7 +66,8 @@ void Inspector::DrawGameObject(TransformRef& transformRef)
         if (component == nullptr)
             continue;
 
-        DrawComponentCard(*component);
+        if (DrawComponentCard(*component))
+            componentToRemove = component;
     }
     for (auto& scriptRef : gameObject->GetScripts())
     {
@@ -73,12 +75,19 @@ void Inspector::DrawGameObject(TransformRef& transformRef)
         if (component == nullptr)
             continue;
 
-        DrawComponentCard(*component);
+        if (DrawComponentCard(*component))
+            componentToRemove = component;
     }
+
+    if (componentToRemove != nullptr)
+        gameObject->RemoveComponent(componentToRemove);
 
     const vector<ComponentDesc>& descs = ComponentRegistry::Get().GetDescs();
     for (const ComponentDesc& desc : descs)
     {
+        if (desc.type < ComponentType::Script && gameObject->GetFixedComponent(desc.type) != nullptr)
+            continue;
+
         if (ImGui::Button(desc.name))
         {
             gameObject->AddComponent(desc.factory());
@@ -218,11 +227,22 @@ bool Inspector::DrawCard(string title, const void* const idPtr, function<bool()>
     return changed;
 }
 
-void Inspector::DrawComponentCard(Component& component)
+bool Inspector::DrawComponentCard(Component& component)
 {
+    bool removeRequested = false;
     DrawCard(typeid(component).name(), &component, [&]
         {
             return component.OnGUI();
         },
-        [&]() { component.OnMenu(); }, &component);
+        [&]()
+        {
+            component.OnMenu();
+            if (component.GetType() != ComponentType::Transform)
+            {
+                ImGui::Separator();
+                if (ImGui::MenuItem("Remove Component"))
+                    removeRequested = true;
+            }
+        }, &component);
+    return removeRequested;
 }

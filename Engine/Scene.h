@@ -45,7 +45,8 @@ public:
 	GameObjectRef Add(string name, bool useRectTransform = false);
     GameObjectRef Add(string name, Transform* parent);
 	GameObject* Instantiate(GameObject* original, Transform* parent = nullptr);
-	GuidRef AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
+	Component* AddComponent(GameObjectRef objRef, unique_ptr<Component> component);
+	bool RemoveComponent(Component* component);
 	virtual void Remove(GameObjectRef gameObjectRef);
 
 	GameObjectRefSet& GetObjects() { return _gameObjects; }
@@ -95,6 +96,7 @@ public:
 private:
     void CleanUpRemoveLists();
     void RemoveGameObjectRecur(const GameObjectRef& gameObjectRef);
+    bool RemoveComponentImmediate(const ComponentRefBase& componentRef);
 
 	GameObjectRef Add(GuidRef guidRef, bool useRectTransform, Transform* parent);
 
@@ -130,6 +132,7 @@ private:
 	GameObjectRefSet _lights;	// Cache Light
 	shared_ptr<Sky> _sky;
 	vector<GameObjectRef> _removeLists;
+	vector<ComponentRefBase> _removeComponentLists;
 
     SlotManager<GameObject> _gameObjectSlotManager;
     SlotManager<Component> _componentSlotManager;

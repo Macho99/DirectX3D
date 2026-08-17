@@ -46,17 +46,14 @@ void GameManager::Awake()
                 _titleImage.Resolve()->GetGameObject()->SetActive(false);
 
                 Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
+                player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
                 _myPlayer = player;
 
                 TargetFollower* cameraFollower = _cameraFollower.Resolve();
                 cameraFollower->SetTarget(player->GetTransform());
                 cameraFollower->SetPositionInterpolationSpeed(4.f);
                 cameraFollower->SetEnabled(true);
-                cameraFollower->GetGameObject()->GetComponentInChildren<Camera>()->GetGameObject()->AddComponent<ThirdPersonCamMove>();
-                //{
-                //    unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
-                //    thirdPersonCamMove->SetTarget(obj->GetTransformRef());
-
+                SetGameState(GameState::TitleToLogin);
         });
     }
 }
@@ -88,10 +85,13 @@ bool GameManager::OnGUI()
 {
     bool changed = false;
 
+    changed |= OnGUIUtils::DrawComponentRef("CameraFollower", _cameraFollower);
     changed |= OnGUIUtils::DrawComponentRef("PlayerPrefab", _playerPrefab);
     changed |= OnGUIUtils::DrawComponentRef("ZombiePrefab", _zombiePrefab);
     changed |= OnGUIUtils::DrawComponentRef("TitlePoint", _titlePoint);
     changed |= OnGUIUtils::DrawComponentRef("PlayerSpawnPoint", _playerSpawnPoint);
+    changed |= OnGUIUtils::DrawComponentRef("TitleImage", _titleImage);
+    changed |= OnGUIUtils::DrawComponentRef("LoginButton", _loginButton);
 
     return changed;
 }
@@ -168,8 +168,21 @@ void GameManager::UpdateGameState()
 {
     switch (_gameState)
     {
-    case GameState::Title:
+    case GameState::TitleToLogin:
+        if (_cameraFollower.Resolve()->GetTargetDistance() < 0.1f)
+        {
+            SetGameState(GameState::Login);
+
+        }
+        break;
     case GameState::Login:
     case GameState::World:
+        break;
     }
+}
+
+void GameManager::SetGameState(GameState gameState)
+{
+    DBG->Log("GameState Change: %d -> %d", (int)_gameState , (int)gameState);
+    _gameState = gameState;
 }

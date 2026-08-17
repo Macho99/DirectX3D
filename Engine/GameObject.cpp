@@ -309,14 +309,26 @@ SnowBillboard* GameObject::GetSnowBillboard()
 //	return static_pointer_cast<Animator>(component);
 //}
 
-void GameObject::AddComponent(unique_ptr<Component> component)
+Component* GameObject::AddComponent(unique_ptr<Component> component)
 {
+    if (component == nullptr)
+        return nullptr;
+
+    const uint8 index = static_cast<uint8>(component->GetType());
+    if (index < FIXED_COMPONENT_COUNT && _components[index].Resolve() != nullptr)
+    {
+        ASSERT(false, "Component already exists");
+        return nullptr;
+    }
+
     Guid::SetCurrentInstanceId(CUR_SCENE->GetInstanceId());
 	GameObjectRef thisRef(_guid);
 	component->SetGameObject(thisRef);
-	uint8 index = static_cast<uint8>(component->GetType());
-    Component* componentPtr = component.get();
-	GuidRef guidRef = CUR_SCENE->AddComponent(thisRef, std::move(component));
+	Component* componentPtr = CUR_SCENE->AddComponent(thisRef, std::move(component));
+    if (componentPtr == nullptr)
+        return nullptr;
+
+	GuidRef guidRef(componentPtr->GetGuid());
 	if (index < FIXED_COMPONENT_COUNT)
 	{
 		ComponentRefBase componentRefBase(guidRef);
@@ -334,6 +346,16 @@ void GameObject::AddComponent(unique_ptr<Component> component)
 	componentPtr->Start();
 	if (_isActive && componentPtr->IsEnabled())
 		componentPtr->OnEnable();
+
+    return componentPtr;
+}
+
+bool GameObject::RemoveComponent(Component* component)
+{
+    if (component == nullptr || component->GetGameObject() != this)
+        return false;
+
+    return CUR_SCENE->RemoveComponent(component);
 }
 
 void GameObject::SetActive(bool active)

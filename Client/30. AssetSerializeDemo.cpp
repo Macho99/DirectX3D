@@ -66,7 +66,7 @@ void AssetSerializeDemo::Init()
 
     GameObjectRef gmRef = CUR_SCENE->Add("GameManager");
     GameObject* gmObj = gmRef.Resolve();
-    GameManager* gm = gmObj->AddComponent<GameManager>().Resolve();
+    GameManager* gm = gmObj->AddComponent<GameManager>();
     gmObj->AddComponent(make_unique<ServerConnect>());
 
     Transform* envTransform = CUR_SCENE->Add("Environment").Resolve()->GetTransform();
@@ -370,7 +370,7 @@ void AssetSerializeDemo::Init()
         auto objRef = CUR_SCENE->Add("Impulse");
         GameObject* obj = objRef.Resolve();
         obj->SetActive(false);
-        MeshRenderer* meshRenderer = obj->AddComponent<MeshRenderer>().Resolve();
+        MeshRenderer* meshRenderer = obj->AddComponent<MeshRenderer>();
         meshRenderer->SetMesh(RESOURCES->GetSphereMesh());
         meshRenderer->SetMaterial(RESOURCES->GetResourceRefByPath<Material>(L"Materials\\ImpulseMat.mat"));
         Transform* transform = obj->GetTransform();
