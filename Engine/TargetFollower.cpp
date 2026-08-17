@@ -92,6 +92,17 @@ bool TargetFollower::OnGUI()
     return changed;
 }
 
+float TargetFollower::GetTargetDistance()
+{
+    Transform* target = _target.Resolve();
+    if(target == nullptr)
+    {
+        return -1;
+    }
+
+    return Vec3::Distance(GetTransform()->GetPosition(), target->GetPosition());
+}
+
 void TargetFollower::UpdateImmediateFollow()
 {
     TargetFollowMode prevPositionMode = _positionFollowMode;

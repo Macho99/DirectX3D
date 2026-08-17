@@ -34,6 +34,7 @@ public:
     virtual int GetVersion() const override { return 2; }
 
     void PushJob(function<void(void)> func);
+    void UpdateGameState();
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -71,6 +72,7 @@ private:
     ComponentRef<Transform> _playerSpawnPoint;
 
     ComponentRef<UIImage> _titleImage;
+    GameState _gameState;
 };
 
 #define GM GameManager::GetInstance()

@@ -4,6 +4,10 @@
 #include "Player.h"
 #include "Zombie.h"
 #include "TargetFollower.h"
+#include "UIImage.h"
+#include "Button.h"
+#include "Camera.h"
+#include "ThirdPersonCamMove.h"
 
 void GameManager::Awake()
 {
@@ -32,10 +36,35 @@ void GameManager::Awake()
         cameraFollower->SetTarget(_titlePoint.Resolve());
         cameraFollower->UpdateImmediateFollow();
     }
+
+    UIImage* titleImage = _titleImage.Resolve();
+    if (titleImage != nullptr)
+    {
+        Button* button = titleImage->GetGameObject()->GetComponentInChildren<Button>();
+        button->AddOnClickedEvent(
+            [&](){
+                _titleImage.Resolve()->GetGameObject()->SetActive(false);
+
+                Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
+                _myPlayer = player;
+
+                TargetFollower* cameraFollower = _cameraFollower.Resolve();
+                cameraFollower->SetTarget(player->GetTransform());
+                cameraFollower->SetPositionInterpolationSpeed(4.f);
+                cameraFollower->SetEnabled(true);
+                cameraFollower->GetGameObject()->GetComponentInChildren<Camera>()->GetGameObject()->AddComponent<ThirdPersonCamMove>();
+                //{
+                //    unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
+                //    thirdPersonCamMove->SetTarget(obj->GetTransformRef());
+
+        });
+    }
 }
 
 void GameManager::Update()
 {
+    UpdateGameState();
+
     vector<function<void(void)>> tempQueue;
     {
         WRITE_LOCK;
@@ -75,8 +104,7 @@ void GameManager::OnCreateMyPlayer(Protocol::Player myPlayer)
         return;
     }
 
-    GameObject* playerObj = GameObject::Instantiate(_playerPrefab.Resolve()->GetGameObjectRef(), nullptr).Resolve();
-    Player* player = playerObj->GetComponent<Player>();
+    Player* player = GameObject::Instantiate(_playerPrefab.Resolve(), nullptr);
     player->Init(myPlayer.id(), myPlayer.name(), true);
 
     _myPlayer = player;
@@ -90,8 +118,7 @@ void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
         return;
     }
 
-    GameObject* playerObj = GameObject::Instantiate(_playerPrefab.Resolve()->GetGameObjectRef(), nullptr).Resolve();
-    Player* player = playerObj->GetComponent<Player>();
+    Player* player = GameObject::Instantiate(_playerPrefab.Resolve(), nullptr);
     player->Init(otherPlayer.id(), otherPlayer.name(), false);
 
     _players[otherPlayer.id()] = player;
@@ -135,4 +162,14 @@ void GameManager::PushJob(function<void(void)> func)
 {
     WRITE_LOCK;
     _jobQueue.push_back(func);
+}
+
+void GameManager::UpdateGameState()
+{
+    switch (_gameState)
+    {
+    case GameState::Title:
+    case GameState::Login:
+    case GameState::World:
+    }
 }

@@ -356,5 +356,5 @@ void PendingInstanciate::Do()
     if (targetTransform == nullptr)
         return;
 
-    GameObject::Instantiate(targetTransform->GetGameObjectRef(), targetTransform->GetParent());
+    GameObject::Instantiate(targetTransform->GetGameObject(), targetTransform->GetParent());
 }

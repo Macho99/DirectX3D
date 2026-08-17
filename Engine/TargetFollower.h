@@ -22,6 +22,8 @@ public:
     virtual void Update() override;
     virtual bool OnGUI() override;
 
+    float GetTargetDistance();
+
     void SetTarget(Transform* target) { _target = TransformRef(target); }
     Transform* GetTarget() const { return _target.Resolve(); }
 

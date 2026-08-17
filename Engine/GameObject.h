@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "Transform.h"
 #include "Light.h"
 #include <wrl/client.h>
 #include <type_traits>
@@ -49,6 +50,9 @@ public:
     template<class T>
     T* GetComponent();
 
+    template<class T>
+    T* GetComponentInChildren();
+
     Transform* GetTransform();
     TransformRef GetTransformRef();
     Camera* GetCamera();
@@ -96,7 +100,17 @@ public:
     void SetGuid(const Guid& guid) { _guid = guid; }
 
     static GameObjectRef GetGameObjectRefByGuid(const Guid& guid);
-    static GameObjectRef Instantiate(const GameObjectRef& original, Transform* parent = nullptr);
+    static GameObject* Instantiate(GameObject* original, Transform* parent = nullptr);
+
+    template<class T, std::enable_if_t<std::is_base_of_v<Component, T>, int> = 0>
+    static T* Instantiate(T* original, Transform* parent = nullptr)
+    {
+        if (original == nullptr)
+            return nullptr;
+
+        GameObject* clone = Instantiate(original->GetGameObject(), parent);
+        return clone != nullptr ? clone->GetComponent<T>() : nullptr;
+    }
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -155,6 +169,37 @@ inline T* GameObject::GetComponent()
         return GetScriptComponent<T>();
     else
         return GetFixedComponent<T>();
+}
+
+template<class T>
+inline T* GameObject::GetComponentInChildren()
+{
+    static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+
+    T* component = GetComponent<T>();
+    if (component != nullptr)
+        return component;
+
+    Transform* transform = GetTransform();
+    if (transform == nullptr)
+        return nullptr;
+
+    for (const TransformRef& childRef : transform->GetChildren())
+    {
+        Transform* childTransform = childRef.Resolve();
+        if (childTransform == nullptr)
+            continue;
+
+        GameObject* childGameObject = childTransform->GetGameObject();
+        if (childGameObject == nullptr)
+            continue;
+
+        component = childGameObject->GetComponentInChildren<T>();
+        if (component != nullptr)
+            return component;
+    }
+
+    return nullptr;
 }
 
 template<class T>

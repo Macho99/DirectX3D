@@ -278,13 +278,20 @@ GameObjectRef Scene::Add(string name, Transform* parent)
     return Add(guidRef, rectParent != nullptr, parent);
 }
 
-GameObjectRef Scene::Instantiate(const GameObjectRef& original, Transform* parent)
+GameObject* Scene::Instantiate(GameObject* original, Transform* parent)
 {
-    GameObject* source = original.Resolve();
-    if (source == nullptr || IsInScene(original) == false)
-        return GameObjectRef();
+    if (original == nullptr)
+        return nullptr;
 
-    Transform* sourceTransform = source->GetTransform();
+    Transform* sourceTransform = original->GetTransform();
+    if (sourceTransform == nullptr)
+        return nullptr;
+
+    GameObjectRef originalRef = sourceTransform->GetGameObjectRef();
+    if (IsInScene(originalRef) == false)
+        return nullptr;
+
+    GameObject* source = original;
     const vector<TransformRef> sourceChildren = sourceTransform->GetChildren();
     const bool useRectTransform = dynamic_cast<RectTransform*>(sourceTransform) != nullptr;
     GameObjectRef targetRef = Add(source->GetName() + " (Clone)", useRectTransform);
@@ -353,10 +360,10 @@ GameObjectRef Scene::Instantiate(const GameObjectRef& original, Transform* paren
     {
         Transform* sourceChild = sourceChildRef.Resolve();
         if (sourceChild != nullptr)
-            Instantiate(sourceChild->GetGameObjectRef(), targetTransform);
+            Instantiate(sourceChild->GetGameObject(), targetTransform);
     }
 
-    return targetRef;
+    return target;
 }
 
 GuidRef Scene::AddComponent(GameObjectRef gameObjectRef, unique_ptr<Component> component)
