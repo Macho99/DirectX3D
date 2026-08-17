@@ -18,9 +18,12 @@ public:
     Vec2 GetMousePosition() const;
     Vec2 GetLocalMousePosition();
     bool ContainsMouseSelf();
+    bool IsIgnoreMouseInput() const { return _ignoreMouseInput; }
+    void SetIgnoreMouseInput(bool value) { _ignoreMouseInput = value; }
 
     virtual void InnerRender(RenderTech renderTech) override;
     virtual bool OnGUI() override;
+    virtual int GetVersion() const { return Super::GetVersion() + 2; }
 
     template<typename Archive>
     void serialize(Archive& ar)
@@ -29,6 +32,11 @@ public:
 
         if (Archive::is_saving::value)
             ar(CEREAL_NVP(_maskMode));
+
+        if (_version >= 2)
+        {
+            ar(CEREAL_NVP(_ignoreMouseInput));
+        }
     }
 
 public:
@@ -44,4 +52,5 @@ protected:
     ResourceRef<Mesh> _mesh;
     UIMaskMode _maskMode = UIMaskMode::None;
     bool _containsMouseSelf = false;
+    bool _ignoreMouseInput = false;
 };

@@ -46,7 +46,9 @@ void GameManager::Awake()
                 _titleImage.Resolve()->GetGameObject()->SetActive(false);
 
                 Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
+                player->GetGameObject()->SetActive(true);
                 player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
+                player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
                 _myPlayer = player;
 
                 TargetFollower* cameraFollower = _cameraFollower.Resolve();

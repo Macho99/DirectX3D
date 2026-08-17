@@ -7,7 +7,7 @@ class TargetFollower;
 
 enum class GameState
 {
-    Title,
+    Title = 0,
     TitleToLogin,
     Login,
     World,
@@ -32,7 +32,7 @@ public:
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 2; }
+    virtual int GetVersion() const override { return 3; }
 
     void PushJob(function<void(void)> func);
     void UpdateGameState();
@@ -82,7 +82,7 @@ private:
 
     ComponentRef<UIImage> _titleImage;
     ComponentRef<Button> _loginButton;
-    GameState _gameState;
+    GameState _gameState = GameState::Title;
 };
 
 #define GM GameManager::GetInstance()

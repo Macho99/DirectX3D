@@ -18,7 +18,7 @@ public:
 	virtual void OnMouseUp() override;
 	virtual void OnDisable() override;
 	virtual bool OnGUI() override;
-    virtual int GetVersion() const override { return 1; }
+    virtual int GetVersion() const override { return Super::GetVersion() + 1; }
 
     template<typename Archive>
     void serialize(Archive& ar)

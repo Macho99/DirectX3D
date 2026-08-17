@@ -59,7 +59,7 @@ public:
     virtual void Start() override;
     virtual void Update() override;
     virtual bool OnGUI() override;
-    virtual int GetVersion() const override { return 1; }
+    virtual int GetVersion() const override { return Super::GetVersion() + 1; }
 
     void SetText(const TextString& text);
     const TextString& GetText() const { return _text; }

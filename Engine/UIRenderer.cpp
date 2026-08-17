@@ -26,6 +26,7 @@ bool UIRenderer::OnGUI()
         SetMaskMode(_maskMode);
         changed = true;
     }
+    changed |= OnGUIUtils::DrawBool("Ignore Mouse", &_ignoreMouseInput);
 
     return changed;
 }

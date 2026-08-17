@@ -25,7 +25,7 @@ public:
     void AddOnValueChangedEvent(function<void(const string&)> callback);
     void AddOnSubmitEvent(function<void(const string&)> callback);
 
-    virtual int GetVersion() const override { return 1; }
+    virtual int GetVersion() const override { return Super::GetVersion() + 1; }
 
     template<typename Archive>
     void serialize(Archive& ar)

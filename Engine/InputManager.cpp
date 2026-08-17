@@ -383,7 +383,7 @@ UIRenderer* InputManager::PickUIFromTransform(Transform* transform, UIRenderer* 
             return pickedUI;
     }
 
-    if (uiRenderer != nullptr)
+    if (uiRenderer != nullptr && uiRenderer->IsIgnoreMouseInput() == false)
     {
         if (maskMode == UIMaskMode::MaskTarget)
         {
