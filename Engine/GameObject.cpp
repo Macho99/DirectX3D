@@ -63,32 +63,26 @@ void GameObject::Awake()
 	}
 }
 
-void GameObject::Start()
-{
-	for (ComponentRefBase& component : _components)
-	{
-		if (component.IsValid())
-			component.Resolve()->Start();
-	}
-
-	for (ComponentRef<MonoBehaviour>& script : _scripts)
-	{
-		script.Resolve()->Start();
-	}
-}
-
 void GameObject::Update()
 {
 	for (ComponentRefBase& component : _components)
 	{
-		if (component.IsValid() && component.Resolve()->IsEnabled())
-			component.Resolve()->Update();
+		Component* componentPtr = component.Resolve();
+		if (componentPtr != nullptr && componentPtr->IsEnabled())
+		{
+			componentPtr->InvokeStart();
+			componentPtr->Update();
+		}
 	}
 
 	for (ComponentRef<MonoBehaviour>& script : _scripts)
 	{
-		if (script.Resolve()->IsEnabled())
-			script.Resolve()->Update();
+		MonoBehaviour* scriptPtr = script.Resolve();
+		if (scriptPtr != nullptr && scriptPtr->IsEnabled())
+		{
+			scriptPtr->InvokeStart();
+			scriptPtr->Update();
+		}
 	}
 }
 
@@ -343,7 +337,6 @@ Component* GameObject::AddComponent(unique_ptr<Component> component)
 	}
 
 	componentPtr->Awake();
-	componentPtr->Start();
 	if (_isActive && componentPtr->IsEnabled())
 		componentPtr->OnEnable();
 

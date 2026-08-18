@@ -5,17 +5,11 @@
 #include "ModelAnimator.h"
 #include "LineRenderer.h"
 
-void PlayerAnimEventHandler::Awake()
+void PlayerAnimEventHandler::Start()
 {
-    TrailRenderer* trailRenderer = _trailRenderer.Resolve();
-    if (trailRenderer == nullptr)
-    {
-        GameObjectRef trailObjRef = CUR_SCENE->Add("PlayerWeaponTrail", GetTransform());
-        _trailRenderer = trailObjRef.Resolve()->AddComponent<TrailRenderer>();
-        trailRenderer = _trailRenderer.Resolve();
-    }
-
+    TrailRenderer* trailRenderer = GetGameObject()->GetComponentInChildren<TrailRenderer>();
     ASSERT(trailRenderer != nullptr, "TrailRenderer is null");
+    _trailRenderer = trailRenderer;
 
     ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\TrailMat.mat");
     trailRenderer->SetMaterial(materialRef);

@@ -93,6 +93,7 @@ public:
 private:
 	friend class GameObject;
 	void SetGameObject(const GameObjectRef& gameObject) { _gameObject = gameObject; }
+	void InvokeStart();
 
 public:
     template<class Archive>
@@ -129,6 +130,7 @@ protected:
 	GameObjectRef _gameObject;
     Guid _guid;
 	bool _enabled = true;
+	bool _isStarted = false;
 };
 
 template<class T>

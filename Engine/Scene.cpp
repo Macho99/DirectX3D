@@ -51,8 +51,6 @@ void Scene::Start()
     for (auto& gameObject : _gameObjects)
     {
         GameObject* obj = gameObject.Resolve();
-        obj->Start();
-
         if (obj->IsActiveInHierarchy())
             obj->OnEnable();
     }
@@ -702,7 +700,6 @@ GameObjectRef Scene::Add(GuidRef guidRef, bool useRectTransform, Transform* pare
     _gameObjects.insert(gameObjectRef);
 
     gameObject->Awake();
-    gameObject->Start();
     gameObject->OnEnable();
 
     return gameObjectRef;

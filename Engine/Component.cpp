@@ -17,6 +17,15 @@ Component::~Component()
 
 }
 
+void Component::InvokeStart()
+{
+	if (_isStarted)
+		return;
+
+	_isStarted = true;
+	Start();
+}
+
 GameObject* Component::GetGameObject()
 {
 	return _gameObject.Resolve();

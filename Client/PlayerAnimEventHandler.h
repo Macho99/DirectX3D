@@ -7,7 +7,7 @@ class PlayerAnimEventHandler : public MonoBehaviour
     DECLARE_MONO_BEHAVIOUR(PlayerAnimEventHandler)
 
 public:
-    virtual void Awake() override;
+    virtual void Start() override;
     virtual void Update() override;
     virtual void OnAnimationEvent(const AnimationEvent& animationEvent) override;
 
