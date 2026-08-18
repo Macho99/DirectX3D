@@ -4,10 +4,12 @@
 class Player;
 class Zombie;
 class TargetFollower;
+class InputText;
 
 enum class GameState
 {
     Title = 0,
+    Connected,
     Login,
     World,
 
@@ -31,12 +33,14 @@ public:
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 4; }
+    virtual int GetVersion() const override { return 5; }
 
     void PushJob(function<void(void)> func);
     void UpdateGameState();
     GameState GetGameState() const { return _gameState; }
     void SetGameState(GameState gameState);
+    void LoginState();
+    void ConnectedState();
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -66,6 +70,11 @@ public:
         {
             ar(CEREAL_NVP(_cameraSpawnPoint));
         }
+
+        if (_version >= 5)
+        {
+            ar(CEREAL_NVP(_usernameInput));
+        }
     }
 
 private:
@@ -87,6 +96,7 @@ private:
 
     ComponentRef<UIImage> _titleImage;
     ComponentRef<Button> _loginButton;
+    ComponentRef<InputText> _usernameInput;
     GameState _gameState = GameState::Title;
 
     float _testValue;

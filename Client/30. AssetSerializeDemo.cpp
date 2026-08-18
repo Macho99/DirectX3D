@@ -236,11 +236,11 @@ void AssetSerializeDemo::Init()
                 gm->SetCameraFollower(followerObj->GetComponent<TargetFollower>());
             }
 
-            //{
-            //    unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
-            //    thirdPersonCamMove->SetTarget(obj->GetTransformRef());
-            //    camera->AddComponent(std::move(thirdPersonCamMove));
-            //}
+            {
+                unique_ptr<ThirdPersonCamMove> thirdPersonCamMove = make_unique<ThirdPersonCamMove>();
+                //thirdPersonCamMove->SetTarget(obj->GetTransformRef());
+                camera->AddComponent(std::move(thirdPersonCamMove));
+            }
             camera->AddComponent(make_unique<CameraMove>());
             camera->AddComponent(make_unique<EditorCamController>());
         }

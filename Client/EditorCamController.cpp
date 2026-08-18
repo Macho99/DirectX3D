@@ -25,7 +25,7 @@ void EditorCamController::Update()
         INPUT->IsMouseOnUI() == false && isMouseOverGizmo == false)
     {
         ThirdPersonCamMove* charCamMove = _charCamMove.Resolve();
-        if (charCamMove != nullptr)
+        if (charCamMove != nullptr && GM->GetGameState() == GameState::World)
             charCamMove->SetEnabled(true);
 
         GetTransform()->GetParent()->GetGameObject()->GetComponent<TargetFollower>()->SetEnabled(true);

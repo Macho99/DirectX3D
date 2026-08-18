@@ -10,6 +10,7 @@
 #include "ThirdPersonCamMove.h"
 #include "ModelAnimator.h"
 #include "Model.h"
+#include "InputText.h"
 
 void GameManager::Start()
 {
@@ -45,21 +46,7 @@ void GameManager::Start()
         Button* button = titleImage->GetGameObject()->GetComponentInChildren<Button>();
         button->AddOnClickedEvent(
             [&](){
-                Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
-                player->GetGameObject()->SetActive(true);
-                player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
-                player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
-                _myPlayer = player;
-
-                const float duration = 3.f;
-                TWEEN->DORotate(_cameraFollower.Resolve()->GetTransform(), _playerSpawnPoint.Resolve()->GetRotation(), duration);
-                TweenPtr tween = TWEEN->DOMove(_cameraFollower.Resolve()->GetTransform(), _cameraSpawnPoint.Resolve()->GetPosition(), duration);
-                tween->OnComplete([&]()
-                    {
-                        SetGameState(GameState::Login);
-                    });
-                
-                _titleImage.Resolve()->GetGameObject()->SetActive(false);
+                SERVER_CONNECT->TryConnect();
         });
     }
 
@@ -117,22 +104,26 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("TitleImage", _titleImage);
     changed |= OnGUIUtils::DrawComponentRef("LoginButton", _loginButton);
     changed |= OnGUIUtils::DrawComponentRef("CameraSpawnPoint", _cameraSpawnPoint);
+    changed |= OnGUIUtils::DrawComponentRef("UserNameInput", _usernameInput);
 
     return changed;
 }
 
 void GameManager::OnCreateMyPlayer(Protocol::Player myPlayer)
 {
-    if (_myPlayer.Resolve() != nullptr)
-    {
-        DBG->LogError("My player already exists.");
-        return;
-    }
-
-    Player* player = GameObject::Instantiate(_playerPrefab.Resolve(), nullptr);
+    Player* player = _myPlayer.Resolve();
     player->Init(myPlayer.id(), myPlayer.name(), true);
 
-    _myPlayer = player;
+    TargetFollower* targetFollower = _cameraFollower.Resolve();
+    targetFollower->SetTarget(player->GetTransform());
+    targetFollower->SetFollowRotation(false, false, false);
+    targetFollower->SetEnabled(true);
+    ThirdPersonCamMove* thirdPersonCamMove = targetFollower->GetGameObject()->GetComponentInChildren<ThirdPersonCamMove>();
+    thirdPersonCamMove->SetTarget(player->GetTransform());
+
+    _loginButton.Resolve()->GetTransform()->GetParent()->GetGameObject()->SetActive(false);
+
+    SetGameState(GameState::World);
 }
 
 void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
@@ -203,4 +194,55 @@ void GameManager::SetGameState(GameState gameState)
 {
     DBG->Log("GameState Change: %d -> %d", (int)_gameState , (int)gameState);
     _gameState = gameState;
+}
+
+void GameManager::LoginState()
+{
+    Button* loginButton = _loginButton.Resolve();
+    InputText* usernameInput = _usernameInput.Resolve();
+
+    if (loginButton == nullptr || usernameInput == nullptr)
+    {
+        DBG->LogError("Login button or username input is null.");
+    }
+
+    loginButton->AddOnClickedEvent([&]()
+        {
+            string username = _usernameInput.Resolve()->GetText();
+            if (username.empty())
+            {
+                DBG->LogError("Username is empty.");
+                return;
+            }
+            Protocol::C_LOGIN loginPacket;
+            loginPacket.set_name(username);
+            auto sendBuffer = ServerPacketHandler::MakeSendBuffer(loginPacket);
+            SERVER_CONNECT->SendPacket(sendBuffer);
+        });
+
+
+    loginButton->GetTransform()->GetParent()->GetGameObject()->SetActive(true);
+
+    SetGameState(GameState::Login);
+}
+
+void GameManager::ConnectedState()
+{
+    Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
+    player->GetGameObject()->SetActive(true);
+    player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
+    player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
+    _myPlayer = player;
+
+    const float duration = 3.f;
+    TWEEN->DORotate(_cameraFollower.Resolve()->GetTransform(), _playerSpawnPoint.Resolve()->GetRotation(), duration);
+    TweenPtr tween = TWEEN->DOMove(_cameraFollower.Resolve()->GetTransform(), _cameraSpawnPoint.Resolve()->GetPosition(), duration);
+    tween->OnComplete([&]()
+        {
+            LoginState();
+        });
+
+    _titleImage.Resolve()->GetTransform()->GetParent()->GetGameObject()->SetActive(false);
+
+    SetGameState(GameState::Connected);
 }

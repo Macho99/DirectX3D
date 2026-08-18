@@ -119,3 +119,20 @@ void ServerConnect::Disconnect()
 	GThreadManager->Join();
 	_service = nullptr;
 }
+
+void ServerConnect::SendPacket(SendBufferRef sendBuffer)
+{
+	if (_service == nullptr)
+	{
+		DBG->LogError("Service is null. Cannot send packet.");
+		return;
+	}
+
+	if (_isRunning == false)
+	{
+		DBG->LogError("Service is not running. Cannot send packet.");
+		return;
+	}
+
+	_service->Broadcast(sendBuffer);
+}

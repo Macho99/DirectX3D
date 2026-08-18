@@ -20,6 +20,7 @@ public:
 	virtual void OnConnected() override
 	{
         DBG->Log("ServerSession::OnConnected");
+		GM->ConnectedState();
 	}
 
 	virtual void OnDisconnected() override

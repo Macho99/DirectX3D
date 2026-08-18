@@ -13,4 +13,6 @@
 
 #include "CorePch.h"
 #include "Protocol.pb.h"
+#include "ServerConnect.h"
+#include "ServerPacketHandler.h"
 #include "GameManager.h"

@@ -14,6 +14,7 @@ public:
 
     bool TryConnect();
     void Disconnect();
+    void SendPacket(SendBufferRef sendBuffer);
 
 private:
     inline static ServerConnect* _instance = nullptr;
