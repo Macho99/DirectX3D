@@ -177,7 +177,7 @@ xcopy "$(SolutionDir)Libraries\Lib\MathLibrary\*" "$(SolutionDir)..\Server\Libra
     <ClInclude Include="NavMeshQuery.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PolyMeshField.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="NavTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CompactHeightField.cpp" />
@@ -195,7 +195,7 @@ xcopy "$(SolutionDir)Libraries\Lib\MathLibrary\*" "$(SolutionDir)..\Server\Libra
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PolyMeshField.cpp" />
-    <ClCompile Include="Types.cpp" />
+    <ClCompile Include="NavTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -37,7 +37,7 @@ using Vec3 = DirectX::SimpleMath::Vector3;
 using namespace std;
 namespace fs = std::filesystem;
 
-#include "Types.h"
+#include "NavTypes.h"
 
 
 #endif //PCH_H

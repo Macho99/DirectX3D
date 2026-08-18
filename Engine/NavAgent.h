@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "../NavBuild/Types.h"
+#include "../NavBuild/NavTypes.h"
 
 class NavMesh;
 class MeshRenderer;

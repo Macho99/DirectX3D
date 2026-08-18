@@ -23,7 +23,7 @@
     <ClInclude Include="pch.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
+    <ClInclude Include="NavTypes.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="CompactHeightField.h">
@@ -58,7 +58,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Types.cpp">
+    <ClCompile Include="NavTypes.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CompactHeightField.cpp">

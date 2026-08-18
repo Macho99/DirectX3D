@@ -147,8 +147,11 @@ void NavMeshBuilder::LoadFromFile(const fs::path& filePath)
     _detailMeshField = make_unique<DetailMeshField>(heightFieldBase, *fileUtils);
     _navMeshQuery = make_unique<NavMeshQuery>(*_polyMeshField, *_detailMeshField);
 
-    _onBuildPolyMesh(*_polyMeshField);
-    _onBuildDetailMesh(*_detailMeshField);
+    if(_onBuildPolyMesh)
+        _onBuildPolyMesh(*_polyMeshField);
+
+    if (_onBuildDetailMesh)
+        _onBuildDetailMesh(*_detailMeshField);
 }
 
 void NavMeshBuilder::MarkWalkableTriangles(NavBuildInput& input)

@@ -1,5 +1,5 @@
 #pragma once
-#include "Types.h"
+#include "NavTypes.h"
 #include "HeightField.h"
 #include "CompactHeightField.h"
 namespace fs = std::filesystem;
