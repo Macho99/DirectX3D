@@ -70,11 +70,9 @@ private:
 
     NavDebugOption _debugOption = NavDebugOption::None;
     Vec3 _buildExtent = Vec3(11.f, 100.f, 11.f);
-    float _contourSimplifyMaxError = 1.5f;
-    int _debugSeedCount = 0;
     bool _showDistanceField = false;
     int _debugPolyIndexCount = 0;
-    float _detailSampleMaxError = 2.f;
+    NavBuildSettings _buildSettings;
 
     function<void(const HeightField&)> _heightFieldDebugFunc;
     function<void(const Contours&)> _contoursDebugFunc;

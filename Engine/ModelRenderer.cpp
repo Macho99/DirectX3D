@@ -211,37 +211,44 @@ void ModelRenderer::SubmitTriangles(const Bounds& explicitBounds, vector<InputTr
         return;
 
     Transform* transform = GetGameObject()->GetTransform();
-    Matrix worldMat = transform->GetWorldMatrix();
+    const Matrix worldMat = transform->GetWorldMatrix();
 
     auto& meshes = mesh->GetMeshes();
     for (shared_ptr<ModelMesh>& mesh : meshes)
     {
 		Material* material = mesh->material.Resolve();
 		if (material == nullptr || material->IsIncludeInNavMesh() == false)
-			return;
-
-        Matrix finalMat = worldMat;
-		if (mesh->bone != nullptr)
-		{
-			const auto& bone = mesh->bone;
-			Matrix boneMat = bone->globalMatrix;
-			finalMat = boneMat * worldMat;
-		}
+			continue;
 
         const auto& vertices = mesh->geometry->GetVertices();
         const auto& indices = mesh->geometry->GetIndices();
-        for (size_t i = 0; i < indices.size(); i += 3)
-        {
-            InputTri tri;
-            tri.v0 = vertices[indices[i + 0]].position;
-            tri.v0 = Vec3::Transform(tri.v0, finalMat);
-            tri.v1 = vertices[indices[i + 1]].position;
-            tri.v1 = Vec3::Transform(tri.v1, finalMat);
-            tri.v2 = vertices[indices[i + 2]].position;
-            tri.v2 = Vec3::Transform(tri.v2, finalMat);
+        const Matrix boneMat = mesh->bone != nullptr
+            ? mesh->bone->globalMatrix
+            : Matrix::Identity;
 
-			if(explicitBounds.IsInside(tri))
-				tris.push_back(tri);
+        auto submitMeshTriangles = [&](const Matrix& instanceWorldMat)
+            {
+                const Matrix finalMat = boneMat * instanceWorldMat;
+                for (size_t i = 0; i < indices.size(); i += 3)
+                {
+                    InputTri tri;
+                    tri.v0 = Vec3::Transform(vertices[indices[i + 0]].position, finalMat);
+                    tri.v1 = Vec3::Transform(vertices[indices[i + 1]].position, finalMat);
+                    tri.v2 = Vec3::Transform(vertices[indices[i + 2]].position, finalMat);
+
+                    if (explicitBounds.IsInside(tri))
+                        tris.push_back(tri);
+                }
+            };
+
+        if (HasInstancingData())
+        {
+            for (const InstancingData& instancingData : GetInstancingDatas())
+                submitMeshTriangles(instancingData);
+        }
+        else
+        {
+            submitMeshTriangles(worldMat);
         }
     }
 }

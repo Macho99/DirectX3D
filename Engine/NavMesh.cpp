@@ -237,7 +237,7 @@ void NavMesh::Awake()
                             bool useDistanceColor = false;
                             if (_showDistanceField)
                             {
-                                if (_debugSeedCount == 0)
+                                if (_buildSettings.debugSeedCount == 0)
                                 {
                                     useDistanceColor = true;
                                 }
@@ -591,11 +591,19 @@ bool NavMesh::OnGUI()
         }
     }
     changed |= OnGUIUtils::DrawVec3("Build Extent", &_buildExtent, 1.f);
-    changed |= OnGUIUtils::DrawFloat("Contour GreedySimplify Max Error", &_contourSimplifyMaxError, 0.1f);
-    changed |= OnGUIUtils::DrawInt32("Debug Count", &_debugSeedCount, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Cell Size", &_buildSettings.cellSize, 0.01f);
+    changed |= OnGUIUtils::DrawFloat("Cell Height", &_buildSettings.cellHeight, 0.01f);
+    changed |= OnGUIUtils::DrawFloat("Agent Height", &_buildSettings.agentHeight, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Agent Radius", &_buildSettings.agentRadius, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Agent Max Climb", &_buildSettings.agentMaxClimb, 0.1f);
+    changed |= OnGUIUtils::DrawFloat("Agent Max Slope", &_buildSettings.agentMaxSlopeDeg, 1.f);
+    changed |= OnGUIUtils::DrawInt32("Min Region Count", &_buildSettings.minRegionCount, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Contour Max Error", &_buildSettings.contourMaxError, 0.1f);
+    changed |= OnGUIUtils::DrawInt32("Debug Seed Count", &_buildSettings.debugSeedCount, 1.f);
+    changed |= OnGUIUtils::DrawFloat("Detail Sample Max Error", &_buildSettings.detailSampleMaxError, 0.1f);
+    changed |= OnGUIUtils::DrawInt32("Detail Sample Distance", &_buildSettings.detailSampleDist, 1.f);
     changed |= OnGUIUtils::DrawBool("Show Distance Field", &_showDistanceField);
     changed |= OnGUIUtils::DrawInt32("Debug Poly Index Count", &_debugPolyIndexCount, 1.f);
-    changed |= OnGUIUtils::DrawFloat("Detail Sample Max Error", &_detailSampleMaxError, 0.1f);
 
     if (ImGui::Button("Build NavMesh") || buildNavMesh)
     {
@@ -616,10 +624,7 @@ bool NavMesh::OnGUI()
         bounds.bmax += curPos;
 
         NavBuildInput input;
-        input.settings.cellSize = 0.4f;
-        input.settings.contourMaxError = _contourSimplifyMaxError;
-        input.settings.debugSeedCount = _debugSeedCount;
-        input.settings.detailSampleMaxError = _detailSampleMaxError;
+        input.settings = _buildSettings;
 
         const auto& objs = CUR_SCENE->GetObjects();
         for (auto& gameObjectRef : objs)
