@@ -122,7 +122,8 @@ bool NavMeshQuery::MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, f
 
 bool NavMeshQuery::ValidatePosition(ValidatePositionInfo& info) const
 {
-    if ((info.validatedPosition - info.curPosition).LengthSquared() <= 0.01f)
+    if (info.lastPolyRef.IsValid() &&
+        (info.validatedPosition - info.curPosition).LengthSquared() <= kEps)
     {
         return false;
     }
@@ -132,18 +133,14 @@ bool NavMeshQuery::ValidatePosition(ValidatePositionInfo& info) const
     {
         Vec3 closestPoint;
         PolyRef newPolyRef = _polyMeshField.FindClosestPolyAndPoint(navPos, OUT closestPoint);
-        if (newPolyRef == info.lastPolyRef)
-        {
-            return true;
-        }
-        else
-        {
-            info.lastPolyRef = newPolyRef;
-            navPos = closestPoint;
-        }
+        if (newPolyRef.IsValid() == false)
+            return false;
+
+        info.lastPolyRef = newPolyRef;
+        navPos = closestPoint;
     }
 
-    navPos.y = _detailMeshField.SampleHeight(info.lastPolyRef, navPos);
+    navPos = _polyMeshField.FindClosestPointInPoly(navPos, info.lastPolyRef);
     info.validatedPosition = _polyMeshField.ToWorldPos(navPos);
     return true;
 }

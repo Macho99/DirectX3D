@@ -387,48 +387,33 @@ Poly& PolyMeshField::GetPoly(const PolyRef& ref)
 PolyRef PolyMeshField::FindClosestPolyAndPoint(const Vec3& srcPoint, OUT Vec3& closestPoint) const
 {
     PolyRef closestRef;
-    bool closestContainsPoint = false;
     float closestDistSq = FLT_MAX;
+    closestPoint = srcPoint;
 
     for (int regionIdx = 0; regionIdx < polyMeshs.size(); ++regionIdx)
     {
         const PolyMesh& polyMesh = polyMeshs[regionIdx];
-        const vector<Vertex>& vertices = polyMesh.vertices;
         for (int polyIdx = 0; polyIdx < polyMesh.polys.size(); ++polyIdx)
         {
-            const Poly& poly = polyMesh.polys[polyIdx];
-            float yDiff = abs(poly.centroid.y - srcPoint.y);
-            bool contains = false;
-            if (yDiff < 50.f)
-            {
-                contains = IsPointInPolyRef(srcPoint, PolyRef(regionIdx, polyIdx));
-            }
-            float distSq = (poly.centroid - srcPoint).LengthSquared();
+            const PolyRef polyRef(regionIdx, polyIdx);
+            const Vec3 candidate = FindClosestPointInPoly(srcPoint, polyRef);
 
-            if (closestContainsPoint == contains)
+            // Nav coordinates use different scales for XZ and Y. Compare the
+            // candidates after converting the delta to world-space units.
+            const Vec3 delta = candidate - srcPoint;
+            const float dx = delta.x * _cs;
+            const float dy = delta.y * _ch;
+            const float dz = delta.z * _cs;
+            const float distSq = dx * dx + dy * dy + dz * dz;
+
+            if (distSq < closestDistSq)
             {
-                if (distSq < closestDistSq)
-                {
-                    closestDistSq = distSq;
-                    closestRef = PolyRef(regionIdx, polyIdx);
-                }
-            }
-            else
-            {
-                if (contains)
-                {
-                    closestContainsPoint = true;
-                    closestDistSq = distSq;
-                    closestRef = PolyRef(regionIdx, polyIdx);
-                }
+                closestDistSq = distSq;
+                closestRef = polyRef;
+                closestPoint = candidate;
             }
         }
     }
-
-    if (closestContainsPoint)
-        closestPoint = srcPoint;
-    else
-        closestPoint = FindClosestPointInPoly(srcPoint, closestRef);
 
     return closestRef;
 }
@@ -437,28 +422,86 @@ Vec3 PolyMeshField::FindClosestPointInPoly(const Vec3& point, const PolyRef& pol
 {
     const Poly& poly = GetPoly(polyRef);
     const vector<Vertex>& verts = polyMeshs[polyRef.regionIndex].vertices;
-    Vec3 closestPoint;
-    float closestDistSq = FLT_MAX;
-    for (int i = 0; i < poly.vertCount; ++i)
+
+    Vec3 closestPoint = point;
+    if (IsPointInPoly(point, verts, poly) == false)
     {
-        const Vertex& a = verts[poly.indices[i]];
-        const Vertex& b = verts[poly.indices[(i + 1) % poly.vertCount]];
-        Vec3 edgeStart = a.ToVec3();
-        Vec3 edgeEnd = b.ToVec3();
-        Vec3 edgeDir = edgeEnd - edgeStart;
-        float edgeLengthSq = edgeDir.LengthSquared();
-        if (edgeLengthSq < kEps)
-            continue;
-        float t = ((point - edgeStart).Dot(edgeDir)) / edgeLengthSq;
-        t = std::clamp(t, 0.f, 1.f);
-        Vec3 projectedPoint = edgeStart + t * edgeDir;
-        float distSq = (projectedPoint - point).LengthSquared();
-        if (distSq < closestDistSq)
+        float closestDistSqXZ = FLT_MAX;
+        for (int i = 0; i < poly.vertCount; ++i)
         {
-            closestDistSq = distSq;
-            closestPoint = projectedPoint;
+            const Vec3 edgeStart = verts[poly.indices[i]].ToVec3();
+            const Vec3 edgeEnd = verts[poly.indices[(i + 1) % poly.vertCount]].ToVec3();
+            const float edgeX = edgeEnd.x - edgeStart.x;
+            const float edgeZ = edgeEnd.z - edgeStart.z;
+            const float edgeLengthSqXZ = edgeX * edgeX + edgeZ * edgeZ;
+            if (edgeLengthSqXZ < kEps)
+                continue;
+
+            const float pointX = point.x - edgeStart.x;
+            const float pointZ = point.z - edgeStart.z;
+            const float t = std::clamp(
+                (pointX * edgeX + pointZ * edgeZ) / edgeLengthSqXZ,
+                0.f,
+                1.f);
+            const Vec3 projectedPoint = edgeStart + (edgeEnd - edgeStart) * t;
+            const float dx = projectedPoint.x - point.x;
+            const float dz = projectedPoint.z - point.z;
+            const float distSqXZ = dx * dx + dz * dz;
+            if (distSqXZ < closestDistSqXZ)
+            {
+                closestDistSqXZ = distSqXZ;
+                closestPoint = projectedPoint;
+            }
         }
     }
+
+    // A convex PolyMesh polygon is triangulated as a fan only for sampling its
+    // surface height. The XZ position above remains the actual closest point.
+    for (int i = 1; i + 1 < poly.vertCount; ++i)
+    {
+        const Vec3 a = verts[poly.indices[0]].ToVec3();
+        const Vec3 b = verts[poly.indices[i]].ToVec3();
+        const Vec3 c = verts[poly.indices[i + 1]].ToVec3();
+        if (PointInTri2D(closestPoint, a, b, c) == false)
+            continue;
+
+        const Vec3 normal = (b - a).Cross(c - a);
+        if (std::abs(normal.y) <= kEps)
+            continue;
+
+        closestPoint.y = GetTriY(closestPoint.x, closestPoint.z, a, b, c);
+        return closestPoint;
+    }
+
+    // Degenerate polygons should not normally reach this path. Preserve a
+    // stable surface Y by taking the height of the nearest XZ edge.
+    float closestEdgeDistSqXZ = FLT_MAX;
+    for (int i = 0; i < poly.vertCount; ++i)
+    {
+        const Vec3 edgeStart = verts[poly.indices[i]].ToVec3();
+        const Vec3 edgeEnd = verts[poly.indices[(i + 1) % poly.vertCount]].ToVec3();
+        const float edgeX = edgeEnd.x - edgeStart.x;
+        const float edgeZ = edgeEnd.z - edgeStart.z;
+        const float edgeLengthSqXZ = edgeX * edgeX + edgeZ * edgeZ;
+        if (edgeLengthSqXZ < kEps)
+            continue;
+
+        const float t = std::clamp(
+            ((closestPoint.x - edgeStart.x) * edgeX +
+             (closestPoint.z - edgeStart.z) * edgeZ) / edgeLengthSqXZ,
+            0.f,
+            1.f);
+        const Vec3 edgePoint = edgeStart + (edgeEnd - edgeStart) * t;
+        const float dx = edgePoint.x - closestPoint.x;
+        const float dz = edgePoint.z - closestPoint.z;
+        const float distSqXZ = dx * dx + dz * dz;
+        if (distSqXZ < closestEdgeDistSqXZ)
+        {
+            closestEdgeDistSqXZ = distSqXZ;
+            closestPoint.y = edgePoint.y;
+        }
+    }
+
     return closestPoint;
 }
 
