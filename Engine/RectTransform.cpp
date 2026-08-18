@@ -74,6 +74,19 @@ void RectTransform::OnMenu()
 {
     Super::OnMenu();
 
+    Vec2 parentSize = GetParentRect().GetSize();
+    bool canConvertOffsets = parentSize.x != 0.f && parentSize.y != 0.f;
+    if (ImGui::MenuItem("Convert Offsets to Anchors", nullptr, false, canConvertOffsets))
+    {
+        _anchorMin.x += _offsetMin.x / parentSize.x;
+        _anchorMin.y += _offsetMin.y / parentSize.y;
+        _anchorMax.x += _offsetMax.x / parentSize.x;
+        _anchorMax.y += _offsetMax.y / parentSize.y;
+        _offsetMin = Vec2::Zero;
+        _offsetMax = Vec2::Zero;
+        UpdateTransform();
+    }
+
     if (ImGui::MenuItem("Expand Max"))
     {
         _offsetMin = Vec2::Zero;

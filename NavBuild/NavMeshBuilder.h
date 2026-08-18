@@ -2,7 +2,7 @@
 #include "Types.h"
 #include "HeightField.h"
 #include "CompactHeightField.h"
-
+namespace fs = std::filesystem;
 struct NavBuildInput
 {
     vector<InputTri> triangles;

@@ -19,7 +19,7 @@ NavMesh::~NavMesh()
 {
 }
 
-void NavMesh::Awake()
+void NavMesh::Start()
 {
     vector<TransformRef> children = GetTransform()->GetChildren();
     for (TransformRef child : children)
@@ -542,11 +542,7 @@ void NavMesh::Awake()
 
             mesh->CreateFromGeometry(geometry);
         });
-}
 
-
-void NavMesh::Start()
-{
     TransformRef transformRef = GetGameObject()->GetFixedComponentRef<Transform>();
     _debugMeshRenderer.Resolve()->GetGameObject()->GetTransform()->SetParent(transformRef);
     _debugLineRendererParent.Resolve()->GetTransform()->SetParent(transformRef);

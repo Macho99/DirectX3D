@@ -3,20 +3,18 @@
 
 void MyBillboard::Update()
 {
-	auto go = GetGameObject();
+	GameObject* cameraObject = CUR_SCENE->GetMainCamera();
+	if (cameraObject == nullptr)
+		return;
 
-	Vec3 up = Vec3(0, 1, 0);
-	Vec3 camPos = CUR_SCENE->GetMainCamera()->GetTransform()->GetPosition();
-	Vec3 myPos = GetTransform()->GetPosition();
+	Transform* transform = GetTransform();
+	Vec3 position = transform->GetPosition();
+	Vec3 scale = transform->GetScale();
+	Vec3 cameraPosition = cameraObject->GetTransform()->GetPosition();
 
-	Vec3 forward = camPos - myPos;
-	forward.Normalize();
-
-	Matrix mat = Matrix::CreateWorld(myPos, forward, up);
-	Vec3 pos, scale;
-	Quaternion rot;
-	mat.Decompose(scale, rot, pos);
-	Vec3 euler = Transform::ToEulerAngles(rot);
-
-	GetTransform()->SetRotation(euler);
+	Matrix billboard = Matrix::CreateConstrainedBillboard(
+		position,
+		cameraPosition,
+		Vec3::Up);
+	transform->SetWorldMatrix(Matrix::CreateScale(scale) * billboard);
 }

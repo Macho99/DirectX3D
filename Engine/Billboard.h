@@ -11,6 +11,7 @@ struct VertexBillboard
 
 #define MAX_BILLBOARD_COUNT 10000
 
+// REGACY
 class Billboard : public Renderer
 {
     using Super = Renderer;

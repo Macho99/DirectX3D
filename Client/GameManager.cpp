@@ -11,6 +11,7 @@
 #include "ModelAnimator.h"
 #include "Model.h"
 #include "InputText.h"
+#include "MyBillboard.h"
 
 namespace
 {
@@ -109,6 +110,11 @@ void GameManager::Update()
 
 void GameManager::OnDestroy()
 {
+    if (SERVER_CONNECT != nullptr)
+    {
+        SERVER_CONNECT->OnDestroy();
+    }
+
     if (_instance != this)
         return;
     _instance = nullptr;
@@ -161,6 +167,19 @@ void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
     player->Init(otherPlayer.id(), otherPlayer.name(), false);
     player->GetGameObject()->SetActive(true);
     UpdateServerTransform(player, otherPlayer.transform());
+
+    {
+        GameObject* nameTextObj = CUR_SCENE->Add("NameText", player->GetTransform()).Resolve();
+        Transform* nameTransform = nameTextObj->GetTransform();
+        nameTransform->SetLocalPosition(Vec3(0, 210, 0));
+        nameTransform->SetLocalScale(Vec3(100));
+        nameTextObj->AddComponent<MyBillboard>();
+        Text* nameText = nameTextObj->AddComponent<Text>();
+        nameText->SetFontSize(0.4f);
+        nameText->SetHorizontalStart(TextHorizontalStart::Center);
+        nameText->SetIgnoreMouseInput(true);
+        nameText->SetText(otherPlayer.name());
+    }
 
     _players[otherPlayer.id()] = player;
 }

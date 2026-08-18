@@ -9,6 +9,7 @@
 #include "GameManager.h"
 #include "Player.h"
 #include "Zombie.h"
+#include "MyBillboard.h"
 
 CEREAL_REGISTER_TYPE(CameraMove);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, CameraMove);
@@ -34,6 +35,9 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, Player);
 CEREAL_REGISTER_TYPE(Zombie);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, Zombie);
 
+CEREAL_REGISTER_TYPE(MyBillboard);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, MyBillboard);
+
 void RegisterClientComponents()
 {
     CameraMove::EnsureAutoRegister();
@@ -44,4 +48,5 @@ void RegisterClientComponents()
     GameManager::EnsureAutoRegister();
     Player::EnsureAutoRegister();
     Zombie::EnsureAutoRegister();
+    MyBillboard::EnsureAutoRegister();
 }
