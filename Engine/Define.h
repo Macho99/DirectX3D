@@ -30,6 +30,7 @@ public:										\
 #define INPUT		GET_SINGLE(InputManager)
 #define TIME		GET_SINGLE(TimeManager)
 #define DT			TIME->GetDeltaTime()
+#define TWEEN		GET_SINGLE(TweenManager)
 #define RESOURCES	GET_SINGLE(ResourceManager)
 #define EDITOR		GET_SINGLE(EditorManager)
 #define SCENE		GET_SINGLE(SceneManager)

@@ -107,13 +107,30 @@ string Utils::Format(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    int size = std::vsnprintf(nullptr, 0, fmt, args);
-    va_end(args);
-    std::string result(size, 0);
-    va_start(args, fmt);
-    std::vsnprintf(result.data(), size + 1, fmt, args);
+    string result = VFormat(fmt, args);
     va_end(args);
     return result;
+}
+
+string Utils::VFormat(const char* fmt, va_list args)
+{
+    if (fmt == nullptr)
+        return {};
+
+    va_list argsCopy;
+    va_copy(argsCopy, args);
+    const int size = std::vsnprintf(nullptr, 0, fmt, argsCopy);
+    va_end(argsCopy);
+
+    if (size < 0)
+        return {};
+
+    vector<char> buffer(static_cast<size_t>(size) + 1);
+    va_copy(argsCopy, args);
+    std::vsnprintf(buffer.data(), buffer.size(), fmt, argsCopy);
+    va_end(argsCopy);
+
+    return string(buffer.data(), static_cast<size_t>(size));
 }
 
 ComPtr<ID3D11ShaderResourceView> Utils::CreateTexture2DArraySRV(vector<fs::path>& filenames)

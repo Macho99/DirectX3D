@@ -112,7 +112,7 @@ void DebugManager::Log(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    string message = Utils::Format(format, args);
+    string message = Utils::VFormat(format, args);
     va_end(args);
     AddLog(LogLevel::Info, message);
 }
@@ -131,7 +131,7 @@ void DebugManager::LogWarning(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    string message = Utils::Format(format, args);
+    string message = Utils::VFormat(format, args);
     va_end(args);
     AddLog(LogLevel::Warning, message);
 }
@@ -150,7 +150,7 @@ void DebugManager::LogError(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    string message = Utils::Format(format, args);
+    string message = Utils::VFormat(format, args);
     va_end(args);
     AddLog(LogLevel::Error, message);
 }

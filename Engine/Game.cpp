@@ -84,6 +84,7 @@ WPARAM Game::Run(GameDesc& desc)
 	}
 	OutputDebugStringW(L"==============SHADER============\n");
 	ShaderManager::OnDestroy();
+	TWEEN->Clear();
 	OutputDebugStringW(L"==============SCENE============\n");
 	SCENE->OnDestroy();	
 	OutputDebugStringW(L"==============GUI============\n");
@@ -193,6 +194,7 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 void Game::Update()
 {
 	TIME->Update();
+	TWEEN->Update(TIME->GetDeltaTime());
 	INPUT->Update();
 
 	ShowFps();

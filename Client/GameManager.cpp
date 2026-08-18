@@ -56,6 +56,14 @@ void GameManager::Awake()
                 cameraFollower->SetPositionInterpolationSpeed(4.f);
                 cameraFollower->SetEnabled(true);
                 SetGameState(GameState::TitleToLogin);
+
+                TWEEN->To(_testValue, 10.f, 10.f)->OnUpdate([](float delta)
+                {
+                        DBG->Log("Tween Update: %f", delta);
+                    })->OnComplete([]()
+                        {
+                            DBG->Log("Tween Complete");
+                    });
         });
     }
 }

@@ -122,6 +122,7 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "Graphics.h"
 #include "InputManager.h"
 #include "TimeManager.h"
+#include "TweenManager.h"
 #include "ResourceManager.h"
 #include "DebugManager.h"
 

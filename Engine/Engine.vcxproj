@@ -399,6 +399,7 @@
     <ClInclude Include="TextureMeta.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="TimeManager.h" />
+    <ClInclude Include="TweenManager.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="ToneMapping.h" />
     <ClInclude Include="Transform.h" />
@@ -624,6 +625,7 @@
     <ClCompile Include="TextureMeta.cpp" />
     <ClCompile Include="ThreadSafeQueue.cpp" />
     <ClCompile Include="TimeManager.cpp" />
+    <ClCompile Include="TweenManager.cpp" />
     <ClCompile Include="tinyxml2.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

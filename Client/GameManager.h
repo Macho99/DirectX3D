@@ -83,6 +83,8 @@ private:
     ComponentRef<UIImage> _titleImage;
     ComponentRef<Button> _loginButton;
     GameState _gameState = GameState::Title;
+
+    float _testValue;
 };
 
 #define GM GameManager::GetInstance()

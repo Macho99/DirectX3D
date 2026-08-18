@@ -15,6 +15,7 @@ public:
 	static string ToString(Vec3& value);
     
 	static string Format(const char* fmt, ...);
+	static string VFormat(const char* fmt, va_list args);
 
 	static ComPtr<ID3D11ShaderResourceView> CreateTexture2DArraySRV(vector<fs::path>& filenames);
 
