@@ -811,9 +811,10 @@ class C_PLAYER_INPUT final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kInputsFieldNumber = 1,
+    kInputsFieldNumber = 2,
+    kCameraYawFieldNumber = 1,
   };
-  // repeated .Protocol.Input inputs = 1;
+  // repeated .Protocol.Input inputs = 2;
   int inputs_size() const;
   private:
   int _internal_inputs_size() const;
@@ -831,6 +832,15 @@ class C_PLAYER_INPUT final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Input >&
       inputs() const;
 
+  // float cameraYaw = 1;
+  void clear_camerayaw();
+  float camerayaw() const;
+  void set_camerayaw(float value);
+  private:
+  float _internal_camerayaw() const;
+  void _internal_set_camerayaw(float value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.C_PLAYER_INPUT)
  private:
   class _Internal;
@@ -839,6 +849,7 @@ class C_PLAYER_INPUT final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Input > inputs_;
+  float camerayaw_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Protocol_2eproto;
 };
@@ -1986,7 +1997,27 @@ S_PLAYER_EXIT::mutable_playerids() {
 
 // C_PLAYER_INPUT
 
-// repeated .Protocol.Input inputs = 1;
+// float cameraYaw = 1;
+inline void C_PLAYER_INPUT::clear_camerayaw() {
+  camerayaw_ = 0;
+}
+inline float C_PLAYER_INPUT::_internal_camerayaw() const {
+  return camerayaw_;
+}
+inline float C_PLAYER_INPUT::camerayaw() const {
+  // @@protoc_insertion_point(field_get:Protocol.C_PLAYER_INPUT.cameraYaw)
+  return _internal_camerayaw();
+}
+inline void C_PLAYER_INPUT::_internal_set_camerayaw(float value) {
+  
+  camerayaw_ = value;
+}
+inline void C_PLAYER_INPUT::set_camerayaw(float value) {
+  _internal_set_camerayaw(value);
+  // @@protoc_insertion_point(field_set:Protocol.C_PLAYER_INPUT.cameraYaw)
+}
+
+// repeated .Protocol.Input inputs = 2;
 inline int C_PLAYER_INPUT::_internal_inputs_size() const {
   return inputs_.size();
 }

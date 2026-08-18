@@ -70,7 +70,8 @@ struct S_PLAYER_EXITDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT S_PLAYER_EXITDefaultTypeInternal _S_PLAYER_EXIT_default_instance_;
 constexpr C_PLAYER_INPUT::C_PLAYER_INPUT(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : inputs_(){}
+  : inputs_()
+  , camerayaw_(0){}
 struct C_PLAYER_INPUTDefaultTypeInternal {
   constexpr C_PLAYER_INPUTDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -191,6 +192,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_Protocol_2eproto::offsets[] PR
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Protocol::C_PLAYER_INPUT, camerayaw_),
   PROTOBUF_FIELD_OFFSET(::Protocol::C_PLAYER_INPUT, inputs_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Protocol::S_PLAYER_MOVE, _internal_metadata_),
@@ -236,12 +238,12 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 14, -1, sizeof(::Protocol::S_PLAYER_ENTER)},
   { 20, -1, sizeof(::Protocol::S_PLAYER_EXIT)},
   { 26, -1, sizeof(::Protocol::C_PLAYER_INPUT)},
-  { 32, -1, sizeof(::Protocol::S_PLAYER_MOVE)},
-  { 38, -1, sizeof(::Protocol::S_MONSTER_SPAWN)},
-  { 44, -1, sizeof(::Protocol::S_MONSTER_MOVE)},
-  { 50, -1, sizeof(::Protocol::S_MONSTER_DESPAWN)},
-  { 56, -1, sizeof(::Protocol::C_CHAT)},
-  { 62, -1, sizeof(::Protocol::S_CHAT)},
+  { 33, -1, sizeof(::Protocol::S_PLAYER_MOVE)},
+  { 39, -1, sizeof(::Protocol::S_MONSTER_SPAWN)},
+  { 45, -1, sizeof(::Protocol::S_MONSTER_MOVE)},
+  { 51, -1, sizeof(::Protocol::S_MONSTER_DESPAWN)},
+  { 57, -1, sizeof(::Protocol::C_CHAT)},
+  { 63, -1, sizeof(::Protocol::S_CHAT)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -265,16 +267,16 @@ const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABL
   "\001(\0132\020.Protocol.Player\022&\n\014otherPlayers\030\003 "
   "\003(\0132\020.Protocol.Player\"3\n\016S_PLAYER_ENTER\022"
   "!\n\007players\030\001 \003(\0132\020.Protocol.Player\"\"\n\rS_"
-  "PLAYER_EXIT\022\021\n\tplayerIds\030\001 \003(\004\"1\n\016C_PLAY"
-  "ER_INPUT\022\037\n\006inputs\030\001 \003(\0132\017.Protocol.Inpu"
-  "t\"<\n\rS_PLAYER_MOVE\022+\n\ntransforms\030\001 \003(\0132\027"
-  ".Protocol.TransformData\"6\n\017S_MONSTER_SPA"
-  "WN\022#\n\010monsters\030\001 \003(\0132\021.Protocol.Monster\""
-  "=\n\016S_MONSTER_MOVE\022+\n\ntransforms\030\001 \003(\0132\027."
-  "Protocol.TransformData\"\'\n\021S_MONSTER_DESP"
-  "AWN\022\022\n\nmonsterIds\030\001 \003(\004\"\025\n\006C_CHAT\022\013\n\003msg"
-  "\030\001 \001(\t\"\'\n\006S_CHAT\022\020\n\010playerId\030\001 \001(\004\022\013\n\003ms"
-  "g\030\002 \001(\tb\006proto3"
+  "PLAYER_EXIT\022\021\n\tplayerIds\030\001 \003(\004\"D\n\016C_PLAY"
+  "ER_INPUT\022\021\n\tcameraYaw\030\001 \001(\002\022\037\n\006inputs\030\002 "
+  "\003(\0132\017.Protocol.Input\"<\n\rS_PLAYER_MOVE\022+\n"
+  "\ntransforms\030\001 \003(\0132\027.Protocol.TransformDa"
+  "ta\"6\n\017S_MONSTER_SPAWN\022#\n\010monsters\030\001 \003(\0132"
+  "\021.Protocol.Monster\"=\n\016S_MONSTER_MOVE\022+\n\n"
+  "transforms\030\001 \003(\0132\027.Protocol.TransformDat"
+  "a\"\'\n\021S_MONSTER_DESPAWN\022\022\n\nmonsterIds\030\001 \003"
+  "(\004\"\025\n\006C_CHAT\022\013\n\003msg\030\001 \001(\t\"\'\n\006S_CHAT\022\020\n\010p"
+  "layerId\030\001 \001(\004\022\013\n\003msg\030\002 \001(\tb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_Protocol_2eproto_deps[2] = {
   &::descriptor_table_Enum_2eproto,
@@ -282,7 +284,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Protocol_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol_2eproto = {
-  false, false, 615, descriptor_table_protodef_Protocol_2eproto, "Protocol.proto", 
+  false, false, 634, descriptor_table_protodef_Protocol_2eproto, "Protocol.proto", 
   &descriptor_table_Protocol_2eproto_once, descriptor_table_Protocol_2eproto_deps, 2, 11,
   schemas, file_default_instances, TableStruct_Protocol_2eproto::offsets,
   file_level_metadata_Protocol_2eproto, file_level_enum_descriptors_Protocol_2eproto, file_level_service_descriptors_Protocol_2eproto,
@@ -1197,10 +1199,12 @@ C_PLAYER_INPUT::C_PLAYER_INPUT(const C_PLAYER_INPUT& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       inputs_(from.inputs_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  camerayaw_ = from.camerayaw_;
   // @@protoc_insertion_point(copy_constructor:Protocol.C_PLAYER_INPUT)
 }
 
 void C_PLAYER_INPUT::SharedCtor() {
+camerayaw_ = 0;
 }
 
 C_PLAYER_INPUT::~C_PLAYER_INPUT() {
@@ -1230,6 +1234,7 @@ void C_PLAYER_INPUT::Clear() {
   (void) cached_has_bits;
 
   inputs_.Clear();
+  camerayaw_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1239,16 +1244,23 @@ const char* C_PLAYER_INPUT::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .Protocol.Input inputs = 1;
+      // float cameraYaw = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
+          camerayaw_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // repeated .Protocol.Input inputs = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_inputs(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1280,12 +1292,18 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .Protocol.Input inputs = 1;
+  // float cameraYaw = 1;
+  if (!(this->camerayaw() <= 0 && this->camerayaw() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_camerayaw(), target);
+  }
+
+  // repeated .Protocol.Input inputs = 2;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_inputs_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_inputs(i), target, stream);
+      InternalWriteMessage(2, this->_internal_inputs(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1304,11 +1322,16 @@ size_t C_PLAYER_INPUT::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .Protocol.Input inputs = 1;
+  // repeated .Protocol.Input inputs = 2;
   total_size += 1UL * this->_internal_inputs_size();
   for (const auto& msg : this->inputs_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // float cameraYaw = 1;
+  if (!(this->camerayaw() <= 0 && this->camerayaw() >= 0)) {
+    total_size += 1 + 4;
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1343,6 +1366,9 @@ void C_PLAYER_INPUT::MergeFrom(const C_PLAYER_INPUT& from) {
   (void) cached_has_bits;
 
   inputs_.MergeFrom(from.inputs_);
+  if (!(from.camerayaw() <= 0 && from.camerayaw() >= 0)) {
+    _internal_set_camerayaw(from._internal_camerayaw());
+  }
 }
 
 void C_PLAYER_INPUT::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1367,6 +1393,7 @@ void C_PLAYER_INPUT::InternalSwap(C_PLAYER_INPUT* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   inputs_.InternalSwap(&other->inputs_);
+  swap(camerayaw_, other->camerayaw_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata C_PLAYER_INPUT::GetMetadata() const {

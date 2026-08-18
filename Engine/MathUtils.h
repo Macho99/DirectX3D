@@ -103,5 +103,8 @@ struct MathUtils
 			a.w + (b.w - a.w) * t
 		);
 	}
+
+	static Vec3 MoveTowards(const Vec3& current, const Vec3& target, float maxDelta);
+	static float MoveTowardsAngle(float current, float target, float maxDelta);
 };
 

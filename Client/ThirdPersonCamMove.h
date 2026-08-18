@@ -53,5 +53,7 @@ private:
     float _pitch = 0.f;
     float _yaw = 0.f;
     bool _rotationInitialized = false;
+
+    float _nextSendTime = 0.f;
 };
 

@@ -701,3 +701,22 @@ Vec3 MathUtils::DegToRad(const Vec3& deg)
         XMConvertToRadians(deg.z),
     };
 }
+
+Vec3 MathUtils::MoveTowards(const Vec3& current, const Vec3& target, float maxDelta)
+{
+	Vec3 delta = target - current;
+	float distance = delta.Length();
+	if (distance <= maxDelta || distance <= 0.0001f)
+		return target;
+
+	return current + delta * (maxDelta / distance);
+}
+
+float MathUtils::MoveTowardsAngle(float current, float target, float maxDelta)
+{
+	float delta = std::remainder(target - current, 360.f);
+	if (fabsf(delta) <= maxDelta)
+		return target;
+
+	return current + std::copysign(maxDelta, delta);
+}

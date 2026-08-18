@@ -3,28 +3,7 @@
 #include "Transform.h"
 #include "OnGUIUtils.h"
 #include "ModelAnimator.h"
-
-namespace
-{
-    Vec3 MoveTowards(const Vec3& current, const Vec3& target, float maxDelta)
-    {
-        Vec3 delta = target - current;
-        float distance = delta.Length();
-        if (distance <= maxDelta || distance <= 0.0001f)
-            return target;
-
-        return current + delta * (maxDelta / distance);
-    }
-
-    float MoveTowardsAngle(float current, float target, float maxDelta)
-    {
-        float delta = std::remainder(target - current, 360.f);
-        if (fabsf(delta) <= maxDelta)
-            return target;
-
-        return current + std::copysign(maxDelta, delta);
-    }
-}
+#include "MathUtils.h"
 
 void ThirdPersonCamMove::Start()
 {
@@ -137,14 +116,14 @@ void ThirdPersonCamMove::MoveTarget(float dt)
     {
         Vec3 targetRotation = target->GetRotation();
         float pivotYaw = pivot->GetRotation().y + 180.f;
-        targetRotation.y = MoveTowardsAngle(targetRotation.y, pivotYaw, _turnSpeed * dt);
+        targetRotation.y = MathUtils::MoveTowardsAngle(targetRotation.y, pivotYaw, _turnSpeed * dt);
         target->SetRotation(targetRotation);
     }
 
     float maxSpeed = INPUT->GetButton(KEY_TYPE::LSHIFT) ? _sprintSpeed : _moveSpeed;
     Vec3 desiredVelocity = moveDirection * maxSpeed;
     float rate = moveDirection.LengthSquared() > 0.f ? _acceleration : _deceleration;
-    _velocity = MoveTowards(_velocity, desiredVelocity, rate * dt);
+    _velocity = MathUtils::MoveTowards(_velocity, desiredVelocity, rate * dt);
 
     ModelAnimator* animator = target->GetGameObject()->GetModelAnimator();
     if (animator != nullptr)
@@ -178,6 +157,7 @@ void ThirdPersonCamMove::SendInputToServer()
     static const vector<KEY_TYPE> keysToCheck = { KEY_TYPE::W, KEY_TYPE::A, KEY_TYPE::S, KEY_TYPE::D, KEY_TYPE::LSHIFT };
 
     Protocol::C_PLAYER_INPUT inputPacket;
+    inputPacket.set_camerayaw(_yaw);
     for (const KEY_TYPE& key : keysToCheck)
     {
         if (INPUT->GetButtonDown(key))
@@ -194,10 +174,11 @@ void ThirdPersonCamMove::SendInputToServer()
         }
     }
 
-    if (inputPacket.inputs_size() > 0)
+    if (inputPacket.inputs_size() > 0 || _nextSendTime < TIME->GetGameTime())
     {
         auto sendBuffer = ServerPacketHandler::MakeSendBuffer(inputPacket);
         SERVER_CONNECT->SendPacket(sendBuffer);
+        _nextSendTime = TIME->GetGameTime() + 0.1f;
     }
 }
 

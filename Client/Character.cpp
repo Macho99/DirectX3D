@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Character.h"
 #include "ModelAnimator.h"
+#include "OnGUIUtils.h"
+#include "MathUtils.h"
 
 void Character::Start()
 {
@@ -10,14 +12,31 @@ void Character::Start()
 void Character::Update()
 {
     Transform* transform = GetTransform();
-    transform->SetPosition(_serverPosition);
-    transform->SetRotation(Vec3(0, _serverYaw, 0));
+    Vec3 interpolatedPosition = Vec3::Lerp(transform->GetPosition(), _serverPosition, 0.1f);
+    transform->SetPosition(interpolatedPosition);
+
+    float interpolatedYaw = MathUtils::MoveTowardsAngle(transform->GetRotation().y, _serverYaw, _yawRotationSpeed);
+    transform->SetRotation(Vec3(0, interpolatedYaw, 0));
     
     ModelAnimator* animator = _animator.Resolve();
     if (animator)
     {
-        animator->SetBlendSpaceInput(_serverBlendInput);
+        Vec2 interpolatedBlendInput = Vec2::Lerp(_animator.Resolve()->GetBlendSpaceInput(), _serverBlendInput, 0.1f);
+        animator->SetBlendSpaceInput(interpolatedBlendInput);
     }
+}
+
+bool Character::OnGUI()
+{
+    bool changed = false;
+
+    changed |= OnGUIUtils::DrawVec3("Server Position", &_serverPosition);
+    changed |= OnGUIUtils::DrawFloat("Server Yaw", &_serverYaw);
+    changed |= OnGUIUtils::DrawVec2("Server Blend Input", &_serverBlendInput);
+    changed |= OnGUIUtils::DrawFloat("Interpolation Speed", &_interpolationSpeed, 0.01f);
+    changed |= OnGUIUtils::DrawFloat("Yaw Rotation Speed", &_yawRotationSpeed, 0.01f);
+
+    return changed;
 }
 
 void Character::UpdateServerTransform(Vec3 position, float yaw, Vec2 blendInput)

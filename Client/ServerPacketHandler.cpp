@@ -73,6 +73,8 @@ bool Handle_S_PLAYER_MOVE(PacketSessionRef& session, Protocol::S_PLAYER_MOVE& pk
             }
         };
 
+	GM->PushJob(Job);
+
 	return true;
 }
 
@@ -90,6 +92,7 @@ bool Handle_S_MONSTER_MOVE(PacketSessionRef& session, Protocol::S_MONSTER_MOVE& 
                 GM->OnMoveMonster(pkt.transforms(i));
             }
         };
+	GM->PushJob(Job);
 
 	return true;
 }

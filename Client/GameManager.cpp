@@ -140,6 +140,7 @@ void GameManager::OnCreateMyPlayer(Protocol::Player myPlayer)
     thirdPersonCamMove->SetTarget(player->GetTransform());
 
     _loginButton.Resolve()->GetTransform()->GetParent()->GetGameObject()->SetActive(false);
+    _players[myPlayer.id()] = player;
 
     SetGameState(GameState::World);
 }
@@ -206,8 +207,6 @@ void GameManager::OnDisconnect()
         CUR_SCENE->Remove(pair.second.Resolve()->GetGameObjectRef());
     }
     _players.clear();
-    
-    CUR_SCENE->Remove(_myPlayer.Resolve()->GetGameObjectRef());
     _myPlayer = ComponentRef<Player>();
 }
 
