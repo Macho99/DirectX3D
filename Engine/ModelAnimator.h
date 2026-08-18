@@ -24,13 +24,6 @@ struct BlendSpacePoint
 	}
 };
 
-struct AnimTransform
-{
-	using TransformArrayType = array<Matrix, MAX_MODEL_TRANSFORMS>;
-	array<TransformArrayType, MAX_MODEL_KEYFRAMES> transforms;
-    array<Matrix, MAX_MODEL_KEYFRAMES> rootTransforms;
-};
-
 class ModelAnimator : public InstancingRenderer
 {
     using Super = InstancingRenderer;
@@ -46,6 +39,7 @@ public:
 	void UpdateTweenData();
 
 	bool SetModel(ResourceRef<Model> model);
+    ResourceRef<Model> GetModel() const { return _model; }
 
 	virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 	TweenDesc& GetTweenDesc() { return _tweenDesc; }
@@ -93,8 +87,6 @@ private:
 		Vec2 sampledPosition = Vec2::Zero;
 	};
 
-	void CreateTexture();
-	void CreateAnimationTransform(uint32 index);
 	// 최초 사용 또는 점/애니메이션 변경 시에만 Delaunay 삼각망 캐시를 갱신한다.
 	void UpdateBlendSpaceTriangulation();
 	// 일반 애니메이션 한 개의 프레임 상태를 갱신한다.
@@ -109,11 +101,6 @@ private:
 	void DrawDebugMatrix(const char* label, const Matrix& matrix);
     float GetNormalizedTime(const AnimationFrameDesc& animFrame);
     float GetLeftTime(const AnimationFrameDesc& animFrame);
-
-private:
-	vector<AnimTransform> _animTransforms;
-	ComPtr<ID3D11Texture2D> _texture;
-	ComPtr<ID3D11ShaderResourceView> _srv;
 
 private:
 	TweenDesc _tweenDesc;

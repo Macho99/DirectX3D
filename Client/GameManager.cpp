@@ -8,8 +8,10 @@
 #include "Button.h"
 #include "Camera.h"
 #include "ThirdPersonCamMove.h"
+#include "ModelAnimator.h"
+#include "Model.h"
 
-void GameManager::Awake()
+void GameManager::Start()
 {
     ASSERT(_instance == nullptr || _instance == this, "GameManager already exists");
     if (_instance != nullptr && _instance != this)
@@ -38,33 +40,45 @@ void GameManager::Awake()
     }
 
     UIImage* titleImage = _titleImage.Resolve();
-    if (titleImage != nullptr)
+    if (titleImage != nullptr && _cameraSpawnPoint.Resolve() != nullptr)
     {
         Button* button = titleImage->GetGameObject()->GetComponentInChildren<Button>();
         button->AddOnClickedEvent(
             [&](){
-                _titleImage.Resolve()->GetGameObject()->SetActive(false);
-
                 Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
                 player->GetGameObject()->SetActive(true);
                 player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
                 player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
                 _myPlayer = player;
 
-                TargetFollower* cameraFollower = _cameraFollower.Resolve();
-                cameraFollower->SetTarget(player->GetTransform());
-                cameraFollower->SetPositionInterpolationSpeed(4.f);
-                cameraFollower->SetEnabled(true);
-                SetGameState(GameState::TitleToLogin);
-
-                TWEEN->To(_testValue, 10.f, 10.f)->OnUpdate([](float delta)
-                {
-                        DBG->Log("Tween Update: %f", delta);
-                    })->OnComplete([]()
-                        {
-                            DBG->Log("Tween Complete");
+                const float duration = 3.f;
+                TWEEN->DORotate(_cameraFollower.Resolve()->GetTransform(), _playerSpawnPoint.Resolve()->GetRotation(), duration);
+                TweenPtr tween = TWEEN->DOMove(_cameraFollower.Resolve()->GetTransform(), _cameraSpawnPoint.Resolve()->GetPosition(), duration);
+                tween->OnComplete([&]()
+                    {
+                        SetGameState(GameState::Login);
                     });
+                
+                _titleImage.Resolve()->GetGameObject()->SetActive(false);
         });
+    }
+
+    Player* player = _playerPrefab.Resolve();
+    if (player != nullptr)
+    {
+        Model* model = player->GetGameObject()->GetComponent<ModelAnimator>()->GetModel().Resolve();
+        if (model != nullptr)
+        {
+            model->EnsureAnimationTexture();
+        }
+        else
+        {
+            DBG->LogError("Player model is null.");
+        }
+    }
+    else
+    {
+        DBG->LogError("Player prefab is null.");
     }
 }
 
@@ -102,6 +116,7 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("PlayerSpawnPoint", _playerSpawnPoint);
     changed |= OnGUIUtils::DrawComponentRef("TitleImage", _titleImage);
     changed |= OnGUIUtils::DrawComponentRef("LoginButton", _loginButton);
+    changed |= OnGUIUtils::DrawComponentRef("CameraSpawnPoint", _cameraSpawnPoint);
 
     return changed;
 }
@@ -178,13 +193,6 @@ void GameManager::UpdateGameState()
 {
     switch (_gameState)
     {
-    case GameState::TitleToLogin:
-        if (_cameraFollower.Resolve()->GetTargetDistance() < 0.1f)
-        {
-            SetGameState(GameState::Login);
-
-        }
-        break;
     case GameState::Login:
     case GameState::World:
         break;

@@ -164,8 +164,7 @@ void ModelAnimator::RenderInstancing(InstancingBuffer& buffer, RenderTech render
     if (mesh == nullptr)
         return;
 
-	if (_texture == nullptr)
-		CreateTexture();
+	model->EnsureAnimationTexture();
 
 	if (Super::Render(renderTech) == false)
 		return;
@@ -182,7 +181,7 @@ void ModelAnimator::RenderInstancing(InstancingBuffer& buffer, RenderTech render
 	//	_shader->PushLightData(lightObj->GetLight()->GetLightDesc());
 
 	// SRV를 통해 정보 전달
-	shader->GetSRV("TransformMap")->SetResource(_srv.Get());
+	shader->GetSRV("TransformMap")->SetResource(model->GetAnimationTransformSRV());
 
 	// Bone
 	BoneDesc boneDesc;
@@ -260,10 +259,9 @@ bool ModelAnimator::TryGetModelSocketWorldMatrix(const string& socketName, OUT M
 		socket->boneIndex >= static_cast<int32>(mesh->GetBoneCount()))
 		return false;
 
-	if (_animTransforms.size() != model->GetAnimationCount())
-		CreateTexture();
-	if (_animTransforms.size() != model->GetAnimationCount())
+	if (model->EnsureAnimationTexture() == false)
 		return false;
+	const vector<AnimTransform>& animTransforms = model->GetAnimationTransforms();
 
 	auto sampleKeyframe = [&](const KeyframeDesc& keyframe, OUT Matrix& result)
 		{
@@ -273,13 +271,13 @@ bool ModelAnimator::TryGetModelSocketWorldMatrix(const string& socketName, OUT M
 			for (int slot = 0; slot < MAX_BLEND_ANIMATIONS; ++slot)
 			{
 				const AnimationFrameDesc& frame = keyframe.animations[slot];
-				if (frame.animIndex < 0 || frame.animIndex >= static_cast<int32>(_animTransforms.size()) || weights[slot] <= 0.f)
+				if (frame.animIndex < 0 || frame.animIndex >= static_cast<int32>(animTransforms.size()) || weights[slot] <= 0.f)
 					continue;
 				ModelAnimation* animation = model->GetAnimationByIndex(frame.animIndex);
 				if (animation == nullptr || frame.curFrame >= animation->GetFrameCount() || frame.nextFrame >= animation->GetFrameCount())
 					continue;
 
-				const AnimTransform& transforms = _animTransforms[frame.animIndex];
+				const AnimTransform& transforms = animTransforms[frame.animIndex];
 				const Matrix sampledMatrix = Matrix::Lerp(
 					transforms.transforms[frame.curFrame][socket->boneIndex],
 					transforms.transforms[frame.nextFrame][socket->boneIndex],
@@ -436,152 +434,6 @@ void ModelAnimator::OnInspectorFocusLost()
     Super::OnInspectorFocusLost();
     _showAnimationDebug = false;
     EDITOR->GetSceneView()->ClearTransformGizmoOverride();
-}
-
-void ModelAnimator::CreateTexture()
-{
-    Model* model = _model.Resolve();
-	if (model == nullptr)
-		return;
-
-	if (model->GetAnimationCount() == 0)
-		return;
-
-	_animTransforms.resize(model->GetAnimationCount());
-
-	for (uint32 i = 0; i < model->GetAnimationCount(); i++)
-	{
-		CreateAnimationTransform(i);
-	}
-
-	// Creature Texture
-	{
-		D3D11_TEXTURE2D_DESC desc;
-		ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
-		desc.Width = MAX_MODEL_TRANSFORMS * 4;
-		desc.Height = MAX_MODEL_KEYFRAMES;
-		desc.ArraySize = model->GetAnimationCount();
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 16바이트
-		desc.Usage = D3D11_USAGE_IMMUTABLE;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.MipLevels = 1;
-		desc.SampleDesc.Count = 1;
-
-		const uint32 dataSize = MAX_MODEL_TRANSFORMS * sizeof(Matrix);
-		const uint32 pageSize = dataSize * MAX_MODEL_KEYFRAMES;
-		void* mallocPtr = ::malloc(pageSize * model->GetAnimationCount());
-
-		// 파편화된 데이터를 조립한다.
-		for (uint32 c = 0; c < model->GetAnimationCount(); c++)
-		{
-			uint32 startOffset = c * pageSize;
-
-			BYTE* pageStartPtr = reinterpret_cast<BYTE*>(mallocPtr) + startOffset;
-
-			for (uint32 f = 0; f < MAX_MODEL_KEYFRAMES; f++)
-			{
-				void* ptr = pageStartPtr + dataSize * f;
-				::memcpy(ptr, _animTransforms[c].transforms[f].data(), dataSize);
-			}
-		}
-
-		// 리소스 만들기
-		vector<D3D11_SUBRESOURCE_DATA> subResources(model->GetAnimationCount());
-
-		for (uint32 c = 0; c < model->GetAnimationCount(); c++)
-		{
-			void* ptr = (BYTE*)mallocPtr + c * pageSize;
-			subResources[c].pSysMem = ptr;
-			subResources[c].SysMemPitch = dataSize;
-			subResources[c].SysMemSlicePitch = pageSize;
-		}
-
-		DX_CREATE_TEXTURE2D(&desc, subResources.data(), _texture);
-
-		::free(mallocPtr);
-	}
-
-	// Create SRV
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		desc.Texture2DArray.MipLevels = 1;
-		desc.Texture2DArray.ArraySize = model->GetAnimationCount();
-
-		DX_CREATE_SRV(_texture.Get(), &desc, _srv);
-	}
-}
-
-void ModelAnimator::CreateAnimationTransform(uint32 index)
-{
-    Model* model = _model.Resolve();
-    ModelMeshResource* mesh = model->GetMesh();
-
-	vector<Matrix> tempAnimBoneTransforms(MAX_MODEL_TRANSFORMS, Matrix::Identity);
-	ModelAnimation* animation = model->GetAnimationByIndex(index);
-
-    if (animation == nullptr)
-        return;
-
-	for (uint32 f = 0; f < animation->GetFrameCount(); f++)
-	{
-		for (uint32 b = 0; b < mesh->GetBoneCount(); b++)
-		{
-			shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(b);
-			
-			Matrix matAnim;
-			
-			shared_ptr<ModelKeyframe> frame = animation->GetKeyframe(bone->name);
-			if (frame != nullptr)
-			{
-				ModelKeyframeData& data = frame->transforms[f];
-				Matrix S, R, T;
-				S = Matrix::CreateScale(data.scale);
-				R = Matrix::CreateFromQuaternion(data.rotation);
-				T = Matrix::CreateTranslation(data.translation);
-			
-				matAnim = S * R * T;
-			}
-			else
-			{
-                matAnim = bone->localMatrix;
-			}
-			
-			const int32 parentIndex = bone->parentIndex;
-			
-			Matrix matParent = Matrix::Identity;
-			if (parentIndex >= 0)
-			{
-				matParent = tempAnimBoneTransforms[parentIndex];
-			}
-			else // Root
-			{
-                const AnimationClipImportSetting& importSetting = animation->GetAnimationClipImportSetting();
-				if (importSetting.extractRootMotion)
-				{
-                    Vec3 scale, position;
-                    Quaternion rotation;
-                    matAnim.Decompose(scale, rotation, position);
-
-                    Vec3 positionY = position;
-                    positionY.x = 0.f;
-                    positionY.z = 0.f;
-
-                    matAnim = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(positionY);
-
-                    position.y = 0.f;
-                    Matrix matRoot = Matrix::CreateTranslation(position);
-
-                    _animTransforms[index].rootTransforms[f] = matRoot;
-				}
-			}
-			
-			tempAnimBoneTransforms[b] = matAnim * matParent;
-			_animTransforms[index].transforms[f][b] = bone->offsetMatrix * tempAnimBoneTransforms[b];
-		}
-	}
 }
 
 void ModelAnimator::UpdateBlendSpaceTriangulation()
@@ -934,10 +786,13 @@ void ModelAnimator::UpdateRootMotion(const TweenDesc prevTweenDesc)
 			// 모델이나 일반 애니메이션이 유효하지 않으면 루트모션을 계산하지 않는다.
 			if (model == nullptr || keyframe.HasAnimation() == false || keyframe.isBlendSpace == true)
 				return;
+			if (model->EnsureAnimationTexture() == false)
+				return;
+			const vector<AnimTransform>& animTransforms = model->GetAnimationTransforms();
 
             const int animIndex = keyframe.animations[0].animIndex;
 			// 잘못된 애니메이션 인덱스로 캐시를 참조하지 않도록 방어한다.
-			if (animIndex < 0 || model->GetAnimationCount() <= animIndex || _animTransforms.size() <= static_cast<size_t>(animIndex))
+			if (animIndex < 0 || model->GetAnimationCount() <= animIndex || animTransforms.size() <= static_cast<size_t>(animIndex))
                 return;
 
 			ModelAnimation* animation = model->GetAnimationByIndex(animIndex);
@@ -971,7 +826,7 @@ void ModelAnimator::UpdateRootMotion(const TweenDesc prevTweenDesc)
             const AnimationFrameDesc& curAnimFrame = keyframe.animations[0];
 			const uint32 frameCount = animation->GetFrameCount();
 
-            const AnimTransform& animTransform = _animTransforms[animIndex];
+            const AnimTransform& animTransform = animTransforms[animIndex];
 			// 마지막 프레임에서 0번 프레임으로 보간하면 루트가 원점으로 되감기므로
 			// 루프 경계에서는 마지막 프레임의 루트 위치를 그대로 유지한다.
 			auto sampleRootMotion = [&](const AnimationFrameDesc& frame)
@@ -1191,6 +1046,13 @@ bool ModelAnimator::DrawDebugWindow()
 		ImGui::End();
 		return false;
 	}
+	if (model->EnsureAnimationTexture() == false)
+	{
+		ImGui::TextDisabled("Failed to create the animation transform texture.");
+		ImGui::End();
+		return false;
+	}
+	const vector<AnimTransform>& animTransforms = model->GetAnimationTransforms();
 
 	_debugAnimationIndex = clamp(_debugAnimationIndex, 0, (int)animationCount - 1);
 	ModelAnimation* animation = model->GetAnimationByIndex(_debugAnimationIndex);
@@ -1291,7 +1153,7 @@ bool ModelAnimator::DrawDebugWindow()
 		_debugBoneIndex = clamp(_debugBoneIndex, 0, static_cast<int>(mesh->GetBoneCount()) - 1);
         shared_ptr<ModelBone> curSelectBone = mesh->GetBoneByIndex(_debugBoneIndex);
 
-		Matrix boneFinalMatrix = _animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][_debugBoneIndex];
+		Matrix boneFinalMatrix = animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][_debugBoneIndex];
         Matrix boneGlobalMatrix = curSelectBone->offsetMatrix.Invert() * boneFinalMatrix;
         Matrix boneParentGlobalInverse = Matrix::Identity;
         if (curSelectBone->parentIndex >= 0)
@@ -1391,7 +1253,7 @@ bool ModelAnimator::DrawDebugWindow()
 
 			if (socket.boneIndex >= 0 && socket.boneIndex < static_cast<int32>(mesh->GetBoneCount()))
 			{
-				const Matrix socketBoneFinal = _animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][socket.boneIndex];
+				const Matrix socketBoneFinal = animTransforms[_debugAnimationIndex].transforms[_debugFrameIndex][socket.boneIndex];
 				const Matrix socketBoneGlobal = mesh->GetBoneByIndex(socket.boneIndex)->offsetMatrix.Invert() * socketBoneFinal;
 				const Matrix socketWorld = socket.localMatrix * socketBoneGlobal * GetTransform()->GetWorldMatrix();
 				EDITOR->GetSceneView()->SetTransformGizmoOverride(socketWorld,

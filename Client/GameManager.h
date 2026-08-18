@@ -8,7 +8,6 @@ class TargetFollower;
 enum class GameState
 {
     Title = 0,
-    TitleToLogin,
     Login,
     World,
 
@@ -22,7 +21,7 @@ class GameManager : public MonoBehaviour
 public:
     static GameManager* GetInstance() { return _instance; }
 
-    virtual void Awake();
+    virtual void Start();
     virtual void Update();
     virtual void OnDestroy();
     virtual bool OnGUI() override;
@@ -32,7 +31,7 @@ public:
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 3; }
+    virtual int GetVersion() const override { return 4; }
 
     void PushJob(function<void(void)> func);
     void UpdateGameState();
@@ -62,6 +61,11 @@ public:
         {
             ar(CEREAL_NVP(_cameraFollower));
         }
+
+        if (_version >= 4)
+        {
+            ar(CEREAL_NVP(_cameraSpawnPoint));
+        }
     }
 
 private:
@@ -79,6 +83,7 @@ private:
 
     ComponentRef<Transform> _titlePoint;
     ComponentRef<Transform> _playerSpawnPoint;
+    ComponentRef<Transform> _cameraSpawnPoint;
 
     ComponentRef<UIImage> _titleImage;
     ComponentRef<Button> _loginButton;

@@ -21,6 +21,13 @@ NavMesh::~NavMesh()
 
 void NavMesh::Awake()
 {
+    vector<TransformRef> children = GetTransform()->GetChildren();
+    for (TransformRef child : children)
+    {
+        GameObjectRef childObj = child.Resolve()->GetGameObjectRef();
+        CUR_SCENE->Remove(childObj);
+    }
+
     {
         GameObjectRef objRef = CUR_SCENE->Add("NavDebug MeshRenderer");
         GameObject* obj = objRef.Resolve();

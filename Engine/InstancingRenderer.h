@@ -13,7 +13,7 @@ public:
     bool HasInstancingData() const { return _originInstDatas.size() > 0; }
     int GetInstancingCount() const { return _originInstDatas.size(); }
     const vector<InstancingData>& GetInstancingDatas() const { return _instDatas; }
-    virtual int GetVersion() { return Super::GetVersion() + 1; }
+    virtual int GetVersion() const override { return Super::GetVersion() + 1; }
 
     virtual bool OnGUI() override;
     virtual void OnInspectorFocusLost() override;

@@ -34,10 +34,150 @@ int Model::GetVersion() const
 
 void Model::BindCache()
 {
+	InvalidateAnimationTexture();
+
     ModelMeshResource* mesh = _mesh.Resolve();
     if (mesh == nullptr)
 		return;
     mesh->BindCacheInfo(_materials);
+}
+
+bool Model::EnsureAnimationTexture()
+{
+	if (_animations.empty())
+	{
+		InvalidateAnimationTexture();
+		return false;
+	}
+
+	vector<AssetId> animationAssetIds;
+	animationAssetIds.reserve(_animations.size());
+	for (const ResourceRef<ModelAnimation>& animationRef : _animations)
+		animationAssetIds.push_back(animationRef.GetAssetId());
+
+	if (_animationTransformTexture != nullptr && _animationTransformSRV != nullptr &&
+		_animTransforms.size() == _animations.size() && _animationCacheAssetIds == animationAssetIds)
+	{
+		return true;
+	}
+
+	InvalidateAnimationTexture();
+	ModelMeshResource* mesh = GetMesh();
+	if (mesh == nullptr || mesh->GetBoneCount() > MAX_MODEL_TRANSFORMS)
+		return false;
+
+	for (uint32 index = 0; index < GetAnimationCount(); ++index)
+	{
+		ModelAnimation* animation = GetAnimationByIndex(index);
+		if (animation == nullptr || animation->GetFrameCount() > MAX_MODEL_KEYFRAMES)
+			return false;
+	}
+
+	_animTransforms.resize(GetAnimationCount());
+	for (uint32 index = 0; index < GetAnimationCount(); ++index)
+		CreateAnimationTransform(index);
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = MAX_MODEL_TRANSFORMS * 4;
+	textureDesc.Height = MAX_MODEL_KEYFRAMES;
+	textureDesc.ArraySize = GetAnimationCount();
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.MipLevels = 1;
+	textureDesc.SampleDesc.Count = 1;
+
+	const uint32 rowSize = MAX_MODEL_TRANSFORMS * sizeof(Matrix);
+	const uint32 pageSize = rowSize * MAX_MODEL_KEYFRAMES;
+	vector<BYTE> textureData(static_cast<size_t>(pageSize) * GetAnimationCount());
+	for (uint32 animationIndex = 0; animationIndex < GetAnimationCount(); ++animationIndex)
+	{
+		BYTE* page = textureData.data() + static_cast<size_t>(animationIndex) * pageSize;
+		for (uint32 frameIndex = 0; frameIndex < MAX_MODEL_KEYFRAMES; ++frameIndex)
+		{
+			::memcpy(page + static_cast<size_t>(rowSize) * frameIndex,
+				_animTransforms[animationIndex].transforms[frameIndex].data(), rowSize);
+		}
+	}
+
+	vector<D3D11_SUBRESOURCE_DATA> subResources(GetAnimationCount());
+	for (uint32 animationIndex = 0; animationIndex < GetAnimationCount(); ++animationIndex)
+	{
+		subResources[animationIndex].pSysMem = textureData.data() + static_cast<size_t>(animationIndex) * pageSize;
+		subResources[animationIndex].SysMemPitch = rowSize;
+		subResources[animationIndex].SysMemSlicePitch = pageSize;
+	}
+	DX_CREATE_TEXTURE2D(&textureDesc, subResources.data(), _animationTransformTexture);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvDesc.Texture2DArray.MipLevels = 1;
+	srvDesc.Texture2DArray.ArraySize = GetAnimationCount();
+	DX_CREATE_SRV(_animationTransformTexture.Get(), &srvDesc, _animationTransformSRV);
+
+	_animationCacheAssetIds = move(animationAssetIds);
+	return true;
+}
+
+void Model::InvalidateAnimationTexture()
+{
+	_animTransforms.clear();
+	_animationCacheAssetIds.clear();
+	_animationTransformSRV.Reset();
+	_animationTransformTexture.Reset();
+}
+
+void Model::CreateAnimationTransform(uint32 index)
+{
+	ModelMeshResource* mesh = GetMesh();
+	ModelAnimation* animation = GetAnimationByIndex(index);
+	if (mesh == nullptr || animation == nullptr || index >= _animTransforms.size())
+		return;
+
+	vector<Matrix> boneTransforms(MAX_MODEL_TRANSFORMS, Matrix::Identity);
+	for (uint32 frameIndex = 0; frameIndex < animation->GetFrameCount(); ++frameIndex)
+	{
+		for (uint32 boneIndex = 0; boneIndex < mesh->GetBoneCount(); ++boneIndex)
+		{
+			shared_ptr<ModelBone> bone = mesh->GetBoneByIndex(boneIndex);
+			Matrix animationMatrix = bone->localMatrix;
+			shared_ptr<ModelKeyframe> frame = animation->GetKeyframe(bone->name);
+			if (frame != nullptr && frameIndex < frame->transforms.size())
+			{
+				const ModelKeyframeData& data = frame->transforms[frameIndex];
+				animationMatrix = Matrix::CreateScale(data.scale)
+					* Matrix::CreateFromQuaternion(data.rotation)
+					* Matrix::CreateTranslation(data.translation);
+			}
+
+			Matrix parentMatrix = Matrix::Identity;
+			if (bone->parentIndex >= 0)
+			{
+				parentMatrix = boneTransforms[bone->parentIndex];
+			}
+			else
+			{
+				const AnimationClipImportSetting& importSetting = animation->GetAnimationClipImportSetting();
+				if (importSetting.extractRootMotion)
+				{
+					Vec3 scale;
+					Vec3 position;
+					Quaternion rotation;
+					animationMatrix.Decompose(scale, rotation, position);
+					const Vec3 verticalPosition(0.f, position.y, 0.f);
+					animationMatrix = Matrix::CreateScale(scale)
+						* Matrix::CreateFromQuaternion(rotation)
+						* Matrix::CreateTranslation(verticalPosition);
+					position.y = 0.f;
+					_animTransforms[index].rootTransforms[frameIndex] = Matrix::CreateTranslation(position);
+				}
+			}
+
+			boneTransforms[boneIndex] = animationMatrix * parentMatrix;
+			_animTransforms[index].transforms[frameIndex][boneIndex] = bone->offsetMatrix * boneTransforms[boneIndex];
+		}
+	}
 }
 
 bool Model::HasValidRenderResources() const
@@ -121,8 +261,10 @@ const ModelSocket* Model::GetModelSocketByName(const string& name) const
 bool Model::OnGUI(bool isReadOnly)
 {
 	bool changed = false;
+	bool animationCacheChanged = false;
     changed |= Super::OnGUI(isReadOnly);
-    changed |= OnGUIUtils::DrawResourceRef("Mesh", _mesh, isReadOnly);
+    animationCacheChanged |= OnGUIUtils::DrawResourceRef("Mesh", _mesh, isReadOnly);
+    changed |= animationCacheChanged;
     ImGui::Separator();
     if (isReadOnly == false)
     {
@@ -170,13 +312,16 @@ bool Model::OnGUI(bool isReadOnly)
                 _animations.resize(animationCount);
             }
             changed = true;
+			animationCacheChanged = true;
         }
     }
 
     for (int i = 0; i < _animations.size(); i++)
     {
         string label = "Animation " + to_string(i);
-        changed |= OnGUIUtils::DrawResourceRef(label.c_str(), _animations[i], isReadOnly);
+		const bool animationChanged = OnGUIUtils::DrawResourceRef(label.c_str(), _animations[i], isReadOnly);
+		changed |= animationChanged;
+		animationCacheChanged |= animationChanged;
     }
 
     if (ImGui::Button("Auto Animation Setting"))
@@ -243,6 +388,7 @@ bool Model::OnGUI(bool isReadOnly)
         }
 
         changed = true;
+		animationCacheChanged = true;
     }
 
     ImGui::SeparatorText("Model Sockets");
@@ -311,6 +457,9 @@ bool Model::OnGUI(bool isReadOnly)
         _modelSockets.erase(_modelSockets.begin() + removeSocketIndex);
         changed = true;
     }
+
+	if (animationCacheChanged)
+		InvalidateAnimationTexture();
 
     return changed;
 }

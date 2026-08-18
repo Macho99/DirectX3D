@@ -1,6 +1,14 @@
 #pragma once
 #include "ModelMeshResource.h"
 #include "ModelAnimation.h"
+#include "BindShaderDesc.h"
+
+struct AnimTransform
+{
+	using TransformArrayType = array<Matrix, MAX_MODEL_TRANSFORMS>;
+	array<TransformArrayType, MAX_MODEL_KEYFRAMES> transforms;
+	array<Matrix, MAX_MODEL_KEYFRAMES> rootTransforms;
+};
 
 struct ModelSocket
 {
@@ -33,6 +41,10 @@ public:
 
 	void BindCache();
 	bool HasValidRenderResources() const;
+	bool EnsureAnimationTexture();
+	void InvalidateAnimationTexture();
+	ID3D11ShaderResourceView* GetAnimationTransformSRV() const { return _animationTransformSRV.Get(); }
+	const vector<AnimTransform>& GetAnimationTransforms() const { return _animTransforms; }
 
 public:
 	uint32 GetMaterialCount() { return static_cast<uint32>(_materials.size()); }
@@ -45,7 +57,11 @@ public:
 	ModelAnimation* GetAnimationByIndex(UINT index);
 	ModelAnimation* GetAnimationByName(wstring name);
     int32 GetAnimationIndexByName(wstring name) const;
-	void AddAnimation(ResourceRef<ModelAnimation> animation) { _animations.push_back(animation); }
+	void AddAnimation(ResourceRef<ModelAnimation> animation)
+	{
+		_animations.push_back(animation);
+		InvalidateAnimationTexture();
+	}
 
 	vector<ModelSocket>& GetModelSockets() { return _modelSockets; }
 	const vector<ModelSocket>& GetModelSockets() const { return _modelSockets; }
@@ -73,6 +89,14 @@ public:
     }
 
 private:
+	void CreateAnimationTransform(uint32 index);
+
+	// Runtime-only animation cache. Intentionally excluded from serialize().
+	vector<AnimTransform> _animTransforms;
+	vector<AssetId> _animationCacheAssetIds;
+	ComPtr<ID3D11Texture2D> _animationTransformTexture;
+	ComPtr<ID3D11ShaderResourceView> _animationTransformSRV;
+
 	vector<ResourceRef<Material>> _materials;
     ResourceRef<ModelMeshResource> _mesh;
 	vector<ResourceRef<ModelAnimation>> _animations;
