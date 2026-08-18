@@ -12,7 +12,10 @@ void Character::Start()
 void Character::Update()
 {
     Transform* transform = GetTransform();
-    Vec3 interpolatedPosition = Vec3::Lerp(transform->GetPosition(), _serverPosition, 0.1f);
+    const float elapsedSinceServerUpdate = TIME->GetGameTime() - _lastServerTime;
+    const Vec3 estimatedPosition = _serverPosition
+        + Vec3(_serverVelocity.x, 0.f, _serverVelocity.y) * elapsedSinceServerUpdate;
+    Vec3 interpolatedPosition = Vec3::Lerp(transform->GetPosition(), estimatedPosition, _interpolationSpeed);
     transform->SetPosition(interpolatedPosition);
 
     float interpolatedYaw = MathUtils::MoveTowardsAngle(transform->GetRotation().y, _serverYaw, _yawRotationSpeed);
@@ -39,9 +42,11 @@ bool Character::OnGUI()
     return changed;
 }
 
-void Character::UpdateServerTransform(Vec3 position, float yaw, Vec2 blendInput)
+void Character::UpdateServerTransform(Vec3 position, float yaw, Vec2 blendInput, Vec2 velocity)
 {
     _serverPosition = position;
     _serverYaw = yaw;
     _serverBlendInput = blendInput;
+    _serverVelocity = velocity;
+    _lastServerTime = TIME->GetGameTime();
 }

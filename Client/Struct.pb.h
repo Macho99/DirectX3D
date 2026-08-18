@@ -496,7 +496,8 @@ class TransformData final :
 
   enum : int {
     kPosFieldNumber = 2,
-    kBlendInputFieldNumber = 4,
+    kVelocityFieldNumber = 4,
+    kBlendInputFieldNumber = 5,
     kIdFieldNumber = 1,
     kYawFieldNumber = 3,
   };
@@ -518,7 +519,25 @@ class TransformData final :
       ::Protocol::Vec3* pos);
   ::Protocol::Vec3* unsafe_arena_release_pos();
 
-  // .Protocol.Vec2 blendInput = 4;
+  // .Protocol.Vec2 velocity = 4;
+  bool has_velocity() const;
+  private:
+  bool _internal_has_velocity() const;
+  public:
+  void clear_velocity();
+  const ::Protocol::Vec2& velocity() const;
+  PROTOBUF_FUTURE_MUST_USE_RESULT ::Protocol::Vec2* release_velocity();
+  ::Protocol::Vec2* mutable_velocity();
+  void set_allocated_velocity(::Protocol::Vec2* velocity);
+  private:
+  const ::Protocol::Vec2& _internal_velocity() const;
+  ::Protocol::Vec2* _internal_mutable_velocity();
+  public:
+  void unsafe_arena_set_allocated_velocity(
+      ::Protocol::Vec2* velocity);
+  ::Protocol::Vec2* unsafe_arena_release_velocity();
+
+  // .Protocol.Vec2 blendInput = 5;
   bool has_blendinput() const;
   private:
   bool _internal_has_blendinput() const;
@@ -562,6 +581,7 @@ class TransformData final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::Protocol::Vec3* pos_;
+  ::Protocol::Vec2* velocity_;
   ::Protocol::Vec2* blendinput_;
   ::PROTOBUF_NAMESPACE_ID::uint64 id_;
   float yaw_;
@@ -1456,7 +1476,90 @@ inline void TransformData::set_yaw(float value) {
   // @@protoc_insertion_point(field_set:Protocol.TransformData.yaw)
 }
 
-// .Protocol.Vec2 blendInput = 4;
+// .Protocol.Vec2 velocity = 4;
+inline bool TransformData::_internal_has_velocity() const {
+  return this != internal_default_instance() && velocity_ != nullptr;
+}
+inline bool TransformData::has_velocity() const {
+  return _internal_has_velocity();
+}
+inline void TransformData::clear_velocity() {
+  if (GetArenaForAllocation() == nullptr && velocity_ != nullptr) {
+    delete velocity_;
+  }
+  velocity_ = nullptr;
+}
+inline const ::Protocol::Vec2& TransformData::_internal_velocity() const {
+  const ::Protocol::Vec2* p = velocity_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vec2&>(
+      ::Protocol::_Vec2_default_instance_);
+}
+inline const ::Protocol::Vec2& TransformData::velocity() const {
+  // @@protoc_insertion_point(field_get:Protocol.TransformData.velocity)
+  return _internal_velocity();
+}
+inline void TransformData::unsafe_arena_set_allocated_velocity(
+    ::Protocol::Vec2* velocity) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(velocity_);
+  }
+  velocity_ = velocity;
+  if (velocity) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.TransformData.velocity)
+}
+inline ::Protocol::Vec2* TransformData::release_velocity() {
+  
+  ::Protocol::Vec2* temp = velocity_;
+  velocity_ = nullptr;
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
+}
+inline ::Protocol::Vec2* TransformData::unsafe_arena_release_velocity() {
+  // @@protoc_insertion_point(field_release:Protocol.TransformData.velocity)
+  
+  ::Protocol::Vec2* temp = velocity_;
+  velocity_ = nullptr;
+  return temp;
+}
+inline ::Protocol::Vec2* TransformData::_internal_mutable_velocity() {
+  
+  if (velocity_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Protocol::Vec2>(GetArenaForAllocation());
+    velocity_ = p;
+  }
+  return velocity_;
+}
+inline ::Protocol::Vec2* TransformData::mutable_velocity() {
+  // @@protoc_insertion_point(field_mutable:Protocol.TransformData.velocity)
+  return _internal_mutable_velocity();
+}
+inline void TransformData::set_allocated_velocity(::Protocol::Vec2* velocity) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete velocity_;
+  }
+  if (velocity) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::Protocol::Vec2>::GetOwningArena(velocity);
+    if (message_arena != submessage_arena) {
+      velocity = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, velocity, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  velocity_ = velocity;
+  // @@protoc_insertion_point(field_set_allocated:Protocol.TransformData.velocity)
+}
+
+// .Protocol.Vec2 blendInput = 5;
 inline bool TransformData::_internal_has_blendinput() const {
   return this != internal_default_instance() && blendinput_ != nullptr;
 }

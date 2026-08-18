@@ -178,7 +178,7 @@ void ThirdPersonCamMove::SendInputToServer()
     {
         auto sendBuffer = ServerPacketHandler::MakeSendBuffer(inputPacket);
         SERVER_CONNECT->SendPacket(sendBuffer);
-        _nextSendTime = TIME->GetGameTime() + 0.1f;
+        _nextSendTime = TIME->GetGameTime() + 0.05f;
     }
 }
 

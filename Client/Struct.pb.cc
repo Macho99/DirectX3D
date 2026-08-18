@@ -47,6 +47,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Vec2DefaultTypeInternal _Vec2_d
 constexpr TransformData::TransformData(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : pos_(nullptr)
+  , velocity_(nullptr)
   , blendinput_(nullptr)
   , id_(uint64_t{0u})
   , yaw_(0){}
@@ -143,6 +144,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_Struct_2eproto::offsets[] PROT
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, id_),
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, pos_),
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, yaw_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, velocity_),
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, blendinput_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Protocol::HealthData, _internal_metadata_),
@@ -180,10 +182,10 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 0, -1, sizeof(::Protocol::Vec3)},
   { 8, -1, sizeof(::Protocol::Vec2)},
   { 15, -1, sizeof(::Protocol::TransformData)},
-  { 24, -1, sizeof(::Protocol::HealthData)},
-  { 31, -1, sizeof(::Protocol::Player)},
-  { 40, -1, sizeof(::Protocol::Input)},
-  { 47, -1, sizeof(::Protocol::Monster)},
+  { 25, -1, sizeof(::Protocol::HealthData)},
+  { 32, -1, sizeof(::Protocol::Player)},
+  { 41, -1, sizeof(::Protocol::Input)},
+  { 48, -1, sizeof(::Protocol::Monster)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -199,25 +201,25 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_Struct_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014Struct.proto\022\010Protocol\032\nEnum.proto\"\'\n\004"
   "Vec3\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"\034\n"
-  "\004Vec2\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"i\n\rTransform"
-  "Data\022\n\n\002id\030\001 \001(\004\022\033\n\003pos\030\002 \001(\0132\016.Protocol"
-  ".Vec3\022\013\n\003yaw\030\003 \001(\002\022\"\n\nblendInput\030\004 \001(\0132\016"
-  ".Protocol.Vec2\"$\n\nHealthData\022\n\n\002id\030\001 \001(\004"
-  "\022\n\n\002hp\030\002 \001(\005\"t\n\006Player\022\n\n\002id\030\001 \001(\004\022\014\n\004na"
-  "me\030\002 \001(\t\022*\n\ttransform\030\003 \001(\0132\027.Protocol.T"
-  "ransformData\022$\n\006health\030\004 \001(\0132\024.Protocol."
-  "HealthData\"&\n\005Input\022\017\n\007keyType\030\001 \001(\005\022\014\n\004"
-  "down\030\002 \001(\010\"g\n\007Monster\022\n\n\002id\030\001 \001(\004\022*\n\ttra"
-  "nsform\030\002 \001(\0132\027.Protocol.TransformData\022$\n"
-  "\006health\030\003 \001(\0132\024.Protocol.HealthDatab\006pro"
-  "to3"
+  "\004Vec2\022\t\n\001x\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\"\213\001\n\rTransfor"
+  "mData\022\n\n\002id\030\001 \001(\004\022\033\n\003pos\030\002 \001(\0132\016.Protoco"
+  "l.Vec3\022\013\n\003yaw\030\003 \001(\002\022 \n\010velocity\030\004 \001(\0132\016."
+  "Protocol.Vec2\022\"\n\nblendInput\030\005 \001(\0132\016.Prot"
+  "ocol.Vec2\"$\n\nHealthData\022\n\n\002id\030\001 \001(\004\022\n\n\002h"
+  "p\030\002 \001(\005\"t\n\006Player\022\n\n\002id\030\001 \001(\004\022\014\n\004name\030\002 "
+  "\001(\t\022*\n\ttransform\030\003 \001(\0132\027.Protocol.Transf"
+  "ormData\022$\n\006health\030\004 \001(\0132\024.Protocol.Healt"
+  "hData\"&\n\005Input\022\017\n\007keyType\030\001 \001(\005\022\014\n\004down\030"
+  "\002 \001(\010\"g\n\007Monster\022\n\n\002id\030\001 \001(\004\022*\n\ttransfor"
+  "m\030\002 \001(\0132\027.Protocol.TransformData\022$\n\006heal"
+  "th\030\003 \001(\0132\024.Protocol.HealthDatab\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_Struct_2eproto_deps[1] = {
   &::descriptor_table_Enum_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Struct_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Struct_2eproto = {
-  false, false, 523, descriptor_table_protodef_Struct_2eproto, "Struct.proto", 
+  false, false, 558, descriptor_table_protodef_Struct_2eproto, "Struct.proto", 
   &descriptor_table_Struct_2eproto_once, descriptor_table_Struct_2eproto_deps, 1, 7,
   schemas, file_default_instances, TableStruct_Struct_2eproto::offsets,
   file_level_metadata_Struct_2eproto, file_level_enum_descriptors_Struct_2eproto, file_level_service_descriptors_Struct_2eproto,
@@ -698,12 +700,17 @@ void Vec2::InternalSwap(Vec2* other) {
 class TransformData::_Internal {
  public:
   static const ::Protocol::Vec3& pos(const TransformData* msg);
+  static const ::Protocol::Vec2& velocity(const TransformData* msg);
   static const ::Protocol::Vec2& blendinput(const TransformData* msg);
 };
 
 const ::Protocol::Vec3&
 TransformData::_Internal::pos(const TransformData* msg) {
   return *msg->pos_;
+}
+const ::Protocol::Vec2&
+TransformData::_Internal::velocity(const TransformData* msg) {
+  return *msg->velocity_;
 }
 const ::Protocol::Vec2&
 TransformData::_Internal::blendinput(const TransformData* msg) {
@@ -722,6 +729,11 @@ TransformData::TransformData(const TransformData& from)
     pos_ = new ::Protocol::Vec3(*from.pos_);
   } else {
     pos_ = nullptr;
+  }
+  if (from._internal_has_velocity()) {
+    velocity_ = new ::Protocol::Vec2(*from.velocity_);
+  } else {
+    velocity_ = nullptr;
   }
   if (from._internal_has_blendinput()) {
     blendinput_ = new ::Protocol::Vec2(*from.blendinput_);
@@ -750,6 +762,7 @@ TransformData::~TransformData() {
 void TransformData::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   if (this != internal_default_instance()) delete pos_;
+  if (this != internal_default_instance()) delete velocity_;
   if (this != internal_default_instance()) delete blendinput_;
 }
 
@@ -773,6 +786,10 @@ void TransformData::Clear() {
     delete pos_;
   }
   pos_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && velocity_ != nullptr) {
+    delete velocity_;
+  }
+  velocity_ = nullptr;
   if (GetArenaForAllocation() == nullptr && blendinput_ != nullptr) {
     delete blendinput_;
   }
@@ -810,9 +827,16 @@ const char* TransformData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           ptr += sizeof(float);
         } else goto handle_unusual;
         continue;
-      // .Protocol.Vec2 blendInput = 4;
+      // .Protocol.Vec2 velocity = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr = ctx->ParseMessage(_internal_mutable_velocity(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .Protocol.Vec2 blendInput = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_blendinput(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -866,12 +890,20 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_yaw(), target);
   }
 
-  // .Protocol.Vec2 blendInput = 4;
+  // .Protocol.Vec2 velocity = 4;
+  if (this->has_velocity()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        4, _Internal::velocity(this), target, stream);
+  }
+
+  // .Protocol.Vec2 blendInput = 5;
   if (this->has_blendinput()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
-        4, _Internal::blendinput(this), target, stream);
+        5, _Internal::blendinput(this), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -897,7 +929,14 @@ size_t TransformData::ByteSizeLong() const {
         *pos_);
   }
 
-  // .Protocol.Vec2 blendInput = 4;
+  // .Protocol.Vec2 velocity = 4;
+  if (this->has_velocity()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *velocity_);
+  }
+
+  // .Protocol.Vec2 blendInput = 5;
   if (this->has_blendinput()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -949,6 +988,9 @@ void TransformData::MergeFrom(const TransformData& from) {
 
   if (from.has_pos()) {
     _internal_mutable_pos()->::Protocol::Vec3::MergeFrom(from._internal_pos());
+  }
+  if (from.has_velocity()) {
+    _internal_mutable_velocity()->::Protocol::Vec2::MergeFrom(from._internal_velocity());
   }
   if (from.has_blendinput()) {
     _internal_mutable_blendinput()->::Protocol::Vec2::MergeFrom(from._internal_blendinput());

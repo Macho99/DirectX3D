@@ -26,7 +26,11 @@ namespace
 
     void UpdateServerTransform(Character* character, const Protocol::TransformData& transformData)
     {
-        character->UpdateServerTransform(ToVec3(transformData.pos()), transformData.yaw(), ToVec2(transformData.blendinput()));
+        character->UpdateServerTransform(
+            ToVec3(transformData.pos()), 
+            transformData.yaw(), 
+            ToVec2(transformData.blendinput()),
+            ToVec2(transformData.velocity()));
     }
 }
 
@@ -155,6 +159,7 @@ void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
 
     Player* player = GameObject::Instantiate(_playerPrefab.Resolve(), nullptr);
     player->Init(otherPlayer.id(), otherPlayer.name(), false);
+    player->GetGameObject()->SetActive(true);
     UpdateServerTransform(player, otherPlayer.transform());
 
     _players[otherPlayer.id()] = player;
@@ -278,7 +283,7 @@ void GameManager::ConnectedState()
     player->GetGameObject()->SetActive(true);
     player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
     player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
-    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero);
+    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero, Vec2::Zero);
     _myPlayer = player;
 
     const float duration = 3.f;
