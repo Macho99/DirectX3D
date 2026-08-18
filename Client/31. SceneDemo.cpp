@@ -47,6 +47,13 @@ void SceneDemo::Init()
     sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SkyMat.mat"));
     CUR_SCENE->SetSky(sky);
 
+    shared_ptr<Scene> target;
+    std::ifstream is("..\\Assets\\Scenes\\main.scene");
+    cereal::JSONInputArchive archive(is);
+    archive(target);
+    SCENE->ChangeScene(target);
+    return;
+
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
     {
         GameObjectRef cameraRef = CUR_SCENE->Add("Camera");

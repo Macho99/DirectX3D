@@ -12,6 +12,24 @@
 #include "Model.h"
 #include "InputText.h"
 
+namespace
+{
+    Vec3 ToVec3(const Protocol::Vec3& protoVec)
+    {
+        return Vec3(protoVec.x(), protoVec.y(), protoVec.z());
+    }
+
+    Vec2 ToVec2(const Protocol::Vec2& protoVec)
+    {
+        return Vec2(protoVec.x(), protoVec.y());
+    }
+
+    void UpdateServerTransform(Character* character, const Protocol::TransformData& transformData)
+    {
+        character->UpdateServerTransform(ToVec3(transformData.pos()), transformData.yaw(), ToVec2(transformData.blendinput()));
+    }
+}
+
 void GameManager::Start()
 {
     ASSERT(_instance == nullptr || _instance == this, "GameManager already exists");
@@ -136,6 +154,7 @@ void GameManager::OnOtherPlayerEnter(Protocol::Player otherPlayer)
 
     Player* player = GameObject::Instantiate(_playerPrefab.Resolve(), nullptr);
     player->Init(otherPlayer.id(), otherPlayer.name(), false);
+    UpdateServerTransform(player, otherPlayer.transform());
 
     _players[otherPlayer.id()] = player;
 }
@@ -152,6 +171,32 @@ void GameManager::OnOtherPlayerExit(uint64 otherPlayerId)
     CUR_SCENE->Remove(it->second.Resolve()->GetGameObjectRef());
 
     _players.erase(it);
+}
+
+void GameManager::OnMovePlayer(Protocol::TransformData playerMove)
+{
+    auto it = _players.find(playerMove.id());
+    if (it == _players.end())
+    {
+        DBG->LogError("Player ID %llu not found in _players map.", playerMove.id());
+        return;
+    }
+
+    Player* player = it->second.Resolve();
+    UpdateServerTransform(player, playerMove);
+}
+
+void GameManager::OnMoveMonster(Protocol::TransformData monsterMove)
+{
+    auto it = _monsters.find(monsterMove.id());
+    if (it == _monsters.end())
+    {
+        DBG->LogError("Monster ID %llu not found in _monsters map.", monsterMove.id());
+        return;
+    }
+
+    Zombie* monster = it->second.Resolve();
+    UpdateServerTransform(monster, monsterMove);
 }
 
 void GameManager::OnDisconnect()
@@ -228,10 +273,13 @@ void GameManager::LoginState()
 
 void GameManager::ConnectedState()
 {
+    Transform* playerSpawnPoint = _playerSpawnPoint.Resolve();
+
     Player* player = GameObject::Instantiate(_playerPrefab.Resolve());
     player->GetGameObject()->SetActive(true);
     player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
     player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
+    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero);
     _myPlayer = player;
 
     const float duration = 3.f;

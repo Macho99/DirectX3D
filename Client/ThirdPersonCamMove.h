@@ -33,6 +33,7 @@ public:
 private:
     void RotateAroundParent();
     void MoveTarget(float dt);
+    void SendInputToServer();
     Transform* GetRotationPivot();
 
 private:

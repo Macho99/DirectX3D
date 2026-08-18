@@ -41,7 +41,8 @@ void ThirdPersonCamMove::Start()
 void ThirdPersonCamMove::Update()
 {
     RotateAroundParent();
-    MoveTarget(TIME->GetDeltaTime());
+    //MoveTarget(TIME->GetDeltaTime());
+    SendInputToServer();
 }
 
 bool ThirdPersonCamMove::OnGUI()
@@ -170,6 +171,34 @@ void ThirdPersonCamMove::MoveTarget(float dt)
     }
 
     target->SetPosition(target->GetPosition() + _velocity * dt);
+}
+
+void ThirdPersonCamMove::SendInputToServer()
+{
+    static const vector<KEY_TYPE> keysToCheck = { KEY_TYPE::W, KEY_TYPE::A, KEY_TYPE::S, KEY_TYPE::D, KEY_TYPE::LSHIFT };
+
+    Protocol::C_PLAYER_INPUT inputPacket;
+    for (const KEY_TYPE& key : keysToCheck)
+    {
+        if (INPUT->GetButtonDown(key))
+        {
+            Protocol::Input* input = inputPacket.add_inputs();
+            input->set_down(true);
+            input->set_keytype(static_cast<uint32>(key));
+        }
+        else if (INPUT->GetButtonUp(key))
+        {
+            Protocol::Input* input = inputPacket.add_inputs();
+            input->set_down(false);
+            input->set_keytype(static_cast<uint32>(key));
+        }
+    }
+
+    if (inputPacket.inputs_size() > 0)
+    {
+        auto sendBuffer = ServerPacketHandler::MakeSendBuffer(inputPacket);
+        SERVER_CONNECT->SendPacket(sendBuffer);
+    }
 }
 
 Transform* ThirdPersonCamMove::GetRotationPivot()

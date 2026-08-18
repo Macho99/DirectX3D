@@ -1,7 +1,7 @@
 #pragma once
-#include <MonoBehaviour.h>
+#include "Character.h"
 
-class Zombie : public MonoBehaviour
+class Zombie : public Character
 {
     using Super = MonoBehaviour;
     DECLARE_MONO_BEHAVIOUR(Zombie);

@@ -31,6 +31,8 @@ public:
     void OnCreateMyPlayer(Protocol::Player myPlayer);
     void OnOtherPlayerEnter(Protocol::Player otherPlayer);
     void OnOtherPlayerExit(uint64 otherPlayerId);
+    void OnMovePlayer(Protocol::TransformData playerMove);
+    void OnMoveMonster(Protocol::TransformData monsterMove);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
     virtual int GetVersion() const override { return 5; }
@@ -89,6 +91,7 @@ private:
 
     ComponentRef<Zombie> _zombiePrefab;
     ComponentRef<TargetFollower> _cameraFollower;
+    unordered_map<uint64, ComponentRef<Zombie>> _monsters;
 
     ComponentRef<Transform> _titlePoint;
     ComponentRef<Transform> _playerSpawnPoint;

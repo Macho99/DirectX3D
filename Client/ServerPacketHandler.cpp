@@ -63,6 +63,42 @@ bool Handle_S_PLAYER_EXIT(PacketSessionRef& session, Protocol::S_PLAYER_EXIT& pk
 	return true;
 }
 
+bool Handle_S_PLAYER_MOVE(PacketSessionRef& session, Protocol::S_PLAYER_MOVE& pkt)
+{
+    auto Job = [pkt]()
+        {
+            for (int i = 0; i < pkt.transforms_size(); i++)
+            {
+                GM->OnMovePlayer(pkt.transforms(i));
+            }
+        };
+
+	return true;
+}
+
+bool Handle_S_MONSTER_SPAWN(PacketSessionRef& session, Protocol::S_MONSTER_SPAWN& pkt)
+{
+	return true;
+}
+
+bool Handle_S_MONSTER_MOVE(PacketSessionRef& session, Protocol::S_MONSTER_MOVE& pkt)
+{
+    auto Job = [pkt]()
+        {
+            for (int i = 0; i < pkt.transforms_size(); i++)
+            {
+                GM->OnMoveMonster(pkt.transforms(i));
+            }
+        };
+
+	return true;
+}
+
+bool Handle_S_MONSTER_DESPAWN(PacketSessionRef& session, Protocol::S_MONSTER_DESPAWN& pkt)
+{
+	return true;
+}
+
 bool Handle_S_CHAT(PacketSessionRef& session, Protocol::S_CHAT& pkt)
 {
 	DBG->Log("Handle_S_CHAT");
