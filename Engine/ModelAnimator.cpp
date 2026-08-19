@@ -416,8 +416,8 @@ bool ModelAnimator::TryInitialize()
         if (material == nullptr)
             continue;
 
-        if (material->GetShader() == nullptr)
-            continue;
+		if (material->GetShader() == nullptr)
+			material->SetShader(RESOURCES->GetDefaultShader());
 
         hasValidMaterial = true;
 	}

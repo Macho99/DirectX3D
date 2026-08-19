@@ -50,7 +50,7 @@ public:
     int GetSubAssetIndexById(const AssetId& assetId) const;
     virtual string GetName(const AssetId& assetId) override;
 
-    bool TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const;
+    bool HasSubAsset(ResourceType resourceType, const AssetId & assetId) const;
 
     template<class Archive>
     void serialize(Archive& ar)

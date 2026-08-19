@@ -216,13 +216,12 @@ string SubAssetMetaFile::GetName(const AssetId& assetId)
     return "";
 }
 
-bool SubAssetMetaFile::TryGetSubAssetByType(ResourceType resourceType, OUT AssetId& assetId) const
+bool SubAssetMetaFile::HasSubAsset(ResourceType resourceType, const AssetId& assetId) const
 {
     for (const SubAssetInfo& subAsset : _subAssets)
     {
-        if (subAsset.resourceType == resourceType)
+        if (subAsset.resourceType == resourceType && subAsset.assetId ==  assetId)
         {
-            assetId = subAsset.assetId;
             return true;
         }
     }

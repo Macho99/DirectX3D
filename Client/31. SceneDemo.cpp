@@ -41,18 +41,51 @@
 #include "TessTerrain.h"
 #include "GrassRenderer.h"
 
+namespace
+{
+    bool TryGetLatestSceneFile(const fs::path& folderPath, fs::path& outPath)
+    {
+        bool found = false;
+        fs::file_time_type latestTime;
+
+        for (const auto& entry : fs::directory_iterator(folderPath))
+        {
+            if (!entry.is_regular_file())
+                continue;
+
+            if (entry.path().extension() != ".scene")
+                continue;
+
+            const auto writeTime = entry.last_write_time();
+
+            if (!found || writeTime > latestTime)
+            {
+                found = true;
+                latestTime = writeTime;
+                outPath = entry.path();
+            }
+        }
+
+        return found;
+    }
+}
+
 void SceneDemo::Init()
 {
     auto sky = make_shared<Sky>();
     sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SkyMat.mat"));
     CUR_SCENE->SetSky(sky);
 
-    shared_ptr<Scene> target;
-    std::ifstream is("..\\Assets\\Scenes\\main.scene");
-    cereal::JSONInputArchive archive(is);
-    archive(target);
-    SCENE->ChangeScene(target);
-    return;
+    fs::path outPath;
+    if (TryGetLatestSceneFile("..\\Assets\\Scenes", outPath))
+    {
+        shared_ptr<Scene> target;
+        std::ifstream is(outPath);
+        cereal::JSONInputArchive archive(is);
+        archive(target);
+        SCENE->ChangeScene(target);
+        return;
+    }
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
     {

@@ -120,10 +120,9 @@ bool ResourceManager::TryGetResourceRefByAssetId(const AssetId& assetId, OUT Res
 	SubAssetMetaFile* subAssetMeta = dynamic_cast<SubAssetMetaFile*>(metaFile);
 	if (subAssetMeta != nullptr)
 	{
-		AssetId subAssetId;
-		if (subAssetMeta->TryGetSubAssetByType(T::StaticType, OUT subAssetId))
+		if (subAssetMeta->HasSubAsset(T::StaticType, assetId))
 		{
-			resourceRef = ResourceRef<T>(subAssetId);
+			resourceRef = ResourceRef<T>(assetId);
 			return true;
 		}
 	}

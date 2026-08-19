@@ -132,7 +132,8 @@ void ModelMeshResource::BindCacheInfo(vector<ResourceRef<Material>> materials)
             }
         }
 
-		ASSERT(found, "메테리얼 못찾음");
+		if(!found)
+			DBG->LogErrorW(L"ModelMeshResource::BindCacheInfo - Material not found for mesh: " + mesh->name);
 	}
 
 	// Mesh에 Bone 캐싱

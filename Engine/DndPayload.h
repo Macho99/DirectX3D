@@ -21,6 +21,14 @@ namespace DndPayload
 
         // payload는 "복사"됩니다. (ImGui가 내부 저장)
         ImGui::SetDragDropPayload(DndPayload::Asset, &assetId, sizeof(AssetId));
+        if (assetId.GetLeftId() != 4380103272258857311)
+        {
+            int a = 0;
+        }
+        else
+        {
+            int b = 0;
+        }
 
         // 사용자가 원하는 미리보기 렌더링
         drawPreview();

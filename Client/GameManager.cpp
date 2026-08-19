@@ -61,6 +61,9 @@ void GameManager::Start()
     {
         cameraFollower->SetTarget(_titlePoint.Resolve());
         cameraFollower->UpdateImmediateFollow();
+        Transform* camTrans = cameraFollower->GetGameObject()->GetComponentInChildren<Camera>()->GetTransform();
+        camTrans->SetLocalRotation(Vec3(0, 0, 0));
+        camTrans->SetLocalPosition(Vec3(0, 0, -4));
     }
 
     UIImage* titleImage = _titleImage.Resolve();

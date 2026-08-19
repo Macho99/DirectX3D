@@ -21,7 +21,6 @@ NavFileUtils::~NavFileUtils()
 	}
 }
 
-
 void NavFileUtils::Open(wstring filePath, NavFileMode mode)
 {
 	if (mode == NavFileMode::Write)
@@ -52,7 +51,6 @@ void NavFileUtils::Open(wstring filePath, NavFileMode mode)
 
 	assert(_handle != INVALID_HANDLE_VALUE);
 }
-
 
 void NavFileUtils::Write(const void* data, uint32 dataSize) const
 {
