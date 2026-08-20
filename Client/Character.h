@@ -9,7 +9,7 @@ public:
     virtual bool OnGUI() override;
 
     void EnsureAnimator();
-    void UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity, bool updateImmediate);
+    void UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity, Vec2 blendInput, bool updateImmediate);
     void PlayAnimation(int animationIndex);
 
 private:
@@ -17,11 +17,11 @@ private:
 
     Vec3 _serverPosition;
     float _serverYaw;
-    //Vec2 _serverBlendInput;
     Vec2 _serverVelocity;
+    Vec2 _serverBlendInput;
 
-    float _interpolationSpeed = 0.1f;
-    float _yawRotationSpeed = 5.f;
+    float _interpolationSpeed = 10.f;
+    float _yawRotationSpeed = 360.f;
     float _lastServerTime = 0.f;
 
     bool _debugIgnorePositionUpdate = false;

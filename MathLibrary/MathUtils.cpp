@@ -755,3 +755,9 @@ Vec2 MathUtils::InverseRotateByYaw(const Vec2& value, float yaw)
 {
 	return RotateByYaw(value, -yaw);
 }
+
+float MathUtils::GetYawFromDirection(const Vec3& direction)
+{
+    const float yaw = std::atan2(direction.x, direction.z) * (180.f / 3.14159265358979323846f);
+    return yaw;
+}

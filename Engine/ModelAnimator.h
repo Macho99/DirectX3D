@@ -34,6 +34,7 @@ public:
 
     virtual void Awake() override;
 	virtual void Update() override;
+    virtual int GetVersion() const override { return Super::GetVersion() + 1; }
 
 	void UpdateRootMotion(const TweenDesc prevTweenDesc);
 	void UpdateTweenData();
@@ -76,6 +77,11 @@ public:
 		if constexpr (Archive::is_loading::value)
 		{
 			_blendSpaceTriangulationDirty = true;
+		}
+
+		if (_version >= 2)
+		{
+            ar(CEREAL_NVP(_tweenDesc));
 		}
 	}
 

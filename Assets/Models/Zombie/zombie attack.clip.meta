@@ -1,0 +1,46 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "AnimationMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 2,
+                "_assetId": {
+                    "leftId": 15442824598557038623,
+                    "rightId": 9081030048532410126
+                },
+                "_resourceType": 4,
+                "clipImportSetting": {
+                    "extractRootMotion": false,
+                    "applyRootPositionXZ": false,
+                    "applyRootPositionY": false,
+                    "applyRootRotation": false
+                },
+                "animationEvents": [
+                    {
+                        "eventName": "Attack",
+                        "boolParam": true,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 24
+                    },
+                    {
+                        "eventName": "AttackDamage",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 31
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 34
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -199,6 +199,12 @@ struct TweenDesc
 	float speed = 1.f;
 	KeyframeDesc cur;
 	KeyframeDesc next;
+
+	template<typename Archive>
+	void serialize(Archive& ar)
+	{
+        ar(CEREAL_NVP(tweenDuration));
+	}
 };
 
 struct InstancedTweenDesc

@@ -30,7 +30,8 @@ namespace
         character->UpdateServerTransform(
             ToVec3(transformData.pos()), 
             transformData.yaw(), 
-            ToVec2(transformData.velocity()), 
+            ToVec2(transformData.velocity()),
+            ToVec2(transformData.blendinput()),
             updateImmediate);
     }
 }
@@ -158,7 +159,7 @@ bool GameManager::OnGUI()
     if (ImGui::Button("Spawn Monster"))
     {
         Protocol::C_SPAWN_MONSTER spawnPacket;
-        spawnPacket.set_spawnlevel(2);
+        spawnPacket.set_spawnlevel(1);
         auto sendBuffer = ServerPacketHandler::MakeSendBuffer(spawnPacket);
         SERVER_CONNECT->SendPacket(sendBuffer);
     }
@@ -372,7 +373,7 @@ void GameManager::ConnectedState()
     player->GetGameObject()->SetActive(true);
     player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
     player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
-    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero, true);
+    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero, Vec2::Zero, true);
     _myPlayer = player;
 
     const float duration = 3.f;
