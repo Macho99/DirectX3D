@@ -7,8 +7,23 @@
 #ifndef PCH_H
 #define PCH_H
 
+
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "framework.h"
 #include <windows.h>
+#include <algorithm>
+#include <vector>
+#include "SimpleMath.h"
+
+using Vec2 = DirectX::SimpleMath::Vector2;
+using Vec3 = DirectX::SimpleMath::Vector3;
+using Vec4 = DirectX::SimpleMath::Vector4;
+using Matrix = DirectX::SimpleMath::Matrix;
+using Quaternion = DirectX::SimpleMath::Quaternion;
+using Ray = DirectX::SimpleMath::Ray;
+
+using std::min;
+using std::max;
+using std::vector;
 
 #endif //PCH_H

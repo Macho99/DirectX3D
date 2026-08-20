@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "OnGUIUtils.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "MonoBehaviour.h"
 #include "SceneView.h"
 #include "../MathLibrary/Geometry2D.h"

@@ -497,7 +497,6 @@ class TransformData final :
   enum : int {
     kPosFieldNumber = 2,
     kVelocityFieldNumber = 4,
-    kBlendInputFieldNumber = 5,
     kIdFieldNumber = 1,
     kYawFieldNumber = 3,
   };
@@ -537,24 +536,6 @@ class TransformData final :
       ::Protocol::Vec2* velocity);
   ::Protocol::Vec2* unsafe_arena_release_velocity();
 
-  // .Protocol.Vec2 blendInput = 5;
-  bool has_blendinput() const;
-  private:
-  bool _internal_has_blendinput() const;
-  public:
-  void clear_blendinput();
-  const ::Protocol::Vec2& blendinput() const;
-  PROTOBUF_FUTURE_MUST_USE_RESULT ::Protocol::Vec2* release_blendinput();
-  ::Protocol::Vec2* mutable_blendinput();
-  void set_allocated_blendinput(::Protocol::Vec2* blendinput);
-  private:
-  const ::Protocol::Vec2& _internal_blendinput() const;
-  ::Protocol::Vec2* _internal_mutable_blendinput();
-  public:
-  void unsafe_arena_set_allocated_blendinput(
-      ::Protocol::Vec2* blendinput);
-  ::Protocol::Vec2* unsafe_arena_release_blendinput();
-
   // uint64 id = 1;
   void clear_id();
   ::PROTOBUF_NAMESPACE_ID::uint64 id() const;
@@ -582,7 +563,6 @@ class TransformData final :
   typedef void DestructorSkippable_;
   ::Protocol::Vec3* pos_;
   ::Protocol::Vec2* velocity_;
-  ::Protocol::Vec2* blendinput_;
   ::PROTOBUF_NAMESPACE_ID::uint64 id_;
   float yaw_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1557,89 +1537,6 @@ inline void TransformData::set_allocated_velocity(::Protocol::Vec2* velocity) {
   }
   velocity_ = velocity;
   // @@protoc_insertion_point(field_set_allocated:Protocol.TransformData.velocity)
-}
-
-// .Protocol.Vec2 blendInput = 5;
-inline bool TransformData::_internal_has_blendinput() const {
-  return this != internal_default_instance() && blendinput_ != nullptr;
-}
-inline bool TransformData::has_blendinput() const {
-  return _internal_has_blendinput();
-}
-inline void TransformData::clear_blendinput() {
-  if (GetArenaForAllocation() == nullptr && blendinput_ != nullptr) {
-    delete blendinput_;
-  }
-  blendinput_ = nullptr;
-}
-inline const ::Protocol::Vec2& TransformData::_internal_blendinput() const {
-  const ::Protocol::Vec2* p = blendinput_;
-  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vec2&>(
-      ::Protocol::_Vec2_default_instance_);
-}
-inline const ::Protocol::Vec2& TransformData::blendinput() const {
-  // @@protoc_insertion_point(field_get:Protocol.TransformData.blendInput)
-  return _internal_blendinput();
-}
-inline void TransformData::unsafe_arena_set_allocated_blendinput(
-    ::Protocol::Vec2* blendinput) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(blendinput_);
-  }
-  blendinput_ = blendinput;
-  if (blendinput) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.TransformData.blendInput)
-}
-inline ::Protocol::Vec2* TransformData::release_blendinput() {
-  
-  ::Protocol::Vec2* temp = blendinput_;
-  blendinput_ = nullptr;
-  if (GetArenaForAllocation() != nullptr) {
-    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  }
-  return temp;
-}
-inline ::Protocol::Vec2* TransformData::unsafe_arena_release_blendinput() {
-  // @@protoc_insertion_point(field_release:Protocol.TransformData.blendInput)
-  
-  ::Protocol::Vec2* temp = blendinput_;
-  blendinput_ = nullptr;
-  return temp;
-}
-inline ::Protocol::Vec2* TransformData::_internal_mutable_blendinput() {
-  
-  if (blendinput_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Protocol::Vec2>(GetArenaForAllocation());
-    blendinput_ = p;
-  }
-  return blendinput_;
-}
-inline ::Protocol::Vec2* TransformData::mutable_blendinput() {
-  // @@protoc_insertion_point(field_mutable:Protocol.TransformData.blendInput)
-  return _internal_mutable_blendinput();
-}
-inline void TransformData::set_allocated_blendinput(::Protocol::Vec2* blendinput) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
-    delete blendinput_;
-  }
-  if (blendinput) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::Protocol::Vec2>::GetOwningArena(blendinput);
-    if (message_arena != submessage_arena) {
-      blendinput = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, blendinput, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  blendinput_ = blendinput;
-  // @@protoc_insertion_point(field_set_allocated:Protocol.TransformData.blendInput)
 }
 
 // -------------------------------------------------------------------

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "MathUtils.h"
+using namespace DirectX;
 
 bool MathUtils::PointInSphere(const Point3D& point, const Sphere3D sphere)
 {
@@ -92,7 +93,7 @@ bool MathUtils::PointInOBB(const Point3D& point, const OBB3D& obb)
 	size.push_back(obb.size.y);
 	size.push_back(obb.size.z);
 
-	for (int32 i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		float distance = dir.Dot(axis[i]);
 
@@ -702,6 +703,16 @@ Vec3 MathUtils::DegToRad(const Vec3& deg)
     };
 }
 
+Vec2 MathUtils::MoveTowards(const Vec2& current, const Vec2& target, float maxDelta)
+{
+	const Vec2 delta = target - current;
+	const float distance = delta.Length();
+	if (distance <= maxDelta || distance <= 0.0001f)
+		return target;
+
+	return current + delta * (maxDelta / distance);
+}
+
 Vec3 MathUtils::MoveTowards(const Vec3& current, const Vec3& target, float maxDelta)
 {
 	Vec3 delta = target - current;
@@ -719,4 +730,21 @@ float MathUtils::MoveTowardsAngle(float current, float target, float maxDelta)
 		return target;
 
 	return current + std::copysign(maxDelta, delta);
+}
+
+Vec2 MathUtils::RotateByYaw(const Vec2& value, float yaw)
+{
+	constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.f;
+	const float radians = yaw * DEG_TO_RAD;
+	const float sinYaw = std::sin(radians);
+	const float cosYaw = std::cos(radians);
+
+	return Vec2(
+		cosYaw * value.x + sinYaw * value.y,
+		-sinYaw * value.x + cosYaw * value.y);
+}
+
+Vec2 MathUtils::InverseRotateByYaw(const Vec2& value, float yaw)
+{
+	return RotateByYaw(value, -yaw);
 }

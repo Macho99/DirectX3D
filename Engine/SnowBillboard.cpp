@@ -2,7 +2,7 @@
 #include "SnowBillboard.h"
 #include "Material.h"
 #include "Camera.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "OnGUIUtils.h"
 
 SnowBillboard::SnowBillboard()

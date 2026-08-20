@@ -137,8 +137,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)Libraries\Lib\NavBuild\*" "$(SolutionDir)..\Server\Libraries\Libs\NavBuild\" /E /Y /I
-xcopy "$(SolutionDir)Libraries\Lib\MathLibrary\*" "$(SolutionDir)..\Server\Libraries\Libs\MathLibrary\" /E /Y /I</Command>
+      <Command>xcopy "$(SolutionDir)Libraries\Lib\NavBuild\*" "$(SolutionDir)..\Server\Libraries\Libs\NavBuild\" /E /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,8 +160,7 @@ xcopy "$(SolutionDir)Libraries\Lib\MathLibrary\*" "$(SolutionDir)..\Server\Libra
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)Libraries\Lib\NavBuild\*" "$(SolutionDir)..\Server\Libraries\Libs\NavBuild\" /E /Y /I
-xcopy "$(SolutionDir)Libraries\Lib\MathLibrary\*" "$(SolutionDir)..\Server\Libraries\Libs\MathLibrary\" /E /Y /I</Command>
+      <Command>xcopy "$(SolutionDir)Libraries\Lib\NavBuild\*" "$(SolutionDir)..\Server\Libraries\Libs\NavBuild\" /E /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

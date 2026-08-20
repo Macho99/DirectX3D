@@ -5,7 +5,7 @@
 #include "Texture.h"
 #include <fstream>
 #include "VertexData.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "Camera.h"
 #include "OnGUIUtils.h"
 

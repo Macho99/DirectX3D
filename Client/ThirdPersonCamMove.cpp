@@ -3,7 +3,7 @@
 #include "Transform.h"
 #include "OnGUIUtils.h"
 #include "ModelAnimator.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 
 void ThirdPersonCamMove::Start()
 {

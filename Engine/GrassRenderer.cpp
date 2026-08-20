@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "GrassRenderer.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "Material.h"
 #include "TessTerrain.h"
 #include "Camera.h"

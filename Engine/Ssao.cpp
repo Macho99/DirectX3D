@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Ssao.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Material.h"

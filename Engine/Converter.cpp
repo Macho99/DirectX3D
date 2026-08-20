@@ -7,7 +7,7 @@
 #include "fstream"
 #include "ModelMeshResource.h"
 #include "skinned_mesh.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "TextureMeta.h"
 
 Converter::Converter()

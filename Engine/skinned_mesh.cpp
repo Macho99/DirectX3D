@@ -17,7 +17,7 @@
 */
 #include "pch.h"
 #include "skinned_mesh.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include <fstream>
 
 #define POSITION_LOCATION    0

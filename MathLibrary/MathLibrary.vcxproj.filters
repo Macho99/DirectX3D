@@ -23,6 +23,12 @@
     <ClInclude Include="SimpleMath.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Primitive3D.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtils.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Geometry2D.cpp">
@@ -32,6 +38,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtils.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitive3D.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

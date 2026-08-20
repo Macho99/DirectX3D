@@ -2,7 +2,7 @@
 #include "Character.h"
 #include "ModelAnimator.h"
 #include "OnGUIUtils.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 
 void Character::Start()
 {
@@ -24,7 +24,11 @@ void Character::Update()
     ModelAnimator* animator = _animator.Resolve();
     if (animator)
     {
-        Vec2 interpolatedBlendInput = Vec2::Lerp(_animator.Resolve()->GetBlendSpaceInput(), _serverBlendInput, 0.1f);
+        //Vec2 interpolatedBlendInput = Vec2::Lerp(_animator.Resolve()->GetBlendSpaceInput(), _serverBlendInput, 0.1f);
+
+        const Vec2 localVelocity = MathUtils::InverseRotateByYaw(_serverVelocity, _serverYaw + 180.f);
+        const Vec2 blendInput = Vec2(localVelocity.x, localVelocity.y) / 2.5f;
+        const Vec2 interpolatedBlendInput = MathUtils::MoveTowards(animator->GetBlendSpaceInput(), blendInput, _interpolationSpeed);
         animator->SetBlendSpaceInput(interpolatedBlendInput);
     }
 }
@@ -35,18 +39,17 @@ bool Character::OnGUI()
 
     changed |= OnGUIUtils::DrawVec3("Server Position", &_serverPosition);
     changed |= OnGUIUtils::DrawFloat("Server Yaw", &_serverYaw);
-    changed |= OnGUIUtils::DrawVec2("Server Blend Input", &_serverBlendInput);
+    //changed |= OnGUIUtils::DrawVec2("Server Blend Input", &_serverBlendInput);
     changed |= OnGUIUtils::DrawFloat("Interpolation Speed", &_interpolationSpeed, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Yaw Rotation Speed", &_yawRotationSpeed, 0.01f);
 
     return changed;
 }
 
-void Character::UpdateServerTransform(Vec3 position, float yaw, Vec2 blendInput, Vec2 velocity)
+void Character::UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity)
 {
     _serverPosition = position;
     _serverYaw = yaw;
-    _serverBlendInput = blendInput;
     _serverVelocity = velocity;
     _lastServerTime = TIME->GetGameTime();
 }

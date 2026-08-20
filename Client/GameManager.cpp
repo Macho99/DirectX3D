@@ -30,7 +30,6 @@ namespace
         character->UpdateServerTransform(
             ToVec3(transformData.pos()), 
             transformData.yaw(), 
-            ToVec2(transformData.blendinput()),
             ToVec2(transformData.velocity()));
     }
 }
@@ -305,7 +304,7 @@ void GameManager::ConnectedState()
     player->GetGameObject()->SetActive(true);
     player->GetTransform()->SetWorldMatrix(_playerSpawnPoint.Resolve()->GetWorldMatrix());
     player->GetTransform()->SetScale(_playerPrefab.Resolve()->GetTransform()->GetScale());
-    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero, Vec2::Zero);
+    player->UpdateServerTransform(playerSpawnPoint->GetPosition(), playerSpawnPoint->GetRotation().y, Vec2::Zero);
     _myPlayer = player;
 
     const float duration = 3.f;

@@ -16,7 +16,7 @@
 #include "InstancingBuffer.h"
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 
 Scene::Scene()
 {

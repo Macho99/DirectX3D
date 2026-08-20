@@ -2,7 +2,7 @@
 #include "CameraMove.h"
 #include "Transform.h"
 #include "OnGUIUtils.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 
 void CameraMove::Start()
 {

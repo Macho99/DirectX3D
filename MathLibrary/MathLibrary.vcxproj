@@ -148,12 +148,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Geometry2D.h" />
+    <ClInclude Include="MathUtils.h" />
+    <ClInclude Include="Primitive3D.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Geometry2D.cpp" />
+    <ClCompile Include="MathUtils.cpp" />
+    <ClCompile Include="Primitive3D.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -168,9 +172,10 @@
   <ItemDefinitionGroup>
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Libraries\Include\MathLibrary" mkdir "$(SolutionDir)Libraries\Include\MathLibrary"
-xcopy /Y "$(ProjectDir)Geometry2D.h" "$(SolutionDir)Libraries\Include\MathLibrary\"
-xcopy /Y "$(ProjectDir)SimpleMath.h" "$(SolutionDir)Libraries\Include\MathLibrary\"
-xcopy /Y "$(ProjectDir)SimpleMath.inl" "$(SolutionDir)Libraries\Include\MathLibrary\"</Command>
+xcopy /Y "$(ProjectDir)*.h" "$(SolutionDir)Libraries\Include\MathLibrary\"
+
+
+xcopy "$(SolutionDir)Libraries\Lib\MathLibrary\*" "$(SolutionDir)..\Server\Libraries\Libs\MathLibrary\" /E /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

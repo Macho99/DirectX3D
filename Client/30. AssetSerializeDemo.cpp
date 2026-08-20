@@ -42,7 +42,7 @@
 #include "GrassRenderer.h"
 #include "NavMesh.h"
 #include "NavAgent.h"
-#include "MathUtils.h"
+#include "MathLibrary/MathUtils.h"
 #include "SsrRenderer.h"
 #include "Font.h"
 #include "Text.h"
