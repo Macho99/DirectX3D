@@ -2,7 +2,7 @@
 
 #include "fstream"
 
-enum NavFileMode : uint8
+enum class NavFileMode : uint8
 {
 	Write,
 	Read,

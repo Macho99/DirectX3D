@@ -9,6 +9,7 @@
 #include "ModelAnimation.h"
 #include "OnGUIUtils.h"
 #include "AnimationOverrideMeta.h"
+#include "../NavBuild/NavFileUtils.h"
 
 Model::Model()
     : Super(StaticType)
@@ -126,6 +127,70 @@ void Model::InvalidateAnimationTexture()
 	_animationCacheAssetIds.clear();
 	_animationTransformSRV.Reset();
 	_animationTransformTexture.Reset();
+}
+
+void Model::ExtractAnimationRootPositionsAndEvents(const fs::path path)
+{
+	NavFileUtils fileUtils;
+	fileUtils.Open(path.wstring(), NavFileMode::Write);
+
+	const bool hasAnimationTransforms = EnsureAnimationTexture();
+	fileUtils.Write<uint32>(GetAnimationCount());
+
+	for (uint32 animationIndex = 0; animationIndex < GetAnimationCount(); ++animationIndex)
+	{
+		ModelAnimation* animation = GetAnimationByIndex(animationIndex);
+		const string animationName = animation != nullptr ? Utils::ToString(animation->GetName()) : string();
+		fileUtils.Write(animationName);
+
+		const uint32 frameCount = animation != nullptr ? animation->GetFrameCount() : 0;
+		fileUtils.Write(frameCount);
+		for (uint32 frameIndex = 0; frameIndex < frameCount; ++frameIndex)
+		{
+			Vec3 rootPosition = Vec3::Zero;
+			if (hasAnimationTransforms && animationIndex < _animTransforms.size() && frameIndex < MAX_MODEL_KEYFRAMES)
+			{
+				Vec3 scale;
+				Quaternion rotation;
+				_animTransforms[animationIndex].rootTransforms[frameIndex].Decompose(scale, rotation, rootPosition);
+			}
+			fileUtils.Write(rootPosition);
+		}
+
+		const vector<AnimationEvent> emptyEvents;
+		const vector<AnimationEvent>& animationEvents = animation != nullptr ? animation->GetAnimationEvents() : emptyEvents;
+		fileUtils.Write<uint32>(static_cast<uint32>(animationEvents.size()));
+		for (const AnimationEvent& animationEvent : animationEvents)
+		{
+			fileUtils.Write(animationEvent.eventName);
+            fileUtils.Write(animationEvent.frame);
+		}
+	}
+}
+
+void Model::LoadAnimationRootPositionsAndEvents(fs::path path)
+{
+	NavFileUtils fileUtils;
+	fileUtils.Open(path.wstring(), NavFileMode::Read);
+
+	const bool hasAnimationTransforms = EnsureAnimationTexture();
+	const uint32 animationCount = fileUtils.Read<uint32>();
+	for (uint32 savedAnimationIndex = 0; savedAnimationIndex < animationCount; ++savedAnimationIndex)
+	{
+		const wstring animationName = Utils::ToWString(fileUtils.Read<string>());
+		const uint32 frameCount = fileUtils.Read<uint32>();
+		vector<Vec3> rootPositions(frameCount);
+		for (Vec3& rootPosition : rootPositions)
+			fileUtils.Read(rootPosition);
+
+		const uint32 eventCount = fileUtils.Read<uint32>();
+		vector<AnimationEvent> animationEvents(eventCount);
+		for (AnimationEvent& animationEvent : animationEvents)
+		{
+			fileUtils.Read(animationEvent.eventName);
+            fileUtils.Read(animationEvent.frame);
+		}
+	}
 }
 
 void Model::CreateAnimationTransform(uint32 index)
@@ -462,4 +527,18 @@ bool Model::OnGUI(bool isReadOnly)
 		InvalidateAnimationTexture();
 
     return changed;
+}
+
+void Model::OnMenu(bool isReadOnly)
+{
+    if (ImGui::MenuItem("Extract Animation Root Positions and Events"))
+    {
+		fs::path outputPath = FileUtils::SaveFileDialog(
+			L"Animation Root And Event Data",
+			L"Animation Root And Event Data (*.animData)\0*.animData\0All Files (*.*)\0*.*\0",
+			L"animData",
+			L"..\\..\\");
+		if (!outputPath.empty())
+			ExtractAnimationRootPositionsAndEvents(outputPath);
+    }
 }

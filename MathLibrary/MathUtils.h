@@ -109,6 +109,7 @@ struct MathUtils
 	static float MoveTowardsAngle(float current, float target, float maxDelta);
 
 	static Vec2 RotateByYaw(const Vec2& value, float yaw);
+    static Vec3 RotateByYaw(const Vec3& value, float yaw);
 	static Vec2 InverseRotateByYaw(const Vec2& value, float yaw);
 };
 

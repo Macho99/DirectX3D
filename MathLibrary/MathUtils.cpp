@@ -744,6 +744,13 @@ Vec2 MathUtils::RotateByYaw(const Vec2& value, float yaw)
 		-sinYaw * value.x + cosYaw * value.y);
 }
 
+Vec3 MathUtils::RotateByYaw(const Vec3& value, float yaw)
+{
+    const Vec2 vec2 = Vec2(value.x, value.z);
+    const Vec2 rotatedVec2 = RotateByYaw(vec2, yaw);
+    return Vec3(rotatedVec2.x, value.y, rotatedVec2.y);
+}
+
 Vec2 MathUtils::InverseRotateByYaw(const Vec2& value, float yaw)
 {
 	return RotateByYaw(value, -yaw);

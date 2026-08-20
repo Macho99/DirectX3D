@@ -43,6 +43,8 @@ public:
 	bool HasValidRenderResources() const;
 	bool EnsureAnimationTexture();
 	void InvalidateAnimationTexture();
+	void ExtractAnimationRootPositionsAndEvents(const fs::path path);
+	void LoadAnimationRootPositionsAndEvents(fs::path path);
 	ID3D11ShaderResourceView* GetAnimationTransformSRV() const { return _animationTransformSRV.Get(); }
 	const vector<AnimTransform>& GetAnimationTransforms() const { return _animTransforms; }
 
@@ -71,6 +73,7 @@ public:
     ModelMeshResource* GetMesh() { return _mesh.Resolve(); }
 
 	virtual bool OnGUI(bool isReadOnly) override;
+    virtual void OnMenu(bool isReadOnly) override;
 
     template<class Archive>
     void serialize(Archive& ar)
