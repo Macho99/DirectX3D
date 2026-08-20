@@ -163,32 +163,10 @@ void Model::ExtractAnimationRootPositionsAndEvents(const fs::path path)
 		for (const AnimationEvent& animationEvent : animationEvents)
 		{
 			fileUtils.Write(animationEvent.eventName);
+            fileUtils.Write(animationEvent.boolParam);
+            fileUtils.Write(animationEvent.intParam);
+            fileUtils.Write(animationEvent.floatParam);
             fileUtils.Write(animationEvent.frame);
-		}
-	}
-}
-
-void Model::LoadAnimationRootPositionsAndEvents(fs::path path)
-{
-	NavFileUtils fileUtils;
-	fileUtils.Open(path.wstring(), NavFileMode::Read);
-
-	const bool hasAnimationTransforms = EnsureAnimationTexture();
-	const uint32 animationCount = fileUtils.Read<uint32>();
-	for (uint32 savedAnimationIndex = 0; savedAnimationIndex < animationCount; ++savedAnimationIndex)
-	{
-		const wstring animationName = Utils::ToWString(fileUtils.Read<string>());
-		const uint32 frameCount = fileUtils.Read<uint32>();
-		vector<Vec3> rootPositions(frameCount);
-		for (Vec3& rootPosition : rootPositions)
-			fileUtils.Read(rootPosition);
-
-		const uint32 eventCount = fileUtils.Read<uint32>();
-		vector<AnimationEvent> animationEvents(eventCount);
-		for (AnimationEvent& animationEvent : animationEvents)
-		{
-			fileUtils.Read(animationEvent.eventName);
-            fileUtils.Read(animationEvent.frame);
 		}
 	}
 }

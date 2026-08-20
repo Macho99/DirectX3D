@@ -44,7 +44,6 @@ public:
 	bool EnsureAnimationTexture();
 	void InvalidateAnimationTexture();
 	void ExtractAnimationRootPositionsAndEvents(const fs::path path);
-	void LoadAnimationRootPositionsAndEvents(fs::path path);
 	ID3D11ShaderResourceView* GetAnimationTransformSRV() const { return _animationTransformSRV.Get(); }
 	const vector<AnimTransform>& GetAnimationTransforms() const { return _animTransforms; }
 
