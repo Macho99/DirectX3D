@@ -7,6 +7,9 @@ class Transform;
 #include <sstream>
 #include <wrl/client.h>
 
+// 절대 중간에 추가 및 삭제하지 말것
+// 씬 직렬화된거 틀어짐
+// 끝에 새로 추가하는 것만 가능
 enum class ComponentType : uint8
 {
 	Transform,
@@ -36,10 +39,11 @@ enum class ComponentType : uint8
     VerticalLayoutGroup,
     HorizontalLayoutGroup,
     GridLayoutGroup,
-    ScrollView,
+	ScrollView,
 	TargetFollower,
 	TrailRenderer,
 	InputText,
+	ModelSocketFollower,
 	// ...
 	Script,
 

@@ -32,6 +32,7 @@
 #include "UIImage.h"
 #include "RectTransform.h"
 #include "TargetFollower.h"
+#include "ModelSocketFollower.h"
 #include "TrailRenderer.h"
 
 static void ForceRegisterEngineComponents()
@@ -66,6 +67,7 @@ static void ForceRegisterEngineComponents()
     InputText::EnsureAutoRegister();
     UIImage::EnsureAutoRegister();
     TargetFollower::EnsureAutoRegister();
+    ModelSocketFollower::EnsureAutoRegister();
     TrailRenderer::EnsureAutoRegister();
 }
 
@@ -118,18 +120,18 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Button);
 
 CEREAL_REGISTER_TYPE(Billboard);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, Billboard);
-// ¾ÆÁ÷ Á÷·ÄÈ­ ¾ÈÇÔ
+// ì•„ì§ ì§ë ¬í™” ì•ˆí•¨
 
 CEREAL_REGISTER_TYPE(SnowBillboard);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, SnowBillboard);
 
 CEREAL_REGISTER_TYPE(ParticleSystem);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ParticleSystem);
-// Á÷·ÄÈ­ ¹Ì¿Ï
+// ì§ë ¬í™” ë¯¸ì™„
 
 CEREAL_REGISTER_TYPE(FoliageController);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, FoliageController);
-// Á÷·ÄÈ­ ¹Ì¿Ï
+// ì§ë ¬í™” ë¯¸ì™„
 
 CEREAL_REGISTER_TYPE(GrassRenderer);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, GrassRenderer);
@@ -183,3 +185,6 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, TargetFollower);
 
 CEREAL_REGISTER_TYPE(TrailRenderer);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, TrailRenderer);
+
+CEREAL_REGISTER_TYPE(ModelSocketFollower);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ModelSocketFollower);

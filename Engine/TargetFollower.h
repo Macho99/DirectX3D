@@ -98,6 +98,11 @@ public:
         }
     }
 
+protected:
+    explicit TargetFollower(ComponentType type);
+    virtual bool TryGetTargetPose(OUT Vec3& position, OUT Vec3& rotation);
+    virtual bool DrawTargetGUI();
+
 private:
     TransformRef _target;
 

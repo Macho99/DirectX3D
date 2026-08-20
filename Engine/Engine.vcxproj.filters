@@ -759,7 +759,7 @@
     <ClInclude Include="NavAgent.h">
       <Filter>04. Component\Navigation</Filter>
     </ClInclude>
-    <ClInclude Include="TargetFollower.h">
+    <ClInclude Include="ModelSocketFollower.h">
       <Filter>04. Component</Filter>
     </ClInclude>
     <ClInclude Include="SsReflection.h">
@@ -821,6 +821,9 @@
     </ClInclude>
     <ClInclude Include="UnrealLevelImporter.h">
       <Filter>98. Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TargetFollower.h">
+      <Filter>04. Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1217,7 +1220,7 @@
     <ClCompile Include="NavAgent.cpp">
       <Filter>04. Component\Navigation</Filter>
     </ClCompile>
-    <ClCompile Include="TargetFollower.cpp">
+    <ClCompile Include="ModelSocketFollower.cpp">
       <Filter>04. Component</Filter>
     </ClCompile>
     <ClCompile Include="SsReflection.cpp">
@@ -1279,6 +1282,9 @@
     </ClCompile>
     <ClCompile Include="UnrealLevelImporter.cpp">
       <Filter>98. Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="TargetFollower.cpp">
+      <Filter>04. Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

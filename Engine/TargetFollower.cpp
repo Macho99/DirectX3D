@@ -20,20 +20,25 @@ TargetFollower::TargetFollower() : Super(StaticType)
 {
 }
 
+TargetFollower::TargetFollower(ComponentType type) : Super(type)
+{
+}
+
 TargetFollower::~TargetFollower()
 {
 }
 
 void TargetFollower::Update()
 {
-    Transform* target = _target.Resolve();
     Transform* follower = GetTransform();
-    if (target == nullptr || target == follower)
+    Vec3 targetPosition;
+    Vec3 targetRotation;
+    if (follower == nullptr || !TryGetTargetPose(OUT targetPosition, OUT targetRotation))
         return;
 
     if (_followPositionX || _followPositionY || _followPositionZ)
     {
-        const Vec3 targetPosition = target->GetPosition() + _positionOffset;
+        targetPosition += _positionOffset;
         Vec3 position = follower->GetPosition();
 
         float followRatio = 1.f;
@@ -49,7 +54,6 @@ void TargetFollower::Update()
 
     if (_followRotationX || _followRotationY || _followRotationZ)
     {
-        const Vec3 targetRotation = target->GetRotation();
         Vec3 rotation = follower->GetRotation();
 
         float followRatio = 1.f;
@@ -67,7 +71,7 @@ void TargetFollower::Update()
 bool TargetFollower::OnGUI()
 {
     bool changed = Super::OnGUI();
-    changed |= OnGUIUtils::DrawComponentRef("Target", _target);
+    changed |= DrawTargetGUI();
     changed |= OnGUIUtils::DrawBool("Follow Position X", &_followPositionX);
     changed |= OnGUIUtils::DrawBool("Follow Position Y", &_followPositionY);
     changed |= OnGUIUtils::DrawBool("Follow Position Z", &_followPositionZ);
@@ -94,13 +98,28 @@ bool TargetFollower::OnGUI()
 
 float TargetFollower::GetTargetDistance()
 {
-    Transform* target = _target.Resolve();
-    if(target == nullptr)
-    {
+    Vec3 targetPosition;
+    Vec3 targetRotation;
+    if (!TryGetTargetPose(OUT targetPosition, OUT targetRotation))
         return -1;
-    }
 
-    return Vec3::Distance(GetTransform()->GetPosition(), target->GetPosition());
+    return Vec3::Distance(GetTransform()->GetPosition(), targetPosition);
+}
+
+bool TargetFollower::TryGetTargetPose(OUT Vec3& position, OUT Vec3& rotation)
+{
+    Transform* target = _target.Resolve();
+    if (target == nullptr || target == GetTransform())
+        return false;
+
+    position = target->GetPosition();
+    rotation = target->GetRotation();
+    return true;
+}
+
+bool TargetFollower::DrawTargetGUI()
+{
+    return OnGUIUtils::DrawComponentRef("Target", _target);
 }
 
 void TargetFollower::UpdateImmediateFollow()

@@ -5,6 +5,8 @@
 #include <wrl/client.h>
 #include <type_traits>
 #include "cereal/types/array.hpp"
+#include "cereal/types/utility.hpp"
+
 class MonoBehaviour;
 class Transform;
 class Camera;
@@ -123,7 +125,34 @@ public:
         ar(cereal::make_nvp("Name", _name));
         ar(cereal::make_nvp("LocalActive", _localActive));
         ar(cereal::make_nvp("LayerIndex", _layerIndex));
-        ar(cereal::make_nvp("Components", _components));
+
+        if (Archive::is_loading::value)
+        {
+            vector<pair<ComponentType, ComponentRefBase>> componentsVector;
+            ar(cereal::make_nvp("Components", componentsVector));
+            for (const auto& pair : componentsVector)
+            {
+                ComponentType type = pair.first;
+                if (type >= ComponentType::End)
+                {
+                    ASSERT(false, "type out of range");
+                    continue;
+                }
+                _components[static_cast<uint8>(type)] = pair.second;
+            }
+        }
+        else
+        {
+            vector<pair<ComponentType, ComponentRefBase>> componentsVector;
+            for (int i = 0; i < FIXED_COMPONENT_COUNT; ++i)
+            {
+                if (_components[i].IsValid())
+                {
+                    componentsVector.emplace_back(static_cast<ComponentType>(i), _components[i]);
+                }
+            }
+            ar(cereal::make_nvp("Components", componentsVector));
+        }
         ar(cereal::make_nvp("Scripts", _scripts));
     }
 

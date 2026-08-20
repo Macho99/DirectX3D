@@ -390,6 +390,7 @@
     <ClInclude Include="TerrainDataMeta.h" />
     <ClInclude Include="TessTerrain.h" />
     <ClInclude Include="TargetFollower.h" />
+    <ClInclude Include="ModelSocketFollower.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="InputText.h" />
     <ClInclude Include="Texture.h" />
@@ -614,6 +615,7 @@
     <ClCompile Include="TerrainDataMeta.cpp" />
     <ClCompile Include="TessTerrain.cpp" />
     <ClCompile Include="TargetFollower.cpp" />
+    <ClCompile Include="ModelSocketFollower.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="InputText.cpp" />
     <ClCompile Include="Texture.cpp" />
