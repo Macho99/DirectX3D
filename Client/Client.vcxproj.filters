@@ -108,6 +108,9 @@
     <ClCompile Include="Character.cpp">
       <Filter>Main\Character</Filter>
     </ClCompile>
+    <ClCompile Include="ZombieAnimEventHandler.cpp">
+      <Filter>Main\Character\Monster</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -175,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="Character.h">
       <Filter>Main\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="ZombieAnimEventHandler.h">
+      <Filter>Main\Character\Monster</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,52 @@
 
 #include <cfloat>
 
+namespace
+{
+	// 편집/직렬화 과정에서 생긴 미세한 좌표 오차 때문에 일직선 샘플이
+	// 아주 얇은 삼각형으로 취급되지 않도록 좌표 범위에 비례해 판정한다.
+	bool AreBlendSpacePointsCollinear(
+		const vector<Geometry2D::Point>& points,
+		const vector<int>& indices,
+		int& lineStart,
+		int& lineEnd)
+	{
+		lineStart = indices.empty() ? -1 : indices.front();
+		lineEnd = lineStart;
+		float maxDistanceSquared = 0.0f;
+
+		for (size_t i = 0; i < indices.size(); ++i)
+		{
+			for (size_t j = i + 1; j < indices.size(); ++j)
+			{
+				const float distanceSquared = Geometry2D::LengthSquared(
+					points[indices[j]] - points[indices[i]]);
+				if (distanceSquared > maxDistanceSquared)
+				{
+					maxDistanceSquared = distanceSquared;
+					lineStart = indices[i];
+					lineEnd = indices[j];
+				}
+			}
+		}
+
+		if (maxDistanceSquared <= Geometry2D::DefaultEpsilon * Geometry2D::DefaultEpsilon)
+			return true;
+
+		const float lineLength = sqrt(maxDistanceSquared);
+		const float distanceTolerance = max(Geometry2D::DefaultEpsilon, lineLength * 1e-4f);
+		for (int index : indices)
+		{
+			const float twiceArea = abs(Geometry2D::Cross(
+				points[lineStart], points[lineEnd], points[index]));
+			if (twiceArea > distanceTolerance * lineLength)
+				return false;
+		}
+
+		return true;
+	}
+}
+
 ModelAnimator::ModelAnimator()
 	: Super(StaticType)
 {
@@ -461,10 +507,19 @@ void ModelAnimator::UpdateBlendSpaceTriangulation()
 		}
 	}
 
+	_blendSpaceTriangles.clear();
+	int lineStart = -1;
+	int lineEnd = -1;
+	if (AreBlendSpacePointsCollinear(points, validIndices, lineStart, lineEnd))
+	{
+		_blendSpaceCachedAnimationCount = animationCount;
+		_blendSpaceTriangulationDirty = false;
+		return;
+	}
+
 	const vector<Geometry2D::TriangleIndices> triangles =
 		Geometry2D::DelaunayTriangulate(points, validIndices);
 
-	_blendSpaceTriangles.clear();
 	_blendSpaceTriangles.reserve(triangles.size());
 	for (const Geometry2D::TriangleIndices& triangle : triangles)
 		_blendSpaceTriangles.push_back(triangle.indices);
@@ -498,9 +553,63 @@ ModelAnimator::BlendSpaceSample ModelAnimator::EvaluateBlendSpace()
 	if (validIndices.empty())
 		return result;
 
+	const Geometry2D::Point query(_blendSpaceInput.x, _blendSpaceInput.y);
+	int lineStart = -1;
+	int lineEnd = -1;
+	const bool isCollinear = AreBlendSpacePointsCollinear(
+		points, validIndices, lineStart, lineEnd);
+
+	if (validIndices.size() == 1 || lineStart == lineEnd)
+	{
+		// 점이 하나뿐이거나 모든 점의 좌표가 같으면 첫 샘플을 사용한다.
+		result.pointIndices[0] = validIndices[0];
+		result.weights[0] = 1.0f;
+		result.sampledPosition = _blendSpacePoints[validIndices[0]].position;
+		return result;
+	}
+
+	if (isCollinear)
+	{
+		// 주축을 따라 정렬한 뒤 인접한 선분만 비교한다. 모든 점 쌍을 비교하면
+		// 긴 선분이 중간 샘플을 건너뛰어 선택될 수 있다.
+		const Geometry2D::Point line = points[lineEnd] - points[lineStart];
+		vector<int> orderedIndices = validIndices;
+		sort(orderedIndices.begin(), orderedIndices.end(), [&](int lhs, int rhs)
+		{
+			return Geometry2D::Dot(points[lhs] - points[lineStart], line) <
+				Geometry2D::Dot(points[rhs] - points[lineStart], line);
+		});
+
+		float closestDistanceSquared = FLT_MAX;
+		for (size_t i = 1; i < orderedIndices.size(); ++i)
+		{
+			const int first = orderedIndices[i - 1];
+			const int second = orderedIndices[i];
+			const Geometry2D::Point edge = points[second] - points[first];
+			const float edgeLengthSquared = Geometry2D::LengthSquared(edge);
+			if (edgeLengthSquared <= Geometry2D::DefaultEpsilon * Geometry2D::DefaultEpsilon)
+				continue;
+
+			const Geometry2D::Point closest =
+				Geometry2D::ClosestPointOnSegment(query, points[first], points[second]);
+			const float distanceSquared = Geometry2D::LengthSquared(query - closest);
+			if (distanceSquared >= closestDistanceSquared)
+				continue;
+
+			const float t = clamp(
+				Geometry2D::Dot(closest - points[first], edge) / edgeLengthSquared,
+				0.0f, 1.0f);
+			closestDistanceSquared = distanceSquared;
+			result.pointIndices = { first, second, -1 };
+			result.weights = { 1.0f - t, t, 0.0f };
+			result.sampledPosition = Vec2(closest.x, closest.y);
+		}
+
+		return result;
+	}
+
 	// 삼각분할은 dirty 상태일 때만 갱신하고 평소에는 캐시된 인덱스를 사용한다.
 	UpdateBlendSpaceTriangulation();
-	const Geometry2D::Point query(_blendSpaceInput.x, _blendSpaceInput.y);
 
 	float bestDistanceSquared = FLT_MAX;
 	Geometry2D::TriangleIndices bestTriangle;
@@ -555,16 +664,7 @@ ModelAnimator::BlendSpaceSample ModelAnimator::EvaluateBlendSpace()
 		}
 	}
 
-	if (validIndices.size() == 1)
-	{
-		// 점이 하나뿐이면 해당 애니메이션의 가중치를 100%로 표시한다.
-		result.pointIndices[0] = validIndices[0];
-		result.weights[0] = 1.0f;
-		result.sampledPosition = _blendSpacePoints[validIndices[0]].position;
-		return result;
-	}
-
-	// 점이 두 개이거나 모두 일직선이면 삼각형을 만들 수 없으므로
+	// 삼각분할에 실패한 경우에는
 	// 입력과 가장 가까운 두 점의 선분 위에서 가중치를 계산한다.
 	bestDistanceSquared = FLT_MAX;
 	for (size_t i = 0; i < validIndices.size(); ++i)

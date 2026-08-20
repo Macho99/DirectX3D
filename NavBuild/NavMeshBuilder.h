@@ -20,6 +20,7 @@ public:
     bool TryFindPath(const Vec3& worldStart, const Vec3& worldEnd, MoveInfo& moveInfo) const;
     bool MoveAlongPath(const MoveConfig& config, MoveInfo& moveInfo, float deltaTime) const;
     bool ValidatePosition(ValidatePositionInfo& info) const;
+    bool CanMoveAt(const Vec2& targetXZ, const Vec3& fromPoint, Vec3 & validTargetPoint) const;
     
     bool IsBuilt() const { return _navMeshQuery != nullptr; }
 
@@ -34,6 +35,7 @@ public:
 
     void SaveToFile(const fs::path& filePath) const;
     void LoadFromFile(const fs::path& filePath);
+    Bounds GetBounds() const { return _bounds; }
 
 private:
     void MarkWalkableTriangles(NavBuildInput& input);
@@ -61,5 +63,7 @@ private:
     unique_ptr<PolyMeshField> _polyMeshField;
     unique_ptr<DetailMeshField> _detailMeshField;
     unique_ptr<class NavMeshQuery> _navMeshQuery;
+
+    Bounds _bounds;
 };
 

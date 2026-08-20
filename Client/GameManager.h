@@ -34,6 +34,7 @@ public:
     void OnMovePlayer(Protocol::TransformData playerMove);
     void OnMoveMonster(Protocol::TransformData monsterMove);
     void OnPlayerAnimation(uint64 playerId, int32 animIdx);
+    void OnMonsterSpawn(Protocol::Monster monster);
     void OnMonsterAnimation(uint64 monsterId, int32 animIdx);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);

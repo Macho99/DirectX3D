@@ -255,8 +255,8 @@ struct MoveConfig
 {
     float speed = 5.0f;   // 이동 속도
     float turnSpeed = 360.0f; // 회전 속도 (deg/sec)
-    float arrivalDist = 0.2f;   // 웨이포인트 도착 판정 거리
-    float stoppingDist = 0.5f;   // 목적지 도착 판정 거리 (마지막 포인트)
+    float arrivalDist = 0.1f;   // 웨이포인트 도착 판정 거리
+    float stoppingDist = 0.1f;   // 목적지 도착 판정 거리 (마지막 포인트)
 };
 
 struct MoveInfo

@@ -24,6 +24,10 @@ bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 			{
 				GM->OnOtherPlayerEnter(pkt.otherplayers(i));
 			}
+            for (int i = 0; i < pkt.monsters_size(); i++)
+            {
+                GM->OnMonsterSpawn(pkt.monsters(i));
+            }
 		};
 
 	GM->PushJob(Job);
@@ -90,7 +94,16 @@ bool Handle_S_PLAYER_MOVE(PacketSessionRef& session, Protocol::S_PLAYER_MOVE& pk
 
 bool Handle_S_MONSTER_SPAWN(PacketSessionRef& session, Protocol::S_MONSTER_SPAWN& pkt)
 {
-	return true;
+    auto Job = [pkt]()
+        {
+            for (int i = 0; i < pkt.monsters_size(); i++)
+            {
+                GM->OnMonsterSpawn(pkt.monsters(i));
+            }
+        };
+
+    GM->PushJob(Job);
+    return true;
 }
 
 bool Handle_S_MONSTER_MOVE(PacketSessionRef& session, Protocol::S_MONSTER_MOVE& pkt)
@@ -102,9 +115,20 @@ bool Handle_S_MONSTER_MOVE(PacketSessionRef& session, Protocol::S_MONSTER_MOVE& 
                 GM->OnMoveMonster(pkt.transforms(i));
             }
         };
-	GM->PushJob(Job);
 
+	GM->PushJob(Job);
 	return true;
+}
+
+bool Handle_S_MONSTER_ANIMATION(PacketSessionRef& session, Protocol::S_MONSTER_ANIMATION& pkt)
+{
+    auto Job = [pkt]()
+        {
+            GM->OnMonsterAnimation(pkt.monsterid(), pkt.animationindex());
+        };
+
+    GM->PushJob(Job);
+    return true;
 }
 
 bool Handle_S_MONSTER_DESPAWN(PacketSessionRef& session, Protocol::S_MONSTER_DESPAWN& pkt)

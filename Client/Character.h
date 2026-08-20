@@ -8,6 +8,7 @@ public:
     virtual void Update() override;
     virtual bool OnGUI() override;
 
+    void EnsureAnimator();
     void UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity, bool updateImmediate);
     void PlayAnimation(int animationIndex);
 

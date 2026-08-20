@@ -93,6 +93,24 @@ void GameManager::Start()
     {
         DBG->LogError("Player prefab is null.");
     }
+
+    Zombie* zombie = _zombiePrefab.Resolve();
+    if (zombie != nullptr)
+    {
+        Model* model = zombie->GetGameObject()->GetComponent<ModelAnimator>()->GetModel().Resolve();
+        if (model != nullptr)
+        {
+            model->EnsureAnimationTexture();
+        }
+        else
+        {
+            DBG->LogError("Zombie model is null.");
+        }
+    }
+    else
+    {
+        DBG->LogError("Zombie prefab is null.");
+    }
 }
 
 void GameManager::Update()
@@ -136,6 +154,14 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("LoginButton", _loginButton);
     changed |= OnGUIUtils::DrawComponentRef("CameraSpawnPoint", _cameraSpawnPoint);
     changed |= OnGUIUtils::DrawComponentRef("UserNameInput", _usernameInput);
+
+    if (ImGui::Button("Spawn Monster"))
+    {
+        Protocol::C_SPAWN_MONSTER spawnPacket;
+        spawnPacket.set_spawnlevel(2);
+        auto sendBuffer = ServerPacketHandler::MakeSendBuffer(spawnPacket);
+        SERVER_CONNECT->SendPacket(sendBuffer);
+    }
 
     return changed;
 }
@@ -240,8 +266,24 @@ void GameManager::OnPlayerAnimation(uint64 playerId, int32 animIdx)
     player->PlayAnimation(animIdx);
 }
 
+void GameManager::OnMonsterSpawn(Protocol::Monster monster)
+{
+    DBG->Log("Spawning monster");
+    if (_monsters.find(monster.id()) != _monsters.end())
+    {
+        DBG->LogError("Monster ID %llu already exists in _monsters map.", monster.id());
+        return;
+    }
+    Zombie* zombie = GameObject::Instantiate(_zombiePrefab.Resolve(), nullptr);
+    zombie->EnsureAnimator();
+    zombie->GetGameObject()->SetActive(true);
+    UpdateServerTransform(zombie, monster.transform(), true);
+    _monsters[monster.id()] = zombie;
+}
+
 void GameManager::OnMonsterAnimation(uint64 monsterId, int32 animIdx)
 {
+    DBG->Log("Monster ID %llu playing animation index %d", monsterId, animIdx);
     auto it = _monsters.find(monsterId);
     if (it == _monsters.end())
     {

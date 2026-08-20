@@ -3,7 +3,6 @@
 #include "AnimationImportSetting.h"
 #include "TrailRenderer.h"
 #include "ModelAnimator.h"
-#include "LineRenderer.h"
 
 void PlayerAnimEventHandler::Start()
 {

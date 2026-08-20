@@ -16,6 +16,7 @@ bool NavMeshBuilder::Build(NavBuildInput input, const fs::path& savePath)
         bounds.Encapsulate(tri.v1);
         bounds.Encapsulate(tri.v2);
     }
+    _bounds = bounds;
 
     MarkWalkableTriangles(input);
     _onMarkWalkableTriangles(input.triangles);
@@ -92,6 +93,30 @@ bool NavMeshBuilder::ValidatePosition(ValidatePositionInfo& info) const
     return _navMeshQuery->ValidatePosition(info);
 }
 
+bool NavMeshBuilder::CanMoveAt(const Vec2& targetXZ, const Vec3& fromPoint, Vec3& validTargetPoint) const
+{
+    if (_navMeshQuery == nullptr)
+        return false;
+    const Vec3 worldStart = Vec3(targetXZ.x, 0, targetXZ.y);
+    const Vec3 worldEnd = fromPoint;
+
+    MoveInfo moveInfo;
+
+    moveInfo.Init();
+    NavPath& navPath = moveInfo.navPath;
+
+    const Vec3 navStart = _polyMeshField->ToNavPos(worldStart);
+    const Vec3 navEnd = _polyMeshField->ToNavPos(worldEnd);
+
+    bool result = _navMeshQuery->TryFindPath(navStart, navEnd, moveInfo);
+    if (result == false)
+        return false;
+
+    vector<Vec3>& path = navPath.path;
+    validTargetPoint = _polyMeshField->ToWorldPos(path[0]);
+    return true;
+}
+
 Vec3 NavMeshBuilder::GetTriangleNormal(const InputTri& tri)
 {
     Vec3 e0 = tri.v1 - tri.v0;
@@ -137,11 +162,10 @@ void NavMeshBuilder::LoadFromFile(const fs::path& filePath)
     float cellSize = fileUtils->Read<float>();
     float cellHeight = fileUtils->Read<float>();
 
-    Bounds bounds;
-    bounds.bmax = boundMax;
-    bounds.bmin = boundMin;
+    _bounds.bmax = boundMax;
+    _bounds.bmin = boundMin;
 
-    HeightFieldBase heightFieldBase(bounds, cellSize, cellHeight);
+    HeightFieldBase heightFieldBase(_bounds, cellSize, cellHeight);
 
     _polyMeshField = make_unique<PolyMeshField>(heightFieldBase, *fileUtils);
     _detailMeshField = make_unique<DetailMeshField>(heightFieldBase, *fileUtils);

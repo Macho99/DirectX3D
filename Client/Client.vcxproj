@@ -41,6 +41,7 @@
     <ClInclude Include="Struct.pb.h" />
     <ClInclude Include="ThirdPersonCamMove.h" />
     <ClInclude Include="Zombie.h" />
+    <ClInclude Include="ZombieAnimEventHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="27. BillboardDemo.cpp" />
@@ -77,6 +78,7 @@
     </ClCompile>
     <ClCompile Include="ThirdPersonCamMove.cpp" />
     <ClCompile Include="Zombie.cpp" />
+    <ClCompile Include="ZombieAnimEventHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Assets\Shaders\00. Global.fx" />

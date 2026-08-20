@@ -6,7 +6,7 @@
 
 void Character::Start()
 {
-    _animator = GetGameObject()->GetComponent<ModelAnimator>();
+    EnsureAnimator();
 }
 
 void Character::Update()
@@ -49,6 +49,14 @@ bool Character::OnGUI()
     changed |= OnGUIUtils::DrawBool("Debug Ignore Server Update", &_debugIgnorePositionUpdate);
 
     return changed;
+}
+
+void Character::EnsureAnimator()
+{
+    if (_animator.Resolve() == nullptr)
+    {
+        _animator = GetGameObject()->GetComponent<ModelAnimator>();
+    }
 }
 
 void Character::UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity, bool updateImmediate)
