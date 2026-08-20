@@ -30,7 +30,7 @@ void InstancingRenderer::LateUpdate()
 
 void InstancingRenderer::OnMaterialChange(const Material* oldMaterial, const Material* newMaterial)
 {
-    shared_ptr<Scene> scene = SCENE->GetCurrentScene();
+    Scene* scene = SCENE->GetCurrentScene();
     const GameObjectRef gameObjectRef = GetGameObjectRef();
     if (scene == nullptr || gameObjectRef.IsValid() == false || scene->IsInScene(gameObjectRef) == false)
         return;
@@ -45,7 +45,7 @@ void InstancingRenderer::OnMeshChange(const AssetId& oldMeshId, const AssetId& n
     if (oldMeshId == newMeshId)
         return;
 
-    shared_ptr<Scene> scene = SCENE->GetCurrentScene();
+    Scene* scene = SCENE->GetCurrentScene();
     const GameObjectRef gameObjectRef = GetGameObjectRef();
     if (scene == nullptr || gameObjectRef.IsValid() == false || scene->IsInScene(gameObjectRef) == false)
         return;

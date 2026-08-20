@@ -33,6 +33,8 @@ public:
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnMovePlayer(Protocol::TransformData playerMove);
     void OnMoveMonster(Protocol::TransformData monsterMove);
+    void OnPlayerAnimation(uint64 playerId, int32 animIdx);
+    void OnMonsterAnimation(uint64 monsterId, int32 animIdx);
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
     virtual int GetVersion() const override { return 5; }

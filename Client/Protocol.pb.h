@@ -48,7 +48,7 @@ struct TableStruct_Protocol_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[11]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[12]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -80,6 +80,9 @@ extern S_MONSTER_MOVEDefaultTypeInternal _S_MONSTER_MOVE_default_instance_;
 class S_MONSTER_SPAWN;
 struct S_MONSTER_SPAWNDefaultTypeInternal;
 extern S_MONSTER_SPAWNDefaultTypeInternal _S_MONSTER_SPAWN_default_instance_;
+class S_PLAYER_ANIMATION;
+struct S_PLAYER_ANIMATIONDefaultTypeInternal;
+extern S_PLAYER_ANIMATIONDefaultTypeInternal _S_PLAYER_ANIMATION_default_instance_;
 class S_PLAYER_ENTER;
 struct S_PLAYER_ENTERDefaultTypeInternal;
 extern S_PLAYER_ENTERDefaultTypeInternal _S_PLAYER_ENTER_default_instance_;
@@ -99,6 +102,7 @@ template<> ::Protocol::S_LOGIN* Arena::CreateMaybeMessage<::Protocol::S_LOGIN>(A
 template<> ::Protocol::S_MONSTER_DESPAWN* Arena::CreateMaybeMessage<::Protocol::S_MONSTER_DESPAWN>(Arena*);
 template<> ::Protocol::S_MONSTER_MOVE* Arena::CreateMaybeMessage<::Protocol::S_MONSTER_MOVE>(Arena*);
 template<> ::Protocol::S_MONSTER_SPAWN* Arena::CreateMaybeMessage<::Protocol::S_MONSTER_SPAWN>(Arena*);
+template<> ::Protocol::S_PLAYER_ANIMATION* Arena::CreateMaybeMessage<::Protocol::S_PLAYER_ANIMATION>(Arena*);
 template<> ::Protocol::S_PLAYER_ENTER* Arena::CreateMaybeMessage<::Protocol::S_PLAYER_ENTER>(Arena*);
 template<> ::Protocol::S_PLAYER_EXIT* Arena::CreateMaybeMessage<::Protocol::S_PLAYER_EXIT>(Arena*);
 template<> ::Protocol::S_PLAYER_MOVE* Arena::CreateMaybeMessage<::Protocol::S_PLAYER_MOVE>(Arena*);
@@ -855,6 +859,149 @@ class C_PLAYER_INPUT final :
 };
 // -------------------------------------------------------------------
 
+class S_PLAYER_ANIMATION final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.S_PLAYER_ANIMATION) */ {
+ public:
+  inline S_PLAYER_ANIMATION() : S_PLAYER_ANIMATION(nullptr) {}
+  ~S_PLAYER_ANIMATION() override;
+  explicit constexpr S_PLAYER_ANIMATION(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  S_PLAYER_ANIMATION(const S_PLAYER_ANIMATION& from);
+  S_PLAYER_ANIMATION(S_PLAYER_ANIMATION&& from) noexcept
+    : S_PLAYER_ANIMATION() {
+    *this = ::std::move(from);
+  }
+
+  inline S_PLAYER_ANIMATION& operator=(const S_PLAYER_ANIMATION& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline S_PLAYER_ANIMATION& operator=(S_PLAYER_ANIMATION&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const S_PLAYER_ANIMATION& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const S_PLAYER_ANIMATION* internal_default_instance() {
+    return reinterpret_cast<const S_PLAYER_ANIMATION*>(
+               &_S_PLAYER_ANIMATION_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(S_PLAYER_ANIMATION& a, S_PLAYER_ANIMATION& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(S_PLAYER_ANIMATION* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(S_PLAYER_ANIMATION* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline S_PLAYER_ANIMATION* New() const final {
+    return new S_PLAYER_ANIMATION();
+  }
+
+  S_PLAYER_ANIMATION* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<S_PLAYER_ANIMATION>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const S_PLAYER_ANIMATION& from);
+  void MergeFrom(const S_PLAYER_ANIMATION& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(S_PLAYER_ANIMATION* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.S_PLAYER_ANIMATION";
+  }
+  protected:
+  explicit S_PLAYER_ANIMATION(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPlayerIdFieldNumber = 1,
+    kAnimationIndexFieldNumber = 2,
+  };
+  // uint64 playerId = 1;
+  void clear_playerid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 playerid() const;
+  void set_playerid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_playerid() const;
+  void _internal_set_playerid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
+  // uint32 animationIndex = 2;
+  void clear_animationindex();
+  ::PROTOBUF_NAMESPACE_ID::uint32 animationindex() const;
+  void set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_animationindex() const;
+  void _internal_set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.S_PLAYER_ANIMATION)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 playerid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 animationindex_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_Protocol_2eproto;
+};
+// -------------------------------------------------------------------
+
 class S_PLAYER_MOVE final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.S_PLAYER_MOVE) */ {
  public:
@@ -899,7 +1046,7 @@ class S_PLAYER_MOVE final :
                &_S_PLAYER_MOVE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(S_PLAYER_MOVE& a, S_PLAYER_MOVE& b) {
     a.Swap(&b);
@@ -1040,7 +1187,7 @@ class S_MONSTER_SPAWN final :
                &_S_MONSTER_SPAWN_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(S_MONSTER_SPAWN& a, S_MONSTER_SPAWN& b) {
     a.Swap(&b);
@@ -1181,7 +1328,7 @@ class S_MONSTER_MOVE final :
                &_S_MONSTER_MOVE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(S_MONSTER_MOVE& a, S_MONSTER_MOVE& b) {
     a.Swap(&b);
@@ -1322,7 +1469,7 @@ class S_MONSTER_DESPAWN final :
                &_S_MONSTER_DESPAWN_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(S_MONSTER_DESPAWN& a, S_MONSTER_DESPAWN& b) {
     a.Swap(&b);
@@ -1468,7 +1615,7 @@ class C_CHAT final :
                &_C_CHAT_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(C_CHAT& a, C_CHAT& b) {
     a.Swap(&b);
@@ -1605,7 +1752,7 @@ class S_CHAT final :
                &_S_CHAT_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(S_CHAT& a, S_CHAT& b) {
     a.Swap(&b);
@@ -2055,6 +2202,50 @@ C_PLAYER_INPUT::inputs() const {
 
 // -------------------------------------------------------------------
 
+// S_PLAYER_ANIMATION
+
+// uint64 playerId = 1;
+inline void S_PLAYER_ANIMATION::clear_playerid() {
+  playerid_ = uint64_t{0u};
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 S_PLAYER_ANIMATION::_internal_playerid() const {
+  return playerid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 S_PLAYER_ANIMATION::playerid() const {
+  // @@protoc_insertion_point(field_get:Protocol.S_PLAYER_ANIMATION.playerId)
+  return _internal_playerid();
+}
+inline void S_PLAYER_ANIMATION::_internal_set_playerid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  playerid_ = value;
+}
+inline void S_PLAYER_ANIMATION::set_playerid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_playerid(value);
+  // @@protoc_insertion_point(field_set:Protocol.S_PLAYER_ANIMATION.playerId)
+}
+
+// uint32 animationIndex = 2;
+inline void S_PLAYER_ANIMATION::clear_animationindex() {
+  animationindex_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 S_PLAYER_ANIMATION::_internal_animationindex() const {
+  return animationindex_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 S_PLAYER_ANIMATION::animationindex() const {
+  // @@protoc_insertion_point(field_get:Protocol.S_PLAYER_ANIMATION.animationIndex)
+  return _internal_animationindex();
+}
+inline void S_PLAYER_ANIMATION::_internal_set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  animationindex_ = value;
+}
+inline void S_PLAYER_ANIMATION::set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_animationindex(value);
+  // @@protoc_insertion_point(field_set:Protocol.S_PLAYER_ANIMATION.animationIndex)
+}
+
+// -------------------------------------------------------------------
+
 // S_PLAYER_MOVE
 
 // repeated .Protocol.TransformData transforms = 1;
@@ -2345,6 +2536,8 @@ inline void S_CHAT::set_allocated_msg(std::string* msg) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

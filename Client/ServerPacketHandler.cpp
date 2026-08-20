@@ -63,6 +63,16 @@ bool Handle_S_PLAYER_EXIT(PacketSessionRef& session, Protocol::S_PLAYER_EXIT& pk
 	return true;
 }
 
+bool Handle_S_PLAYER_ANIMATION(PacketSessionRef& session, Protocol::S_PLAYER_ANIMATION& pkt)
+{
+    auto Job = [pkt]()
+        {
+            GM->OnPlayerAnimation(pkt.playerid(), pkt.animationindex());
+        };
+    GM->PushJob(Job);
+    return true;
+}
+
 bool Handle_S_PLAYER_MOVE(PacketSessionRef& session, Protocol::S_PLAYER_MOVE& pkt)
 {
     auto Job = [pkt]()

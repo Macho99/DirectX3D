@@ -91,7 +91,7 @@ bool Renderer::IsInstRenderer() const
 
 void Renderer::OnMaterialChange(const Material* oldMaterial, const Material* newMaterial)
 {
-    shared_ptr<Scene> scene = SCENE->GetCurrentScene();
+	Scene* scene = SCENE->GetCurrentScene();
     const GameObjectRef gameObjectRef = GetGameObjectRef();
     if (scene == nullptr || gameObjectRef.IsValid() == false || scene->IsInScene(gameObjectRef) == false)
         return;

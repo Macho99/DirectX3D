@@ -154,7 +154,20 @@ void ThirdPersonCamMove::MoveTarget(float dt)
 
 void ThirdPersonCamMove::SendInputToServer()
 {
-    static const vector<KEY_TYPE> keysToCheck = { KEY_TYPE::W, KEY_TYPE::A, KEY_TYPE::S, KEY_TYPE::D, KEY_TYPE::LSHIFT };
+    static const vector<KEY_TYPE> keysToCheck = 
+    { 
+        KEY_TYPE::W, 
+        KEY_TYPE::A, 
+        KEY_TYPE::S, 
+        KEY_TYPE::D, 
+        KEY_TYPE::LSHIFT,
+        
+        KEY_TYPE::SPACE,
+
+        KEY_TYPE::LBUTTON,
+        KEY_TYPE::RBUTTON,
+        KEY_TYPE::R,
+    };
 
     Protocol::C_PLAYER_INPUT inputPacket;
     inputPacket.set_camerayaw(_yaw);

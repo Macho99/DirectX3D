@@ -83,7 +83,7 @@ bool Camera::OnGUI()
 
 void Camera::SortUIGameObject()
 {
-	shared_ptr<Scene> scene = CUR_SCENE;
+	Scene* scene = CUR_SCENE;
 	vector<TransformRef>& rootObjects = scene->GetRootObjects();
 
     _uiRenderers.clear();

@@ -126,7 +126,7 @@ void EditorManager::Update()
 
                 if (!path.empty())
                 {
-                    shared_ptr<Scene> target = CUR_SCENE;
+                    shared_ptr<Scene> target = SCENE->GetCurrentSceneShared();
 
                     std::ofstream os(path);
                     cereal::JSONOutputArchive archive(os);

@@ -48,7 +48,7 @@ void Hierarchy::DrawChildHighlight(const ImRect& r)
 void Hierarchy::ShowHierarchy()
 {
     // ===================== UI =====================
-    shared_ptr<Scene> curScene = CUR_SCENE;
+    Scene* curScene = CUR_SCENE;
 
     // Right-click empty space menu
     if (ImGui::BeginPopupContextWindow("HierarchyEmptyContext",
