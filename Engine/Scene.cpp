@@ -303,6 +303,18 @@ GameObject* Scene::Instantiate(GameObject* original, Transform* parent)
     targetTransform->SetLocalRotation(sourceTransform->GetLocalRotation());
     targetTransform->SetLocalPosition(sourceTransform->GetLocalPosition());
 
+    RectTransform* sourceRectTransform = dynamic_cast<RectTransform*>(sourceTransform);
+    RectTransform* targetRectTransform = dynamic_cast<RectTransform*>(targetTransform);
+    if (sourceRectTransform != nullptr && targetRectTransform != nullptr)
+    {
+        targetRectTransform->SetAnchors(
+            sourceRectTransform->GetAnchorMin(),
+            sourceRectTransform->GetAnchorMax());
+        targetRectTransform->SetOffsets(
+            sourceRectTransform->GetOffsetMin(),
+            sourceRectTransform->GetOffsetMax());
+    }
+
     const vector<ComponentDesc>& componentDescs = ComponentRegistry::Get().GetDescs();
     auto copyComponent = [&](Component* sourceComponent)
     {

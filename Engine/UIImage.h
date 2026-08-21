@@ -35,11 +35,7 @@ public:
         Super::serialize(ar);
         ar(CEREAL_NVP(_texture));
         ar(CEREAL_NVP(_color));
-
-        if (Archive::is_saving::value)
-        {
-            ar(CEREAL_NVP(_preserveAspect));
-        }
+        ar(CEREAL_NVP(_preserveAspect));
 
         if (Archive::is_loading::value)
         {
