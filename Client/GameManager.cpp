@@ -474,5 +474,5 @@ void GameManager::PlayImpulse(Vec3 position)
     impulseRenderer->GetTransform()->SetPosition(position);
     impulseRenderer->GetMaterial().Resolve()->SetFloat("ShockwaveStartTime", TIME->GetGameTime());
     Camera* camera = _camera.Resolve();
-    TWEEN->DOPunchLocalRotate(camera->GetTransform(), _testValue, 0.5f);
+    TWEEN->DOPunchLocalRotate(camera->GetTransform(), Vec3::One, 0.5f);
 }

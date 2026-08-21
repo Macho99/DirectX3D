@@ -11,6 +11,7 @@ bool AnimationClipImportSetting::OnGUI()
     changed |= OnGUIUtils::DrawBool("Apply Root Rotation", &applyRootRotation);
     changed |= OnGUIUtils::DrawBool("Is Dead Animation", &isDeadAnimation);
     changed |= OnGUIUtils::DrawString("Next Combo Name", &nextComboName);
+    changed |= OnGUIUtils::DrawFloat("Animation Speed", &animationSpeed, 0.1f);
 
     return changed;
 }

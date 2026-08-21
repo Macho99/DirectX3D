@@ -169,6 +169,7 @@ void Model::ExtractAnimationRootPositionsAndEvents(const fs::path path)
             fileUtils.Write(animationEvent.frame);
 		}
         fileUtils.Write(animation->GetAnimationClipImportSetting().nextComboName);
+        fileUtils.Write(animation->GetAnimationClipImportSetting().animationSpeed);
 	}
 }
 

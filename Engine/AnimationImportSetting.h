@@ -9,6 +9,7 @@ struct AnimationClipImportSetting
     bool applyRootRotation = false;
     bool isDeadAnimation = false;
     string nextComboName = "";
+    float animationSpeed = 1.f;
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -28,6 +29,11 @@ struct AnimationClipImportSetting
         if (version >= 4)
         {
             ar(CEREAL_NVP(nextComboName));
+        }
+
+        if (version >= 5)
+        {
+            ar(CEREAL_NVP(animationSpeed));
         }
     }
 

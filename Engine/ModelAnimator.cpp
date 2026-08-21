@@ -1032,11 +1032,12 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 	if (animation == nullptr || animation->GetFrameCount() == 0 || animation->GetFrameRate() <= 0.f)
 		return;
 
-	// 일반 애니메이션은 기존 speed 배율로 독립 재생한다.
+	// 일반 애니메이션에 Animator 전체 배속과 클립별 Import Setting 배속을 적용한다.
 	const uint32 prevFrame = frame.curFrame;
 	const bool animationStarted = frame.curFrame == 0 && frame.nextFrame == 0;
 	const float duration = animation->GetFrameCount() / animation->GetFrameRate();
-	const float nextTime = keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f);
+	const float clipSpeed = max(animation->GetAnimationClipImportSetting().animationSpeed, 0.f);
+	const float nextTime = keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f) * clipSpeed;
 	if (_isDead)
 	{
 		// 마지막 프레임에서 멈춰 사망 애니메이션이 반복되지 않게 한다.
@@ -1548,8 +1549,11 @@ float ModelAnimator::GetLeftTime(const AnimationFrameDesc& animFrame)
     if (animation == nullptr || animation->GetFrameCount() <= 1)
         return 0.f;
 
-    const uint32 modFrameCount = animation->GetFrameCount() - 1;
-    const float framePosition = animFrame.curFrame + animFrame.ratio;
-    const float leftFrames = modFrameCount - framePosition;
-    return leftFrames / animation->GetFrameRate();
+	const uint32 modFrameCount = animation->GetFrameCount() - 1;
+	const float framePosition = animFrame.curFrame + animFrame.ratio;
+	const float leftFrames = modFrameCount - framePosition;
+	const float clipSpeed = max(animation->GetAnimationClipImportSetting().animationSpeed, 0.f);
+	if (clipSpeed <= 0.f)
+		return FLT_MAX;
+	return leftFrames / (animation->GetFrameRate() * clipSpeed);
 }
