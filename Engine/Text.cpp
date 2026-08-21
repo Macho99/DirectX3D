@@ -12,6 +12,12 @@
 #include "VertexData.h"
 #include "RectTransform.h"
 
+namespace
+{
+    constexpr float ReferenceSceneWidth = 800.f;
+    constexpr float ReferenceSceneHeight = 600.f;
+}
+
 Text::Text() : Text(StaticType)
 {
 }
@@ -41,6 +47,11 @@ void Text::Start()
 
 void Text::Update()
 {
+    const GameDesc& gameDesc = GAME->GetGameDesc();
+    const Vec2 sceneSize(gameDesc.sceneWidth, gameDesc.sceneHeight);
+    if (sceneSize != _lastSceneSize)
+        _isDirty = true;
+
     Transform* transform = GetTransform();
     if (transform != nullptr)
     {
@@ -179,6 +190,9 @@ void Text::DefaultFontSetting()
 void Text::RebuildMesh()
 {
     _isDirty = false;
+
+    const GameDesc& gameDesc = GAME->GetGameDesc();
+    _lastSceneSize = Vec2(gameDesc.sceneWidth, gameDesc.sceneHeight);
 
     Transform* transform = GetTransform();
     _lastWorldScale = transform != nullptr ? transform->GetScale() : Vec3(0.0f, 0.0f, 0.0f);
@@ -366,7 +380,13 @@ Vec2 Text::GetFontMetricScale(int lineHeight)
     constexpr float minScale = 0.0001f;
     const float scaleX = std::max(std::abs(worldScale.x), minScale);
     const float scaleY = std::max(std::abs(worldScale.y), minScale);
-    const float fontScale = _fontSize / static_cast<float>(lineHeight);
+    const GameDesc& gameDesc = GAME->GetGameDesc();
+    const float resolutionScaleX = gameDesc.sceneWidth / ReferenceSceneWidth;
+    const float resolutionScaleY = gameDesc.sceneHeight / ReferenceSceneHeight;
+    const float resolutionScale = std::max(
+        std::min(resolutionScaleX, resolutionScaleY),
+        minScale);
+    const float fontScale = (_fontSize * resolutionScale) / static_cast<float>(lineHeight);
 
     return Vec2(fontScale / scaleX, fontScale / scaleY);
 }

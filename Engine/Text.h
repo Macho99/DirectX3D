@@ -115,4 +115,5 @@ private:
     TextVerticalStart _verticalStart = TextVerticalStart::Middle;
     bool _isDirty = false;
     Vec3 _lastWorldScale = Vec3(0.0f, 0.0f, 0.0f);
+    Vec2 _lastSceneSize = Vec2(0.0f, 0.0f);
 };
