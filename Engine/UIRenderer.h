@@ -30,8 +30,7 @@ public:
     {
         Super::serialize(ar);
 
-        if (Archive::is_saving::value)
-            ar(CEREAL_NVP(_maskMode));
+        ar(CEREAL_NVP(_maskMode));
 
         if (_version >= 2)
         {
