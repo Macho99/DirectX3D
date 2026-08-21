@@ -8,6 +8,7 @@
 ParticleSystem::ParticleSystem()
 	: Super(StaticType)
 	, _firstRun(true)
+	, _debugAge(0.f)
 {
 	_desc.emitDirW = Vec3(0.f, 1.f, 0.f);
 	BuildVB();
@@ -38,6 +39,23 @@ void ParticleSystem::Update()
 	_desc.gameTime = TIME->GetGameTime();
 
 	_debugAge += _desc.timeStep;
+	if (_debugAge < _desc.emitInterval)
+		return;
+
+	switch (_mode)
+	{
+	case ParticleSystemMode::Loop:
+		Reset();
+		break;
+	case ParticleSystemMode::Disable:
+		GetGameObject()->SetActive(false);
+		break;
+	case ParticleSystemMode::Destroy:
+		CUR_SCENE->Remove(GetGameObjectRef());
+		break;
+	default:
+		break;
+	}
 }
 
 void ParticleSystem::InnerRender(RenderTech renderTech)
@@ -107,7 +125,7 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	ID3D11Buffer* bufferArray[1] = { 0 };
 	//DC->SOSetTargets(1, bufferArray, &offset);
 
-	shader->BeginDraw(1, 0);
+	shader->BeginDraw(1, _pass);
 	// done streaming-out--unbind the vertex buffer
 	//ID3D11Buffer* bufferArray[1] = { 0 };
 	DC->SOSetTargets(1, bufferArray, &offset);
@@ -120,9 +138,9 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	_drawVB->PushData();
 
 	//shader->Effect()->GetTechniqueByIndex(1)->GetDesc(&techDesc);
-	//shader->Effect()->GetTechniqueByIndex(1)->GetPassByIndex(0)->Apply(0, DC.Get());
+	// Apply the renderer-selected pass from DrawTech.
 	DC->DrawAuto();
-	shader->EndDraw(1, 0);
+	shader->EndDraw(1, _pass);
 }
 
 void ParticleSystem::OnDisable()
@@ -157,6 +175,7 @@ bool ParticleSystem::OnGUI()
 	changed |= OnGUIUtils::DrawFloat("EmitInterval", &_desc.emitInterval, 0.001f);
 	changed |= OnGUIUtils::DrawInt32("EmitCount", &_desc.emitCount, 1.f);
 	changed |= OnGUIUtils::DrawVec3("Acceleration", &_desc.gAccelW);
+	changed |= OnGUIUtils::DrawEnumCombo("Mode", _mode, ParticleSystemModeNames, (int)ParticleSystemMode::Max);
 	_desc.lifeTime = max(_desc.lifeTime, 0.001f);
 	_desc.emitInterval = max(_desc.emitInterval, 0.0001f);
 	_desc.emitCount = max(1, min(_desc.emitCount, 100));

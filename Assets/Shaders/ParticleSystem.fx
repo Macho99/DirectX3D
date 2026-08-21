@@ -77,12 +77,11 @@ void StreamOutGS(point VertexInput gin[1],
 			{
 				float seed = gameTime + (float)(emittedCount + i) * 0.61803398875f;
 				float3 vRandom = RandUnitVec3(seed, 0.0f) * emitDirRandom;
-				float3 vRandom2 = RandUnitVec3(seed, 1.0f);
 
 				VertexInput p;
 				p.InitialPos = emitPosW.xyz;
 				p.InitialVel = emitDirW + vRandom;
-				p.Size = emitSize + vRandom2.xy;
+				p.Size = emitSize;
 				p.Age = gin[0].Age;
 				p.Type = PT_FLARE;
 
@@ -213,6 +212,29 @@ float4 DrawPS(GeoOut pin) : SV_TARGET
 	return result;
 }
 
+float4 DrawMultiplyPS(GeoOut pin) : SV_TARGET
+{
+	float4 diffuse = DiffuseMap.Sample(LinearSampler, pin.Tex);
+	float4 result = saturate(diffuse * pin.Color * Material.diffuse);
+	float3 multiplier = lerp(float3(1.0f, 1.0f, 1.0f), result.rgb, result.a);
+	return float4(multiplier, 1.0f);
+}
+
+BlendState MultiplyBlend
+{
+	AlphaToCoverageEnable = FALSE;
+	BlendEnable[0] = TRUE;
+	SrcBlend[0] = ZERO;
+	DestBlend[0] = SRC_COLOR;
+	BlendOp[0] = ADD;
+
+	SrcBlendAlpha[0] = ZERO;
+	DestBlendAlpha[0] = ONE;
+	BlendOpAlpha[0] = ADD;
+
+	RenderTargetWriteMask[0] = 0x0F;
+};
+
 technique11 DrawTech
 {
 	pass P0
@@ -223,5 +245,14 @@ technique11 DrawTech
 
 		SetBlendState(AdditiveBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
 		SetDepthStencilState(NoDepthWrites, 0);
-	}
+    }
+    pass P1
+    {
+        SetVertexShader(CompileShader(vs_5_0, DrawVS()));
+        SetGeometryShader(CompileShader(gs_5_0, DrawGS()));
+        SetPixelShader(CompileShader(ps_5_0, DrawMultiplyPS()));
+
+        SetBlendState(MultiplyBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xffffffff);
+        SetDepthStencilState(NoDepthWrites, 0);
+    }
 };

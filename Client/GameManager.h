@@ -5,6 +5,7 @@ class Player;
 class Zombie;
 class TargetFollower;
 class InputText;
+class ParticleSystem;
 
 enum class GameState
 {
@@ -43,7 +44,7 @@ public:
 
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 5; }
+    virtual int GetVersion() const override { return 6; }
 
     void PushJob(function<void(void)> func);
     void UpdateGameState();
@@ -85,9 +86,16 @@ public:
         {
             ar(CEREAL_NVP(_usernameInput));
         }
+
+        if (_version >= 6)
+        {
+            ar(CEREAL_NVP(_hpChangeParticlePrefab));
+        }
     }
 
 private:
+    void SpawnHpChangeParticle(Transform* target);
+
     inline static GameManager* _instance = nullptr;
 
     USE_LOCK
@@ -98,6 +106,7 @@ private:
     ComponentRef<Player> _myPlayer;
 
     ComponentRef<Zombie> _zombiePrefab;
+    ComponentRef<ParticleSystem> _hpChangeParticlePrefab;
     ComponentRef<TargetFollower> _cameraFollower;
     unordered_map<uint64, ComponentRef<Zombie>> _monsters;
 

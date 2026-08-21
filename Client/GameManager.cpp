@@ -12,6 +12,7 @@
 #include "Model.h"
 #include "InputText.h"
 #include "MyBillboard.h"
+#include "ParticleSystem.h"
 
 namespace
 {
@@ -149,6 +150,7 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("CameraFollower", _cameraFollower);
     changed |= OnGUIUtils::DrawComponentRef("PlayerPrefab", _playerPrefab);
     changed |= OnGUIUtils::DrawComponentRef("ZombiePrefab", _zombiePrefab);
+    changed |= OnGUIUtils::DrawComponentRef("HPChangeParticlePrefab", _hpChangeParticlePrefab);
     changed |= OnGUIUtils::DrawComponentRef("TitlePoint", _titlePoint);
     changed |= OnGUIUtils::DrawComponentRef("PlayerSpawnPoint", _playerSpawnPoint);
     changed |= OnGUIUtils::DrawComponentRef("TitleImage", _titleImage);
@@ -283,6 +285,7 @@ void GameManager::OnPlayerHpChange(Protocol::HealthData healthData)
     }
     Player* player = it->second.Resolve();
     player->SetHp(hp);
+    SpawnHpChangeParticle(player->GetTransform());
     DBG->Log("Player ID %llu HP changed to %d", playerId, hp);
 }
 
@@ -330,7 +333,22 @@ void GameManager::OnMonsterHpChange(Protocol::HealthData healthData)
     }
     Zombie* monster = it->second.Resolve();
     monster->SetHp(hp);
+    SpawnHpChangeParticle(monster->GetTransform());
     DBG->Log("Monster ID %llu HP changed to %d", monsterId, hp);
+}
+
+void GameManager::SpawnHpChangeParticle(Transform* target)
+{
+    ParticleSystem* prefab = _hpChangeParticlePrefab.Resolve();
+    if (prefab == nullptr || target == nullptr)
+        return;
+
+    ParticleSystem* particle = GameObject::Instantiate(prefab);
+    if (particle == nullptr)
+        return;
+
+    particle->GetTransform()->SetPosition(target->GetPosition() + Vec3::Up * 0.8f);
+    particle->GetGameObject()->SetActive(true);
 }
 
 void GameManager::OnMonsterDespawn(uint64 monsterId)

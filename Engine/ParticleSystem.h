@@ -12,6 +12,27 @@ struct ParticleVertex
 	uint32 Type;
 };
 
+#define PARTICLE_SYSTEM_MODE_LIST(X) \
+    X(Loop)                         \
+    X(Disable)                      \
+    X(Destroy)
+
+enum class ParticleSystemMode : uint8
+{
+#define X(name) name,
+    PARTICLE_SYSTEM_MODE_LIST(X)
+#undef X
+
+    Max
+};
+
+static const char* ParticleSystemModeNames[] =
+{
+#define X(name) #name,
+    PARTICLE_SYSTEM_MODE_LIST(X)
+#undef X
+};
+
 class ParticleSystem : public Renderer
 {
 	using Super = Renderer;
@@ -31,11 +52,22 @@ public:
 	virtual void OnDisable() override;
     virtual bool TryInitialize() override;
     virtual bool OnGUI() override;
+    virtual int GetVersion() const override { return Super::GetVersion() + 2; }
     template<typename Archive>
     void serialize(Archive& ar)
     {
         Super::serialize(ar);
         ar(cereal::make_nvp("_emitDirW", _desc.emitDirW));
+
+        if (_version >= 1)
+        {
+            ar(CEREAL_NVP(_mode));
+        }
+
+		if (_version >= 2)
+		{
+			ar(CEREAL_NVP(_desc));
+		}
     }
 
 private:
@@ -43,6 +75,7 @@ private:
 
 private:
 	ParticleDesc _desc;
+	ParticleSystemMode _mode = ParticleSystemMode::Loop;
 	bool _firstRun;
 	float _debugAge;
 
@@ -55,7 +88,7 @@ private:
 
 	ComPtr<ID3D11InputLayout> _inputLayout;
 
-    ResourceRef<Material> _cachedMaterial; // ¸ÞÅ×¸®¾ó ¼¼ÆÃ
+    ResourceRef<Material> _cachedMaterial; // ë©”í…Œë¦¬ì–¼ ì„¸íŒ…
 };
 
 const D3D11_INPUT_ELEMENT_DESC ParticleInputDesc[5] =

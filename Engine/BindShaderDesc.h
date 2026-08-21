@@ -250,6 +250,18 @@ struct ParticleDesc
 	int32 emitCount = 1;
 	Vec3 gAccelW = Vec3(0.f, 7.8f, 0.f);
 	float particlePadding = 0.f;
+
+	template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(CEREAL_NVP(emitPosW));
+		ar(CEREAL_NVP(emitDirW));
+		ar(CEREAL_NVP(lifeTime));
+		ar(CEREAL_NVP(emitInterval));
+		ar(CEREAL_NVP(emitDirRandomness));
+		ar(CEREAL_NVP(emitCount));
+		ar(CEREAL_NVP(gAccelW));
+	}
 };
 
 struct SsaoDesc
