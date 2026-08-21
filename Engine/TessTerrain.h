@@ -84,6 +84,7 @@ private:
 	Transform* GetOrCreateModelParent(const ResourceRef<Model>& model);
 	bool PlaceModel(const ResourceRef<Model>& model, const Vec3& scale, const Vec3& terrainLocalPosition);
 	bool RemoveModels(const Vec3& terrainLocalPosition, float radius);
+	bool RandomizeModelTransforms();
 
 public:
 	Event<> OnHeightmapChanged;

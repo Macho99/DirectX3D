@@ -276,6 +276,9 @@ bool TessTerrain::OnGUI()
 			ImGui::PopID();
 		}
 
+		if (ImGui::Button("Randomize Spawned Scale/Yaw (+/-10%)"))
+			changed |= RandomizeModelTransforms();
+
 		ImGui::TextUnformatted("Click terrain to place. Shift + Click to erase nearby models.");
 	}
 
@@ -583,6 +586,47 @@ bool TessTerrain::RemoveModels(const Vec3& terrainLocalPosition, float radius)
 		CUR_SCENE->Remove(gameObjectRef);
 
 	return removeList.empty() == false;
+}
+
+bool TessTerrain::RandomizeModelTransforms()
+{
+	bool changed = false;
+	for (const TransformRef& parentRef : GetTransform()->GetChildren())
+	{
+		Transform* parent = parentRef.Resolve();
+		if (parent == nullptr || parent->GetGameObject()->GetName().rfind(TerrainModelParentPrefix, 0) != 0)
+			continue;
+
+		for (const TransformRef& childRef : parent->GetChildren())
+		{
+			Transform* child = childRef.Resolve();
+			if (child == nullptr)
+				continue;
+
+			ModelRenderer* modelRenderer = child->GetGameObject()->GetModelRenderer();
+			if (modelRenderer == nullptr)
+				continue;
+
+			const AssetId modelAssetId = modelRenderer->GetModel().GetAssetId();
+			auto modelIt = std::find_if(_instanceModels.begin(), _instanceModels.end(),
+				[&modelAssetId](const pair<ResourceRef<Model>, Vec3>& instanceModel)
+				{
+					return instanceModel.first.GetAssetId() == modelAssetId;
+				});
+			if (modelIt == _instanceModels.end())
+				continue;
+
+			const float scaleFactor = MathUtils::Random(0.9f, 1.1f);
+			child->SetLocalScale(modelIt->second * scaleFactor);
+
+			Vec3 rotation = child->GetLocalRotation();
+			rotation.y = MathUtils::Random(0.0f, 360.0f);
+			child->SetLocalRotation(rotation);
+			changed = true;
+		}
+	}
+
+	return changed;
 }
 
 void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)

@@ -1,0 +1,17 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "SceneMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 1,
+                "_assetId": {
+                    "leftId": 10572848345948115959,
+                    "rightId": 14851398180087376165
+                },
+                "_resourceType": 10
+            }
+        }
+    }
+}
