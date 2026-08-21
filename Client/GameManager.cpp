@@ -119,8 +119,6 @@ void GameManager::Start()
 
 void GameManager::Update()
 {
-    UpdateGameState();
-
     vector<function<void(void)>> tempQueue;
     {
         WRITE_LOCK;
@@ -162,6 +160,8 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("ImpulseRenderer", _impulseRenderer);
     changed |= OnGUIUtils::DrawComponentRef("Camera", _camera);
     changed |= OnGUIUtils::DrawVec3("Test Vec3", &_testValue);
+    changed |= OnGUIUtils::DrawGameObjectRef("HUD Object", _hudObj);
+    changed |= OnGUIUtils::DrawGameObjectRef("Shop Object", _shopObj);
 
     if (ImGui::Button("Spawn Monster"))
     {
@@ -391,20 +391,16 @@ void GameManager::PushJob(function<void(void)> func)
     _jobQueue.push_back(func);
 }
 
-void GameManager::UpdateGameState()
-{
-    switch (_gameState)
-    {
-    case GameState::Login:
-    case GameState::World:
-        break;
-    }
-}
-
 void GameManager::SetGameState(GameState gameState)
 {
     DBG->Log("GameState Change: %d -> %d", (int)_gameState , (int)gameState);
     _gameState = gameState;
+    
+    GameObject* hudObj = _hudObj.Resolve();
+    if (hudObj != nullptr)
+    {
+        hudObj->SetActive(_gameState == GameState::World);
+    }
 }
 
 void GameManager::LoginState()

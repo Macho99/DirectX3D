@@ -44,10 +44,9 @@ public:
 
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 7; }
+    virtual int GetVersion() const override { return 8; }
 
     void PushJob(function<void(void)> func);
-    void UpdateGameState();
     GameState GetGameState() const { return _gameState; }
     void SetGameState(GameState gameState);
     void LoginState();
@@ -98,6 +97,12 @@ public:
         {
             ar(CEREAL_NVP(_impulseRenderer));
         }
+
+        if (_version >= 8)
+        {
+            ar(CEREAL_NVP(_hudObj));
+            ar(CEREAL_NVP(_shopObj));
+        }
     }
 
 private:
@@ -128,6 +133,9 @@ private:
     GameState _gameState = GameState::Title;
 
     ComponentRef<MeshRenderer> _impulseRenderer;
+
+    GameObjectRef _hudObj;
+    GameObjectRef _shopObj;
 
     Vec3 _testValue;
 };

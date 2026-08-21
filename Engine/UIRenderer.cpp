@@ -95,9 +95,14 @@ void UIRenderer::InnerRender(RenderTech renderTech)
     Shader* shader = material->GetShader();
     int technique = shader->GetTechNum(renderTech);
     shader->BeginDraw(technique, _pass);
-    GRAPHICS->ApplyUIMaskState(_maskMode);
+
+    if (GetGameObject()->GetLayerIndex() == Layer_UI)
+        GRAPHICS->ApplyUIMaskState(_maskMode);
+
     DC->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
     //material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
-    GRAPHICS->ResetUIMaskState();
+    
+    if (GetGameObject()->GetLayerIndex() == Layer_UI)
+        GRAPHICS->ResetUIMaskState();
     shader->EndDraw(technique, _pass);
 }
