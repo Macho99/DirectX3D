@@ -10,6 +10,7 @@
 #include "MathLibrary/MathUtils.h"
 #include "MonoBehaviour.h"
 #include "SceneView.h"
+#include "AnimationMeta.h"
 #include "../MathLibrary/Geometry2D.h"
 
 #include <cfloat>
@@ -1236,7 +1237,11 @@ bool ModelAnimator::DrawDebugWindow()
 		ticksPerSecond);
 	ImGui::Separator();
 
-	const float listWidth = 330.0f;
+	const float listWidth = 280.0f;
+	const float settingWidth = 450.f;
+	const float columnSpacing = ImGui::GetStyle().ItemSpacing.x;
+	const float detailWidth = max(300.0f,
+		ImGui::GetContentRegionAvail().x - listWidth - settingWidth - columnSpacing * 2.0f);
 	ImGui::BeginChild("BoneList", ImVec2(listWidth, 0.0f), true);
 	ImGui::SetNextItemWidth(-1.0f);
 	ImGui::Separator();
@@ -1276,7 +1281,7 @@ bool ModelAnimator::DrawDebugWindow()
 	ImGui::EndChild();
 
 	ImGui::SameLine();
-	ImGui::BeginChild("BoneDetails", ImVec2(0.0f, 0.0f), true);
+	ImGui::BeginChild("BoneDetails", ImVec2(detailWidth, 0.0f), true);
 
 	{
 		_debugBoneIndex = clamp(_debugBoneIndex, 0, static_cast<int>(mesh->GetBoneCount()) - 1);
@@ -1407,6 +1412,89 @@ bool ModelAnimator::DrawDebugWindow()
 				boneGlobalMatrix * GetTransform()->GetWorldMatrix(), [](const Matrix&) {});
 		}
 	}
+	ImGui::EndChild();
+
+	ImGui::SameLine();
+	ImGui::BeginChild("AnimationSettingsColumn", ImVec2(settingWidth, 0.0f), false);
+
+	MetaFile* metaFile = nullptr;
+	AnimationMeta* animationMeta = nullptr;
+	if (RESOURCES->TryGetMetaByAssetId(animation->GetID(), OUT metaFile))
+		animationMeta = dynamic_cast<AnimationMeta*>(metaFile);
+
+	ImGui::BeginChild("ClipImportSettings", ImVec2(0.0f, 230.0f), true);
+	ImGui::SeparatorText("Clip Import Setting");
+	AnimationClipImportSetting clipImportSetting = animation->GetAnimationClipImportSetting();
+	if (clipImportSetting.OnGUI())
+	{
+		animation->SetAnimationClipImportSetting(clipImportSetting);
+		//model->InvalidateAnimationTexture();
+		//model->EnsureAnimationTexture();
+		changed = true;
+	}
+
+	if (animationMeta == nullptr)
+		ImGui::BeginDisabled();
+	if (ImGui::Button("Save Clip Import Setting") && animationMeta != nullptr)
+	{
+		animationMeta->SetAnimationClipImportSetting(animation->GetAnimationClipImportSetting());
+		RESOURCES->SaveMeta(animation->GetID());
+	}
+	if (animationMeta == nullptr)
+		ImGui::EndDisabled();
+	ImGui::EndChild();
+
+	ImGui::Spacing();
+	ImGui::BeginChild("AnimationEventSettings", ImVec2(0.0f, 0.0f), true);
+	ImGui::SeparatorText("Animation Events");
+	vector<AnimationEvent> animationEvents = animation->GetAnimationEvents();
+	uint32 eventCount = static_cast<uint32>(animationEvents.size());
+	bool animationEventsChanged = false;
+	if (OnGUIUtils::DrawUInt32("Event Count", &eventCount, 1.0f))
+	{
+		animationEvents.resize(eventCount);
+		animationEventsChanged = true;
+	}
+
+	for (int eventIndex = 0; eventIndex < static_cast<int>(animationEvents.size()); ++eventIndex)
+	{
+		AnimationEvent& animationEvent = animationEvents[eventIndex];
+		ImGui::PushID(eventIndex);
+
+		string header = to_string(eventIndex);
+		if (!animationEvent.eventName.empty())
+			header += ": " + animationEvent.eventName;
+		header += "###AnimationEvent";
+
+		if (ImGui::TreeNodeEx(header.c_str()))
+		{
+			animationEventsChanged |= animationEvent.OnGUI();
+			ImGui::TreePop();
+		}
+
+		ImGui::PopID();
+	}
+
+	if (animationEventsChanged)
+	{
+		animation->SetAnimationEvents(animationEvents);
+		changed = true;
+	}
+
+	if (animationMeta == nullptr)
+		ImGui::BeginDisabled();
+	if (ImGui::Button("Save Animation Events") && animationMeta != nullptr)
+	{
+		animationMeta->SetAnimationEvents(animation->GetAnimationEvents());
+		RESOURCES->SaveMeta(animation->GetID());
+	}
+	if (animationMeta == nullptr)
+	{
+		ImGui::EndDisabled();
+		ImGui::TextDisabled("Animation meta is unavailable.");
+	}
+
+	ImGui::EndChild();
 	ImGui::EndChild();
 	ImGui::End();
 

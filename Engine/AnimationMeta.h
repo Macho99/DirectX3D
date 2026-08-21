@@ -14,6 +14,9 @@ public:
     virtual int GetImportVersion() const override;
     virtual int GetSerializeVersion() const override { return 4; }
 
+    void SetAnimationClipImportSetting(const AnimationClipImportSetting& setting) { clipImportSetting = setting; }
+    void SetAnimationEvents(const vector<AnimationEvent>& events) { animationEvents = events; }
+
     template<class Archive>
     void serialize(Archive& ar)
     {

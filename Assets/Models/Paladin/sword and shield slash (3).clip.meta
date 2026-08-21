@@ -1,0 +1,48 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "AnimationMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 4,
+                "_assetId": {
+                    "leftId": 8889599600233782581,
+                    "rightId": 17271191545524664639
+                },
+                "_resourceType": 4,
+                "clipImportSetting": {
+                    "extractRootMotion": false,
+                    "applyRootPositionXZ": false,
+                    "applyRootPositionY": false,
+                    "applyRootRotation": false,
+                    "isDeadAnimation": false,
+                    "nextComboName": "sword and shield kick"
+                },
+                "animationEvents": [
+                    {
+                        "eventName": "Attack",
+                        "boolParam": true,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 20
+                    },
+                    {
+                        "eventName": "AttackDamage",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 25
+                    },
+                    {
+                        "eventName": "Attack",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 29
+                    }
+                ]
+            }
+        }
+    }
+}
