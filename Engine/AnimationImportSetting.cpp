@@ -9,6 +9,7 @@ bool AnimationClipImportSetting::OnGUI()
     changed |= OnGUIUtils::DrawBool("Apply Root Position XZ", &applyRootPositionXZ);
     changed |= OnGUIUtils::DrawBool("Apply Root Position Y", &applyRootPositionY);
     changed |= OnGUIUtils::DrawBool("Apply Root Rotation", &applyRootRotation);
+    changed |= OnGUIUtils::DrawBool("Is Dead Animation", &isDeadAnimation);
 
     return changed;
 }

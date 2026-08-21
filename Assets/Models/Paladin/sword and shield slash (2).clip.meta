@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 2,
+                "_version": 3,
                 "_assetId": {
                     "leftId": 1883755706551041744,
                     "rightId": 16669028982491692920
@@ -15,7 +15,8 @@
                     "extractRootMotion": true,
                     "applyRootPositionXZ": true,
                     "applyRootPositionY": false,
-                    "applyRootRotation": false
+                    "applyRootRotation": false,
+                    "isDeadAnimation": false
                 },
                 "animationEvents": [
                     {
@@ -59,6 +60,27 @@
                         "intParam": 0,
                         "floatParam": 0.0,
                         "frame": 82
+                    },
+                    {
+                        "eventName": "AttackDamage",
+                        "boolParam": false,
+                        "intParam": 30,
+                        "floatParam": 0.0,
+                        "frame": 21
+                    },
+                    {
+                        "eventName": "AttackDamage",
+                        "boolParam": false,
+                        "intParam": 30,
+                        "floatParam": 0.0,
+                        "frame": 39
+                    },
+                    {
+                        "eventName": "AttackDamage",
+                        "boolParam": false,
+                        "intParam": 50,
+                        "floatParam": 0.0,
+                        "frame": 75
                     }
                 ]
             }

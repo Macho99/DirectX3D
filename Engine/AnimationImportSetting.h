@@ -2,10 +2,12 @@
 
 struct AnimationClipImportSetting
 {
+    int version = 0;
     bool extractRootMotion = false;
     bool applyRootPositionXZ = false;
     bool applyRootPositionY = false;
     bool applyRootRotation = false;
+    bool isDeadAnimation = false;
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -16,6 +18,11 @@ struct AnimationClipImportSetting
             CEREAL_NVP(applyRootPositionY),
             CEREAL_NVP(applyRootRotation)
         );
+
+        if (version >= 3)
+        {
+            ar(CEREAL_NVP(isDeadAnimation));
+        }
     }
 
     bool OnGUI();

@@ -18,17 +18,14 @@ public:
     void serialize(Archive& ar)
     {
         Super::serialize(ar);
+        clipImportSetting.version = _version;
         ar(CEREAL_NVP(clipImportSetting));
 
         if(_version >= 2)
-            ar(CEREAL_NVP(animationEvents));
-
-        if(_version >= 3)
             ar(CEREAL_NVP(animationEvents));
     }
 
 protected:
     AnimationClipImportSetting clipImportSetting;
     vector<AnimationEvent> animationEvents;
-    bool isDeadAnimation;
 };

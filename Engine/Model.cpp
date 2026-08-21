@@ -515,7 +515,7 @@ void Model::OnMenu(bool isReadOnly)
 			L"Animation Root And Event Data",
 			L"Animation Root And Event Data (*.animData)\0*.animData\0All Files (*.*)\0*.*\0",
 			L"animData",
-			L"..\\..\\");
+			L"..\\..\\Server\\ClientData");
 		if (!outputPath.empty())
 			ExtractAnimationRootPositionsAndEvents(outputPath);
     }

@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 2,
+                "_version": 3,
                 "_assetId": {
                     "leftId": 15442824598557038623,
                     "rightId": 9081030048532410126
@@ -15,7 +15,8 @@
                     "extractRootMotion": false,
                     "applyRootPositionXZ": false,
                     "applyRootPositionY": false,
-                    "applyRootRotation": false
+                    "applyRootRotation": false,
+                    "isDeadAnimation": false
                 },
                 "animationEvents": [
                     {
@@ -28,7 +29,7 @@
                     {
                         "eventName": "AttackDamage",
                         "boolParam": false,
-                        "intParam": 0,
+                        "intParam": 10,
                         "floatParam": 0.0,
                         "frame": 31
                     },

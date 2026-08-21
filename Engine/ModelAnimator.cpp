@@ -128,14 +128,14 @@ void ModelAnimator::Awake()
 void ModelAnimator::Update()
 {
 	// 사망한 뒤에는 이미 예약된 블렌드 스페이스 전환도 실행하지 않는다.
-	if (isDead && _tweenDesc.next.isBlendSpace)
+	if (_isDead && _tweenDesc.next.isBlendSpace)
 		_tweenDesc.ClearNextAnim();
 
     const TweenDesc prevTweenDesc = _tweenDesc;
 	UpdateTweenData();
 	UpdateRootMotion(prevTweenDesc);
 
-	if (!isDead && _tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
+	if (!_isDead && _tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
 	{
 		float leftTime = GetLeftTime(_tweenDesc.cur.animations[0]);
 		if (leftTime < _tweenDesc.tweenDuration && _tweenDesc.next.HasAnimation() == false)
@@ -279,6 +279,9 @@ void ModelAnimator::PlayAnimation(uint32 animIndex)
     if (model == nullptr || model->GetAnimationCount() <= animIndex)
         return;
 
+	ModelAnimation* modelAnimation = model->GetAnimationByIndex(animIndex);
+	_isDead = modelAnimation->GetAnimationClipImportSetting().isDeadAnimation;
+
     _tweenDesc.next.SetSingleAnimation(animIndex);
 }
 
@@ -291,10 +294,7 @@ void ModelAnimator::PlayAnimation(string animName)
     if (animIndex < 0)
         return;
 	
-	if (_tweenDesc.cur.GetSingleAnimationIndex() == animIndex)
-		return;
-
-    _tweenDesc.next.SetSingleAnimation(animIndex);
+	PlayAnimation(animIndex);
 }
 
 bool ModelAnimator::TryGetModelSocketWorldMatrix(const string& socketName, OUT Matrix& worldMatrix)
@@ -401,7 +401,7 @@ bool ModelAnimator::OnGUI()
     ImGui::Separator();
 
 	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
-	changed |= OnGUIUtils::DrawBool("Is Dead", &isDead);
+	changed |= OnGUIUtils::DrawBool("Is Dead", &_isDead);
 
 	Model* model = _model.Resolve();
 	if (model != nullptr && model->GetAnimationCount() > 0)
@@ -409,6 +409,11 @@ bool ModelAnimator::OnGUI()
 		const int animCount = model->GetAnimationCount();
 		string nextAnimName = Utils::ToString(model->GetAnimationByIndex(_nextAnimIndex)->GetName());
 		nextAnimName = to_string(_nextAnimIndex) + " : " + nextAnimName;
+		if (ImGui::Button("Play"))
+		{
+			PlayAnimation(_nextAnimIndex);
+		}
+		ImGui::SameLine();
 		if (ImGui::BeginCombo("Animation", nextAnimName.c_str()))
 		{
 			for (int animationIndex = 0; animationIndex < animCount; ++animationIndex)
@@ -418,7 +423,7 @@ bool ModelAnimator::OnGUI()
 				if (ImGui::Selectable(name.c_str(), _nextAnimIndex == animationIndex))
 				{
 					_nextAnimIndex = animationIndex;
-					_tweenDesc.next.SetSingleAnimation(_nextAnimIndex);
+					PlayAnimation(animationIndex);
 					changed = true;
 				}
 				if (_nextAnimIndex == animationIndex)
@@ -1031,7 +1036,7 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 	const bool animationStarted = frame.curFrame == 0 && frame.nextFrame == 0;
 	const float duration = animation->GetFrameCount() / animation->GetFrameRate();
 	const float nextTime = keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f);
-	if (isDead)
+	if (_isDead)
 	{
 		// 마지막 프레임에서 멈춰 사망 애니메이션이 반복되지 않게 한다.
 		const float lastFrameTime = (animation->GetFrameCount() - 1) / animation->GetFrameRate();
@@ -1042,7 +1047,7 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 		keyframe.sumTime = fmod(nextTime, duration);
 	}
 	const float framePosition = keyframe.sumTime * animation->GetFrameRate();
-	if (isDead && keyframe.sumTime >= (animation->GetFrameCount() - 1) / animation->GetFrameRate())
+	if (_isDead && keyframe.sumTime >= (animation->GetFrameCount() - 1) / animation->GetFrameRate())
 	{
 		frame.curFrame = animation->GetFrameCount() - 1;
 		frame.nextFrame = frame.curFrame;

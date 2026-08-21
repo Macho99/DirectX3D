@@ -283,6 +283,7 @@ void GameManager::OnPlayerHpChange(Protocol::HealthData healthData)
     }
     Player* player = it->second.Resolve();
     player->SetHp(hp);
+    DBG->Log("Player ID %llu HP changed to %d", playerId, hp);
 }
 
 void GameManager::OnMonsterSpawn(Protocol::Monster monster)
