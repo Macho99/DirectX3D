@@ -212,7 +212,8 @@ void Graphics::RenderBegin()
 
 void Graphics::RenderEnd()
 {
-	HRESULT hr = _swapChain->Present(0, 0);
+	const UINT syncInterval = GAME->GetGameDesc().vsync ? 1u : 0u;
+	HRESULT hr = _swapChain->Present(syncInterval, 0);
 	CHECK(hr);
 }
 

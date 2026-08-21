@@ -67,8 +67,8 @@ public:
     ResourceRef<Font> GetFont() const { return _font; }
     void SetFontSize(float fontSize);
     float GetFontSize() const { return _fontSize; }
-    void SetColor(const Color& color);
-    const Color& GetColor() const { return _color; }
+    //void SetColor(const Color& color);
+    //const Color& GetColor() const { return _color; }
     void SetHorizontalStart(TextHorizontalStart horizontalStart);
     TextHorizontalStart GetHorizontalStart() const { return _horizontalStart; }
     void SetVerticalStart(TextVerticalStart verticalStart);
@@ -108,6 +108,8 @@ private:
     TextString _text;
     ResourceRef<Font> _font;
     float _fontSize = 32.0f;
+
+    //regacy, use Material Diffuse color instead
     Color _color = Colors::White;
     TextHorizontalStart _horizontalStart = TextHorizontalStart::Left;
     TextVerticalStart _verticalStart = TextVerticalStart::Middle;

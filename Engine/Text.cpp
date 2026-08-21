@@ -82,12 +82,12 @@ bool Text::OnGUI()
     }
     ImGui::PopID();
 
-    bool colorChanged = OnGUIUtils::DrawColor("Color", &_color);
-    changed |= colorChanged;
-    if (colorChanged)
-    {
-        SetColor(_color);
-    }
+    //bool colorChanged = OnGUIUtils::DrawColor("Color", &_color);
+    //changed |= colorChanged;
+    //if (colorChanged)
+    //{
+    //    SetColor(_color);
+    //}
 
     if (OnGUIUtils::DrawResourceRef("Font", _font))
     {
@@ -142,15 +142,15 @@ void Text::SetFontSize(float fontSize)
     } 
 }
 
-void Text::SetColor(const Color& color)
-{
-    _color = color;
-    Material* material = GetMaterial().Resolve();
-    if (material != nullptr)
-    {
-        material->GetMaterialDesc().diffuse = _color;
-    }
-}
+//void Text::SetColor(const Color& color)
+//{
+//    _color = color;
+//    Material* material = GetMaterial().Resolve();
+//    if (material != nullptr)
+//    {
+//        material->GetMaterialDesc().diffuse = _color;
+//    }
+//}
 
 void Text::SetHorizontalStart(TextHorizontalStart horizontalStart)
 {
