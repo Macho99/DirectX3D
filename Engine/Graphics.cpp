@@ -50,7 +50,7 @@ void Graphics::Start()
 void Graphics::OnDestroy()
 {
 	// =========================
-	// PostProcess / °øÀ¯ °´Ã¼
+	// PostProcess / ê³µìœ  ê°ì²´
 	// =========================
 	_postProcesses.clear();
 	_ppDebugTextures.clear();
@@ -119,11 +119,11 @@ void Graphics::OnDestroy()
 	//HRESULT hr = _device->QueryInterface(__uuidof(ID3D11Debug), (void**)&d3dDebug);
 	//if (SUCCEEDED(hr))
 	//{
-	//	OutputDebugStringW(L"==============Ãâ·Â ½ÃÀÛ============\n");
-	//	// D3D11_RLDO_DETAILÀ» »ç¿ëÇÏ¸é ¾î¶² °´Ã¼(Texture, Buffer µî)°¡ ³²¾Ò´ÂÁö »ó¼¼È÷ º¸¿©Áİ´Ï´Ù.
+	//	OutputDebugStringW(L"==============ì¶œë ¥ ì‹œì‘============\n");
+	//	// D3D11_RLDO_DETAILì„ ì‚¬ìš©í•˜ë©´ ì–´ë–¤ ê°ì²´(Texture, Buffer ë“±)ê°€ ë‚¨ì•˜ëŠ”ì§€ ìƒì„¸íˆ ë³´ì—¬ì¤ë‹ˆë‹¤.
 	//	d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	//	d3dDebug->Release();
-	//	OutputDebugStringW(L"==============Ãâ·Â Á¾·á============\n");
+	//	OutputDebugStringW(L"==============ì¶œë ¥ ì¢…ë£Œ============\n");
 	//}
 
 	_uiColorWriteDisabledBlendState.Reset();
@@ -143,32 +143,39 @@ void Graphics::OnSize(bool isFirst)
     int sceneHeight = GAME->GetGameDesc().sceneHeight;
 	if (isFirst == false)
 	{
-		// 1) GPU ÆÄÀÌÇÁ¶óÀÎ¿¡¼­ ¹é¹öÆÛ/DS¸¦ ¸ÕÀú ¶¼±â
+		// 1) GPU íŒŒì´í”„ë¼ì¸ì—ì„œ ë°±ë²„í¼/DSë¥¼ ë¨¼ì € ë–¼ê¸°
 		ID3D11RenderTargetView* nullRTV[1] = { nullptr };
 		_deviceContext->OMSetRenderTargets(1, nullRTV, nullptr);
 
-		// (¼±ÅÃ) È¤½Ã ´Ù¸¥ °÷¿¡ ¹ÙÀÎµùµÈ SRV/UAVµµ È®½ÇÈ÷ ¶¼±â
+		// (ì„ íƒ) í˜¹ì‹œ ë‹¤ë¥¸ ê³³ì— ë°”ì¸ë”©ëœ SRV/UAVë„ í™•ì‹¤íˆ ë–¼ê¸°
 		ID3D11ShaderResourceView* nullSRV[16] = {};
 		_deviceContext->PSSetShaderResources(0, 16, nullSRV);
 		_deviceContext->CSSetShaderResources(0, 16, nullSRV);
-		// UAV±îÁö ¾²¸é CSSetUnorderedAccessViewsµµ null·Î
+		// UAVê¹Œì§€ ì“°ë©´ CSSetUnorderedAccessViewsë„ nullë¡œ
 
-		// (¼±ÅÃ) Áï½Ã ÇØÁ¦ Å¥ Ã³¸®
+		// (ì„ íƒ) ì¦‰ì‹œ í•´ì œ í ì²˜ë¦¬
 		_deviceContext->Flush();
 
-		// 2) ½º¿ÒÃ¼ÀÎ ¹öÆÛ·ÎºÎÅÍ ¸¸µç ¸®¼Ò½ºµé Release
-		_renderTargetView.Reset();
-		_backBufferTexture.Reset();
-		// ¹é¹öÆÛ·Î ¸¸µç SRV/±âÅ¸µµ Reset
-		
-        HRESULT hr = _swapChain->ResizeBuffers(0,
-			width,
-			height,
-            DXGI_FORMAT_UNKNOWN,
-            0);
-        CHECK(hr);
+		D3D11_TEXTURE2D_DESC backBufferDesc = {};
+		if (_backBufferTexture != nullptr)
+			_backBufferTexture->GetDesc(&backBufferDesc);
 
-        _swapChain->GetBuffer(0, IID_PPV_ARGS(&_backBufferTexture));
+		const bool shouldResizeBackBuffer =
+			backBufferDesc.Width != static_cast<UINT>(width) ||
+			backBufferDesc.Height != static_cast<UINT>(height);
+		if (shouldResizeBackBuffer)
+		{
+			_renderTargetView.Reset();
+			_backBufferTexture.Reset();
+
+			HRESULT hr = _swapChain->ResizeBuffers(0,
+				width,
+				height,
+				DXGI_FORMAT_UNKNOWN,
+				0);
+			CHECK(hr);
+		}
+
         CreateRenderTargetView();
 		CreateDSVAndShadowMap(false);
 	}
@@ -205,7 +212,7 @@ void Graphics::RenderBegin()
 
 	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
 	//ClearDepthStencilView();
-	//¾À¿¡¼­ Ä«¸Ş¶ó¸¶´Ù Å¬¸®¾îÇØÁÜ
+	//ì”¬ì—ì„œ ì¹´ë©”ë¼ë§ˆë‹¤ í´ë¦¬ì–´í•´ì¤Œ
 	_deviceContext->ClearRenderTargetView(_hdrRTV.Get(), (float*)(&GAME->GetGameDesc().clearColor));
 	_vp.RSSetViewport();
 }
@@ -393,7 +400,7 @@ void Graphics::CreateDeviceAndSwapChain()
 	ComPtr<ID3D11InfoQueue> infoQueue;
 	if (SUCCEEDED(DEVICE->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
 	{
-		// 408À» ¡°¼û±æ¡± ÇÊÅÍ
+		// 408ì„ â€œìˆ¨ê¸¸â€ í•„í„°
 		D3D11_MESSAGE_ID hide[] = {
 			(D3D11_MESSAGE_ID)408, // QUERY_BEGIN_ABANDONING_PREVIOUS_RESULTS
 		};
@@ -404,13 +411,13 @@ void Graphics::CreateDeviceAndSwapChain()
 
 		infoQueue->AddStorageFilterEntries(&f);
 
-		// °æ°í(Warning)°¡ ¹ß»ıÇßÀ» ¶§ ºê·¹ÀÌÅ©Æ÷ÀÎÆ®¸¦ °Ì´Ï´Ù.
+		// ê²½ê³ (Warning)ê°€ ë°œìƒí–ˆì„ ë•Œ ë¸Œë ˆì´í¬í¬ì¸íŠ¸ë¥¼ ê²ë‹ˆë‹¤.
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 
-		// ¿¡·¯(Error)°¡ ¹ß»ıÇßÀ» ¶§ ºê·¹ÀÌÅ©Æ÷ÀÎÆ®¸¦ °Ì´Ï´Ù.
+		// ì—ëŸ¬(Error)ê°€ ë°œìƒí–ˆì„ ë•Œ ë¸Œë ˆì´í¬í¬ì¸íŠ¸ë¥¼ ê²ë‹ˆë‹¤.
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
 
-		// Ä¡¸íÀûÀÎ ¿À·ù(Corruption) ¹ß»ı ½Ã¿¡µµ °É°í ½Í´Ù¸é
+		// ì¹˜ëª…ì ì¸ ì˜¤ë¥˜(Corruption) ë°œìƒ ì‹œì—ë„ ê±¸ê³  ì‹¶ë‹¤ë©´
 		infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
 	}
 }
@@ -460,7 +467,13 @@ void Graphics::CreateRenderTargetView()
 	_ppTextures.clear();
 	_ppSRVs.clear();
 	_ppRTVs.clear();
-    _ppDebugTextures.clear();
+
+    const size_t postProcessTargetCount = _postProcesses.empty() ? 0 : _postProcesses.size() - 1;
+    while (_ppDebugTextures.size() > postProcessTargetCount)
+    {
+        RESOURCES->GetAssetSlot().Remove(_ppDebugTextures.back());
+        _ppDebugTextures.pop_back();
+    }
 
     float sceneWidth = GAME->GetGameDesc().sceneWidth;
     float sceneHeight = GAME->GetGameDesc().sceneHeight;
@@ -546,10 +559,22 @@ void Graphics::CreateRenderTargetView()
             _ppSRVs.push_back(ppSRV);
             _ppRTVs.push_back(ppRTV);
 
-            unique_ptr<Texture> debugTexture = make_unique<Texture>();
+            Texture* debugTexture = nullptr;
+            if (static_cast<size_t>(i) < _ppDebugTextures.size())
+            {
+                debugTexture = _ppDebugTextures[i].Resolve();
+            }
+            else
+            {
+                ResourceRef<Texture> debugTextureRef =
+                    RESOURCES->AllocateTempResource(make_unique<Texture>());
+                debugTexture = debugTextureRef.Resolve();
+                _ppDebugTextures.push_back(debugTextureRef);
+            }
+
+            ASSERT(debugTexture != nullptr);
 			debugTexture->SetSRV(_ppSRVs[i]);
 			debugTexture->SetSize({ sceneWidth, sceneHeight });
-            _ppDebugTextures.push_back(RESOURCES->AllocateTempResource(std::move(debugTexture)));
 		}
 	}
 }
@@ -606,7 +631,7 @@ void Graphics::CreateDSVAndShadowMap(bool createShadowMap)
 		}
 	}
 
-    // DSV¿Í SRV¸¦ µ¿½Ã¿¡ ¹ÙÀÎµùÇÒ ¶§ ÇÊ¿äÇÑ ÀĞ±â Àü¿ë DSV
+    // DSVì™€ SRVë¥¼ ë™ì‹œì— ë°”ì¸ë”©í•  ë•Œ í•„ìš”í•œ ì½ê¸° ì „ìš© DSV
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));

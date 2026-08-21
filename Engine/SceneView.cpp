@@ -50,14 +50,19 @@ void SceneView::OnGUI()
     ImVec2 min = ImVec2(winPos.x + contentMin.x, winPos.y + contentMin.y);
     //ImVec2 max = ImVec2(winPos.x + contentMax.x, winPos.y + contentMax.y);
 
-    // Ã¢ÀÇ ÄÜÅÙÃ÷ ¿µ¿ª Å©±â (½ºÅ©·Ñ/ÆĞµù Á¦¿Ü)
+    // ì°½ì˜ ì½˜í…ì¸  ì˜ì—­ í¬ê¸° (ìŠ¤í¬ë¡¤/íŒ¨ë”© ì œì™¸)
     ImVec2 avail = ImGui::GetContentRegionAvail();
     UINT w = (UINT)max(10.0f, avail.x);
     UINT h = (UINT)max(10.0f, avail.y);
 
     GameDesc& gameDesc = GAME->GetGameDesc();
-    gameDesc.sceneWidth = w;
-    gameDesc.sceneHeight = h;
+    // Dock splitterì™€ ì°½ í…Œë‘ë¦¬ë¥¼ ë“œë˜ê·¸í•˜ëŠ” ë™ì•ˆì—ëŠ” ê¸°ì¡´ ì”¬ í…ìŠ¤ì²˜ë¥¼
+    // í‘œì‹œ ì˜ì—­ì— ë§ê²Œ ëŠ˜ë¦¬ê³ , ë“œë˜ê·¸ê°€ ëë‚¬ì„ ë•Œ GPU ë¦¬ì†ŒìŠ¤ë¥¼ í•œ ë²ˆë§Œ ì¬ìƒì„±í•œë‹¤.
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
+    {
+        gameDesc.sceneWidth = w;
+        gameDesc.sceneHeight = h;
+    }
     gameDesc.scenePos = Vec2(min.x, min.y);
     gameDesc.sceneFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
@@ -298,7 +303,7 @@ Vec2 SceneView::GetRectTransformDragDelta(RectTransform* rectTransform, Camera* 
 void SceneView::DrawSceneViewGizmoOverlay()
 {
     GameDesc& gameDesc = GAME->GetGameDesc();
-    // ¾Àºä ¾ÈÂÊ ¿©¹é
+    // ì”¬ë·° ì•ˆìª½ ì—¬ë°±
     const ImVec2 pad(8.0f, 8.0f);
     ImVec2 pos(gameDesc.scenePos.x + pad.x, gameDesc.scenePos.y + pad.y);
 
@@ -311,11 +316,11 @@ void SceneView::DrawSceneViewGizmoOverlay()
         ImGuiWindowFlags_NoFocusOnAppearing |
         ImGuiWindowFlags_NoNav;
 
-    // ¾Àºä À§¿¡ "°íÁ¤"À¸·Î ¶ß°Ô
+    // ì”¬ë·° ìœ„ì— "ê³ ì •"ìœ¼ë¡œ ëœ¨ê²Œ
     ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
     ImGui::SetNextWindowBgAlpha(0.85f);
 
-    // ¾Àºä hover ÁßÀÏ ¶§¸¸ Å¬¸¯ Çã¿ëÇÏ°í ½Í´Ù¸é ¾Æ·¡Ã³·³ Åä±Û °¡´É
+    // ì”¬ë·° hover ì¤‘ì¼ ë•Œë§Œ í´ë¦­ í—ˆìš©í•˜ê³  ì‹¶ë‹¤ë©´ ì•„ë˜ì²˜ëŸ¼ í† ê¸€ ê°€ëŠ¥
     // if (!sceneHovered) flags |= ImGuiWindowFlags_NoInputs;
 
     ImGui::Begin("##SceneGizmoOverlay", nullptr, flags);
