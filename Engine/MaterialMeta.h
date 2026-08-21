@@ -8,6 +8,7 @@ public:
     ~MaterialMeta() {}
 
 private:
-    virtual int GetVersion() const override { return 2; }
+    virtual int GetImportVersion() const override { return 2; }
+    virtual int GetSerializeVersion() const override { return 2; }
 };
 

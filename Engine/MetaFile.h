@@ -47,14 +47,17 @@ protected:
 private:
     bool ImportIfDirty();
     wstring GetManifestPath() { return GetArtifactPath() + L"\\asset.manifest"; }
-    virtual int GetVersion() const { return 1; }
+    // Import version invalidates generated artifacts through ImportManifest.
+    virtual int GetImportVersion() const { return 1; }
+    // Serialize version only describes the .meta file schema.
+    virtual int GetSerializeVersion() const { return 1; }
 
 public:
     template<class Archive>
     void serialize(Archive& ar)
     {
         if (Archive::is_saving::value)
-            _version = GetVersion();
+            _version = GetSerializeVersion();
 
         ar(CEREAL_NVP(_version));
         ar(CEREAL_NVP(_assetId));

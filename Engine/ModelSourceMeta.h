@@ -27,7 +27,8 @@ protected:
     void Import() override;
 
 private:
-    virtual int GetVersion() const override;
+    virtual int GetImportVersion() const override;
+    virtual int GetSerializeVersion() const override { return 15; }
 
     ModelImportSettings _importSettings;
 };

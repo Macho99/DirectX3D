@@ -122,7 +122,7 @@ void ModelSourceMeta::Import()
     _subAssets = exported;
 }
 
-int ModelSourceMeta::GetVersion() const
+int ModelSourceMeta::GetImportVersion() const
 {
     return 15;
 }

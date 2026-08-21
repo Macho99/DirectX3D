@@ -11,7 +11,8 @@ public:
 
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
     virtual bool OnGUI() override;
-    virtual int GetVersion() const override;
+    virtual int GetImportVersion() const override;
+    virtual int GetSerializeVersion() const override { return 3; }
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -21,9 +22,13 @@ public:
 
         if(_version >= 2)
             ar(CEREAL_NVP(animationEvents));
+
+        if(_version >= 3)
+            ar(CEREAL_NVP(animationEvents));
     }
 
 protected:
     AnimationClipImportSetting clipImportSetting;
     vector<AnimationEvent> animationEvents;
+    bool isDeadAnimation;
 };

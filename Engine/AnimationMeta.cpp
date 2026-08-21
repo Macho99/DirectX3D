@@ -59,7 +59,7 @@ bool AnimationMeta::OnGUI()
     return changed;
 }
 
-int AnimationMeta::GetVersion() const
+int AnimationMeta::GetImportVersion() const
 {
     return 2;
 }

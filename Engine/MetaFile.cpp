@@ -78,7 +78,7 @@ bool MetaFile::ImportIfDirty()
     }
 
     bool isDirty = false;
-    bool isManifestRefreshed = _importManifest.Refresh(_assetPath, GetVersion(), isDirty);
+    bool isManifestRefreshed = _importManifest.Refresh(_assetPath, GetImportVersion(), isDirty);
 
     if (isDirty)
     {
