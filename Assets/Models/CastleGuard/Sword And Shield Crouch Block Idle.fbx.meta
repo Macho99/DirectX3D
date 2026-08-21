@@ -1,0 +1,52 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "ModelSourceMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 15,
+                "_assetId": {
+                    "leftId": 16774471887890311353,
+                    "rightId": 4347289989242028665
+                },
+                "_resourceType": 6,
+                "_subAssets": [
+                    {
+                        "assetId": {
+                            "leftId": 10852009238781622107,
+                            "rightId": 14426503751264039742
+                        },
+                        "fileName": "Guard_02.mat",
+                        "resourceType": 3
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 14723452871000387734,
+                            "rightId": 2501153765601994371
+                        },
+                        "fileName": "Guard02.modelmesh",
+                        "resourceType": 8
+                    },
+                    {
+                        "assetId": {
+                            "leftId": 6171856052956976410,
+                            "rightId": 10480543481067169311
+                        },
+                        "fileName": "Sword And Shield Crouch Block Idle.clip",
+                        "resourceType": 4
+                    }
+                ],
+                "_importSettings": {
+                    "preset": 1,
+                    "scale": 1.0,
+                    "rotation": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0
+                    }
+                }
+            }
+        }
+    }
+}
