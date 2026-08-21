@@ -37,6 +37,99 @@ void Material::SetCubeMap(ResourceRef<Texture> cubeMap)
     _cubeMap = cubeMap;
 }
 
+bool Material::SetFloat(const string& name, float value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Float);
+	if (property == nullptr)
+		return false;
+
+	property->float4Value.x = value;
+	return true;
+}
+
+bool Material::SetFloat2(const string& name, const Vec2& value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Float2);
+	if (property == nullptr)
+		return false;
+
+	property->float4Value.x = value.x;
+	property->float4Value.y = value.y;
+	return true;
+}
+
+bool Material::SetFloat3(const string& name, const Vec3& value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Float3);
+	if (property == nullptr)
+		return false;
+
+	property->float4Value.x = value.x;
+	property->float4Value.y = value.y;
+	property->float4Value.z = value.z;
+	return true;
+}
+
+bool Material::SetFloat4(const string& name, const Vec4& value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Float4);
+	if (property == nullptr)
+		return false;
+
+	property->float4Value = value;
+	return true;
+}
+
+bool Material::SetColor(const string& name, const Color& value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Color);
+	if (property == nullptr)
+		return false;
+
+	property->float4Value = Vec4(value.x, value.y, value.z, value.w);
+	return true;
+}
+
+bool Material::SetInt(const string& name, int32 value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Int);
+	if (property == nullptr)
+		return false;
+
+	property->intValue = value;
+	return true;
+}
+
+bool Material::SetBool(const string& name, bool value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Bool);
+	if (property == nullptr)
+		return false;
+
+	property->boolValue = value;
+	return true;
+}
+
+bool Material::SetTexture(const string& name, ResourceRef<Texture> value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Texture2D);
+	if (property == nullptr)
+		return false;
+
+	property->textureValue = value;
+	return true;
+}
+
+bool Material::SetMatrix(const string& name, const Matrix& value)
+{
+	MaterialPropertyValue* property = FindShaderProperty(name, ShaderPropertyType::Matrix);
+	if (property == nullptr)
+		return false;
+
+	property->matrixValue = value;
+	return true;
+}
+
 void Material::Update()
 {
     Shader* shader = _shader.Resolve();
@@ -409,6 +502,16 @@ void Material::SyncShaderProperties()
 	}
 
 	_shaderProperties = move(synchronizedProperties);
+}
+
+MaterialPropertyValue* Material::FindShaderProperty(const string& name, ShaderPropertyType type)
+{
+	SyncShaderProperties();
+	auto iter = find_if(_shaderProperties.begin(), _shaderProperties.end(), [&name, type](const MaterialPropertyValue& property)
+	{
+		return property.name == name && property.type == type;
+	});
+	return iter == _shaderProperties.end() ? nullptr : &*iter;
 }
 
 void Material::InitializeEffectBuffers()

@@ -50,6 +50,15 @@ public:
 	void SetSpecularMap(ResourceRef<Texture> specularMap);
 	//void SetRandomTex(ResourceRef<Texture> randomTex);
 	void SetCubeMap(ResourceRef<Texture> cubeMap);
+	bool SetFloat(const string& name, float value);
+	bool SetFloat2(const string& name, const Vec2& value);
+	bool SetFloat3(const string& name, const Vec3& value);
+	bool SetFloat4(const string& name, const Vec4& value);
+	bool SetColor(const string& name, const Color& value);
+	bool SetInt(const string& name, int32 value);
+	bool SetBool(const string& name, bool value);
+	bool SetTexture(const string& name, ResourceRef<Texture> value);
+	bool SetMatrix(const string& name, const Matrix& value);
     void SetLayerMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerMapArraySRV = srv; }
     void SetLayerNormalMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerNormalMapArraySRV = srv; }
     void SetLayerHeightMapArraySRV(ComPtr<ID3D11ShaderResourceView> srv) { _layerHeightMapArraySRV = srv; }
@@ -103,6 +112,7 @@ public:
 private:
     void InitializeEffectBuffers();
 	void SyncShaderProperties();
+	MaterialPropertyValue* FindShaderProperty(const string& name, ShaderPropertyType type);
 
 private:
 	friend class MeshRenderer;

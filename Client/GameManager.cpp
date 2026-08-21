@@ -13,6 +13,7 @@
 #include "InputText.h"
 #include "MyBillboard.h"
 #include "ParticleSystem.h"
+#include "MeshRenderer.h"
 
 namespace
 {
@@ -63,7 +64,8 @@ void GameManager::Start()
     {
         cameraFollower->SetTarget(_titlePoint.Resolve());
         cameraFollower->UpdateImmediateFollow();
-        Transform* camTrans = cameraFollower->GetGameObject()->GetComponentInChildren<Camera>()->GetTransform();
+        _camera = cameraFollower->GetGameObject()->GetComponentInChildren<Camera>();
+        Transform* camTrans = _camera.Resolve()->GetTransform();
         camTrans->SetLocalRotation(Vec3(0, 0, 0));
         camTrans->SetLocalPosition(Vec3(0, 0, -4));
     }
@@ -157,6 +159,9 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("LoginButton", _loginButton);
     changed |= OnGUIUtils::DrawComponentRef("CameraSpawnPoint", _cameraSpawnPoint);
     changed |= OnGUIUtils::DrawComponentRef("UserNameInput", _usernameInput);
+    changed |= OnGUIUtils::DrawComponentRef("ImpulseRenderer", _impulseRenderer);
+    changed |= OnGUIUtils::DrawComponentRef("Camera", _camera);
+    changed |= OnGUIUtils::DrawVec3("Test Vec3", &_testValue);
 
     if (ImGui::Button("Spawn Monster"))
     {
@@ -309,7 +314,6 @@ void GameManager::OnMonsterAnimation(Protocol::AnimationData animationData)
     uint64 monsterId = animationData.id();
     int32 animIdx = animationData.animationindex();
 
-    DBG->Log("Monster ID %llu playing animation index %d", monsterId, animIdx);
     auto it = _monsters.find(monsterId);
     if (it == _monsters.end())
     {
@@ -455,4 +459,20 @@ void GameManager::ConnectedState()
     _titleImage.Resolve()->GetTransform()->GetParent()->GetGameObject()->SetActive(false);
 
     SetGameState(GameState::Connected);
+}
+
+void GameManager::PlayImpulse(Vec3 position)
+{
+    MeshRenderer* impulseRenderer = _impulseRenderer.Resolve();
+    if (impulseRenderer == nullptr)
+    {
+        DBG->LogError("Impulse renderer is null.");
+        return;
+    }
+
+    impulseRenderer->GetGameObject()->SetActive(true);
+    impulseRenderer->GetTransform()->SetPosition(position);
+    impulseRenderer->GetMaterial().Resolve()->SetFloat("ShockwaveStartTime", TIME->GetGameTime());
+    Camera* camera = _camera.Resolve();
+    TWEEN->DOPunchLocalRotate(camera->GetTransform(), _testValue, 0.5f);
 }

@@ -44,7 +44,7 @@ public:
 
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 6; }
+    virtual int GetVersion() const override { return 7; }
 
     void PushJob(function<void(void)> func);
     void UpdateGameState();
@@ -52,6 +52,8 @@ public:
     void SetGameState(GameState gameState);
     void LoginState();
     void ConnectedState();
+
+    void PlayImpulse(Vec3 position);
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -91,6 +93,11 @@ public:
         {
             ar(CEREAL_NVP(_hpChangeParticlePrefab));
         }
+
+        if (_version >= 7)
+        {
+            ar(CEREAL_NVP(_impulseRenderer));
+        }
     }
 
 private:
@@ -108,6 +115,7 @@ private:
     ComponentRef<Zombie> _zombiePrefab;
     ComponentRef<ParticleSystem> _hpChangeParticlePrefab;
     ComponentRef<TargetFollower> _cameraFollower;
+    ComponentRef<Camera> _camera;
     unordered_map<uint64, ComponentRef<Zombie>> _monsters;
 
     ComponentRef<Transform> _titlePoint;
@@ -119,7 +127,9 @@ private:
     ComponentRef<InputText> _usernameInput;
     GameState _gameState = GameState::Title;
 
-    float _testValue;
+    ComponentRef<MeshRenderer> _impulseRenderer;
+
+    Vec3 _testValue;
 };
 
 #define GM GameManager::GetInstance()

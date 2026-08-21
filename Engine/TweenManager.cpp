@@ -249,6 +249,32 @@ TweenPtr TweenManager::DOLocalRotate(Transform* transform, const Vec3& endValue,
     return tween;
 }
 
+TweenPtr TweenManager::DOPunchLocalRotate(Transform* transform, const Vec3& punch, float duration, int vibrato, float elasticity)
+{
+    TransformRef target(transform);
+    auto startRotation = make_shared<Vec3>();
+    const int clampedVibrato = max(1, vibrato);
+    const float clampedElasticity = clamp(elasticity, 0.f, 1.f);
+    TweenPtr tween(new Tween(duration,
+        [target, startRotation]()
+        {
+            Transform* value = target.Resolve();
+            *startRotation = value ? value->GetLocalRotation() : Vec3::Zero;
+        },
+        [target, startRotation, punch, clampedVibrato, clampedElasticity](float t)
+        {
+            Transform* resolved = target.Resolve();
+            if (!resolved) return;
+
+            const float decay = powf(1.f - t, 1.f + (1.f - clampedElasticity) * 2.f);
+            const float oscillation = sinf(t * Pi * 2.f * static_cast<float>(clampedVibrato));
+            resolved->SetLocalRotation(*startRotation + punch * (oscillation * decay));
+        }));
+    tween->SetTarget(transform);
+    Add(tween);
+    return tween;
+}
+
 TweenPtr TweenManager::DOScale(Transform* transform, const Vec3& endValue, float duration)
 {
     TransformRef target(transform);

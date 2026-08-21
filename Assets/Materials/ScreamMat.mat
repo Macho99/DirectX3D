@@ -1,0 +1,225 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "Material",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 5,
+                "_desc": {
+                    "ambient": {
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
+                        "value.w": 1.0
+                    },
+                    "diffuse": {
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
+                        "value.w": 1.0
+                    },
+                    "specular": {
+                        "value.x": 1.0,
+                        "value.y": 1.0,
+                        "value.z": 1.0,
+                        "value.w": 1.0
+                    },
+                    "emissive": {
+                        "value.x": 0.0,
+                        "value.y": 0.0,
+                        "value.z": 0.0,
+                        "value.w": 1.0
+                    }
+                },
+                "_renderQueue": 0,
+                "_castShadow": true,
+                "_drawNormalDepth": true,
+                "_includeInNavMesh": true,
+                "_shaderProperties": [
+                    {
+                        "_version": 5,
+                        "name": "ShockwaveSpeed",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 2.005000114440918,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "RepeatShockwave",
+                        "type": 3,
+                        "boolValue": true
+                    },
+                    {
+                        "_version": 5,
+                        "name": "ShockwaveStartTime",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 80.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "RingInnerWidth",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.10000000149011612,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "RingOuterWidth",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.13699999451637269,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "RingCount",
+                        "type": 2,
+                        "intValue": 2
+                    },
+                    {
+                        "_version": 5,
+                        "name": "FresnelStrength",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.3499999940395355,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "FresnelPower",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 4.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "EnableFresnel",
+                        "type": 3,
+                        "boolValue": false
+                    },
+                    {
+                        "_version": 5,
+                        "name": "NoiseStrength",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.1860000044107437,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "NoiseTiling",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 2.0,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "NoiseSpeed",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.20000000298023225,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "DistortionStrength",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.42399999499320986,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "DistortionOpacity",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 0.2930000126361847,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "ShockwaveNoiseMap",
+                        "type": 4,
+                        "textureValue": {
+                            "assetId": {
+                                "leftId": 18050822344807135278,
+                                "rightId": 4803438727549509340
+                            }
+                        }
+                    }
+                ],
+                "_shader": {
+                    "assetId": {
+                        "leftId": 11849372064189530726,
+                        "rightId": 5708213964175038892
+                    }
+                },
+                "_diffuseMap": {
+                    "assetId": {
+                        "leftId": 0,
+                        "rightId": 0
+                    }
+                },
+                "_normalMap": {
+                    "assetId": {
+                        "leftId": 0,
+                        "rightId": 0
+                    }
+                },
+                "_specularMap": {
+                    "assetId": {
+                        "leftId": 0,
+                        "rightId": 0
+                    }
+                },
+                "_cubeMap": {
+                    "assetId": {
+                        "leftId": 0,
+                        "rightId": 0
+                    }
+                },
+                "_useRandomTexture": false
+            }
+        }
+    }
+}

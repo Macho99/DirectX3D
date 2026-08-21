@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 4,
+                "_version": 5,
                 "_desc": {
                     "ambient": {
                         "value.x": 1.0,
@@ -34,6 +34,7 @@
                 },
                 "_renderQueue": 0,
                 "_castShadow": true,
+                "_drawNormalDepth": true,
                 "_includeInNavMesh": true,
                 "_shaderProperties": [
                     {
@@ -42,6 +43,23 @@
                         "type": 0,
                         "float4Value": {
                             "value.x": 2.005000114440918,
+                            "value.y": 0.0,
+                            "value.z": 0.0,
+                            "value.w": 0.0
+                        }
+                    },
+                    {
+                        "_version": 5,
+                        "name": "RepeatShockwave",
+                        "type": 3,
+                        "boolValue": false
+                    },
+                    {
+                        "_version": 5,
+                        "name": "ShockwaveStartTime",
+                        "type": 0,
+                        "float4Value": {
+                            "value.x": 169.9529266357422,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
@@ -73,7 +91,7 @@
                         "_version": 5,
                         "name": "RingCount",
                         "type": 2,
-                        "intValue": 2
+                        "intValue": 1
                     },
                     {
                         "_version": 5,
@@ -130,7 +148,7 @@
                         "name": "NoiseSpeed",
                         "type": 0,
                         "float4Value": {
-                            "value.x": 0.20000000298023225,
+                            "value.x": 0.5740000009536743,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
@@ -141,7 +159,7 @@
                         "name": "DistortionStrength",
                         "type": 0,
                         "float4Value": {
-                            "value.x": 0.42399999499320986,
+                            "value.x": 0.6259999871253967,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0
@@ -152,7 +170,7 @@
                         "name": "DistortionOpacity",
                         "type": 0,
                         "float4Value": {
-                            "value.x": 0.2930000126361847,
+                            "value.x": 0.37400001287460329,
                             "value.y": 0.0,
                             "value.z": 0.0,
                             "value.w": 0.0

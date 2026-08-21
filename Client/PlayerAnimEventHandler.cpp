@@ -36,7 +36,20 @@ void PlayerAnimEventHandler::Update()
 
 void PlayerAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEvent)
 {
-    if (animationEvent.eventName != "Attack")
+    if (animationEvent.eventName == "Impulse")
+    {
+        ModelAnimator* animator = GetGameObject()->GetModelAnimator();
+        if (animator == nullptr)
+            return;
+
+        Quaternion dummyRot;
+        Vec3 dummyScale, swordPosition;
+        Matrix swordEndMatrix;
+        animator->TryGetModelSocketWorldMatrix("SwordStart", swordEndMatrix);
+        swordEndMatrix.Decompose(OUT dummyScale, OUT dummyRot, OUT swordPosition);
+        GM->PlayImpulse(swordPosition);
+    }
+    else if (animationEvent.eventName != "Attack")
         return;
     
     TrailRenderer* trailRenderer = _trailRenderer.Resolve();

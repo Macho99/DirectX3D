@@ -167,6 +167,7 @@ public:
     TweenPtr DOLocalMove(Transform* transform, const Vec3& endValue, float duration);
     TweenPtr DORotate(Transform* transform, const Vec3& endValue, float duration);
     TweenPtr DOLocalRotate(Transform* transform, const Vec3& endValue, float duration);
+    TweenPtr DOPunchLocalRotate(Transform* transform, const Vec3& punch, float duration, int vibrato = 10, float elasticity = 1.f);
     TweenPtr DOScale(Transform* transform, const Vec3& endValue, float duration);
 
     void PauseAll();

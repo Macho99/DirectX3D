@@ -9,6 +9,16 @@ float ShockwaveSpeed <
     float UIMax = 3.f;
 > = 0.8f;
 
+bool RepeatShockwave <
+    bool MaterialProperty = true;
+    string UIName = "충격파 반복";
+> = true;
+
+float ShockwaveStartTime <
+    bool MaterialProperty = true;
+    string UIName = "1회 재생 시작 시간";
+> = 0.f;
+
 float RingInnerWidth <
     bool MaterialProperty = true;
     string UIName = "링 안쪽 두께";
@@ -106,21 +116,36 @@ float4 PS_ShockwaveDistortion(MeshOutput input) : SV_TARGET
     float noise = ShockwaveNoiseMap.Sample(LinearSampler, noiseUv).r * 2.f - 1.f;
     radialPosition = saturate(radialPosition + noise * NoiseStrength);
 
-    // 시간에 따라 구의 정면에서 실루엣으로 반복해서 확장되는 링을 만든다.
-    float wavePosition = frac(Time * ShockwaveSpeed);
+    // 반복 모드는 기존처럼 전역 시간을 사용한다.
+    // 1회 모드는 재생을 요청한 현재 시간을 ShockwaveStartTime에 넣으면
+    // 그 시점부터 링을 한 묶음만 재생하고 마지막 링이 지나간 뒤 종료한다.
     int ringCount = max(RingCount, 1);
+    float waveTime = RepeatShockwave
+        ? Time * ShockwaveSpeed
+        : (Time - ShockwaveStartTime) * ShockwaveSpeed;
+    float lastRingEndTime = 1.f + (float)(ringCount - 1) / ringCount;
+    bool isOneShotActive = waveTime >= 0.f && waveTime <= lastRingEndTime;
+
     float ring = 0.f;
     for (int i = 0; i < ringCount; i++)
     {
-        float ringPosition = frac(wavePosition + (float)i / ringCount);
+        float ringDelay = (float)i / ringCount;
+        float ringPosition = RepeatShockwave
+            ? frac(waveTime + ringDelay)
+            : waveTime - ringDelay;
+        float ringActive = (RepeatShockwave || (ringPosition >= 0.f && ringPosition <= 1.f))
+            ? 1.f
+            : 0.f;
         float ringDistance = abs(radialPosition - ringPosition);
-        ring = max(ring, 1.f - smoothstep(RingInnerWidth, RingOuterWidth, ringDistance));
+        float ringMask = 1.f - smoothstep(RingInnerWidth, RingOuterWidth, ringDistance);
+        ring = max(ring, ringMask * ringActive);
     }
 
     // 충격파 링이 지나간 뒤에도 실루엣에 약한 디스토션이 남도록 프레넬을 더한다.
     // DistortionOpacity로 최종 디스토션 마스크의 투명도를 조절한다.
     float fresnel = EnableFresnel ? pow(1.f - facing, FresnelPower) : 0.f;
     float mask = saturate(max(ring, fresnel * FresnelStrength) * DistortionOpacity);
+    mask *= (RepeatShockwave || isOneShotActive) ? 1.f : 0.f;
     if (mask < 0.001f)
         discard;
 
