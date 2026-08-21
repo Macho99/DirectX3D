@@ -6,8 +6,8 @@
 #include "EditorManager.h"
 #include "SceneView.h"
 
-InstancingRenderer::InstancingRenderer(ComponentType componentType)
-    :Super(componentType)
+InstancingRenderer::InstancingRenderer(ComponentType componentType, bool isStatic)
+    : Super(componentType), _isStatic(isStatic)
 {
 }
 
@@ -26,6 +26,96 @@ void InstancingRenderer::LateUpdate()
         }
         _lastWorldMatrix = worldMat;
     }
+
+    if (_isStatic == false || _boundsInitialized == false)
+        UpdateBounds();
+}
+
+void InstancingRenderer::OnEnable()
+{
+    Super::OnEnable();
+    InvalidateBounds();
+}
+
+bool InstancingRenderer::IsInFrustum(const Vec4 frustumPlanes[6])
+{
+    if (_boundsInitialized == false)
+        UpdateBounds();
+
+    if (_hasWorldBounds == false)
+        return true;
+
+    for (uint32 i = 0; i < 6; ++i)
+    {
+        const Vec4& plane = frustumPlanes[i];
+        const float centerDistance =
+            plane.x * _worldBounds.Center.x
+            + plane.y * _worldBounds.Center.y
+            + plane.z * _worldBounds.Center.z
+            + plane.w;
+        const float projectedRadius =
+            fabsf(plane.x) * _worldBounds.Extents.x
+            + fabsf(plane.y) * _worldBounds.Extents.y
+            + fabsf(plane.z) * _worldBounds.Extents.z;
+
+        if (centerDistance + projectedRadius < 0.0f)
+            return false;
+    }
+
+    return true;
+}
+
+void InstancingRenderer::UpdateBounds()
+{
+    BoundingBox localBounds;
+    if (TryCalculateLocalBounds(OUT localBounds) == false)
+    {
+        _hasWorldBounds = false;
+        _boundsInitialized = true;
+        return;
+    }
+
+    auto mergeWorldBounds = [this](const BoundingBox& bounds)
+        {
+            if (_hasWorldBounds == false)
+            {
+                _worldBounds = bounds;
+                _hasWorldBounds = true;
+                return;
+            }
+
+            const Vec3 currentCenter(_worldBounds.Center);
+            const Vec3 currentExtents(_worldBounds.Extents);
+            const Vec3 boundsCenter(bounds.Center);
+            const Vec3 boundsExtents(bounds.Extents);
+            const Vec3 currentMin = currentCenter - currentExtents;
+            const Vec3 currentMax = currentCenter + currentExtents;
+            const Vec3 boundsMin = boundsCenter - boundsExtents;
+            const Vec3 boundsMax = boundsCenter + boundsExtents;
+            const Vec3 mergedMin = Vec3::Min(currentMin, boundsMin);
+            const Vec3 mergedMax = Vec3::Max(currentMax, boundsMax);
+            _worldBounds.Center = (mergedMin + mergedMax) * 0.5f;
+            _worldBounds.Extents = (mergedMax - mergedMin) * 0.5f;
+        };
+
+    _hasWorldBounds = false;
+    if (HasInstancingData())
+    {
+        for (const InstancingData& instancingData : _instDatas)
+        {
+            BoundingBox instanceBounds;
+            localBounds.Transform(instanceBounds, instancingData);
+            mergeWorldBounds(instanceBounds);
+        }
+    }
+    else
+    {
+        BoundingBox transformedBounds;
+        localBounds.Transform(transformedBounds, GetTransform()->GetWorldMatrix());
+        mergeWorldBounds(transformedBounds);
+    }
+
+    _boundsInitialized = true;
 }
 
 void InstancingRenderer::OnMaterialChange(const Material* oldMaterial, const Material* newMaterial)
@@ -58,6 +148,7 @@ void InstancingRenderer::OnMeshChange(const AssetId& oldMeshId, const AssetId& n
 void InstancingRenderer::AddInstancingData(const Matrix& mat)
 {
     _originInstDatas.push_back(mat);
+    InvalidateBounds();
 }
 
 bool InstancingRenderer::OnGUI()
@@ -117,6 +208,8 @@ bool InstancingRenderer::OnGUI()
 
             if (selectedIndex < _instDatas.size())
                 _instDatas[selectedIndex] = worldMatrix;
+
+            InvalidateBounds();
         };
 
     Matrix selectedWorld = _instDatas[selectedIndex];

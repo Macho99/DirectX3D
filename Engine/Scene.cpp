@@ -14,7 +14,6 @@
 #include "Renderer.h"
 #include "InstancingRenderer.h"
 #include "InstancingBuffer.h"
-#include "ModelRenderer.h"
 #include "ModelAnimator.h"
 #include "MathLibrary/MathUtils.h"
 
@@ -867,17 +866,14 @@ void Scene::RenderInstancing(Camera* camera, RenderTech renderTech)
 				if (instRenderer->CanRender(renderTech) == false)
 					continue;
 
-				if (instRenderer->HasInstancingData() == false
-					&& instRenderer->GetType() == ComponentType::ModelRenderer)
-                {
-					++cullingStats.totalCount;
-					if (static_cast<ModelRenderer*>(instRenderer)->IsInFrustum(frustumPlanes) == false)
-					{
-						++cullingStats.culledCount;
-						continue;
-					}
-                }
-                else if (instRenderer->GetType() == ComponentType::ModelAnimator)
+				++cullingStats.totalCount;
+				if (instRenderer->IsInFrustum(frustumPlanes) == false)
+				{
+					++cullingStats.culledCount;
+					continue;
+				}
+
+                if (instRenderer->GetType() == ComponentType::ModelAnimator)
                 {
                     const TweenDesc& tweenDesc = static_cast<ModelAnimator*>(instRenderer)->GetTweenDesc();
                     _instancedTweenDesc.tweens[tweenCount++] = tweenDesc;

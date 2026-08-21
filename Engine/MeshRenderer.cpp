@@ -7,7 +7,7 @@
 #include "Light.h"
 #include "OnGUIUtils.h"
 
-MeshRenderer::MeshRenderer() : Super(StaticType)
+MeshRenderer::MeshRenderer() : Super(StaticType, false)
 {
 	_pass = 0;
 }
@@ -24,7 +24,29 @@ void MeshRenderer::SetMesh(ResourceRef<Mesh> mesh)
 
     const AssetId oldMeshId = GetMeshId();
     _mesh = mesh;
+    InvalidateBounds();
     OnMeshChange(oldMeshId, GetMeshId());
+}
+
+bool MeshRenderer::TryCalculateLocalBounds(OUT BoundingBox& localBounds)
+{
+	Mesh* mesh = _mesh.Resolve();
+	shared_ptr<Geometry<VertexTextureNormalTangentData>> geometry =
+		mesh != nullptr ? mesh->GetGeometry() : nullptr;
+	if (geometry == nullptr || geometry->GetVertices().empty())
+		return false;
+
+	Vec3 minPosition(FLT_MAX, FLT_MAX, FLT_MAX);
+	Vec3 maxPosition(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	for (const VertexTextureNormalTangentData& vertex : geometry->GetVertices())
+	{
+		minPosition = Vec3::Min(minPosition, vertex.position);
+		maxPosition = Vec3::Max(maxPosition, vertex.position);
+	}
+
+	localBounds.Center = (minPosition + maxPosition) * 0.5f;
+	localBounds.Extents = (maxPosition - minPosition) * 0.5f;
+	return true;
 }
 
 void MeshRenderer::InnerRender(RenderTech renderTech)

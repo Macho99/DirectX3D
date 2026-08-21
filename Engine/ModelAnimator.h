@@ -86,6 +86,8 @@ public:
 	}
 
 private:
+	virtual bool TryCalculateLocalBounds(OUT BoundingBox& localBounds) override;
+
 	struct BlendSpaceSample
 	{
 		array<int, 3> pointIndices = { -1, -1, -1 };

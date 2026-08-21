@@ -62,7 +62,7 @@ namespace
 }
 
 ModelAnimator::ModelAnimator()
-	: Super(StaticType)
+	: Super(StaticType, false)
 {
     _pass = 2;
 }
@@ -155,6 +155,7 @@ bool ModelAnimator::SetModel(ResourceRef<Model> model)
 
 	const AssetId oldMeshId = GetMeshId();
 	_model = model;
+	InvalidateBounds();
 	OnMeshChange(oldMeshId, GetMeshId());
 	// 모델이 바뀌면 유효한 애니메이션 인덱스 범위도 달라질 수 있다.
 	_blendSpaceTriangulationDirty = true;
@@ -166,6 +167,12 @@ bool ModelAnimator::SetModel(ResourceRef<Model> model)
 
 	_tweenDesc.ClearNextAnim();
 	return true;
+}
+
+bool ModelAnimator::TryCalculateLocalBounds(OUT BoundingBox& localBounds)
+{
+	Model* model = _model.Resolve();
+	return model != nullptr && model->TryGetLocalBounds(OUT localBounds);
 }
 
 // 좌표와 애니메이션을 한 쌍으로 추가한다.

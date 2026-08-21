@@ -31,6 +31,8 @@ public:
     }
 
 private:
+	virtual bool TryCalculateLocalBounds(OUT BoundingBox& localBounds) override;
+
 	ResourceRef<Mesh> _mesh;
     int _debugTriangleCount = -1;
 };

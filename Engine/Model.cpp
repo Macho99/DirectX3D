@@ -36,11 +36,53 @@ int Model::GetVersion() const
 void Model::BindCache()
 {
 	InvalidateAnimationTexture();
+	_localBoundsInitialized = false;
 
     ModelMeshResource* mesh = _mesh.Resolve();
     if (mesh == nullptr)
 		return;
     mesh->BindCacheInfo(_materials);
+}
+
+bool Model::TryGetLocalBounds(OUT BoundingBox& localBounds)
+{
+	if (_localBoundsInitialized == false)
+	{
+		_hasLocalBounds = false;
+
+		ModelMeshResource* meshResource = GetMesh();
+		if (meshResource != nullptr)
+		{
+			Vec3 minPosition(FLT_MAX, FLT_MAX, FLT_MAX);
+			Vec3 maxPosition(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+			for (const shared_ptr<ModelMesh>& mesh : meshResource->GetMeshes())
+			{
+				if (mesh == nullptr || mesh->geometry == nullptr)
+					continue;
+
+				for (const ModelVertexType& vertex : mesh->geometry->GetVertices())
+				{
+					minPosition = Vec3::Min(minPosition, vertex.position);
+					maxPosition = Vec3::Max(maxPosition, vertex.position);
+					_hasLocalBounds = true;
+				}
+			}
+
+			if (_hasLocalBounds)
+			{
+				_localBounds.Center = (minPosition + maxPosition) * 0.5f;
+				_localBounds.Extents = (maxPosition - minPosition) * 0.5f;
+			}
+		}
+
+		_localBoundsInitialized = true;
+	}
+
+	if (_hasLocalBounds == false)
+		return false;
+
+	localBounds = _localBounds;
+	return true;
 }
 
 bool Model::EnsureAnimationTexture()

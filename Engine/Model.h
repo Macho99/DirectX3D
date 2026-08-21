@@ -41,6 +41,7 @@ public:
 
 	void BindCache();
 	bool HasValidRenderResources() const;
+	bool TryGetLocalBounds(OUT BoundingBox& localBounds);
 	bool EnsureAnimationTexture();
 	void InvalidateAnimationTexture();
 	void ExtractAnimationRootPositionsAndEvents(const fs::path path);
@@ -94,6 +95,9 @@ private:
 	void CreateAnimationTransform(uint32 index);
 
 	// Runtime-only animation cache. Intentionally excluded from serialize().
+	BoundingBox _localBounds;
+	bool _hasLocalBounds = false;
+	bool _localBoundsInitialized = false;
 	vector<AnimTransform> _animTransforms;
 	vector<AssetId> _animationCacheAssetIds;
 	ComPtr<ID3D11Texture2D> _animationTransformTexture;

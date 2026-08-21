@@ -15,13 +15,11 @@ public:
 
 	bool SetModel(ResourceRef<Model> model);
 	ResourceRef<Model> GetModel() const { return _model; }
-	bool IsInFrustum(const Vec4 frustumPlanes[6]);
 
     virtual void RenderInstancing(class InstancingBuffer& buffer, RenderTech renderTech) override;
 
     virtual bool OnGUI() override;
     virtual void OnMenu() override;
-	virtual void OnEnable() override;
 	virtual bool TryInitialize() override;
     virtual void SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris) override;
     virtual AssetId GetMeshId() const override { return _model.GetAssetId(); }
@@ -37,14 +35,10 @@ public:
 
 private:
     void FoliageSetup();
-	void UpdateLocalBounds();
+	virtual bool TryCalculateLocalBounds(OUT BoundingBox& localBounds) override;
 
 private:
 	ResourceRef<Model>	_model;
-	BoundingBox _localBounds;
-	BoundingBox _worldBounds;
-	bool _hasLocalBounds = false;
-	bool _boundsInitialized = false;
 
     bool _initialized = false;
 };
