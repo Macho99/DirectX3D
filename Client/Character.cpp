@@ -88,3 +88,8 @@ void Character::PlayAnimation(int animationIndex)
         animator->PlayAnimation(animationIndex);
     }
 }
+
+void Character::SetHp(int hp)
+{
+    _curHp = hp;
+}

@@ -47,7 +47,7 @@ struct TableStruct_Struct_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[7]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[8]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -55,6 +55,9 @@ struct TableStruct_Struct_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Struct_2eproto;
 namespace Protocol {
+class AnimationData;
+struct AnimationDataDefaultTypeInternal;
+extern AnimationDataDefaultTypeInternal _AnimationData_default_instance_;
 class HealthData;
 struct HealthDataDefaultTypeInternal;
 extern HealthDataDefaultTypeInternal _HealthData_default_instance_;
@@ -78,6 +81,7 @@ struct Vec3DefaultTypeInternal;
 extern Vec3DefaultTypeInternal _Vec3_default_instance_;
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
+template<> ::Protocol::AnimationData* Arena::CreateMaybeMessage<::Protocol::AnimationData>(Arena*);
 template<> ::Protocol::HealthData* Arena::CreateMaybeMessage<::Protocol::HealthData>(Arena*);
 template<> ::Protocol::Input* Arena::CreateMaybeMessage<::Protocol::Input>(Arena*);
 template<> ::Protocol::Monster* Arena::CreateMaybeMessage<::Protocol::Monster>(Arena*);
@@ -590,6 +594,160 @@ class TransformData final :
 };
 // -------------------------------------------------------------------
 
+class AnimationData final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.AnimationData) */ {
+ public:
+  inline AnimationData() : AnimationData(nullptr) {}
+  ~AnimationData() override;
+  explicit constexpr AnimationData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  AnimationData(const AnimationData& from);
+  AnimationData(AnimationData&& from) noexcept
+    : AnimationData() {
+    *this = ::std::move(from);
+  }
+
+  inline AnimationData& operator=(const AnimationData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AnimationData& operator=(AnimationData&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const AnimationData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const AnimationData* internal_default_instance() {
+    return reinterpret_cast<const AnimationData*>(
+               &_AnimationData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(AnimationData& a, AnimationData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AnimationData* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(AnimationData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AnimationData* New() const final {
+    return new AnimationData();
+  }
+
+  AnimationData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AnimationData>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const AnimationData& from);
+  void MergeFrom(const AnimationData& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(AnimationData* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.AnimationData";
+  }
+  protected:
+  explicit AnimationData(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIdFieldNumber = 1,
+    kAnimationIndexFieldNumber = 2,
+    kIsDeadFieldNumber = 3,
+  };
+  // uint64 id = 1;
+  void clear_id();
+  ::PROTOBUF_NAMESPACE_ID::uint64 id() const;
+  void set_id(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_id() const;
+  void _internal_set_id(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
+  // uint32 animationIndex = 2;
+  void clear_animationindex();
+  ::PROTOBUF_NAMESPACE_ID::uint32 animationindex() const;
+  void set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_animationindex() const;
+  void _internal_set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // bool isDead = 3;
+  void clear_isdead();
+  bool isdead() const;
+  void set_isdead(bool value);
+  private:
+  bool _internal_isdead() const;
+  void _internal_set_isdead(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.AnimationData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 animationindex_;
+  bool isdead_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_Struct_2eproto;
+};
+// -------------------------------------------------------------------
+
 class HealthData final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.HealthData) */ {
  public:
@@ -634,7 +792,7 @@ class HealthData final :
                &_HealthData_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(HealthData& a, HealthData& b) {
     a.Swap(&b);
@@ -777,7 +935,7 @@ class Player final :
                &_Player_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(Player& a, Player& b) {
     a.Swap(&b);
@@ -965,7 +1123,7 @@ class Input final :
                &_Input_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(Input& a, Input& b) {
     a.Swap(&b);
@@ -1108,7 +1266,7 @@ class Monster final :
                &_Monster_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(Monster& a, Monster& b) {
     a.Swap(&b);
@@ -1644,6 +1802,70 @@ inline void TransformData::set_allocated_blendinput(::Protocol::Vec2* blendinput
 
 // -------------------------------------------------------------------
 
+// AnimationData
+
+// uint64 id = 1;
+inline void AnimationData::clear_id() {
+  id_ = uint64_t{0u};
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 AnimationData::_internal_id() const {
+  return id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 AnimationData::id() const {
+  // @@protoc_insertion_point(field_get:Protocol.AnimationData.id)
+  return _internal_id();
+}
+inline void AnimationData::_internal_set_id(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  id_ = value;
+}
+inline void AnimationData::set_id(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:Protocol.AnimationData.id)
+}
+
+// uint32 animationIndex = 2;
+inline void AnimationData::clear_animationindex() {
+  animationindex_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AnimationData::_internal_animationindex() const {
+  return animationindex_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AnimationData::animationindex() const {
+  // @@protoc_insertion_point(field_get:Protocol.AnimationData.animationIndex)
+  return _internal_animationindex();
+}
+inline void AnimationData::_internal_set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  animationindex_ = value;
+}
+inline void AnimationData::set_animationindex(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_animationindex(value);
+  // @@protoc_insertion_point(field_set:Protocol.AnimationData.animationIndex)
+}
+
+// bool isDead = 3;
+inline void AnimationData::clear_isdead() {
+  isdead_ = false;
+}
+inline bool AnimationData::_internal_isdead() const {
+  return isdead_;
+}
+inline bool AnimationData::isdead() const {
+  // @@protoc_insertion_point(field_get:Protocol.AnimationData.isDead)
+  return _internal_isdead();
+}
+inline void AnimationData::_internal_set_isdead(bool value) {
+  
+  isdead_ = value;
+}
+inline void AnimationData::set_isdead(bool value) {
+  _internal_set_isdead(value);
+  // @@protoc_insertion_point(field_set:Protocol.AnimationData.isDead)
+}
+
+// -------------------------------------------------------------------
+
 // HealthData
 
 // uint64 id = 1;
@@ -2158,6 +2380,8 @@ inline void Monster::set_allocated_health(::Protocol::HealthData* health) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

@@ -71,7 +71,7 @@ bool Handle_S_PLAYER_ANIMATION(PacketSessionRef& session, Protocol::S_PLAYER_ANI
 {
     auto Job = [pkt]()
         {
-            GM->OnPlayerAnimation(pkt.playerid(), pkt.animationindex());
+            GM->OnPlayerAnimation(pkt.animationdata());
         };
     GM->PushJob(Job);
     return true;
@@ -90,6 +90,19 @@ bool Handle_S_PLAYER_MOVE(PacketSessionRef& session, Protocol::S_PLAYER_MOVE& pk
 	GM->PushJob(Job);
 
 	return true;
+}
+
+bool Handle_S_PLAYER_HP_CHANGE(PacketSessionRef& session, Protocol::S_PLAYER_HP_CHANGE& pkt)
+{
+    auto Job = [pkt]()
+        {
+            for (int i = 0; i < pkt.healths_size(); i++)
+            {
+                GM->OnPlayerHpChange(pkt.healths(i));
+            }
+        };
+    GM->PushJob(Job);
+    return true;
 }
 
 bool Handle_S_MONSTER_SPAWN(PacketSessionRef& session, Protocol::S_MONSTER_SPAWN& pkt)
@@ -124,7 +137,7 @@ bool Handle_S_MONSTER_ANIMATION(PacketSessionRef& session, Protocol::S_MONSTER_A
 {
     auto Job = [pkt]()
         {
-            GM->OnMonsterAnimation(pkt.monsterid(), pkt.animationindex());
+            GM->OnMonsterAnimation(pkt.animationdata());
         };
 
     GM->PushJob(Job);
@@ -133,7 +146,28 @@ bool Handle_S_MONSTER_ANIMATION(PacketSessionRef& session, Protocol::S_MONSTER_A
 
 bool Handle_S_MONSTER_DESPAWN(PacketSessionRef& session, Protocol::S_MONSTER_DESPAWN& pkt)
 {
-	return true;
+    auto Job = [pkt]()
+        {
+            for (int i = 0; i < pkt.monsterids_size(); i++)
+            {
+                GM->OnMonsterDespawn(pkt.monsterids(i));
+            }
+        };
+    GM->PushJob(Job);
+    return true;
+}
+
+bool Handle_S_MONSTER_HP_CHANGE(PacketSessionRef& session, Protocol::S_MONSTER_HP_CHANGE& pkt)
+{
+    auto Job = [pkt]()
+        {
+            for (int i = 0; i < pkt.healths_size(); i++)
+            {
+                GM->OnMonsterHpChange(pkt.healths(i));
+            }
+        };
+    GM->PushJob(Job);
+    return true;
 }
 
 bool Handle_S_CHAT(PacketSessionRef& session, Protocol::S_CHAT& pkt)

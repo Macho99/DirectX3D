@@ -11,6 +11,7 @@ public:
     void EnsureAnimator();
     void UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity, Vec2 blendInput, bool updateImmediate);
     void PlayAnimation(int animationIndex);
+    void SetHp(int hp);
 
 private:
     ComponentRef<ModelAnimator> _animator;
@@ -24,5 +25,6 @@ private:
     float _yawRotationSpeed = 360.f;
     float _lastServerTime = 0.f;
 
+    int _curHp = 100;
     bool _debugIgnorePositionUpdate = false;
 };

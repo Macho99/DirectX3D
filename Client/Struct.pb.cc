@@ -60,6 +60,20 @@ struct TransformDataDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TransformDataDefaultTypeInternal _TransformData_default_instance_;
+constexpr AnimationData::AnimationData(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : id_(uint64_t{0u})
+  , animationindex_(0u)
+  , isdead_(false){}
+struct AnimationDataDefaultTypeInternal {
+  constexpr AnimationDataDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~AnimationDataDefaultTypeInternal() {}
+  union {
+    AnimationData _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AnimationDataDefaultTypeInternal _AnimationData_default_instance_;
 constexpr HealthData::HealthData(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : id_(uint64_t{0u})
@@ -116,7 +130,7 @@ struct MonsterDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MonsterDefaultTypeInternal _Monster_default_instance_;
 }  // namespace Protocol
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_Struct_2eproto[7];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_Struct_2eproto[8];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_Struct_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_Struct_2eproto = nullptr;
 
@@ -146,6 +160,14 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_Struct_2eproto::offsets[] PROT
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, yaw_),
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, velocity_),
   PROTOBUF_FIELD_OFFSET(::Protocol::TransformData, blendinput_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Protocol::AnimationData, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::Protocol::AnimationData, id_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::AnimationData, animationindex_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::AnimationData, isdead_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Protocol::HealthData, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -182,16 +204,18 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 0, -1, sizeof(::Protocol::Vec3)},
   { 8, -1, sizeof(::Protocol::Vec2)},
   { 15, -1, sizeof(::Protocol::TransformData)},
-  { 25, -1, sizeof(::Protocol::HealthData)},
-  { 32, -1, sizeof(::Protocol::Player)},
-  { 41, -1, sizeof(::Protocol::Input)},
-  { 48, -1, sizeof(::Protocol::Monster)},
+  { 25, -1, sizeof(::Protocol::AnimationData)},
+  { 33, -1, sizeof(::Protocol::HealthData)},
+  { 40, -1, sizeof(::Protocol::Player)},
+  { 49, -1, sizeof(::Protocol::Input)},
+  { 56, -1, sizeof(::Protocol::Monster)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_Vec3_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_Vec2_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_TransformData_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_AnimationData_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_HealthData_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_Player_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Protocol::_Input_default_instance_),
@@ -205,22 +229,24 @@ const char descriptor_table_protodef_Struct_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "mData\022\n\n\002id\030\001 \001(\004\022\033\n\003pos\030\002 \001(\0132\016.Protoco"
   "l.Vec3\022\013\n\003yaw\030\003 \001(\002\022 \n\010velocity\030\004 \001(\0132\016."
   "Protocol.Vec2\022\"\n\nblendInput\030\005 \001(\0132\016.Prot"
-  "ocol.Vec2\"$\n\nHealthData\022\n\n\002id\030\001 \001(\004\022\n\n\002h"
-  "p\030\002 \001(\005\"t\n\006Player\022\n\n\002id\030\001 \001(\004\022\014\n\004name\030\002 "
-  "\001(\t\022*\n\ttransform\030\003 \001(\0132\027.Protocol.Transf"
-  "ormData\022$\n\006health\030\004 \001(\0132\024.Protocol.Healt"
-  "hData\"&\n\005Input\022\017\n\007keyType\030\001 \001(\005\022\014\n\004down\030"
-  "\002 \001(\010\"g\n\007Monster\022\n\n\002id\030\001 \001(\004\022*\n\ttransfor"
-  "m\030\002 \001(\0132\027.Protocol.TransformData\022$\n\006heal"
-  "th\030\003 \001(\0132\024.Protocol.HealthDatab\006proto3"
+  "ocol.Vec2\"C\n\rAnimationData\022\n\n\002id\030\001 \001(\004\022\026"
+  "\n\016animationIndex\030\002 \001(\r\022\016\n\006isDead\030\003 \001(\010\"$"
+  "\n\nHealthData\022\n\n\002id\030\001 \001(\004\022\n\n\002hp\030\002 \001(\005\"t\n\006"
+  "Player\022\n\n\002id\030\001 \001(\004\022\014\n\004name\030\002 \001(\t\022*\n\ttran"
+  "sform\030\003 \001(\0132\027.Protocol.TransformData\022$\n\006"
+  "health\030\004 \001(\0132\024.Protocol.HealthData\"&\n\005In"
+  "put\022\017\n\007keyType\030\001 \001(\005\022\014\n\004down\030\002 \001(\010\"g\n\007Mo"
+  "nster\022\n\n\002id\030\001 \001(\004\022*\n\ttransform\030\002 \001(\0132\027.P"
+  "rotocol.TransformData\022$\n\006health\030\003 \001(\0132\024."
+  "Protocol.HealthDatab\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_Struct_2eproto_deps[1] = {
   &::descriptor_table_Enum_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Struct_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Struct_2eproto = {
-  false, false, 558, descriptor_table_protodef_Struct_2eproto, "Struct.proto", 
-  &descriptor_table_Struct_2eproto_once, descriptor_table_Struct_2eproto_deps, 1, 7,
+  false, false, 627, descriptor_table_protodef_Struct_2eproto, "Struct.proto", 
+  &descriptor_table_Struct_2eproto_once, descriptor_table_Struct_2eproto_deps, 1, 8,
   schemas, file_default_instances, TableStruct_Struct_2eproto::offsets,
   file_level_metadata_Struct_2eproto, file_level_enum_descriptors_Struct_2eproto, file_level_service_descriptors_Struct_2eproto,
 };
@@ -1040,6 +1066,252 @@ void TransformData::InternalSwap(TransformData* other) {
 
 // ===================================================================
 
+class AnimationData::_Internal {
+ public:
+};
+
+AnimationData::AnimationData(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:Protocol.AnimationData)
+}
+AnimationData::AnimationData(const AnimationData& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&id_, &from.id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&isdead_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(isdead_));
+  // @@protoc_insertion_point(copy_constructor:Protocol.AnimationData)
+}
+
+void AnimationData::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&isdead_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(isdead_));
+}
+
+AnimationData::~AnimationData() {
+  // @@protoc_insertion_point(destructor:Protocol.AnimationData)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void AnimationData::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void AnimationData::ArenaDtor(void* object) {
+  AnimationData* _this = reinterpret_cast< AnimationData* >(object);
+  (void)_this;
+}
+void AnimationData::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void AnimationData::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void AnimationData::Clear() {
+// @@protoc_insertion_point(message_clear_start:Protocol.AnimationData)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&isdead_) -
+      reinterpret_cast<char*>(&id_)) + sizeof(isdead_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* AnimationData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 animationIndex = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          animationindex_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool isDead = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          isdead_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* AnimationData::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Protocol.AnimationData)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 id = 1;
+  if (this->id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(1, this->_internal_id(), target);
+  }
+
+  // uint32 animationIndex = 2;
+  if (this->animationindex() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_animationindex(), target);
+  }
+
+  // bool isDead = 3;
+  if (this->isdead() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(3, this->_internal_isdead(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Protocol.AnimationData)
+  return target;
+}
+
+size_t AnimationData::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Protocol.AnimationData)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // uint64 id = 1;
+  if (this->id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_id());
+  }
+
+  // uint32 animationIndex = 2;
+  if (this->animationindex() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_animationindex());
+  }
+
+  // bool isDead = 3;
+  if (this->isdead() != 0) {
+    total_size += 1 + 1;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void AnimationData::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:Protocol.AnimationData)
+  GOOGLE_DCHECK_NE(&from, this);
+  const AnimationData* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<AnimationData>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Protocol.AnimationData)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Protocol.AnimationData)
+    MergeFrom(*source);
+  }
+}
+
+void AnimationData::MergeFrom(const AnimationData& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Protocol.AnimationData)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.id() != 0) {
+    _internal_set_id(from._internal_id());
+  }
+  if (from.animationindex() != 0) {
+    _internal_set_animationindex(from._internal_animationindex());
+  }
+  if (from.isdead() != 0) {
+    _internal_set_isdead(from._internal_isdead());
+  }
+}
+
+void AnimationData::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:Protocol.AnimationData)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void AnimationData::CopyFrom(const AnimationData& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Protocol.AnimationData)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool AnimationData::IsInitialized() const {
+  return true;
+}
+
+void AnimationData::InternalSwap(AnimationData* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(AnimationData, isdead_)
+      + sizeof(AnimationData::isdead_)
+      - PROTOBUF_FIELD_OFFSET(AnimationData, id_)>(
+          reinterpret_cast<char*>(&id_),
+          reinterpret_cast<char*>(&other->id_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata AnimationData::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_Struct_2eproto_getter, &descriptor_table_Struct_2eproto_once,
+      file_level_metadata_Struct_2eproto[3]);
+}
+
+// ===================================================================
+
 class HealthData::_Internal {
  public:
 };
@@ -1260,7 +1532,7 @@ void HealthData::InternalSwap(HealthData* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata HealthData::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_Struct_2eproto_getter, &descriptor_table_Struct_2eproto_once,
-      file_level_metadata_Struct_2eproto[3]);
+      file_level_metadata_Struct_2eproto[4]);
 }
 
 // ===================================================================
@@ -1580,7 +1852,7 @@ void Player::InternalSwap(Player* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata Player::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_Struct_2eproto_getter, &descriptor_table_Struct_2eproto_once,
-      file_level_metadata_Struct_2eproto[4]);
+      file_level_metadata_Struct_2eproto[5]);
 }
 
 // ===================================================================
@@ -1803,7 +2075,7 @@ void Input::InternalSwap(Input* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata Input::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_Struct_2eproto_getter, &descriptor_table_Struct_2eproto_once,
-      file_level_metadata_Struct_2eproto[5]);
+      file_level_metadata_Struct_2eproto[6]);
 }
 
 // ===================================================================
@@ -2081,7 +2353,7 @@ void Monster::InternalSwap(Monster* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata Monster::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_Struct_2eproto_getter, &descriptor_table_Struct_2eproto_once,
-      file_level_metadata_Struct_2eproto[6]);
+      file_level_metadata_Struct_2eproto[7]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -2095,6 +2367,9 @@ template<> PROTOBUF_NOINLINE ::Protocol::Vec2* Arena::CreateMaybeMessage< ::Prot
 }
 template<> PROTOBUF_NOINLINE ::Protocol::TransformData* Arena::CreateMaybeMessage< ::Protocol::TransformData >(Arena* arena) {
   return Arena::CreateMessageInternal< ::Protocol::TransformData >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Protocol::AnimationData* Arena::CreateMaybeMessage< ::Protocol::AnimationData >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Protocol::AnimationData >(arena);
 }
 template<> PROTOBUF_NOINLINE ::Protocol::HealthData* Arena::CreateMaybeMessage< ::Protocol::HealthData >(Arena* arena) {
   return Arena::CreateMessageInternal< ::Protocol::HealthData >(arena);

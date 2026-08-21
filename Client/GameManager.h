@@ -32,10 +32,15 @@ public:
     void OnOtherPlayerEnter(Protocol::Player otherPlayer);
     void OnOtherPlayerExit(uint64 otherPlayerId);
     void OnMovePlayer(Protocol::TransformData playerMove);
+    void OnPlayerAnimation(Protocol::AnimationData animationData);
+    void OnPlayerHpChange(Protocol::HealthData healthData);
+
     void OnMoveMonster(Protocol::TransformData monsterMove);
-    void OnPlayerAnimation(uint64 playerId, int32 animIdx);
     void OnMonsterSpawn(Protocol::Monster monster);
-    void OnMonsterAnimation(uint64 monsterId, int32 animIdx);
+    void OnMonsterAnimation(Protocol::AnimationData animationData);
+    void OnMonsterHpChange(Protocol::HealthData healthData);
+    void OnMonsterDespawn(uint64 monsterId);
+
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
     virtual int GetVersion() const override { return 5; }

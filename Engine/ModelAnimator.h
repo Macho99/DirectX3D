@@ -57,6 +57,8 @@ public:
     void PlayAnimation(string animName);
 	bool TryGetModelSocketWorldMatrix(const string& socketName, OUT Matrix& worldMatrix);
 
+	bool isDead = false;
+
     virtual bool OnGUI() override;
     virtual bool TryInitialize() override;
 	virtual void OnInspectorFocusLost() override;

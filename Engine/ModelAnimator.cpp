@@ -127,11 +127,15 @@ void ModelAnimator::Awake()
 
 void ModelAnimator::Update()
 {
+	// 사망한 뒤에는 이미 예약된 블렌드 스페이스 전환도 실행하지 않는다.
+	if (isDead && _tweenDesc.next.isBlendSpace)
+		_tweenDesc.ClearNextAnim();
+
     const TweenDesc prevTweenDesc = _tweenDesc;
 	UpdateTweenData();
 	UpdateRootMotion(prevTweenDesc);
 
-	if (_tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
+	if (!isDead && _tweenDesc.cur.HasAnimation() && _tweenDesc.cur.isBlendSpace == false)
 	{
 		float leftTime = GetLeftTime(_tweenDesc.cur.animations[0]);
 		if (leftTime < _tweenDesc.tweenDuration && _tweenDesc.next.HasAnimation() == false)
@@ -397,6 +401,7 @@ bool ModelAnimator::OnGUI()
     ImGui::Separator();
 
 	changed |= OnGUIUtils::DrawFloat("Anim Speed", &_tweenDesc.speed, 0.1f);
+	changed |= OnGUIUtils::DrawBool("Is Dead", &isDead);
 
 	Model* model = _model.Resolve();
 	if (model != nullptr && model->GetAnimationCount() > 0)
@@ -1025,11 +1030,30 @@ void ModelAnimator::UpdateRegularKeyframe(KeyframeDesc& keyframe)
 	const uint32 prevFrame = frame.curFrame;
 	const bool animationStarted = frame.curFrame == 0 && frame.nextFrame == 0;
 	const float duration = animation->GetFrameCount() / animation->GetFrameRate();
-	keyframe.sumTime = fmod(keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f), duration);
+	const float nextTime = keyframe.sumTime + DT * max(_tweenDesc.speed, 0.f);
+	if (isDead)
+	{
+		// 마지막 프레임에서 멈춰 사망 애니메이션이 반복되지 않게 한다.
+		const float lastFrameTime = (animation->GetFrameCount() - 1) / animation->GetFrameRate();
+		keyframe.sumTime = min(nextTime, lastFrameTime);
+	}
+	else
+	{
+		keyframe.sumTime = fmod(nextTime, duration);
+	}
 	const float framePosition = keyframe.sumTime * animation->GetFrameRate();
-	frame.curFrame = static_cast<uint32>(framePosition) % animation->GetFrameCount();
-	frame.nextFrame = (frame.curFrame + 1) % animation->GetFrameCount();
-	frame.ratio = framePosition - floor(framePosition);
+	if (isDead && keyframe.sumTime >= (animation->GetFrameCount() - 1) / animation->GetFrameRate())
+	{
+		frame.curFrame = animation->GetFrameCount() - 1;
+		frame.nextFrame = frame.curFrame;
+		frame.ratio = 0.f;
+	}
+	else
+	{
+		frame.curFrame = static_cast<uint32>(framePosition) % animation->GetFrameCount();
+		frame.nextFrame = (frame.curFrame + 1) % animation->GetFrameCount();
+		frame.ratio = framePosition - floor(framePosition);
+	}
 
 	for (const AnimationEvent& animationEvent : animation->GetAnimationEvents())
 	{

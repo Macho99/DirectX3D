@@ -254,8 +254,11 @@ void GameManager::OnMoveMonster(Protocol::TransformData monsterMove)
     UpdateServerTransform(monster, monsterMove);
 }
 
-void GameManager::OnPlayerAnimation(uint64 playerId, int32 animIdx)
+void GameManager::OnPlayerAnimation(Protocol::AnimationData animationData)
 {
+    uint64 playerId = animationData.id();
+    int32 animIdx = animationData.animationindex();
+
     auto it = _players.find(playerId);
     if (it == _players.end())
     {
@@ -265,6 +268,21 @@ void GameManager::OnPlayerAnimation(uint64 playerId, int32 animIdx)
 
     Player* player = it->second.Resolve();
     player->PlayAnimation(animIdx);
+}
+
+void GameManager::OnPlayerHpChange(Protocol::HealthData healthData)
+{
+    uint64 playerId = healthData.id();
+    int32 hp = healthData.hp();
+
+    auto it = _players.find(playerId);
+    if (it == _players.end())
+    {
+        DBG->LogError("Player ID %llu not found in _players map.", playerId);
+        return;
+    }
+    Player* player = it->second.Resolve();
+    player->SetHp(hp);
 }
 
 void GameManager::OnMonsterSpawn(Protocol::Monster monster)
@@ -282,8 +300,11 @@ void GameManager::OnMonsterSpawn(Protocol::Monster monster)
     _monsters[monster.id()] = zombie;
 }
 
-void GameManager::OnMonsterAnimation(uint64 monsterId, int32 animIdx)
+void GameManager::OnMonsterAnimation(Protocol::AnimationData animationData)
 {
+    uint64 monsterId = animationData.id();
+    int32 animIdx = animationData.animationindex();
+
     DBG->Log("Monster ID %llu playing animation index %d", monsterId, animIdx);
     auto it = _monsters.find(monsterId);
     if (it == _monsters.end())
@@ -293,6 +314,34 @@ void GameManager::OnMonsterAnimation(uint64 monsterId, int32 animIdx)
     }
     Zombie* monster = it->second.Resolve();
     monster->PlayAnimation(animIdx);
+}
+
+void GameManager::OnMonsterHpChange(Protocol::HealthData healthData)
+{
+    uint64 monsterId = healthData.id();
+    int32 hp = healthData.hp();
+
+    auto it = _monsters.find(monsterId);
+    if (it == _monsters.end())
+    {
+        DBG->LogError("Monster ID %llu not found in _monsters map.", monsterId);
+        return;
+    }
+    Zombie* monster = it->second.Resolve();
+    monster->SetHp(hp);
+    DBG->Log("Monster ID %llu HP changed to %d", monsterId, hp);
+}
+
+void GameManager::OnMonsterDespawn(uint64 monsterId)
+{
+    auto it = _monsters.find(monsterId);
+    if (it == _monsters.end())
+    {
+        DBG->LogError("Monster ID %llu not found in _monsters map.", monsterId);
+        return;
+    }
+    CUR_SCENE->Remove(it->second.Resolve()->GetGameObjectRef());
+    _monsters.erase(it);
 }
 
 void GameManager::OnDisconnect()
