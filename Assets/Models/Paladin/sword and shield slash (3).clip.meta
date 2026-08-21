@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 4,
+                "_version": 5,
                 "_assetId": {
                     "leftId": 8889599600233782581,
                     "rightId": 17271191545524664639
@@ -17,7 +17,8 @@
                     "applyRootPositionY": false,
                     "applyRootRotation": false,
                     "isDeadAnimation": false,
-                    "nextComboName": "sword and shield kick"
+                    "nextComboName": "sword and shield kick",
+                    "animationSpeed": 1.2999999523162842
                 },
                 "animationEvents": [
                     {
@@ -30,8 +31,8 @@
                     {
                         "eventName": "AttackDamage",
                         "boolParam": false,
-                        "intParam": 0,
-                        "floatParam": 0.0,
+                        "intParam": 30,
+                        "floatParam": 150.0,
                         "frame": 25
                     },
                     {

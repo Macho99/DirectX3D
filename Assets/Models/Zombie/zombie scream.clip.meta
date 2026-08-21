@@ -1,0 +1,42 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "AnimationMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 5,
+                "_assetId": {
+                    "leftId": 13015987591648201169,
+                    "rightId": 2476050831238262203
+                },
+                "_resourceType": 4,
+                "clipImportSetting": {
+                    "extractRootMotion": false,
+                    "applyRootPositionXZ": false,
+                    "applyRootPositionY": false,
+                    "applyRootRotation": false,
+                    "isDeadAnimation": false,
+                    "nextComboName": "",
+                    "animationSpeed": 1.0
+                },
+                "animationEvents": [
+                    {
+                        "eventName": "Scream",
+                        "boolParam": true,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 27
+                    },
+                    {
+                        "eventName": "Scream",
+                        "boolParam": false,
+                        "intParam": 0,
+                        "floatParam": 0.0,
+                        "frame": 60
+                    }
+                ]
+            }
+        }
+    }
+}

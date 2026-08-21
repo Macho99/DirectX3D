@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 4,
+                "_version": 5,
                 "_assetId": {
                     "leftId": 3252469484928228176,
                     "rightId": 8322750618031959311
@@ -17,7 +17,8 @@
                     "applyRootPositionY": false,
                     "applyRootRotation": false,
                     "isDeadAnimation": false,
-                    "nextComboName": "sword and shield slash (3)"
+                    "nextComboName": "sword and shield slash (3)",
+                    "animationSpeed": 1.2000000476837159
                 },
                 "animationEvents": [
                     {

@@ -5,7 +5,7 @@
         "ptr_wrapper": {
             "valid": 1,
             "data": {
-                "_version": 4,
+                "_version": 5,
                 "_assetId": {
                     "leftId": 4886599198819718412,
                     "rightId": 2555869478799571050
@@ -17,14 +17,15 @@
                     "applyRootPositionY": false,
                     "applyRootRotation": false,
                     "isDeadAnimation": false,
-                    "nextComboName": "sword and shield attack (3)"
+                    "nextComboName": "sword and shield attack (3)",
+                    "animationSpeed": 1.0
                 },
                 "animationEvents": [
                     {
                         "eventName": "AttackDamage",
                         "boolParam": false,
                         "intParam": 20,
-                        "floatParam": 0.0,
+                        "floatParam": 60.0,
                         "frame": 14
                     }
                 ]

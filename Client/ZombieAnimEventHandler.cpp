@@ -3,12 +3,21 @@
 #include "AnimationImportSetting.h"
 #include "TrailRenderer.h"
 #include "ModelAnimator.h"
+#include "MeshRenderer.h"
+#include "ModelSocketFollower.h"
 
 void ZombieAnimEventHandler::Start()
 {
     TrailRenderer* trailRenderer = GetGameObject()->GetComponentInChildren<TrailRenderer>();
     ASSERT(trailRenderer != nullptr, "TrailRenderer is null");
     _trailRenderer = trailRenderer;
+
+    MeshRenderer* screamRenderer = GetGameObject()->GetComponentInChildren<MeshRenderer>();
+    ASSERT(screamRenderer != nullptr, "Scream MeshRenderer is null");
+    _screamRenderer = screamRenderer;
+
+    screamRenderer->GetGameObject()->GetComponent<ModelSocketFollower>()->SetModelAnimator(GetGameObject()->GetModelAnimator());
+    screamRenderer->GetGameObject()->SetActive(false);
 
     ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\TrailMat.mat");
     trailRenderer->SetMaterial(materialRef);
@@ -28,6 +37,12 @@ void ZombieAnimEventHandler::Update()
         {
             _trailUpdateTime = FLT_MAX;
             _trailAnimationIndex = -1;
+
+            MeshRenderer* screamRenderer = _screamRenderer.Resolve();
+            if (screamRenderer != nullptr)
+            {
+                screamRenderer->GetGameObject()->SetActive(false);
+            }
         }
     }
 
@@ -36,7 +51,15 @@ void ZombieAnimEventHandler::Update()
 
 void ZombieAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEvent)
 {
-    if (animationEvent.eventName != "Attack")
+    if (animationEvent.eventName == "Scream")
+    {
+        MeshRenderer* screamRenderer = _screamRenderer.Resolve();
+        if (screamRenderer != nullptr)
+        {
+            screamRenderer->GetGameObject()->SetActive(animationEvent.boolParam);
+        }
+    }
+    else if (animationEvent.eventName != "Attack")
         return;
 
     TrailRenderer* trailRenderer = _trailRenderer.Resolve();
