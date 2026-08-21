@@ -16,6 +16,21 @@ void PlayerAnimEventHandler::Start()
 
 void PlayerAnimEventHandler::Update()
 {
+    ModelAnimator* animator = GetGameObject()->GetModelAnimator();
+    if (_trailUpdateTime != FLT_MAX && animator != nullptr)
+    {
+        const TweenDesc& tweenDesc = animator->GetTweenDesc();
+        int32 animationIndex = tweenDesc.cur.GetSingleAnimationIndex();
+        if (tweenDesc.next.HasAnimation())
+            animationIndex = tweenDesc.next.GetSingleAnimationIndex();
+
+        if (animationIndex != _trailAnimationIndex)
+        {
+            _trailUpdateTime = FLT_MAX;
+            _trailAnimationIndex = -1;
+        }
+    }
+
     UpdateTrailRenderer();
 }
 
@@ -29,10 +44,20 @@ void PlayerAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEve
     {
         trailRenderer->ClearPoints();
         _trailUpdateTime = TIME->GetGameTime();
+
+        ModelAnimator* animator = GetGameObject()->GetModelAnimator();
+        if (animator != nullptr)
+        {
+            const TweenDesc& tweenDesc = animator->GetTweenDesc();
+            _trailAnimationIndex = tweenDesc.next.GetSingleAnimationIndex();
+            if (_trailAnimationIndex < 0)
+                _trailAnimationIndex = tweenDesc.cur.GetSingleAnimationIndex();
+        }
     }
     else
     {
         _trailUpdateTime = FLT_MAX;
+        _trailAnimationIndex = -1;
     }
 
     UpdateTrailRenderer(true);

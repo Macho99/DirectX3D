@@ -8,6 +8,7 @@ struct AnimationClipImportSetting
     bool applyRootPositionY = false;
     bool applyRootRotation = false;
     bool isDeadAnimation = false;
+    string nextComboName = "";
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -22,6 +23,11 @@ struct AnimationClipImportSetting
         if (version >= 3)
         {
             ar(CEREAL_NVP(isDeadAnimation));
+        }
+
+        if (version >= 4)
+        {
+            ar(CEREAL_NVP(nextComboName));
         }
     }
 

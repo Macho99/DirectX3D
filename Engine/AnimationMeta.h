@@ -12,7 +12,7 @@ public:
     virtual unique_ptr<ResourceBase> LoadResource(AssetId assetId) const override;
     virtual bool OnGUI() override;
     virtual int GetImportVersion() const override;
-    virtual int GetSerializeVersion() const override { return 3; }
+    virtual int GetSerializeVersion() const override { return 4; }
 
     template<class Archive>
     void serialize(Archive& ar)
