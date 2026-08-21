@@ -2,8 +2,11 @@
 #include "Renderer.h"
 #include "TerrainData.h"
 #include "Event.h"
+#include "cereal/types/utility.hpp"
+#include "cereal/types/vector.hpp"
 class Material;
 class Texture;
+class Model;
 
 class TessTerrain : public Renderer
 {
@@ -16,11 +19,12 @@ public:
 		RaiseLower,
 		Smooth,
 		Texture,
+		Model,
 	};
 
 	TessTerrain();
 	~TessTerrain();
-	virtual int GetVersion() const override { return 1; }
+	virtual int GetVersion() const override { return 2; }
 
 	float GetWidth() const;
 	float GetDepth() const;
@@ -58,6 +62,8 @@ public:
 		ar(CEREAL_NVP(_brushStrength));
 		if (Archive::is_saving::value || _version >= 1)
 			ar(CEREAL_NVP(_positionOffset));
+		if (Archive::is_saving::value || _version >= 2)
+			ar(CEREAL_NVP(_instanceModels));
 	}
 
 private:
@@ -75,6 +81,9 @@ private:
 	bool SaveBlendmap();
 
 	float SampleBrush(const DirectX::Image* brushImage, float u, float v);
+	Transform* GetOrCreateModelParent(const ResourceRef<Model>& model);
+	bool PlaceModel(const ResourceRef<Model>& model, const Vec3& scale, const Vec3& terrainLocalPosition);
+	bool RemoveModels(const Vec3& terrainLocalPosition, float radius);
 
 public:
 	Event<> OnHeightmapChanged;
@@ -106,6 +115,8 @@ private:
 	float _brushStrength = 5.f;
 	Vec3 _positionOffset = Vec3::Zero;
 	BlendLayer _selectedBlendLayer = BlendLayer::Layer0;
+	vector<pair<ResourceRef<Model>, Vec3>> _instanceModels;
+	int32 _selectedInstanceModel = 0;
 
 	TerrainDesc _terrainDesc;
 

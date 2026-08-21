@@ -8,6 +8,14 @@
 #include "MathLibrary/MathUtils.h"
 #include "Camera.h"
 #include "OnGUIUtils.h"
+#include "Model.h"
+#include "ModelRenderer.h"
+#include "Scene.h"
+
+namespace
+{
+	const string TerrainModelParentPrefix = "__TessTerrainModel_";
+}
 
 TessTerrain::TessTerrain() : Super(StaticType)
 {
@@ -201,6 +209,8 @@ bool TessTerrain::OnGUI()
 	OnGUIUtils::DrawEnableButton("Smooth", _editMode, EditMode::Smooth, EditMode::None);
     ImGui::SameLine();
 	OnGUIUtils::DrawEnableButton("Texture", _editMode, EditMode::Texture, EditMode::None);
+	ImGui::SameLine();
+	OnGUIUtils::DrawEnableButton("Model", _editMode, EditMode::Model, EditMode::None);
 	ImGui::Spacing();
 
 	TerrainData* terrainData = _terrainData.Resolve();
@@ -241,6 +251,33 @@ bool TessTerrain::OnGUI()
 		ImGui::NewLine();
 		ImGui::Text("Selected Texture: %s", selectedTextureName.c_str());
 	}
+	else if (_editMode == EditMode::Model)
+	{
+		uint32 modelCount = static_cast<uint32>(_instanceModels.size());
+		if (OnGUIUtils::DrawUInt32("Model Count", &modelCount, 1.0f, false))
+		{
+			while (_instanceModels.size() < modelCount)
+				_instanceModels.emplace_back(ResourceRef<Model>(), Vec3::One);
+			_instanceModels.resize(modelCount);
+			_selectedInstanceModel = std::clamp(_selectedInstanceModel, 0, max(0, static_cast<int32>(modelCount) - 1));
+			changed = true;
+		}
+
+		for (int32 i = 0; i < static_cast<int32>(_instanceModels.size()); ++i)
+		{
+			ImGui::PushID(i);
+			if (ImGui::RadioButton("##SelectedModel", _selectedInstanceModel == i))
+				_selectedInstanceModel = i;
+			ImGui::SameLine();
+			ImGui::Text("Model %d", i);
+			changed |= OnGUIUtils::DrawResourceRef("Model", _instanceModels[i].first, false);
+			changed |= OnGUIUtils::DrawVec3("Scale", &_instanceModels[i].second, 0.01f, false);
+			ImGui::Separator();
+			ImGui::PopID();
+		}
+
+		ImGui::TextUnformatted("Click terrain to place. Shift + Click to erase nearby models.");
+	}
 
 	changed |= OnGUIUtils::DrawResourceRef("Brush", _brushTexture, false);
 	changed |= OnGUIUtils::DrawFloat("Brush Radius", &_brushRadius, 1.0f, false);
@@ -264,7 +301,8 @@ bool TessTerrain::OnGUI()
 	}
 
 	bool curHeightmapEditing = false;
-	if (_terrainDesc.brushRadius > 0.01f)
+	if (_terrainDesc.brushRadius > 0.01f &&
+		(_editMode == EditMode::RaiseLower || _editMode == EditMode::Smooth || _editMode == EditMode::Texture))
 	{
 		int directionY = 0;
 		if (INPUT->GetButton(KEY_TYPE::LBUTTON))
@@ -399,6 +437,26 @@ bool TessTerrain::OnGUI()
 
 	_prevHeightmapEditing = curHeightmapEditing;
 
+	if (_editMode == EditMode::Model && INPUT->IsMouseInScene() && INPUT->GetButtonDown(KEY_TYPE::LBUTTON))
+	{
+		POINT mousePos = INPUT->GetMousePos();
+		Vec3 pickPos;
+		float distance = 0.0f;
+		if (Pick(mousePos.x, mousePos.y, OUT pickPos, OUT distance))
+		{
+			pickPos.y = GetHeight(pickPos.x, pickPos.z);
+			if (INPUT->GetButton(KEY_TYPE::LSHIFT) || INPUT->GetButtonDown(KEY_TYPE::LSHIFT))
+			{
+				changed |= RemoveModels(pickPos, _brushRadius);
+			}
+			else if (_selectedInstanceModel >= 0 && _selectedInstanceModel < static_cast<int32>(_instanceModels.size()))
+			{
+				auto& [model, scale] = _instanceModels[_selectedInstanceModel];
+				changed |= PlaceModel(model, scale, pickPos);
+			}
+		}
+	}
+
     changed |= OnGUIUtils::DrawUInt32("Triangle Cell Size", &_triCellSize, 1.f);
     changed |= OnGUIUtils::DrawBool("Submit Triangles Always", &_submitTrianglesAlways);
 
@@ -447,6 +505,84 @@ bool TessTerrain::OnGUI()
 	}
 
     return changed;
+}
+
+Transform* TessTerrain::GetOrCreateModelParent(const ResourceRef<Model>& model)
+{
+	const AssetId modelAssetId = model.GetAssetId();
+	if (modelAssetId.IsValid() == false)
+		return nullptr;
+
+	const string parentName = TerrainModelParentPrefix + modelAssetId.ToString();
+	for (const TransformRef& childRef : GetTransform()->GetChildren())
+	{
+		Transform* child = childRef.Resolve();
+		if (child != nullptr && child->GetGameObject()->GetName() == parentName)
+			return child;
+	}
+
+	GameObjectRef parentRef = CUR_SCENE->Add(parentName, GetTransform());
+	GameObject* parent = parentRef.Resolve();
+	return parent != nullptr ? parent->GetTransform() : nullptr;
+}
+
+bool TessTerrain::PlaceModel(const ResourceRef<Model>& model, const Vec3& scale, const Vec3& terrainLocalPosition)
+{
+	Model* modelPtr = model.Resolve();
+	if (modelPtr == nullptr)
+		return false;
+
+	Transform* parent = GetOrCreateModelParent(model);
+	if (parent == nullptr)
+		return false;
+
+	GameObjectRef instanceRef = CUR_SCENE->Add(modelPtr->GetStringName(), parent);
+	GameObject* instance = instanceRef.Resolve();
+	if (instance == nullptr)
+		return false;
+
+	instance->GetTransform()->SetLocalPosition(terrainLocalPosition);
+	instance->GetTransform()->SetLocalScale(scale);
+	ModelRenderer* modelRenderer = instance->AddComponent<ModelRenderer>();
+	if (modelRenderer == nullptr || modelRenderer->SetModel(model) == false)
+	{
+		CUR_SCENE->Remove(instanceRef);
+		return false;
+	}
+
+	return true;
+}
+
+bool TessTerrain::RemoveModels(const Vec3& terrainLocalPosition, float radius)
+{
+	const float radiusSquared = radius * radius;
+	const Matrix worldToTerrain = GetTransform()->GetWorldMatrix().Invert();
+	vector<GameObjectRef> removeList;
+
+	for (const TransformRef& parentRef : GetTransform()->GetChildren())
+	{
+		Transform* parent = parentRef.Resolve();
+		if (parent == nullptr || parent->GetGameObject()->GetName().rfind(TerrainModelParentPrefix, 0) != 0)
+			continue;
+
+		for (const TransformRef& childRef : parent->GetChildren())
+		{
+			Transform* child = childRef.Resolve();
+			if (child == nullptr || child->GetGameObject()->GetModelRenderer() == nullptr)
+				continue;
+
+			const Vec3 childTerrainPosition = Vec3::Transform(child->GetPosition(), worldToTerrain);
+			const float deltaX = childTerrainPosition.x - terrainLocalPosition.x;
+			const float deltaZ = childTerrainPosition.z - terrainLocalPosition.z;
+			if (deltaX * deltaX + deltaZ * deltaZ <= radiusSquared)
+				removeList.push_back(child->GetGameObjectRef());
+		}
+	}
+
+	for (const GameObjectRef& gameObjectRef : removeList)
+		CUR_SCENE->Remove(gameObjectRef);
+
+	return removeList.empty() == false;
 }
 
 void TessTerrain::SubmitTriangles(const Bounds& explicitBounds, vector<InputTri>& tris)

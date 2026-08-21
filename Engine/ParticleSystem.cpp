@@ -45,7 +45,7 @@ void ParticleSystem::Update()
 	switch (_mode)
 	{
 	case ParticleSystemMode::Loop:
-		Reset();
+		//Reset();
 		break;
 	case ParticleSystemMode::Disable:
 		GetGameObject()->SetActive(false);
