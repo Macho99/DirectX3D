@@ -36,6 +36,7 @@ public:
     void OnMovePlayer(Protocol::TransformData playerMove);
     void OnPlayerAnimation(Protocol::AnimationData animationData);
     void OnPlayerHpChange(Protocol::HealthData healthData);
+    void OnMyPlayerStatChange(Protocol::StatData statData);
 
     void OnMoveMonster(Protocol::TransformData monsterMove);
     void OnMonsterSpawn(Protocol::Monster monster);
@@ -45,7 +46,7 @@ public:
 
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 9; }
+    virtual int GetVersion() const override { return 10; }
 
     void PushJob(function<void(void)> func);
     GameState GetGameState() const { return _gameState; }
@@ -114,10 +115,17 @@ public:
             ar(CEREAL_NVP(_spBar));
             ar(CEREAL_NVP(_coinText));
         }
+
+        if (_version >= 10)
+        {
+            ar(CEREAL_NVP(_hpBarText));
+            ar(CEREAL_NVP(_mpBarText));
+            ar(CEREAL_NVP(_coinIcon));
+        }
     }
 
 private:
-    void SpawnHpChangeParticle(Transform* target);
+    void SpawnBloodParticle(Transform* target);
 
     inline static GameManager* _instance = nullptr;
 
@@ -150,9 +158,12 @@ private:
     GameObjectRef _shopObj;
 
     ComponentRef<RectTransform> _hpBar;
+    ComponentRef<Text> _hpBarText;
     ComponentRef<RectTransform> _mpBar;
+    ComponentRef<Text> _mpBarText;
     ComponentRef<RectTransform> _spBar;
     ComponentRef<Text> _coinText;
+    ComponentRef<UIImage> _coinIcon;
 };
 
 #define GM GameManager::GetInstance()

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TweenManager.h"
 #include "Transform.h"
+#include "UIImage.h"
 
 namespace
 {
@@ -283,6 +284,25 @@ TweenPtr TweenManager::DOScale(Transform* transform, const Vec3& endValue, float
         [target](const Vec3& value) { Transform* resolved = target.Resolve(); if (resolved) resolved->SetLocalScale(value); },
         endValue, duration);
     tween->SetTarget(transform);
+    return tween;
+}
+
+TweenPtr TweenManager::DOColor(UIImage* image, const Color& endValue, float duration)
+{
+    ComponentRef<UIImage> target(image);
+    TweenPtr tween = To<Color>(
+        [target]()
+        {
+            UIImage* value = target.Resolve();
+            return value ? value->GetColor() : Colors::White;
+        },
+        [target](const Color& value)
+        {
+            UIImage* resolved = target.Resolve();
+            if (resolved) resolved->SetColor(value);
+        },
+        endValue, duration);
+    tween->SetTarget(image);
     return tween;
 }
 

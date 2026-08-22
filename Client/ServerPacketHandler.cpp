@@ -170,6 +170,17 @@ bool Handle_S_MONSTER_HP_CHANGE(PacketSessionRef& session, Protocol::S_MONSTER_H
     return true;
 }
 
+bool Handle_S_STAT_CHANGE(PacketSessionRef& session, Protocol::S_STAT_CHANGE& pkt)
+{
+    auto Job = [pkt]()
+        {
+            GM->OnPlayerHpChange(pkt.health());
+            GM->OnMyPlayerStatChange(pkt.stat());
+        };
+    GM->PushJob(Job);
+    return true;
+}
+
 bool Handle_S_CHAT(PacketSessionRef& session, Protocol::S_CHAT& pkt)
 {
 	DBG->Log("Handle_S_CHAT");

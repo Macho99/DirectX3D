@@ -47,7 +47,7 @@ struct TableStruct_Struct_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[8]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[9]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -70,6 +70,9 @@ extern MonsterDefaultTypeInternal _Monster_default_instance_;
 class Player;
 struct PlayerDefaultTypeInternal;
 extern PlayerDefaultTypeInternal _Player_default_instance_;
+class StatData;
+struct StatDataDefaultTypeInternal;
+extern StatDataDefaultTypeInternal _StatData_default_instance_;
 class TransformData;
 struct TransformDataDefaultTypeInternal;
 extern TransformDataDefaultTypeInternal _TransformData_default_instance_;
@@ -86,6 +89,7 @@ template<> ::Protocol::HealthData* Arena::CreateMaybeMessage<::Protocol::HealthD
 template<> ::Protocol::Input* Arena::CreateMaybeMessage<::Protocol::Input>(Arena*);
 template<> ::Protocol::Monster* Arena::CreateMaybeMessage<::Protocol::Monster>(Arena*);
 template<> ::Protocol::Player* Arena::CreateMaybeMessage<::Protocol::Player>(Arena*);
+template<> ::Protocol::StatData* Arena::CreateMaybeMessage<::Protocol::StatData>(Arena*);
 template<> ::Protocol::TransformData* Arena::CreateMaybeMessage<::Protocol::TransformData>(Arena*);
 template<> ::Protocol::Vec2* Arena::CreateMaybeMessage<::Protocol::Vec2>(Arena*);
 template<> ::Protocol::Vec3* Arena::CreateMaybeMessage<::Protocol::Vec3>(Arena*);
@@ -858,6 +862,7 @@ class HealthData final :
   enum : int {
     kIdFieldNumber = 1,
     kHpFieldNumber = 2,
+    kMaxHpFieldNumber = 3,
   };
   // uint64 id = 1;
   void clear_id();
@@ -877,6 +882,15 @@ class HealthData final :
   void _internal_set_hp(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
+  // int32 maxHp = 3;
+  void clear_maxhp();
+  ::PROTOBUF_NAMESPACE_ID::int32 maxhp() const;
+  void set_maxhp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_maxhp() const;
+  void _internal_set_maxhp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.HealthData)
  private:
   class _Internal;
@@ -886,6 +900,183 @@ class HealthData final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::uint64 id_;
   ::PROTOBUF_NAMESPACE_ID::int32 hp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 maxhp_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_Struct_2eproto;
+};
+// -------------------------------------------------------------------
+
+class StatData final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.StatData) */ {
+ public:
+  inline StatData() : StatData(nullptr) {}
+  ~StatData() override;
+  explicit constexpr StatData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  StatData(const StatData& from);
+  StatData(StatData&& from) noexcept
+    : StatData() {
+    *this = ::std::move(from);
+  }
+
+  inline StatData& operator=(const StatData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline StatData& operator=(StatData&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const StatData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const StatData* internal_default_instance() {
+    return reinterpret_cast<const StatData*>(
+               &_StatData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(StatData& a, StatData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(StatData* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(StatData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline StatData* New() const final {
+    return new StatData();
+  }
+
+  StatData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<StatData>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const StatData& from);
+  void MergeFrom(const StatData& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(StatData* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.StatData";
+  }
+  protected:
+  explicit StatData(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kMpFieldNumber = 1,
+    kMaxMpFieldNumber = 2,
+    kSpFieldNumber = 3,
+    kMaxSpFieldNumber = 4,
+    kCoinFieldNumber = 5,
+  };
+  // int32 mp = 1;
+  void clear_mp();
+  ::PROTOBUF_NAMESPACE_ID::int32 mp() const;
+  void set_mp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_mp() const;
+  void _internal_set_mp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 maxMp = 2;
+  void clear_maxmp();
+  ::PROTOBUF_NAMESPACE_ID::int32 maxmp() const;
+  void set_maxmp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_maxmp() const;
+  void _internal_set_maxmp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 sp = 3;
+  void clear_sp();
+  ::PROTOBUF_NAMESPACE_ID::int32 sp() const;
+  void set_sp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_sp() const;
+  void _internal_set_sp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 maxSp = 4;
+  void clear_maxsp();
+  ::PROTOBUF_NAMESPACE_ID::int32 maxsp() const;
+  void set_maxsp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_maxsp() const;
+  void _internal_set_maxsp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 coin = 5;
+  void clear_coin();
+  ::PROTOBUF_NAMESPACE_ID::int32 coin() const;
+  void set_coin(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_coin() const;
+  void _internal_set_coin(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.StatData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::int32 mp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 maxmp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 sp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 maxsp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 coin_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Struct_2eproto;
 };
@@ -935,7 +1126,7 @@ class Player final :
                &_Player_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(Player& a, Player& b) {
     a.Swap(&b);
@@ -1123,7 +1314,7 @@ class Input final :
                &_Input_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(Input& a, Input& b) {
     a.Swap(&b);
@@ -1266,7 +1457,7 @@ class Monster final :
                &_Monster_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(Monster& a, Monster& b) {
     a.Swap(&b);
@@ -1908,6 +2099,130 @@ inline void HealthData::set_hp(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:Protocol.HealthData.hp)
 }
 
+// int32 maxHp = 3;
+inline void HealthData::clear_maxhp() {
+  maxhp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 HealthData::_internal_maxhp() const {
+  return maxhp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 HealthData::maxhp() const {
+  // @@protoc_insertion_point(field_get:Protocol.HealthData.maxHp)
+  return _internal_maxhp();
+}
+inline void HealthData::_internal_set_maxhp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  maxhp_ = value;
+}
+inline void HealthData::set_maxhp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_maxhp(value);
+  // @@protoc_insertion_point(field_set:Protocol.HealthData.maxHp)
+}
+
+// -------------------------------------------------------------------
+
+// StatData
+
+// int32 mp = 1;
+inline void StatData::clear_mp() {
+  mp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::_internal_mp() const {
+  return mp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::mp() const {
+  // @@protoc_insertion_point(field_get:Protocol.StatData.mp)
+  return _internal_mp();
+}
+inline void StatData::_internal_set_mp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  mp_ = value;
+}
+inline void StatData::set_mp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_mp(value);
+  // @@protoc_insertion_point(field_set:Protocol.StatData.mp)
+}
+
+// int32 maxMp = 2;
+inline void StatData::clear_maxmp() {
+  maxmp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::_internal_maxmp() const {
+  return maxmp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::maxmp() const {
+  // @@protoc_insertion_point(field_get:Protocol.StatData.maxMp)
+  return _internal_maxmp();
+}
+inline void StatData::_internal_set_maxmp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  maxmp_ = value;
+}
+inline void StatData::set_maxmp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_maxmp(value);
+  // @@protoc_insertion_point(field_set:Protocol.StatData.maxMp)
+}
+
+// int32 sp = 3;
+inline void StatData::clear_sp() {
+  sp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::_internal_sp() const {
+  return sp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::sp() const {
+  // @@protoc_insertion_point(field_get:Protocol.StatData.sp)
+  return _internal_sp();
+}
+inline void StatData::_internal_set_sp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  sp_ = value;
+}
+inline void StatData::set_sp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_sp(value);
+  // @@protoc_insertion_point(field_set:Protocol.StatData.sp)
+}
+
+// int32 maxSp = 4;
+inline void StatData::clear_maxsp() {
+  maxsp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::_internal_maxsp() const {
+  return maxsp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::maxsp() const {
+  // @@protoc_insertion_point(field_get:Protocol.StatData.maxSp)
+  return _internal_maxsp();
+}
+inline void StatData::_internal_set_maxsp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  maxsp_ = value;
+}
+inline void StatData::set_maxsp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_maxsp(value);
+  // @@protoc_insertion_point(field_set:Protocol.StatData.maxSp)
+}
+
+// int32 coin = 5;
+inline void StatData::clear_coin() {
+  coin_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::_internal_coin() const {
+  return coin_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StatData::coin() const {
+  // @@protoc_insertion_point(field_get:Protocol.StatData.coin)
+  return _internal_coin();
+}
+inline void StatData::_internal_set_coin(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  coin_ = value;
+}
+inline void StatData::set_coin(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_coin(value);
+  // @@protoc_insertion_point(field_set:Protocol.StatData.coin)
+}
+
 // -------------------------------------------------------------------
 
 // Player
@@ -2380,6 +2695,8 @@ inline void Monster::set_allocated_health(::Protocol::HealthData* health) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

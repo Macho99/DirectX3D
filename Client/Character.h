@@ -12,6 +12,7 @@ public:
     void UpdateServerTransform(Vec3 position, float yaw, Vec2 velocity, Vec2 blendInput, bool updateImmediate);
     void PlayAnimation(int animationIndex);
     void SetHp(int hp);
+    int GetHp() const { return _curHp; }
 
 private:
     ComponentRef<ModelAnimator> _animator;

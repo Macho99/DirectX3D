@@ -11,17 +11,18 @@ enum : uint16
 	PKT_S_PLAYER_ENTER = 1002,
 	PKT_S_PLAYER_EXIT = 1003,
 	PKT_C_PLAYER_INPUT = 1004,
-	PKT_S_PLAYER_ANIMATION = 1005,
-	PKT_S_PLAYER_MOVE = 1006,
-	PKT_S_PLAYER_HP_CHANGE = 1007,
-	PKT_S_MONSTER_SPAWN = 1008,
-	PKT_S_MONSTER_MOVE = 1009,
-	PKT_S_MONSTER_ANIMATION = 1010,
-	PKT_S_MONSTER_DESPAWN = 1011,
-	PKT_S_MONSTER_HP_CHANGE = 1012,
-	PKT_C_CHAT = 1013,
-	PKT_S_CHAT = 1014,
-	PKT_C_SPAWN_MONSTER = 1015,
+	PKT_C_PLAYER_SHOP_BUY = 1005,
+	PKT_S_PLAYER_ANIMATION = 1006,
+	PKT_S_PLAYER_MOVE = 1007,
+	PKT_S_PLAYER_HP_CHANGE = 1008,
+	PKT_S_MONSTER_SPAWN = 1009,
+	PKT_S_MONSTER_MOVE = 1010,
+	PKT_S_MONSTER_ANIMATION = 1011,
+	PKT_S_MONSTER_DESPAWN = 1012,
+	PKT_S_MONSTER_HP_CHANGE = 1013,
+	PKT_S_STAT_CHANGE = 1014,
+	PKT_C_CHAT = 1015,
+	PKT_S_CHAT = 1016,
 };
 
 // Custom Handlers
@@ -37,6 +38,7 @@ bool Handle_S_MONSTER_MOVE(PacketSessionRef& session, Protocol::S_MONSTER_MOVE& 
 bool Handle_S_MONSTER_ANIMATION(PacketSessionRef& session, Protocol::S_MONSTER_ANIMATION& pkt);
 bool Handle_S_MONSTER_DESPAWN(PacketSessionRef& session, Protocol::S_MONSTER_DESPAWN& pkt);
 bool Handle_S_MONSTER_HP_CHANGE(PacketSessionRef& session, Protocol::S_MONSTER_HP_CHANGE& pkt);
+bool Handle_S_STAT_CHANGE(PacketSessionRef& session, Protocol::S_STAT_CHANGE& pkt);
 bool Handle_S_CHAT(PacketSessionRef& session, Protocol::S_CHAT& pkt);
 
 class ServerPacketHandler
@@ -57,6 +59,7 @@ public:
 		GPacketHandler[PKT_S_MONSTER_ANIMATION] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MONSTER_ANIMATION>(Handle_S_MONSTER_ANIMATION, session, buffer, len); };
 		GPacketHandler[PKT_S_MONSTER_DESPAWN] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MONSTER_DESPAWN>(Handle_S_MONSTER_DESPAWN, session, buffer, len); };
 		GPacketHandler[PKT_S_MONSTER_HP_CHANGE] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MONSTER_HP_CHANGE>(Handle_S_MONSTER_HP_CHANGE, session, buffer, len); };
+		GPacketHandler[PKT_S_STAT_CHANGE] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_STAT_CHANGE>(Handle_S_STAT_CHANGE, session, buffer, len); };
 		GPacketHandler[PKT_S_CHAT] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_CHAT>(Handle_S_CHAT, session, buffer, len); };
 	}
 
@@ -67,8 +70,8 @@ public:
 	}
 	static SendBufferRef MakeSendBuffer(Protocol::C_LOGIN& pkt) { return MakeSendBuffer(pkt, PKT_C_LOGIN); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_PLAYER_INPUT& pkt) { return MakeSendBuffer(pkt, PKT_C_PLAYER_INPUT); }
+	static SendBufferRef MakeSendBuffer(Protocol::C_PLAYER_SHOP_BUY& pkt) { return MakeSendBuffer(pkt, PKT_C_PLAYER_SHOP_BUY); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_CHAT& pkt) { return MakeSendBuffer(pkt, PKT_C_CHAT); }
-	static SendBufferRef MakeSendBuffer(Protocol::C_SPAWN_MONSTER& pkt) { return MakeSendBuffer(pkt, PKT_C_SPAWN_MONSTER); }
 
 private:
 	template<typename PacketType, typename ProcessFunc>

@@ -168,13 +168,9 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("SP Bar", _spBar);
     changed |= OnGUIUtils::DrawComponentRef("Coin Text", _coinText);
 
-    if (ImGui::Button("Spawn Monster"))
-    {
-        Protocol::C_SPAWN_MONSTER spawnPacket;
-        spawnPacket.set_spawnlevel(1);
-        auto sendBuffer = ServerPacketHandler::MakeSendBuffer(spawnPacket);
-        SERVER_CONNECT->SendPacket(sendBuffer);
-    }
+    changed |= OnGUIUtils::DrawComponentRef("HP Bar Text", _hpBarText);
+    changed |= OnGUIUtils::DrawComponentRef("MP Bar Text", _mpBarText);
+    changed |= OnGUIUtils::DrawComponentRef("Coin Icon", _coinIcon);
 
     return changed;
 }
@@ -286,6 +282,7 @@ void GameManager::OnPlayerHpChange(Protocol::HealthData healthData)
 {
     uint64 playerId = healthData.id();
     int32 hp = healthData.hp();
+    int32 maxHp = healthData.maxhp();
 
     auto it = _players.find(playerId);
     if (it == _players.end())
@@ -294,9 +291,68 @@ void GameManager::OnPlayerHpChange(Protocol::HealthData healthData)
         return;
     }
     Player* player = it->second.Resolve();
+    if (player->GetHp() > hp)
+    {
+        SpawnBloodParticle(player->GetTransform());
+    }
     player->SetHp(hp);
-    SpawnHpChangeParticle(player->GetTransform());
-    DBG->Log("Player ID %llu HP changed to %d", playerId, hp);
+
+    if (player->IsMyPlayer())
+    {
+        RectTransform* hpBar = _hpBar.Resolve();
+        if (hpBar != nullptr)
+        {
+            float hpRatio = (float)hp / (float)healthData.maxhp();
+            hpBar->SetAnchorMax(Vec2(hpRatio, hpBar->GetAnchorMax().y));
+        }
+
+        Text* hpText = _hpBarText.Resolve();
+        if (hpText != nullptr)
+        {
+            hpText->SetText(std::to_string(hp) + " / " + std::to_string(maxHp));
+        }
+    }
+}
+
+void GameManager::OnMyPlayerStatChange(Protocol::StatData statData)
+{
+    float mpRatio = (float)statData.mp() / (float)statData.maxmp();
+    float spRatio = (float)statData.sp() / (float)statData.maxsp();
+    RectTransform* mpBar = _mpBar.Resolve();
+    if (mpBar != nullptr)
+    {
+        mpBar->SetAnchorMax(Vec2(mpRatio, mpBar->GetAnchorMax().y));
+    }
+    Text* mpText = _mpBarText.Resolve();
+    if (mpText != nullptr)
+    {
+        mpText->SetText(std::to_string(statData.mp()) + " / " + std::to_string(statData.maxmp()));
+    }
+
+    RectTransform* spBar = _spBar.Resolve();
+    if (spBar != nullptr)
+    {
+        spBar->SetAnchorMax(Vec2(spRatio, spBar->GetAnchorMax().y));
+    }
+
+    Text* coinText = _coinText.Resolve();
+    if (coinText != nullptr)
+    {
+        string coinStr = std::to_string(statData.coin());
+        if (coinText->GetText() != coinStr)
+        {
+            coinText->SetText(std::to_string(statData.coin()));
+
+            UIImage* coinIcon = _coinIcon.Resolve();
+            if (coinIcon != nullptr)
+            {
+                TWEEN->DOColor(coinIcon, Color(1, 1, 1, 0), 0.2f)->OnComplete([coinIcon]()
+                    {
+                        TWEEN->DOColor(coinIcon, Color(1, 1, 1, 1), 0.2f);
+                    });
+            }
+        }
+    }
 }
 
 void GameManager::OnMonsterSpawn(Protocol::Monster monster)
@@ -342,11 +398,11 @@ void GameManager::OnMonsterHpChange(Protocol::HealthData healthData)
     }
     Zombie* monster = it->second.Resolve();
     monster->SetHp(hp);
-    SpawnHpChangeParticle(monster->GetTransform());
+    SpawnBloodParticle(monster->GetTransform());
     DBG->Log("Monster ID %llu HP changed to %d", monsterId, hp);
 }
 
-void GameManager::SpawnHpChangeParticle(Transform* target)
+void GameManager::SpawnBloodParticle(Transform* target)
 {
     ParticleSystem* prefab = _hpChangeParticlePrefab.Resolve();
     if (prefab == nullptr || target == nullptr)

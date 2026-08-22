@@ -7,6 +7,7 @@ class Player : public Character
     DECLARE_MONO_BEHAVIOUR(Player);
 public:
     void Init(uint64 playerId, string name, bool isMyPlayer);
+    bool IsMyPlayer() const { return _isMyPlayer; }
 
 private:
     uint64 _playerId;

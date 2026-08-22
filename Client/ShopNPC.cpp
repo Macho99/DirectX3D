@@ -26,7 +26,23 @@ void ShopNPC::Start()
         {
             shopItemButton->AddOnClickedEvent([this, i]()
                 {
-                    DBG->Log("Shop Item Button %d clicked.", i);
+                    Protocol::C_PLAYER_SHOP_BUY pkt;
+                    pkt.set_itemid(i);
+                    SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+                    SERVER_CONNECT->SendPacket(sendBuffer);
+
+                    Button* button = _shopItemButtons[i].Resolve();
+                    if (button != nullptr)
+                    {
+                        button->SetInteractable(false);
+                        TWEEN->DOColor(button, Color(1, 1, 1, 0), 0.2f)->OnComplete([button]()
+                            {
+                                TWEEN->DOColor(button, Color(1, 1, 1, 1), 0.2f)->OnComplete([button]()
+                                    {
+                                        button->SetInteractable(true);
+                                    });
+                            });
+                    }
                 });
         }
         else

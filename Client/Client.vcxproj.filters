@@ -111,7 +111,9 @@
     <ClCompile Include="ZombieAnimEventHandler.cpp">
       <Filter>Main\Character\Monster</Filter>
     </ClCompile>
-    <ClCompile Include="ShopNPC.cpp" />
+    <ClCompile Include="ShopNPC.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -183,7 +185,9 @@
     <ClInclude Include="ZombieAnimEventHandler.h">
       <Filter>Main\Character\Monster</Filter>
     </ClInclude>
-    <ClInclude Include="ShopNPC.h" />
+    <ClInclude Include="ShopNPC.h">
+      <Filter>Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Assets\Shaders\00. Render.fx">

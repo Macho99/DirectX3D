@@ -3,6 +3,7 @@
 #include <type_traits>
 
 class Transform;
+class UIImage;
 
 enum class EaseType : uint8
 {
@@ -169,6 +170,7 @@ public:
     TweenPtr DOLocalRotate(Transform* transform, const Vec3& endValue, float duration);
     TweenPtr DOPunchLocalRotate(Transform* transform, const Vec3& punch, float duration, int vibrato = 10, float elasticity = 1.f);
     TweenPtr DOScale(Transform* transform, const Vec3& endValue, float duration);
+    TweenPtr DOColor(UIImage* image, const Color& endValue, float duration);
 
     void PauseAll();
     void PlayAll();
