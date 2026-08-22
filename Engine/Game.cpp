@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "IExecute.h"
 #include "EditorManager.h"
+#include "SoundManager.h"
 
 int Game::pendingWidth = -1;
 int Game::pendingHeight = -1;
@@ -24,6 +25,7 @@ WPARAM Game::Run(GameDesc& desc)
 		
 	DBG->Init();
 	GRAPHICS->Init(_desc.hWnd);
+	GET_SINGLE(SoundManager)->Init();
 	RESOURCES->Init();
 	RESOURCES->Start();
 	GRAPHICS->Start();
@@ -87,6 +89,8 @@ WPARAM Game::Run(GameDesc& desc)
 	TWEEN->Clear();
 	OutputDebugStringW(L"==============SCENE============\n");
 	SCENE->OnDestroy();	
+	OutputDebugStringW(L"==============SOUND============\n");
+	GET_SINGLE(SoundManager)->OnDestroy();
 	OutputDebugStringW(L"==============GUI============\n");
 	EDITOR->OnDestroy();
 	OutputDebugStringW(L"==============RESOURCES============\n");

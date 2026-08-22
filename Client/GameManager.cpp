@@ -294,6 +294,7 @@ void GameManager::OnPlayerHpChange(Protocol::HealthData healthData)
     if (player->GetHp() > hp)
     {
         SpawnBloodParticle(player->GetTransform());
+        player->PlayHurtSound();
     }
     player->SetHp(hp);
 
@@ -364,7 +365,7 @@ void GameManager::OnMonsterSpawn(Protocol::Monster monster)
         return;
     }
     Zombie* zombie = GameObject::Instantiate(_zombiePrefab.Resolve(), nullptr);
-    zombie->EnsureAnimator();
+    zombie->EnsureBaseComponent();
     zombie->GetGameObject()->SetActive(true);
     UpdateServerTransform(zombie, monster.transform(), true);
     _monsters[monster.id()] = zombie;
@@ -399,6 +400,7 @@ void GameManager::OnMonsterHpChange(Protocol::HealthData healthData)
     Zombie* monster = it->second.Resolve();
     monster->SetHp(hp);
     SpawnBloodParticle(monster->GetTransform());
+    monster->PlayHurtSound();
     DBG->Log("Monster ID %llu HP changed to %d", monsterId, hp);
 }
 

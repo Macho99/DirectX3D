@@ -34,6 +34,8 @@
 #include "TargetFollower.h"
 #include "ModelSocketFollower.h"
 #include "TrailRenderer.h"
+#include "AudioSource.h"
+#include "AudioListener.h"
 
 static void ForceRegisterEngineComponents()
 {
@@ -69,6 +71,8 @@ static void ForceRegisterEngineComponents()
     TargetFollower::EnsureAutoRegister();
     ModelSocketFollower::EnsureAutoRegister();
     TrailRenderer::EnsureAutoRegister();
+    AudioSource::EnsureAutoRegister();
+    AudioListener::EnsureAutoRegister();
 }
 
 void ComponentRegistry::Init()
@@ -188,3 +192,9 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, TrailRenderer);
 
 CEREAL_REGISTER_TYPE(ModelSocketFollower);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Component, ModelSocketFollower);
+
+CEREAL_REGISTER_TYPE(AudioSource);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, AudioSource);
+
+CEREAL_REGISTER_TYPE(AudioListener);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, AudioListener);

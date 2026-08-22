@@ -18,6 +18,7 @@
 #include "ModelMeshMeta.h"
 #include "FontMeta.h"
 #include "AnimationOverrideMeta.h"
+#include "AudioMeta.h"
 
 unordered_map<string, MetaStore::Creator> MetaStore::_creators;
 
@@ -186,6 +187,16 @@ const unordered_map<string, MetaStore::Creator>& MetaStore::InitAndGetCreators()
         _creators[".modelmesh"] = []() { return make_unique<ModelMeshMeta>(); };
         _creators[TerrainData::GetExtension()] = []() { return make_unique<TerrainDataMeta>(); };
         _creators[".fnt"] = []() { return make_unique<FontMeta>(); };
+        function<unique_ptr<MetaFile>()> audioCreator = []() { return make_unique<AudioMeta>(); };
+        _creators[".wav"] = audioCreator;
+        _creators[".WAV"] = audioCreator;
+        _creators[".Wav"] = audioCreator;
+        _creators[".mp3"] = audioCreator;
+        _creators[".MP3"] = audioCreator;
+        _creators[".Mp3"] = audioCreator;
+        _creators[".flac"] = audioCreator;
+        _creators[".FLAC"] = audioCreator;
+        _creators[".Flac"] = audioCreator;
         _creators[AnimationOverrideMeta::GetExtension()] = []() { return make_unique<AnimationOverrideMeta>(); };
 
         {

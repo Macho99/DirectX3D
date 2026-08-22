@@ -1,0 +1,17 @@
+{
+    "value0": {
+        "polymorphic_id": 2147483649,
+        "polymorphic_name": "AudioMeta",
+        "ptr_wrapper": {
+            "valid": 1,
+            "data": {
+                "_version": 1,
+                "_assetId": {
+                    "leftId": 9047683662090437414,
+                    "rightId": 5999088374320882937
+                },
+                "_resourceType": 12
+            }
+        }
+    }
+}

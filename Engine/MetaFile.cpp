@@ -15,6 +15,7 @@
 #include "ModelMeta.h"
 #include "FontMeta.h"
 #include "AnimationOverrideMeta.h"
+#include "AudioMeta.h"
 
 #include "Material.h"
 #include "ModelMeshResource.h"
@@ -26,6 +27,7 @@
 #include "DndPayload.h"
 #include "FileUtils.h"
 #include "Font.h"
+#include "AudioClip.h"
 #include "Model.h"
 #include "shellapi.h"
 
@@ -175,6 +177,9 @@ Texture* MetaFile::GetIconTexture(ResourceType resourceType, const AssetId& asse
         case ResourceType::Scene:
             key = "SceneIcon";
             break;
+        case ResourceType::AudioClip:
+            key = "AudioClipIcon";
+            break;
         default:
             key = "DefaultFileIcon";
             break;
@@ -225,6 +230,13 @@ unique_ptr<ResourceBase> MetaFile::LoadResource(ResourceType resourceType, const
         unique_ptr<Font> font = make_unique<Font>();
         font->Load(filePath);
         resource = std::move(font);
+        break;
+    }
+    case ResourceType::AudioClip:
+    {
+        unique_ptr<AudioClip> audioClip = make_unique<AudioClip>();
+        audioClip->Load(filePath);
+        resource = std::move(audioClip);
         break;
     }
     }
@@ -522,6 +534,9 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, ModelMeta);
 
 CEREAL_REGISTER_TYPE(FontMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, FontMeta);
+
+CEREAL_REGISTER_TYPE(AudioMeta);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MetaFile, AudioMeta);
 
 CEREAL_REGISTER_TYPE(AnimationOverrideMeta);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(AnimationMeta, AnimationOverrideMeta);

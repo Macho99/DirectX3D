@@ -777,6 +777,20 @@
     <ClInclude Include="Font.h">
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="AudioClip.h">
+      <Filter>00. Engine\Asset\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioMeta.h">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSource.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioListener.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="miniaudio.h" />
     <ClInclude Include="Text.h">
       <Filter>04. Component\UI</Filter>
     </ClInclude>
@@ -1238,6 +1252,20 @@
     <ClCompile Include="Font.cpp">
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="AudioClip.cpp">
+      <Filter>00. Engine\Asset\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioMeta.cpp">
+      <Filter>00. Engine\Asset\MetaFile</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSource.cpp">
+      <Filter>04. Component</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioListener.cpp">
+      <Filter>04. Component</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="miniaudio.c" />
     <ClCompile Include="Text.cpp">
       <Filter>04. Component\UI</Filter>
     </ClCompile>

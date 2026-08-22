@@ -27,6 +27,8 @@ public:
     static bool DrawEnableButton(const char* label, bool value, bool isReadOnly = false);
 
     template<typename T>
+    static bool DrawResourceRefVector(const char* label, vector<ResourceRef<T>>& resourceRefs, bool isReadOnly = false);
+    template<typename T>
     static bool DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly = false);
     static bool DrawAssetRef(const char* label, AssetRef& assetRef, bool isReadOnly = false);
 
@@ -90,7 +92,28 @@ inline bool OnGUIUtils::DrawEnableButton(const char* label, TEnum& curEnum, cons
     if (!selected)
         ImGui::PopStyleColor(3);
     return changed;
-};
+}
+
+template<typename T>
+inline bool OnGUIUtils::DrawResourceRefVector(const char* label, vector<ResourceRef<T>>& resourceRefs, bool isReadOnly)
+{
+    bool changed = false;
+    uint32 count = static_cast<uint32>(resourceRefs.size());
+    string countLabel = label + std::string(" Count");
+    DrawUInt32(countLabel.c_str(), &count, 1, isReadOnly);
+    if (count != resourceRefs.size())
+    {
+        resourceRefs.resize(count);
+        changed = true;
+    }
+    for (uint32 i = 0; i < count; ++i)
+    {
+        string refLabel = label + std::to_string(i);
+        changed |= DrawResourceRef<T>(refLabel.c_str(), resourceRefs[i], isReadOnly);
+    }
+    return changed;
+}
+;
 
 template<typename T>
 inline bool OnGUIUtils::DrawResourceRef(const char* label, ResourceRef<T>& resourceRef, bool isReadOnly)

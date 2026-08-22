@@ -125,6 +125,7 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "TweenManager.h"
 #include "ResourceManager.h"
 #include "DebugManager.h"
+#include "SoundManager.h"
 
 // Engine
 #include "VertexData.h"
@@ -138,9 +139,12 @@ inline void Assert(bool condition, const char* expr, string message,
 #include "ComponentRef.h"
 #include "GameObjectRef.h"
 #include "ResourceRef.h"
+#include "AudioClip.h"
 
 #include "GameObject.h"
 #include "Transform.h"
+#include "AudioSource.h"
+#include "AudioListener.h"
 #include "RectTransform.h"
 #include "Mesh.h"
 

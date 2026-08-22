@@ -76,6 +76,7 @@ enum class ResourceType : uint8
 	TerrainData,
 	Scene,
 	Font,
+	AudioClip,
 
 	End
 };

@@ -3,10 +3,11 @@
 #include "ModelAnimator.h"
 #include "OnGUIUtils.h"
 #include "MathLibrary/MathUtils.h"
+#include "AudioSource.h"
 
 void Character::Start()
 {
-    EnsureAnimator();
+    EnsureBaseComponent();
 }
 
 void Character::Update()
@@ -47,15 +48,32 @@ bool Character::OnGUI()
     changed |= OnGUIUtils::DrawFloat("Interpolation Speed", &_interpolationSpeed, 0.01f);
     changed |= OnGUIUtils::DrawFloat("Yaw Rotation Speed", &_yawRotationSpeed, 0.01f);
     changed |= OnGUIUtils::DrawBool("Debug Ignore Server Update", &_debugIgnorePositionUpdate);
+    
+    changed |= OnGUIUtils::DrawResourceRefVector("Hurt Audio Clips", _hurtAudioClips);
 
     return changed;
 }
 
-void Character::EnsureAnimator()
+void Character::PlayHurtSound()
+{
+    AudioSource* audioSource = _audioSource.Resolve();
+    if (audioSource != nullptr)
+    {
+        audioSource->SetRandomClipAndPlay(_hurtAudioClips);
+    }
+}
+
+void Character::EnsureBaseComponent()
 {
     if (_animator.Resolve() == nullptr)
     {
         _animator = GetGameObject()->GetComponent<ModelAnimator>();
+    }
+
+    _audioSource = GetGameObject()->GetComponent<AudioSource>();
+    if (_audioSource.Resolve() == nullptr)
+    {
+        _audioSource = GetGameObject()->AddComponent<AudioSource>();
     }
 }
 

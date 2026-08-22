@@ -5,6 +5,7 @@
 #include "ModelAnimator.h"
 #include "MeshRenderer.h"
 #include "ModelSocketFollower.h"
+#include "OnGUIUtils.h"
 
 void ZombieAnimEventHandler::Start()
 {
@@ -21,6 +22,12 @@ void ZombieAnimEventHandler::Start()
 
     ResourceRef<Material> materialRef = RESOURCES->GetResourceRefByPath<Material>(L"Materials\\TrailMat.mat");
     trailRenderer->SetMaterial(materialRef);
+
+    _audioSource = GetGameObject()->GetComponent<AudioSource>();
+    if (_audioSource.Resolve() == nullptr)
+    {
+        _audioSource = GetGameObject()->AddComponent<AudioSource>();
+    }
 }
 
 void ZombieAnimEventHandler::Update()
@@ -58,6 +65,12 @@ void ZombieAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEve
         {
             screamRenderer->GetGameObject()->SetActive(animationEvent.boolParam);
         }
+
+        AudioSource* audioSource = _audioSource.Resolve();
+        if (audioSource != nullptr)
+        {
+            audioSource->SetRandomClipAndPlay(_screamAudioClips);
+        }
     }
     else if (animationEvent.eventName != "Attack")
         return;
@@ -76,6 +89,11 @@ void ZombieAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEve
             if (_trailAnimationIndex < 0)
                 _trailAnimationIndex = tweenDesc.cur.GetSingleAnimationIndex();
         }
+        AudioSource* audioSource = _audioSource.Resolve();
+        if (audioSource != nullptr)
+        {
+            audioSource->SetRandomClipAndPlay(_attackAudioClips);
+        }
     }
     else
     {
@@ -84,6 +102,14 @@ void ZombieAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEve
     }
 
     UpdateTrailRenderer(true);
+}
+
+bool ZombieAnimEventHandler::OnGUI()
+{
+    bool changed = Super::OnGUI();
+    changed |= OnGUIUtils::DrawResourceRefVector("Scream Audio Clips", _screamAudioClips);
+    changed |= OnGUIUtils::DrawResourceRefVector("Attack Audio Clips", _attackAudioClips);
+    return changed;
 }
 
 void ZombieAnimEventHandler::UpdateTrailRenderer(bool force)
