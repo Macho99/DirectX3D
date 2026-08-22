@@ -6,6 +6,7 @@ class Zombie;
 class TargetFollower;
 class InputText;
 class ParticleSystem;
+class Text;
 
 enum class GameState
 {
@@ -44,7 +45,7 @@ public:
 
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 8; }
+    virtual int GetVersion() const override { return 9; }
 
     void PushJob(function<void(void)> func);
     GameState GetGameState() const { return _gameState; }
@@ -53,6 +54,8 @@ public:
     void ConnectedState();
 
     void PlayImpulse(Vec3 position);
+
+    Vec3 GetPlayerPosition() const;
 
     template<class Archive>
     void serialize(Archive& ar)
@@ -103,6 +106,14 @@ public:
             ar(CEREAL_NVP(_hudObj));
             ar(CEREAL_NVP(_shopObj));
         }
+
+        if (_version >= 9)
+        {
+            ar(CEREAL_NVP(_hpBar));
+            ar(CEREAL_NVP(_mpBar));
+            ar(CEREAL_NVP(_spBar));
+            ar(CEREAL_NVP(_coinText));
+        }
     }
 
 private:
@@ -135,9 +146,13 @@ private:
     ComponentRef<MeshRenderer> _impulseRenderer;
 
     GameObjectRef _hudObj;
+    // regacy
     GameObjectRef _shopObj;
 
-    Vec3 _testValue;
+    ComponentRef<RectTransform> _hpBar;
+    ComponentRef<RectTransform> _mpBar;
+    ComponentRef<RectTransform> _spBar;
+    ComponentRef<Text> _coinText;
 };
 
 #define GM GameManager::GetInstance()

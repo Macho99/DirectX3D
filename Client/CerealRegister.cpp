@@ -11,6 +11,7 @@
 #include "Zombie.h"
 #include "MyBillboard.h"
 #include "ZombieAnimEventHandler.h"
+#include "ShopNPC.h"
 
 CEREAL_REGISTER_TYPE(CameraMove);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, CameraMove);
@@ -42,6 +43,8 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, MyBillboard);
 CEREAL_REGISTER_TYPE(ZombieAnimEventHandler);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, ZombieAnimEventHandler);
 
+CEREAL_REGISTER_TYPE(ShopNPC);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(MonoBehaviour, ShopNPC);
 
 void RegisterClientComponents()
 {
@@ -55,4 +58,5 @@ void RegisterClientComponents()
     Zombie::EnsureAutoRegister();
     MyBillboard::EnsureAutoRegister();
     ZombieAnimEventHandler::EnsureAutoRegister();
+    ShopNPC::EnsureAutoRegister();
 }

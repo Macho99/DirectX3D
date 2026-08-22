@@ -14,6 +14,7 @@
 #include "MyBillboard.h"
 #include "ParticleSystem.h"
 #include "MeshRenderer.h"
+#include "Text.h"
 
 namespace
 {
@@ -159,9 +160,13 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("UserNameInput", _usernameInput);
     changed |= OnGUIUtils::DrawComponentRef("ImpulseRenderer", _impulseRenderer);
     changed |= OnGUIUtils::DrawComponentRef("Camera", _camera);
-    changed |= OnGUIUtils::DrawVec3("Test Vec3", &_testValue);
     changed |= OnGUIUtils::DrawGameObjectRef("HUD Object", _hudObj);
     changed |= OnGUIUtils::DrawGameObjectRef("Shop Object", _shopObj);
+
+    changed |= OnGUIUtils::DrawComponentRef("HP Bar", _hpBar);
+    changed |= OnGUIUtils::DrawComponentRef("MP Bar", _mpBar);
+    changed |= OnGUIUtils::DrawComponentRef("SP Bar", _spBar);
+    changed |= OnGUIUtils::DrawComponentRef("Coin Text", _coinText);
 
     if (ImGui::Button("Spawn Monster"))
     {
@@ -471,4 +476,15 @@ void GameManager::PlayImpulse(Vec3 position)
     impulseRenderer->GetMaterial().Resolve()->SetFloat("ShockwaveStartTime", TIME->GetGameTime());
     Camera* camera = _camera.Resolve();
     TWEEN->DOPunchLocalRotate(camera->GetTransform(), Vec3::One, 0.5f);
+}
+
+Vec3 GameManager::GetPlayerPosition() const
+{
+    Player* player = _myPlayer.Resolve();
+    if (player == nullptr)
+    {
+        return Vec3::Zero;
+    }
+
+    return player->GetTransform()->GetPosition();
 }

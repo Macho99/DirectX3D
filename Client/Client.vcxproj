@@ -38,6 +38,7 @@
     <ClInclude Include="ServerConnect.h" />
     <ClInclude Include="ServerPacketHandler.h" />
     <ClInclude Include="ServerSession.h" />
+    <ClInclude Include="ShopNPC.h" />
     <ClInclude Include="Struct.pb.h" />
     <ClInclude Include="ThirdPersonCamMove.h" />
     <ClInclude Include="Zombie.h" />
@@ -72,6 +73,7 @@
     <ClCompile Include="ServerConnect.cpp" />
     <ClCompile Include="ServerPacketHandler.cpp" />
     <ClCompile Include="ServerSession.cpp" />
+    <ClCompile Include="ShopNPC.cpp" />
     <ClCompile Include="Struct.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
