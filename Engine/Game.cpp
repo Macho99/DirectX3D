@@ -9,7 +9,6 @@ int Game::pendingHeight = -1;
 
 WPARAM Game::Run(GameDesc& desc)
 {
-	desc.isEditor = true;
     curSceneWidth = desc.sceneWidth;
     curSceneHeight = desc.sceneHeight;
 

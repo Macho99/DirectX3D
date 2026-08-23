@@ -40,6 +40,12 @@ public:
     void OnInspectorFocus();
     void OnInspectorFocusLost();
 
+    template<class T>
+    T* GetComponent();
+
+    template<class T>
+    T* GetComponentInChildren();
+
     Component* GetFixedComponent(ComponentType type);
 
     template<class T>
@@ -48,11 +54,6 @@ public:
     template<class T>
     T* GetFixedComponent();
 
-    template<class T>
-    T* GetComponent();
-
-    template<class T>
-    T* GetComponentInChildren();
 
     Transform* GetTransform();
     TransformRef GetTransformRef();

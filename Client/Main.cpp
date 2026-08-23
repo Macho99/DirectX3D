@@ -15,12 +15,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//_CrtSetBreakAlloc(3029);
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	GameDesc desc;
+	desc.isEditor = true;
 	desc.appName = L"GameCoding";
 	desc.hInstance = hInstance;
 	desc.vsync = false;
 	desc.hWnd = NULL;
-	desc.width = 2440;
-	desc.height = 1080;
+
+    if (desc.isEditor)
+    {
+        desc.width = 2440;
+        desc.height = 1080;
+    }
+    else
+    {
+        desc.width = 1280;
+        desc.height = 720;
+    }
 	desc.clearColor = Color(0.0f, 0.0f, 0.0f, 1.f);
 	//desc.app = make_shared<AssetSerializeDemo>();
 	desc.app = make_shared<SceneDemo>();
