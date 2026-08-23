@@ -77,6 +77,7 @@ void ModelAnimator::Awake()
 	if (awakeCount++ != 0)
 		return;
 
+	/*
 	if (_blendSpacePoints.size() == 0)
 	{
 		BlendSpacePoint center = { Vec2(0.f, 0.f), 27 };
@@ -120,7 +121,7 @@ void ModelAnimator::Awake()
             BlendSpacePoint rightBottom = { Vec2(1.41f, -1.41f), 56, 0.7f };
             _blendSpacePoints.push_back(rightBottom);
 		}
-	}
+	}*/
 
 	const BlendSpaceSample sample = EvaluateBlendSpace();
 	UpdateBlendSpaceKeyframe(_tweenDesc.cur, sample);

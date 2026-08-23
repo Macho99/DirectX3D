@@ -77,15 +77,15 @@ void SceneDemo::Init()
     CUR_SCENE->SetSky(sky);
 
     fs::path outPath;
-    if (TryGetLatestSceneFile("..\\Assets\\Scenes", outPath))
-    {
-        shared_ptr<Scene> target;
-        std::ifstream is(outPath);
-        cereal::JSONInputArchive archive(is);
-        archive(target);
-        SCENE->ChangeScene(target);
-        return;
-    }
+    //if (TryGetLatestSceneFile("..\\Assets\\Scenes", outPath))
+    //{
+    //    shared_ptr<Scene> target;
+    //    std::ifstream is(outPath);
+    //    cereal::JSONInputArchive archive(is);
+    //    archive(target);
+    //    SCENE->ChangeScene(target);
+    //    return;
+    //}
 
     ResourceRef<Shader> renderShader = RESOURCES->GetResourceRefByPath<Shader>(L"Shaders\\19. RenderDemo.fx");
     {
