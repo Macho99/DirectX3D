@@ -44,5 +44,7 @@ private:
     ComponentRef<class TrailRenderer> _trailRenderer;
     float _trailUpdateTime = FLT_MAX;
     int32 _trailAnimationIndex = -1;
+
+    bool _isAttackEnd = true;
 };
 

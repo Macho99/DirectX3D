@@ -37,6 +37,8 @@ private:
     ComponentRef<class TrailRenderer> _trailRenderer;
     ComponentRef<class MeshRenderer> _screamRenderer;
     float _trailUpdateTime = FLT_MAX;
-    int32 _trailAnimationIndex = -1;
+    int32 _curAnimationIndex = -1;
+
+    bool _isAttackEnd = true;
 };
 

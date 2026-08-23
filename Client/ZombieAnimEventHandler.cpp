@@ -33,23 +33,25 @@ void ZombieAnimEventHandler::Start()
 void ZombieAnimEventHandler::Update()
 {
     ModelAnimator* animator = GetGameObject()->GetModelAnimator();
-    if (_trailUpdateTime != FLT_MAX && animator != nullptr)
+    MeshRenderer* screamRenderer = _screamRenderer.Resolve();
+    TrailRenderer* trailRenderer = _trailRenderer.Resolve();
+
+    if (animator == nullptr || screamRenderer == nullptr || trailRenderer == nullptr)
+        return;
+
+    const TweenDesc& tweenDesc = animator->GetTweenDesc();
+    int32 animationIndex = tweenDesc.cur.GetSingleAnimationIndex();
+    if (tweenDesc.next.HasAnimation())
+        animationIndex = tweenDesc.next.GetSingleAnimationIndex();
+
+    if (animationIndex != _curAnimationIndex)
     {
-        const TweenDesc& tweenDesc = animator->GetTweenDesc();
-        int32 animationIndex = tweenDesc.cur.GetSingleAnimationIndex();
-        if (tweenDesc.next.HasAnimation())
-            animationIndex = tweenDesc.next.GetSingleAnimationIndex();
+        screamRenderer->GetGameObject()->SetActive(false);
 
-        if (animationIndex != _trailAnimationIndex)
+        if (_isAttackEnd == false)
         {
+            trailRenderer->ClearPoints();
             _trailUpdateTime = FLT_MAX;
-            _trailAnimationIndex = -1;
-
-            MeshRenderer* screamRenderer = _screamRenderer.Resolve();
-            if (screamRenderer != nullptr)
-            {
-                screamRenderer->GetGameObject()->SetActive(false);
-            }
         }
     }
 
@@ -58,50 +60,40 @@ void ZombieAnimEventHandler::Update()
 
 void ZombieAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEvent)
 {
-    if (animationEvent.eventName == "Scream")
-    {
-        MeshRenderer* screamRenderer = _screamRenderer.Resolve();
-        if (screamRenderer != nullptr)
-        {
-            screamRenderer->GetGameObject()->SetActive(animationEvent.boolParam);
-        }
+    ModelAnimator* animator = GetGameObject()->GetModelAnimator();
+    MeshRenderer* screamRenderer = _screamRenderer.Resolve();
+    AudioSource* audioSource = _audioSource.Resolve();
+    TrailRenderer* trailRenderer = _trailRenderer.Resolve();
 
-        AudioSource* audioSource = _audioSource.Resolve();
-        if (audioSource != nullptr)
-        {
-            audioSource->SetRandomClipAndPlay(_screamAudioClips);
-        }
-    }
-    else if (animationEvent.eventName != "Attack")
+    if (animator == nullptr || screamRenderer == nullptr || audioSource == nullptr || trailRenderer == nullptr)
         return;
 
-    TrailRenderer* trailRenderer = _trailRenderer.Resolve();
-    if (animationEvent.boolParam == true)
-    {
-        trailRenderer->ClearPoints();
-        _trailUpdateTime = TIME->GetGameTime();
 
-        ModelAnimator* animator = GetGameObject()->GetModelAnimator();
-        if (animator != nullptr)
+    const TweenDesc& tweenDesc = animator->GetTweenDesc();
+    _curAnimationIndex = tweenDesc.cur.GetSingleAnimationIndex();
+
+    if (animationEvent.eventName == "Scream")
+    {
+        screamRenderer->GetGameObject()->SetActive(animationEvent.boolParam);
+        audioSource->SetRandomClipAndPlay(_screamAudioClips);
+    }
+    else if (animationEvent.eventName == "Attack")
+    {
+        _isAttackEnd = !animationEvent.boolParam;
+        if (animationEvent.boolParam == true)
         {
-            const TweenDesc& tweenDesc = animator->GetTweenDesc();
-            _trailAnimationIndex = tweenDesc.next.GetSingleAnimationIndex();
-            if (_trailAnimationIndex < 0)
-                _trailAnimationIndex = tweenDesc.cur.GetSingleAnimationIndex();
-        }
-        AudioSource* audioSource = _audioSource.Resolve();
-        if (audioSource != nullptr)
-        {
+            trailRenderer->ClearPoints();
+            _trailUpdateTime = TIME->GetGameTime();
+
             audioSource->SetRandomClipAndPlay(_attackAudioClips);
         }
+        else
+        {
+            _trailUpdateTime = FLT_MAX;
+            _curAnimationIndex = -1;
+        }
+        UpdateTrailRenderer(true);
     }
-    else
-    {
-        _trailUpdateTime = FLT_MAX;
-        _trailAnimationIndex = -1;
-    }
-
-    UpdateTrailRenderer(true);
 }
 
 bool ZombieAnimEventHandler::OnGUI()

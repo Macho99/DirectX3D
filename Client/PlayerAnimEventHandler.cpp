@@ -35,6 +35,14 @@ void PlayerAnimEventHandler::Update()
         {
             _trailUpdateTime = FLT_MAX;
             _trailAnimationIndex = -1;
+            if(_isAttackEnd == false)
+            {
+                TrailRenderer* trailRenderer = _trailRenderer.Resolve();
+                if (trailRenderer != nullptr)
+                {
+                    trailRenderer->ClearPoints();
+                }
+            }
         }
     }
 
@@ -62,37 +70,38 @@ void PlayerAnimEventHandler::OnAnimationEvent(const AnimationEvent& animationEve
             audioSource->SetRandomClipAndPlay(_impulseAudioClips);
         }
     }
-    else if (animationEvent.eventName != "Attack")
-        return;
-    
-    TrailRenderer* trailRenderer = _trailRenderer.Resolve();
-    if (animationEvent.boolParam == true)
+    else if (animationEvent.eventName == "Attack")
     {
-        trailRenderer->ClearPoints();
-        _trailUpdateTime = TIME->GetGameTime();
-
-        ModelAnimator* animator = GetGameObject()->GetModelAnimator();
-        if (animator != nullptr)
+        _isAttackEnd = !animationEvent.boolParam;
+        TrailRenderer* trailRenderer = _trailRenderer.Resolve();
+        if (animationEvent.boolParam == true)
         {
-            const TweenDesc& tweenDesc = animator->GetTweenDesc();
-            _trailAnimationIndex = tweenDesc.next.GetSingleAnimationIndex();
-            if (_trailAnimationIndex < 0)
-                _trailAnimationIndex = tweenDesc.cur.GetSingleAnimationIndex();
+            trailRenderer->ClearPoints();
+            _trailUpdateTime = TIME->GetGameTime();
+
+            ModelAnimator* animator = GetGameObject()->GetModelAnimator();
+            if (animator != nullptr)
+            {
+                const TweenDesc& tweenDesc = animator->GetTweenDesc();
+                _trailAnimationIndex = tweenDesc.next.GetSingleAnimationIndex();
+                if (_trailAnimationIndex < 0)
+                    _trailAnimationIndex = tweenDesc.cur.GetSingleAnimationIndex();
+            }
+
+            AudioSource* audioSource = _audioSource.Resolve();
+            if (audioSource != nullptr)
+            {
+                audioSource->SetRandomClipAndPlay(_swordAudioClips);
+            }
+        }
+        else
+        {
+            _trailUpdateTime = FLT_MAX;
+            _trailAnimationIndex = -1;
         }
 
-        AudioSource* audioSource = _audioSource.Resolve();
-        if (audioSource != nullptr)
-        {
-            audioSource->SetRandomClipAndPlay(_swordAudioClips);
-        }
+        UpdateTrailRenderer(true);
     }
-    else
-    {
-        _trailUpdateTime = FLT_MAX;
-        _trailAnimationIndex = -1;
-    }
-
-    UpdateTrailRenderer(true);
 }
 
 bool PlayerAnimEventHandler::OnGUI()
