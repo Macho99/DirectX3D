@@ -13,6 +13,7 @@ struct GameDesc
     float width = 800;
     float height = 600;
 	bool vsync = false;
+	uint32 maxFps = 0; // 0: unlimited
 	bool windowed = true;
 	Color clearColor = Color(0.5f, 0.5f, 0.5f, 0.5f);
     bool isEditor = false;

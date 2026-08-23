@@ -46,7 +46,7 @@ public:
 
     void OnDisconnect();
     void SetCameraFollower(ComponentRef<TargetFollower> cameraFollower);
-    virtual int GetVersion() const override { return 10; }
+    virtual int GetVersion() const override { return 12; }
 
     void PushJob(function<void(void)> func);
     GameState GetGameState() const { return _gameState; }
@@ -122,6 +122,19 @@ public:
             ar(CEREAL_NVP(_mpBarText));
             ar(CEREAL_NVP(_coinIcon));
         }
+
+        if (_version >= 11)
+        {
+            ar(CEREAL_NVP(_settingButton));
+            ar(CEREAL_NVP(_fpsInput));
+            ar(CEREAL_NVP(_soundInput));
+            ar(CEREAL_NVP(_settingCloseButton));
+        }
+
+        if (_version >= 12)
+        {
+            ar(CEREAL_NVP(_settingUIObj));
+        }
     }
 
 private:
@@ -164,6 +177,12 @@ private:
     ComponentRef<RectTransform> _spBar;
     ComponentRef<Text> _coinText;
     ComponentRef<UIImage> _coinIcon;
+
+    ComponentRef<Button> _settingButton;
+    ComponentRef<InputText> _fpsInput;
+    ComponentRef<InputText> _soundInput;
+    ComponentRef<Button> _settingCloseButton;
+    GameObjectRef _settingUIObj;
 };
 
 #define GM GameManager::GetInstance()

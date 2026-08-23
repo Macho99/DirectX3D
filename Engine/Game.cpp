@@ -16,10 +16,10 @@ WPARAM Game::Run(GameDesc& desc)
 	_desc = desc;
 	assert(_desc.app != nullptr);
 
-	// 1) À©µµ¿ì Ã¢ Á¤º¸ µî·Ï
+	// 1) ìœˆë„ìš° ì°½ ì •ë³´ ë“±ë¡
 	MyRegisterClass();
 
-	// 2) À©µµ¿ì Ã¢ »ı¼º
+	// 2) ìœˆë„ìš° ì°½ ìƒì„±
 	if (!InitInstance(SW_SHOWNORMAL))
 		return FALSE;
 		
@@ -170,7 +170,7 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 	case WM_SIZE:
 		if (wParam != SIZE_MINIMIZED)
 		{
-			// ¸Ç Ã³À½ È£ÃâµÉ ¶§ Ã³¸®
+			// ë§¨ ì²˜ìŒ í˜¸ì¶œë  ë•Œ ì²˜ë¦¬
 			if (pendingWidth < 0 || pendingHeight < 0)
 			{
 				pendingWidth = 0;
@@ -197,7 +197,7 @@ LRESULT CALLBACK Game::WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM 
 
 void Game::Update()
 {
-	TIME->Update();
+	TIME->Update(_desc.maxFps);
 	TWEEN->Update(TIME->GetDeltaTime());
 	INPUT->Update();
 

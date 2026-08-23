@@ -7,7 +7,7 @@ class TimeManager
 
 public:
 	void Init();
-	void Update();
+	void Update(uint32 maxFps = 0);
 
 	uint32 GetFps() { return _fps; }
 	float GetDeltaTime() { return _deltaTime; }
@@ -15,6 +15,8 @@ public:
     uint64 GetTotalFrameCount() { return _totalFrameCount; }
 
 private:
+	void LimitFrameRate(uint32 maxFps) const;
+
 	uint64	_frequency = 0;
 	uint64	_prevCount = 0;
 	float	_deltaTime = 0.f;

@@ -116,6 +116,38 @@ void GameManager::Start()
     {
         DBG->LogError("Zombie prefab is null.");
     }
+
+    Button* settingButton = _settingButton.Resolve();
+    if (settingButton != nullptr)
+    {
+        settingButton->AddOnClickedEvent([&]()
+            {
+                string maxFpsStr = to_string(GAME->GetGameDesc().maxFps);
+                _fpsInput.Resolve()->SetText(maxFpsStr);
+
+                SoundManager* soundManager = GET_SINGLE(SoundManager);
+                int32 soundVolume = soundManager->GetMasterVolume() * 100;
+                _soundInput.Resolve()->SetText(to_string(soundVolume));
+
+                _settingUIObj.Resolve()->SetActive(true);
+            });
+    }
+
+    Button* settingCloseButton = _settingCloseButton.Resolve();
+    if (settingCloseButton != nullptr)
+    {
+        settingCloseButton->AddOnClickedEvent([&]()
+            {
+                _settingUIObj.Resolve()->SetActive(false);
+                int32 maxFps = std::stoi(_fpsInput.Resolve()->GetText());
+                GAME->GetGameDesc().maxFps = maxFps;
+                int32 soundVolume = std::stoi(_soundInput.Resolve()->GetText());
+                SoundManager* soundManager = GET_SINGLE(SoundManager);
+                soundManager->SetMasterVolume(soundVolume / 100.f);
+
+                _settingUIObj.Resolve()->SetActive(false);
+            });
+    }
 }
 
 void GameManager::Update()
@@ -171,6 +203,12 @@ bool GameManager::OnGUI()
     changed |= OnGUIUtils::DrawComponentRef("HP Bar Text", _hpBarText);
     changed |= OnGUIUtils::DrawComponentRef("MP Bar Text", _mpBarText);
     changed |= OnGUIUtils::DrawComponentRef("Coin Icon", _coinIcon);
+
+    changed |= OnGUIUtils::DrawComponentRef("Setting Button", _settingButton);
+    changed |= OnGUIUtils::DrawComponentRef("FPS Input", _fpsInput);
+    changed |= OnGUIUtils::DrawComponentRef("Sound Input", _soundInput);
+    changed |= OnGUIUtils::DrawComponentRef("Setting Close Button", _settingCloseButton);
+    changed |= OnGUIUtils::DrawGameObjectRef("Setting UI Object", _settingUIObj);
 
     return changed;
 }

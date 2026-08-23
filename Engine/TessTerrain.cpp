@@ -713,7 +713,7 @@ bool TessTerrain::TryInitialize()
 	_numPatchQuadFaces = (_numPatchVertRows - 1) * (_numPatchVertCols - 1);
 
 	LoadHeightmap();
-	//Smooth();
+	Smooth();
 	CalcAllPatchBoundsY();
 	BuildQuadPatchVB();
 	BuildQuadPatchIB();
