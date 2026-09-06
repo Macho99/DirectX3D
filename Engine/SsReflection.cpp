@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SsReflection.h"
+#include "GpuProfiler.h"
 #include "SsrRenderer.h"
 
 SsReflection::SsReflection()
@@ -47,5 +48,7 @@ void SsReflection::Render(ComPtr<ID3D11RenderTargetView> rtv)
     }
     mat->GetDiffuseMap().Resolve()->SetSRV(_hdrSRV);
 
+    const int gpuSSR = GpuProfiler::Get().Begin(GpuProfiler::SSR);
     ssrRenderer->Render(RenderTech::Draw);
+    GpuProfiler::Get().End(gpuSSR);
 }

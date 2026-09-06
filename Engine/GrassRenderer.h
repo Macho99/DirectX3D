@@ -83,6 +83,17 @@ protected:
 
 private:
     void UpdateGrass();
+    void ReadbackDrawCountsForDebug();
+
+    // Temporary debug readback; not serialized.
+    ComPtr<ID3D11Buffer> _debugDrawArgsStaging;
+    UINT _debugNearbyInstanceCount = 0;
+    UINT _debugDistantInstanceCount = 0;
+    int _debugCountsFrame = -1;
+    int _debugPendingFrame = -1;
+    bool _debugReadbackEnabled = true;
+    bool _debugReadbackPending = false;
+    bool _debugReadbackFailed = false;
 
 private:
     ResourceRef<Shader> _grassComputeShader; // 미리 로드된 셰이더

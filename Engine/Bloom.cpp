@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Bloom.h"
+#include "GpuProfiler.h"
 #include "MeshRenderer.h"
 #include "Material.h"
 #include "FileUtils.h"
@@ -56,6 +57,7 @@ void Bloom::SetHDR_SRV(ComPtr<ID3D11ShaderResourceView> srv)
 
 void Bloom::Render(ComPtr<ID3D11RenderTargetView> rtv)
 {
+    const int gpuBloom = GpuProfiler::Get().Begin(GpuProfiler::Bloom);
     DC->ClearRenderTargetView(_brightFilterRTV.Get(), reinterpret_cast<const float*>(&Colors::Black));
     DC->OMSetRenderTargets(1, _brightFilterRTV.GetAddressOf(), 0);
     DrawQuad(_brightFilterMat.Resolve());
@@ -90,6 +92,7 @@ void Bloom::Render(ComPtr<ID3D11RenderTargetView> rtv)
     _combineMat.Resolve()->GetDiffuseMap().Resolve()->SetSRV(_upSampleSRVs.back());
     _combineMat.Resolve()->GetSpecularMap().Resolve()->SetSRV(_hdrSRV);
     DrawQuad(_combineMat.Resolve());
+    GpuProfiler::Get().End(gpuBloom);
 }
 
 void Bloom::OnSize(UINT width, UINT height)

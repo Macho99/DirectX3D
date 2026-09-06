@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "GpuProfiler.h"
 #include "ParticleSystem.h"
 #include "Shader.h"
 #include "Material.h"
@@ -110,11 +111,13 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 	//shader->Effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, DC.Get());
 	if (_firstRun)
 	{
+		GpuProfiler::Get().CountDraw();
 		DC->Draw(1, 0);
 		_firstRun = false;
 	}
 	else
 	{
+		GpuProfiler::Get().CountDraw();
 		DC->DrawAuto();
 	}
 	shader->EndDraw(0, 0);
@@ -139,6 +142,7 @@ void ParticleSystem::InnerRender(RenderTech renderTech)
 
 	//shader->Effect()->GetTechniqueByIndex(1)->GetDesc(&techDesc);
 	// Apply the renderer-selected pass from DrawTech.
+	GpuProfiler::Get().CountDraw();
 	DC->DrawAuto();
 	shader->EndDraw(1, _pass);
 }

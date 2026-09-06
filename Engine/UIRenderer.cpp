@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "GpuProfiler.h"
 #include "UIRenderer.h"
 #include "GameObject.h"
 #include "Graphics.h"
@@ -99,6 +100,7 @@ void UIRenderer::InnerRender(RenderTech renderTech)
     if (GetGameObject()->GetLayerIndex() == Layer_UI)
         GRAPHICS->ApplyUIMaskState(_maskMode);
 
+    GpuProfiler::Get().CountDraw();
     DC->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
     //material->GetShader()->DrawIndexed(renderTech, _pass, mesh->GetIndexBuffer()->GetCount());
     

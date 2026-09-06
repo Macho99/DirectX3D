@@ -25,8 +25,8 @@ DirectX 11 기반의 **3D 게임 엔진과 전용 에디터를 직접 구현**�
 
 | 영역 | 구현 결과 |
 | --- | --- |
-| 모델 배칭 | 모듈형 건물 기준 약 **130 Draw Call → 2 Draw Call** |
-| 자연환경 | 약 **200만 개 후보 위치**를 Compute Shader로 컬링한 뒤 Indirect Draw |
+| 모델 배칭 | 모듈형 건물 기준 약 **130 Draw Call → 2 Draw Call**, 측정 장면에서 CPU 렌더 제출 시간 **91.6%**, GPU 렌더링 시간 **56.7%** 감소 |
+| 자연환경 | 약 **200만 개 후보 위치**를 Compute Shader로 컬링한 뒤 Indirect Draw, 측정 장면에서 **220,119개 인스턴스** 처리 |
 | 파티클 | Geometry Shader + Stream Output 기반으로 최대 **10,000개**를 GPU에서 갱신 |
 | 그림자 | 시야 깊이에 따라 선택하는 **2-Cascade CSM** |
 | NavMesh | 입력 Mesh부터 Detail Mesh, A*, Funnel까지 전체 빌드·탐색 파이프라인 구현 |
@@ -128,6 +128,16 @@ Artifact → Runtime Resource
 - Normal Mapping, Sky, Billboard, Trail, Shockwave, GPU Particle System
 - Perspective 월드 카메라와 Orthographic UI 카메라 분리
 
+#### Bloom의 NaN 오류 디버깅
+
+![Bloom 처리 중 화면 일부가 검게 깨지는 실제 오류 화면](Docs/Images/bloom-error.jpg)
+
+Bloom 처리 중 화면 일부가 검게 깨지는 현상을 GPU 디버거로 추적해 문제 픽셀의 RGB가 NaN인 것을 확인했습니다. 밝기 추출 셰이더에서 검은 픽셀의 `intensity = 0`으로 나눗셈이 발생했고, 업샘플링 과정에서 NaN이 주변 픽셀로 퍼졌습니다.
+
+![GPU 디버거에서 확인한 문제 픽셀의 RGB NaN 값](Docs/Images/bloom-nan-debugger.jpg)
+
+`color * bloomIntensity / intensity`의 분모를 `max(intensity, 0.0001f)`로 보정해 0으로 나누는 경계 조건을 처리했습니다.
+
 #### Distortion 공용 후처리
 
 ![Distortion 효과](Docs/Images/distortion.gif)
@@ -145,6 +155,21 @@ Artifact → Runtime Resource
 
 ![모델 배칭 도구](Docs/Images/model-batching.png)
 
+#### 모델 배칭 구현과 성능 측정
+
+![모델 배칭 성능 측정에 사용한 모듈형 에셋 장면](Docs/Images/batching-measurement-scene.png)
+
+분리된 메시를 공통 좌표계로 변환하고 텍스처 아틀라스에 맞춰 UV를 재배치했습니다. 통합 메시와 머티리얼은 애셋으로 저장해 재사용합니다.
+
+![모델 배칭 전후 CPU 및 GPU 시간 측정 결과](Docs/Images/batching-performance.png)
+
+| 측정 항목 | 배칭 전 | 배칭 후 | 감소율 |
+| --- | --- | --- | --- |
+| CPU 렌더 제출 시간 | 4.423ms | 0.372ms | 91.6% |
+| GPU 렌더링 시간 | 5.738ms | 2.487ms | 56.7% |
+
+측정 환경은 Intel Core i7-10700, GeForce RTX 2070 SUPER, 씬 뷰 981×558이며, 수치는 측정 장면의 최근 120개 유효 프레임 평균입니다.
+
 ### 7. Terrain과 대규모 자연환경
 
 ![Compute Grass](Docs/Images/terrain-grass.png)
@@ -156,6 +181,30 @@ Artifact → Runtime Resource
 - 약 200만 개 Grass 후보를 거리·Frustum·Blend Layer 조건으로 Compute Culling
 - Near/Far Append Buffer와 `CopyStructureCount`를 이용한 `DrawInstancedIndirect`
 - CPU Readback 없이 LOD별 Grass를 렌더링하고 바람 애니메이션 적용
+
+#### 식생 렌더링 성능 측정
+
+![GPU 식생 렌더링 성능 측정 장면](Docs/Images/grass-measurement-scene.png)
+
+측정 장면에서 근거리 52,929개와 원거리 167,190개, 총 **220,119개 인스턴스**를 간접 드로우로 처리했습니다.
+
+<table>
+  <tr>
+    <td><img src="Docs/Images/grass-instance-count.png" alt="근거리·원거리 및 전체 식생 인스턴스 수"></td>
+    <td><img src="Docs/Images/grass-gpu-timing.png" alt="식생 GPU 컬링과 전체 패스 드로우 시간"></td>
+  </tr>
+  <tr>
+    <td align="center">LOD별 인스턴스 수</td>
+    <td align="center">GPU 처리 시간</td>
+  </tr>
+</table>
+
+| 측정 항목 | 평균 GPU 시간 |
+| --- | --- |
+| Compute Shader 컬링 | 0.227ms |
+| 전체 렌더 패스의 식생 드로우 | 1.195ms |
+
+측정 환경은 GeForce RTX 2070 SUPER, 씬 뷰 981×558이며, 수치는 최근 120개 유효 프레임 평균입니다. 약 200만 개는 컬링 전 후보 수이며, 실제 드로우 인스턴스 수와 구분합니다.
 
 ### 8. 자체 NavMesh 빌드와 길찾기
 

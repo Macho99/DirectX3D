@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ModelBatchingTool.h"
+#include "GpuProfiler.h"
 
 #include "BatchInfo.h"
 #include "FileUtils.h"
@@ -9,6 +10,9 @@
 #include "MetaFile.h"
 #include "Model.h"
 #include "ModelMesh.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include <unordered_set>
 #include "ModelMeshResource.h"
 #include "ModelRenderer.h"
 #include "OnGUIUtils.h"
@@ -116,6 +120,120 @@ namespace
             return;
         }
         total.outputBytes += slot.estimatedOutputBytes;
+    }
+
+    void DrawMeshMemoryComparison(const vector<ModelRendererSlot>& slots, ComponentRef<ModelRenderer>& outputRef)
+    {
+        ImGui::SeparatorText("Mesh buffer memory (one batched object)");
+        OnGUIUtils::DrawComponentRef("Built model (optional)", outputRef);
+        uint64 before = 0, predicted = 0;
+        bool complete = true;
+        size_t inputs = 0;
+        std::unordered_set<ID3D11Buffer*> uniqueBuffers;
+        auto bufferBytes = [](ID3D11Buffer* buffer) -> uint64
+        {
+            D3D11_BUFFER_DESC desc = {};
+            buffer->GetDesc(&desc);
+            return desc.ByteWidth;
+        };
+        if (ImGui::BeginTable("MeshMemoryInputs", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable))
+        {
+            ImGui::TableSetupColumn("Input");
+            ImGui::TableSetupColumn("Mesh bytes / 1 instance");
+            ImGui::TableSetupColumn("Instances baked");
+            ImGui::TableHeadersRow();
+            for (size_t i = 0; i < slots.size(); ++i)
+            {
+                auto* renderer = slots[i].rendererRef.Resolve();
+                if (!renderer) { if (slots[i].rendererRef.IsValid()) complete = false; continue; }
+                ++inputs;
+                auto* model = renderer->GetModel().Resolve();
+                auto* resource = model ? model->GetMesh() : nullptr;
+                uint64 single = 0, payload = 0;
+                bool available = resource != nullptr;
+                if (resource)
+                {
+                    std::unordered_set<ID3D11Buffer*> localBuffers;
+                    for (const auto& mesh : resource->GetMeshes())
+                    {
+                        if (!mesh || !mesh->geometry) { available = false; continue; }
+                        payload += uint64(mesh->geometry->GetVertices().size()) * sizeof(ModelVertexType)
+                            + uint64(mesh->geometry->GetIndices().size()) * sizeof(uint32);
+                        ID3D11Buffer* buffers[] = {
+                            mesh->vertexBuffer ? mesh->vertexBuffer->GetComPtr().Get() : nullptr,
+                            mesh->indexBuffer ? mesh->indexBuffer->GetComPtr().Get() : nullptr };
+                        for (auto* buffer : buffers)
+                        {
+                            if (!buffer) { available = false; continue; }
+                            const uint64 bytes = bufferBytes(buffer);
+                            if (localBuffers.insert(buffer).second) single += bytes;
+                            if (uniqueBuffers.insert(buffer).second) before += bytes;
+                        }
+                    }
+                }
+                const size_t count = renderer->HasInstancingData() ? renderer->GetInstancingCount() : 1;
+                if (count == 0 || (count && payload > UINT64_MAX / count)
+                    || (count && predicted > UINT64_MAX - payload * count)) available = false;
+                else predicted += payload * count;
+                complete &= available;
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0); ImGui::Text("Input %zu", i);
+                ImGui::TableSetColumnIndex(1);
+                if (available) ImGui::Text("%s (%llu bytes)", FormatFileSize(single).c_str(), static_cast<unsigned long long>(single));
+                else ImGui::TextUnformatted("--");
+                ImGui::TableSetColumnIndex(2); ImGui::Text("%zu", count);
+            }
+            ImGui::EndTable();
+        }
+        complete &= inputs > 0;
+        uint64 after = predicted;
+        bool actual = false;
+        if (auto* renderer = outputRef.Resolve())
+        {
+            after = 0;
+            auto* model = renderer->GetModel().Resolve();
+            auto* resource = model ? model->GetMesh() : nullptr;
+            actual = resource != nullptr;
+            std::unordered_set<ID3D11Buffer*> outputBuffers;
+            if (resource) for (const auto& mesh : resource->GetMeshes())
+            {
+                if (!mesh) { actual = false; continue; }
+                ID3D11Buffer* buffers[] = {
+                    mesh->vertexBuffer ? mesh->vertexBuffer->GetComPtr().Get() : nullptr,
+                    mesh->indexBuffer ? mesh->indexBuffer->GetComPtr().Get() : nullptr };
+                for (auto* buffer : buffers)
+                {
+                    if (!buffer) { actual = false; continue; }
+                    if (outputBuffers.insert(buffer).second) after += bufferBytes(buffer);
+                }
+            }
+            complete &= actual;
+        }
+        else if (outputRef.IsValid()) complete = false;
+        if (ImGui::BeginTable("MeshMemoryComparison", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable))
+        {
+            ImGui::TableSetupColumn("Before (shared VB + IB)");
+            ImGui::TableSetupColumn(actual ? "After (measured VB + IB)" : "After (estimated VB + IB)");
+            ImGui::TableSetupColumn("Increase");
+            ImGui::TableSetupColumn("Increase (%)");
+            ImGui::TableHeadersRow(); ImGui::TableNextRow();
+            for (int col = 0; col < 4; ++col)
+            {
+                ImGui::TableSetColumnIndex(col);
+                if (!complete) { ImGui::TextUnformatted("--"); continue; }
+                if (col == 0) ImGui::TextUnformatted(FormatFileSize(before).c_str());
+                if (col == 1) ImGui::TextUnformatted(FormatFileSize(after).c_str());
+                if (col == 2) ImGui::Text("%s%s", after >= before ? "+" : "-", FormatFileSize(after >= before ? after - before : before - after).c_str());
+                if (col == 3)
+                {
+                    if (before) ImGui::Text("%+.1f%%", (double(after) - double(before)) * 100.0 / double(before));
+                    else ImGui::TextUnformatted("--");
+                }
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TextWrapped("Before counts each shared input buffer once. After represents one combined mesh containing all input instances. Assign the built renderer to measure its actual buffer sizes; otherwise After is a geometry payload estimate.");
+        ImGui::TextWrapped("VB/IB ByteWidth only: excludes textures, instance buffers, CPU copies and driver allocation overhead. Hiding originals does not unload their buffers. Values refresh from the current input list.");
     }
 
     double ElapsedMilliseconds(const TimingClock::time_point& start)
@@ -688,6 +806,7 @@ ModelBatchingTool::ModelBatchingTool()
 
 void ModelBatchingTool::OnGUI()
 {
+    GpuProfiler::Get().OnBatchComparisonGUI();
     ImGui::SeparatorText("Input Model Renderers");
     OnGUIUtils::DrawComponentRef("Extract Root", _autoExtractRoot);
 
@@ -785,6 +904,8 @@ void ModelBatchingTool::OnGUI()
     {
         ImGui::TextDisabled("Estimated Output ModelMesh: unavailable");
     }
+
+    DrawMeshMemoryComparison(_modelRenderers, _memoryBatchedRenderer);
 
     ImGui::SeparatorText("Atlas Settings");
     if (ImGui::InputInt("Max Atlas Size", &_maxAtlasSize))

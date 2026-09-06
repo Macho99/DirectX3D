@@ -36,6 +36,7 @@ private:
     void SetStatus(bool succeeded, const string& message);
 
 private:
+    ComponentRef<ModelRenderer> _memoryBatchedRenderer;
     TransformRef _autoExtractRoot;
     vector<ModelRendererSlot> _modelRenderers = { ModelRendererSlot() };
     int _maxAtlasSize = 4096;

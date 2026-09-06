@@ -177,6 +177,9 @@
     <ClInclude Include="Graphics.h">
       <Filter>01. Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="GpuProfiler.h">
+      <Filter>01. Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>00. Engine\Asset\Resource</Filter>
     </ClInclude>

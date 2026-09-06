@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GrassRenderer.h"
+#include "GpuProfiler.h"
 #include "MathLibrary/MathUtils.h"
 #include "Material.h"
 #include "TessTerrain.h"
@@ -31,6 +32,24 @@ bool GrassRenderer::OnGUI()
     changed |= OnGUIUtils::DrawResourceRef("Grass Compute Shader", _grassComputeShader);
     changed |= OnGUIUtils::DrawComponentRef("Terrain", _terrain);
     changed |= OnGUIUtils::DrawAssetRef("UV Asset", _uvAsset);
+    ImGui::Separator();
+    if (ImGui::Checkbox("Debug: read grass counts to CPU", &_debugReadbackEnabled))
+    {
+        _debugReadbackPending = false;
+        _debugCountsFrame = -1;
+        _debugReadbackFailed = false;
+    }
+    if (_debugReadbackFailed)
+        ImGui::TextUnformatted("Grass count readback failed. Toggle to retry.");
+    else if (_debugCountsFrame >= 0)
+    {
+        ImGui::Text("Nearby InstanceCount: %u", _debugNearbyInstanceCount);
+        ImGui::Text("Distant InstanceCount: %u", _debugDistantInstanceCount);
+        ImGui::Text("Total: %u | source frame: %d", _debugNearbyInstanceCount + _debugDistantInstanceCount, _debugCountsFrame);
+    }
+    else
+        ImGui::TextUnformatted("Grass InstanceCount: --");
+    ImGui::TextUnformatted("Delayed GPU readback. Disable for timing measurements.");
     return changed;
 }
 
@@ -230,6 +249,7 @@ void GrassRenderer::UpdateGrass()
         DBG->LogError("GrassRenderer::UpdateGrass() - Terrain is null.");
         return;
     }
+    const int gpuCull = GpuProfiler::Get().Begin(GpuProfiler::GrassCull);
     {
         _grassConstantData.totalGrassCount = MAX_GRASS_COUNT;
         _grassConstantData.terrainWidth = terrain->GetWidth();
@@ -276,6 +296,61 @@ void GrassRenderer::UpdateGrass()
 
     DC->CopyStructureCount(_distantDrawBuffer.Get(), offsetof(DrawInstancedIndirectArgs, InstanceCount), _distantGrassUAV.Get());
     DC->CopyStructureCount(_nearbyDrawBuffer.Get(), offsetof(DrawInstancedIndirectArgs, InstanceCount), _nearbyGrassUAV.Get());
+    GpuProfiler::Get().End(gpuCull);
+    ReadbackDrawCountsForDebug();
+}
+
+void GrassRenderer::ReadbackDrawCountsForDebug()
+{
+    if (!_debugReadbackEnabled || _debugReadbackFailed)
+        return;
+
+    if (!_debugDrawArgsStaging)
+    {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = 2 * sizeof(DrawInstancedIndirectArgs);
+        desc.Usage = D3D11_USAGE_STAGING;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+        const HRESULT hr = DEVICE->CreateBuffer(&desc, nullptr, _debugDrawArgsStaging.GetAddressOf());
+        if (FAILED(hr))
+        {
+            _debugReadbackFailed = true;
+            return;
+        }
+    }
+
+    if (_debugReadbackPending)
+    {
+        D3D11_MAPPED_SUBRESOURCE mapped = {};
+        const HRESULT hr = DC->Map(_debugDrawArgsStaging.Get(), 0, D3D11_MAP_READ,
+            D3D11_MAP_FLAG_DO_NOT_WAIT, &mapped);
+        if (hr == DXGI_ERROR_WAS_STILL_DRAWING)
+            return;
+        if (FAILED(hr))
+        {
+            _debugReadbackFailed = true;
+            return;
+        }
+        DrawInstancedIndirectArgs args[2] = {};
+        memcpy(args, mapped.pData, sizeof(args));
+        DC->Unmap(_debugDrawArgsStaging.Get(), 0);
+        _debugNearbyInstanceCount = args[0].InstanceCount;
+        _debugDistantInstanceCount = args[1].InstanceCount;
+        _debugCountsFrame = _debugPendingFrame;
+        _debugReadbackPending = false;
+    }
+
+    // Buffer coordinates are bytes. Keep both counts in the same staging snapshot.
+    D3D11_BOX box = {};
+    box.right = sizeof(DrawInstancedIndirectArgs);
+    box.bottom = 1;
+    box.back = 1;
+    DC->CopySubresourceRegion(_debugDrawArgsStaging.Get(), 0, 0, 0, 0,
+        _nearbyDrawBuffer.Get(), 0, &box);
+    DC->CopySubresourceRegion(_debugDrawArgsStaging.Get(), 0, sizeof(DrawInstancedIndirectArgs), 0, 0,
+        _distantDrawBuffer.Get(), 0, &box);
+    _debugPendingFrame = TIME->GetTotalFrameCount();
+    _debugReadbackPending = true;
 }
 
 void GrassRenderer::InnerRender(RenderTech renderTech)
@@ -292,21 +367,25 @@ void GrassRenderer::InnerRender(RenderTech renderTech)
     }
     auto shader = GetMaterial().Resolve()->GetShader();
 
+    const int gpuDraw = GpuProfiler::Get().Begin(GpuProfiler::GrassDraw);
     UINT techNum = shader->GetTechNum(renderTech);
     {
         DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
         shader->GetSRV("NearbyGrassBuffer")->SetResource(_nearbyGrassSRV.Get());
         shader->BeginDraw(techNum, 0);
+        GpuProfiler::Get().CountDraw();
         DC->DrawInstancedIndirect(_nearbyDrawBuffer.Get(), 0);
         shader->EndDraw(techNum, 0);
     }
 
-    if(renderTech != RenderTech::NormalDepth || renderTech != RenderTech::Shadow)
+    if(renderTech != RenderTech::NormalDepth && renderTech != RenderTech::Shadow)
     {
         DC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
         shader->GetSRV("DistantGrassBuffer")->SetResource(_distantGrassSRV.Get());
         shader->BeginDraw(techNum, 1);
+        GpuProfiler::Get().CountDraw();
         DC->DrawInstancedIndirect(_distantDrawBuffer.Get(), 0);
         shader->EndDraw(techNum, 1);
     }
+    GpuProfiler::Get().End(gpuDraw);
 }

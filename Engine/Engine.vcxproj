@@ -298,6 +298,7 @@
     <ClInclude Include="GeometryHelper.h" />
     <ClInclude Include="GraphEditor.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="GpuProfiler.h" />
     <ClInclude Include="GrassRenderer.h" />
     <ClInclude Include="Guid.h" />
     <ClInclude Include="GuidRef.h" />

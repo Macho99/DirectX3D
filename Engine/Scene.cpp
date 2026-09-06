@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Scene.h"
+#include "GpuProfiler.h"
 #include "GameObject.h"
 #include "MonoBehaviour.h"
 #include "BaseCollider.h"
@@ -120,6 +121,8 @@ void Scene::LateUpdate()
 
 void Scene::Render()
 {
+    GpuProfiler::Get().BeginCpuScene();
+    const int gpuScene = GpuProfiler::Get().Begin(GpuProfiler::Scene);
 	_renderCullingStats.fill(RenderCullingStats{});
 
     for (auto& camera : _cameras)
@@ -139,6 +142,8 @@ void Scene::Render()
             RenderUICamera(cam);
         }
     }
+    GpuProfiler::Get().End(gpuScene);
+    GpuProfiler::Get().EndCpuScene();
 }
 
 void Scene::RenderGameCamera(Camera* cam)
@@ -152,6 +157,7 @@ void Scene::RenderGameCamera(Camera* cam)
     cam->SetStaticData();
     if (light)
     {
+        const int gpuShadows = GpuProfiler::Get().Begin(GpuProfiler::Shadows);
         Matrix VPinv = (cam->GetViewMatrix() * cam->GetProjectionMatrix()).Invert();
 
         for (int cascadeIdx = 0; cascadeIdx < NUM_SHADOW_CASCADES; cascadeIdx++)
@@ -209,6 +215,7 @@ void Scene::RenderGameCamera(Camera* cam)
             //Viewport& vp = GRAPHICS->GetShadowViewport();
             Render(_vecBackward, cam, RenderTech::Shadow);
         }
+        GpuProfiler::Get().End(gpuShadows);
     }
 
     memcpy(&Light::S_ShadowData.cascadeEnds, GRAPHICS->GetCascadeEnds(), sizeof(Light::S_ShadowData.cascadeEnds));

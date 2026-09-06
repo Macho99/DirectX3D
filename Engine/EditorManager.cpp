@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "EditorManager.h"
+#include "GpuProfiler.h"
 #include "SceneView.h"
 #include "Hierarchy.h"
 #include "Console.h"
@@ -179,6 +180,7 @@ void EditorManager::Update()
     }
 
     DrawDockSpace();
+    GpuProfiler::Get().OnGUI();
     bool showDemo = true;
     ImGui::ShowDemoWindow(&showDemo);
 

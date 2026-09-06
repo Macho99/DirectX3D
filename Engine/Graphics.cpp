@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Graphics.h"
+#include "GpuProfiler.h"
 #include "Ssao.h"
 #include "Viewport.h"
 #include "SsReflection.h"
@@ -21,6 +22,7 @@ void Graphics::Init(HWND hwnd)
 	_hwnd = hwnd;
 
 	CreateDeviceAndSwapChain();
+    GpuProfiler::Get().Init(_device.Get(), _deviceContext.Get());
 	CreateUIMaskStates();
 }
 
@@ -49,6 +51,7 @@ void Graphics::Start()
 
 void Graphics::OnDestroy()
 {
+    GpuProfiler::Get().Shutdown();
 	// =========================
 	// PostProcess / 공유 객체
 	// =========================
@@ -208,6 +211,7 @@ void Graphics::OnSize(bool isFirst)
 
 void Graphics::RenderBegin()
 {
+    GpuProfiler::Get().BeginFrame();
 	ClearShaderResources();
 
 	_deviceContext->OMSetRenderTargets(1, _hdrRTV.GetAddressOf(), _depthStencilView.Get());
@@ -219,6 +223,7 @@ void Graphics::RenderBegin()
 
 void Graphics::RenderEnd()
 {
+    GpuProfiler::Get().EndFrame();
 	const UINT syncInterval = GAME->GetGameDesc().vsync ? 1u : 0u;
 	HRESULT hr = _swapChain->Present(syncInterval, 0);
 	CHECK(hr);

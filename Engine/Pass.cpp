@@ -1,10 +1,12 @@
 #include "pch.h"
+#include "GpuProfiler.h"
 #include "Pass.h"
 
 void Pass::Draw(UINT vertexCount, UINT startVertexLocation)
 {
 	BeginDraw();
 	{
+		GpuProfiler::Get().CountDraw();
 		DC->Draw(vertexCount, startVertexLocation);
 	}
 	EndDraw();
@@ -14,6 +16,7 @@ void Pass::DrawIndexed(UINT indexCount, UINT startIndexLocation, INT baseVertexL
 {
 	BeginDraw();
 	{
+		GpuProfiler::Get().CountDraw();
 		DC->DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
 	}
 	EndDraw();
@@ -23,6 +26,7 @@ void Pass::DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT s
 {
 	BeginDraw();
 	{
+		GpuProfiler::Get().CountDraw();
 		DC->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
 	}
 	EndDraw();
@@ -32,6 +36,7 @@ void Pass::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, 
 {
 	BeginDraw();
 	{
+		GpuProfiler::Get().CountDraw();
 		DC->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startIndexLocation);
 	}
 	EndDraw();

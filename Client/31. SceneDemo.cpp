@@ -72,9 +72,9 @@ namespace
 
 void SceneDemo::Init()
 {
-    auto sky = make_shared<Sky>();
-    sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SkyMat.mat"));
-    CUR_SCENE->SetSky(sky);
+    //auto sky = make_shared<Sky>();
+    //sky->SetMaterial(RESOURCES->GetResourceRefByPath<Material>("Materials\\SkyMat.mat"));
+    //CUR_SCENE->SetSky(sky);
 
     fs::path outPath;
     //if (TryGetLatestSceneFile("..\\Assets\\Scenes", outPath))
